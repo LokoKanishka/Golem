@@ -1,0 +1,38 @@
+│
+◇  Doctor warnings ────────────────────────────────────────────╮
+│                                                              │
+│  - State dir migration skipped: target already exists        │
+│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │
+│                                                              │
+├──────────────────────────────────────────────────────────────╯
+Service: systemd (enabled)
+File logs: /tmp/openclaw/openclaw-2026-03-11.log
+Command: /usr/bin/node /home/lucy-ubuntu/.openclaw/lib/node_modules/openclaw/dist/entry.js gateway --port 18789
+Service file: ~/.config/systemd/user/openclaw-gateway.service
+Service env: OPENCLAW_GATEWAY_PORT=18789
+
+Config (cli): ~/.openclaw/openclaw.json
+Config (service): ~/.openclaw/openclaw.json
+
+Gateway: bind=loopback (127.0.0.1), port=18789 (service args)
+Probe target: ws://127.0.0.1:18789
+Dashboard: http://127.0.0.1:18789/
+Probe note: Loopback-only gateway; only local clients can connect.
+
+Runtime: running (pid 412174, state active, sub running, last exit 0, reason 0)
+RPC probe: ok
+
+Listening: 127.0.0.1:18789
+Other gateway-like services detected (best effort):
+- clawdbot-gateway.service (user, unit: /home/lucy-ubuntu/.config/systemd/user/clawdbot-gateway.service)
+- clawdbot-node.service (user, unit: /home/lucy-ubuntu/.config/systemd/user/clawdbot-node.service)
+- fusion-total-direct-chat.service (user, unit: /home/lucy-ubuntu/.config/systemd/user/fusion-total-direct-chat.service)
+- openclaw-direct-chat.service (user, unit: /home/lucy-ubuntu/.config/systemd/user/openclaw-direct-chat.service)
+Cleanup hint: systemctl --user disable --now openclaw-gateway.service
+Cleanup hint: rm ~/.config/systemd/user/openclaw-gateway.service
+
+Recommendation: run a single gateway per machine for most setups. One gateway supports multiple agents (see docs: /gateway#multiple-gateways-same-host).
+If you need multiple gateways (e.g., a rescue bot on the same host), isolate ports + config/state (see docs: /gateway#multiple-gateways-same-host).
+
+Troubles: run openclaw status
+Troubleshooting: https://docs.openclaw.ai/troubleshooting

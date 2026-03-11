@@ -1,0 +1,11 @@
+│
+◇  Doctor warnings ────────────────────────────────────────────╮
+│                                                              │
+│  - State dir migration skipped: target already exists        │
+│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │
+│                                                              │
+├──────────────────────────────────────────────────────────────╯
+openclaw: stopped
+  port: 18800, color: #FF4500
+chrome: running (2 tabs) [default]
+  port: 18792, color: #00AA00

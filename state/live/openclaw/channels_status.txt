@@ -1,0 +1,12 @@
+│
+◇  Doctor warnings ────────────────────────────────────────────╮
+│                                                              │
+│  - State dir migration skipped: target already exists        │
+│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │
+│                                                              │
+├──────────────────────────────────────────────────────────────╯
+Checking channel status (probe)…
+Gateway reachable.
+- WhatsApp default: enabled, configured, linked, running, connected, in:47m ago, dm:pairing, allow:+156348867
+
+Tip: https://docs.openclaw.ai/cli#status adds gateway health probes to status output (requires a reachable gateway).

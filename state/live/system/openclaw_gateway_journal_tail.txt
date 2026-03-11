@@ -1,0 +1,120 @@
+mar 10 23:02:13 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:13.722Z [reload] config change detected; evaluating reload (meta.lastTouchedAt, models.providers.ollama.models, agents.defaults.sandbox.mode, agents.list)
+mar 10 23:02:13 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:13.723Z [reload] config change requires gateway restart (meta.lastTouchedAt)
+mar 10 23:02:13 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:13.723Z [gateway] signal SIGUSR1 received
+mar 10 23:02:13 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:13.724Z [gateway] received SIGUSR1; restarting
+mar 10 23:02:13 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:13.759Z [ws] webchat connected conn=e79e7736-3f62-4931-9c58-4f5a70d8fc73 remote=127.0.0.1 client=openclaw-control-ui webchat vdev
+mar 10 23:02:15 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:15.138Z [whatsapp] Listening for personal WhatsApp inbound messages.
+mar 10 23:02:15 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:15.138Z [gmail-watcher] gmail watcher stopped
+mar 10 23:02:15 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:15.139Z [ws] webchat disconnected code=1012 reason=service restart conn=e79e7736-3f62-4931-9c58-4f5a70d8fc73
+mar 10 23:02:15 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:15.147Z [canvas] host mounted at http://127.0.0.1:18789/__openclaw__/canvas/ (root /home/lucy-ubuntu/.openclaw/canvas)
+mar 10 23:02:15 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:15.173Z [heartbeat] started
+mar 10 23:02:15 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:15.174Z [gateway] agent model: openai-codex/gpt-5.1-codex-mini
+mar 10 23:02:15 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:15.174Z [gateway] listening on ws://127.0.0.1:18789 (PID 326441)
+mar 10 23:02:15 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:15.174Z [gateway] listening on ws://[::1]:18789
+mar 10 23:02:15 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:15.175Z [gateway] log file: /tmp/openclaw/openclaw-2026-03-10.log
+mar 10 23:02:15 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:15.176Z [browser/service] Browser control service ready (profiles=2)
+mar 10 23:02:15 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:15.180Z [whatsapp] [default] starting provider (+5491156348667)
+mar 10 23:02:15 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:15.947Z [ws] webchat connected conn=ea4f1e6e-d5a6-4dea-8f92-9e0fe58ed3c0 remote=127.0.0.1 client=openclaw-control-ui webchat vdev
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.334Z [whatsapp] Listening for personal WhatsApp inbound messages.
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.417Z [reload] config change detected; evaluating reload (meta.lastTouchedAt, models.providers.ollama.models, agents.list)
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.418Z [reload] config change requires gateway restart (meta.lastTouchedAt)
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.418Z [gateway] signal SIGUSR1 received
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.419Z [gateway] received SIGUSR1; restarting
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.422Z [gmail-watcher] gmail watcher stopped
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.423Z [ws] webchat disconnected code=1012 reason=service restart conn=ea4f1e6e-d5a6-4dea-8f92-9e0fe58ed3c0
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.427Z [canvas] host mounted at http://127.0.0.1:18789/__openclaw__/canvas/ (root /home/lucy-ubuntu/.openclaw/canvas)
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.453Z [heartbeat] started
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.454Z [gateway] agent model: openai-codex/gpt-5.1-codex-mini
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.454Z [gateway] listening on ws://127.0.0.1:18789 (PID 326441)
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.455Z [gateway] listening on ws://[::1]:18789
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.455Z [gateway] log file: /tmp/openclaw/openclaw-2026-03-10.log
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.456Z [browser/service] Browser control service ready (profiles=2)
+mar 10 23:02:16 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:16.460Z [whatsapp] [default] starting provider (+5491156348667)
+mar 10 23:02:17 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:17.231Z [ws] webchat connected conn=ba1e5137-2ee6-4b3a-a1eb-648ca90c22a3 remote=127.0.0.1 client=openclaw-control-ui webchat vdev
+mar 10 23:02:17 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:02:17.609Z [whatsapp] Listening for personal WhatsApp inbound messages.
+mar 10 23:06:00 lucy-ubuntu-System-Product-Name systemd[1874]: Stopping openclaw-gateway.service - OpenClaw Gateway (v2026.2.9)...
+mar 10 23:06:00 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:06:00.265Z [gateway] signal SIGTERM received
+mar 10 23:06:00 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:06:00.266Z [gateway] received SIGTERM; shutting down
+mar 10 23:06:00 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:06:00.277Z [gmail-watcher] gmail watcher stopped
+mar 10 23:06:00 lucy-ubuntu-System-Product-Name node[326441]: 2026-03-11T02:06:00.278Z [ws] webchat disconnected code=1012 reason=service restart conn=ba1e5137-2ee6-4b3a-a1eb-648ca90c22a3
+mar 10 23:06:00 lucy-ubuntu-System-Product-Name systemd[1874]: Stopped openclaw-gateway.service - OpenClaw Gateway (v2026.2.9).
+mar 10 23:06:00 lucy-ubuntu-System-Product-Name systemd[1874]: openclaw-gateway.service: Consumed 2min 43.259s CPU time.
+mar 10 23:06:00 lucy-ubuntu-System-Product-Name systemd[1874]: Started openclaw-gateway.service - OpenClaw Gateway (v2026.2.9).
+mar 10 23:06:01 lucy-ubuntu-System-Product-Name node[408502]: │
+mar 10 23:06:01 lucy-ubuntu-System-Product-Name node[408502]: ◇  Doctor warnings ────────────────────────────────────────────╮
+mar 10 23:06:01 lucy-ubuntu-System-Product-Name node[408502]: │                                                              │
+mar 10 23:06:01 lucy-ubuntu-System-Product-Name node[408502]: │  - State dir migration skipped: target already exists        │
+mar 10 23:06:01 lucy-ubuntu-System-Product-Name node[408502]: │    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │
+mar 10 23:06:01 lucy-ubuntu-System-Product-Name node[408502]: │                                                              │
+mar 10 23:06:01 lucy-ubuntu-System-Product-Name node[408502]: ├──────────────────────────────────────────────────────────────╯
+mar 10 23:06:01 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:01.944Z [canvas] host mounted at http://127.0.0.1:18789/__openclaw__/canvas/ (root /home/lucy-ubuntu/.openclaw/canvas)
+mar 10 23:06:02 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:02.458Z [heartbeat] started
+mar 10 23:06:02 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:02.460Z [gateway] agent model: openai-codex/gpt-5.1-codex-mini
+mar 10 23:06:02 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:02.461Z [gateway] listening on ws://127.0.0.1:18789 (PID 408502)
+mar 10 23:06:02 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:02.462Z [gateway] listening on ws://[::1]:18789
+mar 10 23:06:02 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:02.463Z [gateway] log file: /tmp/openclaw/openclaw-2026-03-10.log
+mar 10 23:06:02 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:02.471Z [browser/service] Browser control service ready (profiles=2)
+mar 10 23:06:02 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:02.480Z [whatsapp] [default] starting provider (+5491156348667)
+mar 10 23:06:02 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:02.499Z [ws] webchat connected conn=d71605a4-cb79-4147-a471-a4646271c7ac remote=127.0.0.1 client=openclaw-control-ui webchat vdev
+mar 10 23:06:02 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:02.601Z [ws] ⇄ res ✓ node.list 71ms conn=d71605a4…c7ac id=16407074…7c9f
+mar 10 23:06:02 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:02.604Z [ws] ⇄ res ✓ device.pair.list 75ms conn=d71605a4…c7ac id=a6fc051d…78dd
+mar 10 23:06:02 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:02.627Z [ws] ⇄ res ✓ chat.history 97ms conn=d71605a4…c7ac id=f6675332…9459
+mar 10 23:06:04 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:06:04.606Z [whatsapp] Listening for personal WhatsApp inbound messages.
+mar 10 23:09:24 lucy-ubuntu-System-Product-Name systemd[1874]: Stopping openclaw-gateway.service - OpenClaw Gateway (v2026.2.9)...
+mar 10 23:09:24 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:09:24.471Z [gateway] signal SIGTERM received
+mar 10 23:09:24 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:09:24.472Z [gateway] received SIGTERM; shutting down
+mar 10 23:09:24 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:09:24.485Z [gmail-watcher] gmail watcher stopped
+mar 10 23:09:24 lucy-ubuntu-System-Product-Name node[408502]: 2026-03-11T02:09:24.689Z [ws] webchat disconnected code=1012 reason=service restart conn=d71605a4-cb79-4147-a471-a4646271c7ac
+mar 10 23:09:24 lucy-ubuntu-System-Product-Name systemd[1874]: Stopped openclaw-gateway.service - OpenClaw Gateway (v2026.2.9).
+mar 10 23:09:24 lucy-ubuntu-System-Product-Name systemd[1874]: openclaw-gateway.service: Consumed 9.028s CPU time.
+mar 10 23:09:24 lucy-ubuntu-System-Product-Name systemd[1874]: Started openclaw-gateway.service - OpenClaw Gateway (v2026.2.9).
+mar 10 23:09:26 lucy-ubuntu-System-Product-Name node[412182]: │
+mar 10 23:09:26 lucy-ubuntu-System-Product-Name node[412182]: ◇  Doctor warnings ────────────────────────────────────────────╮
+mar 10 23:09:26 lucy-ubuntu-System-Product-Name node[412182]: │                                                              │
+mar 10 23:09:26 lucy-ubuntu-System-Product-Name node[412182]: │  - State dir migration skipped: target already exists        │
+mar 10 23:09:26 lucy-ubuntu-System-Product-Name node[412182]: │    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │
+mar 10 23:09:26 lucy-ubuntu-System-Product-Name node[412182]: │                                                              │
+mar 10 23:09:26 lucy-ubuntu-System-Product-Name node[412182]: ├──────────────────────────────────────────────────────────────╯
+mar 10 23:09:26 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:26.472Z [canvas] host mounted at http://127.0.0.1:18789/__openclaw__/canvas/ (root /home/lucy-ubuntu/.openclaw/canvas)
+mar 10 23:09:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:27.007Z [heartbeat] started
+mar 10 23:09:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:27.010Z [gateway] agent model: openai-codex/gpt-5.1-codex-mini
+mar 10 23:09:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:27.011Z [gateway] listening on ws://127.0.0.1:18789 (PID 412182)
+mar 10 23:09:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:27.011Z [gateway] listening on ws://[::1]:18789
+mar 10 23:09:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:27.012Z [gateway] log file: /tmp/openclaw/openclaw-2026-03-10.log
+mar 10 23:09:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:27.020Z [browser/service] Browser control service ready (profiles=2)
+mar 10 23:09:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:27.030Z [whatsapp] [default] starting provider (+5491156348667)
+mar 10 23:09:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:27.050Z [ws] webchat connected conn=421dd740-2500-4b76-8e8e-ce4b9967d865 remote=127.0.0.1 client=openclaw-control-ui webchat vdev
+mar 10 23:09:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:27.152Z [ws] ⇄ res ✓ node.list 73ms conn=421dd740…d865 id=5fa5054a…6bf9
+mar 10 23:09:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:27.153Z [ws] ⇄ res ✓ device.pair.list 75ms conn=421dd740…d865 id=d7f4a806…6c9e
+mar 10 23:09:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:27.176Z [ws] ⇄ res ✓ chat.history 98ms conn=421dd740…d865 id=87f69d8d…fe86
+mar 10 23:09:29 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:09:29.675Z [whatsapp] Listening for personal WhatsApp inbound messages.
+mar 10 23:25:29 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:25:29.358Z [whatsapp] Inbound message +5491156348667 -> +5491156348667 (direct, 133 chars)
+mar 10 23:25:29 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:25:29.464Z [agents/auth-profiles] inherited auth-profiles from main agent
+mar 10 23:25:47 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:25:47.188Z [tools] exec failed: ls: no se puede acceder a 'memory': No existe el archivo o el directorio
+mar 10 23:25:47 lucy-ubuntu-System-Product-Name node[412182]: Command exited with code 2
+mar 10 23:25:50 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:25:50.923Z [tools] read failed: ENOENT: no such file or directory, access '/home/lucy-ubuntu/.openclaw/workspace-wschat/memory/2026-03-10.md'
+mar 10 23:25:56 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:25:56.190Z [tools] read failed: ENOENT: no such file or directory, access '/home/lucy-ubuntu/.openclaw/workspace-wschat/memory/2026-03-09.md'
+mar 10 23:25:58 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:25:58.514Z [tools] read failed: ENOENT: no such file or directory, access '/home/lucy-ubuntu/.openclaw/workspace-wschat/MEMORY.md'
+mar 10 23:26:23 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:26:23.005Z [ws] ⇄ res ✓ chat.send 606ms runId=3ed05198-8371-4eac-ae64-0b1d871aa972 conn=421dd740…d865 id=26280a42…e348
+mar 10 23:26:23 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:26:23.541Z [tools] agents.main.tools.allow allowlist contains unknown entries (whatsapp_login). These entries won't match any tool unless the plugin is enabled.
+mar 10 23:26:31 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:26:31.482Z [whatsapp] Auto-replied to +5491156348667
+mar 10 23:30:07 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:30:07.140Z [whatsapp] Inbound message +5491156348667 -> +5491156348667 (direct, 137 chars)
+mar 10 23:30:18 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:30:18.304Z [whatsapp] Auto-replied to +5491156348667
+mar 10 23:45:06 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:45:06.116Z [ws] webchat disconnected code=1001 reason=n/a conn=421dd740-2500-4b76-8e8e-ce4b9967d865
+mar 10 23:45:06 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:45:06.149Z [ws] webchat connected conn=7fa928c6-7284-4c5c-ac19-cb52a8153d49 remote=127.0.0.1 client=openclaw-control-ui webchat vdev
+mar 10 23:45:59 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:45:59.617Z [tools] read failed: ENOENT: no such file or directory, access '/home/lucy-ubuntu/.openclaw/workspace-wschat/.openclaw/workspace-wschat/USER.md'
+mar 10 23:46:08 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:46:08.302Z [tools] exec failed: ls: no se puede acceder a 'memory': No existe el archivo o el directorio
+mar 10 23:46:08 lucy-ubuntu-System-Product-Name node[412182]: Command exited with code 2
+mar 10 23:46:11 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:46:11.675Z [tools] exec failed: ls: no se puede acceder a 'MEMORY.md': No existe el archivo o el directorio
+mar 10 23:46:11 lucy-ubuntu-System-Product-Name node[412182]: Command exited with code 2
+mar 10 23:46:23 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:46:23.543Z [whatsapp] Inbound message +5491156348667 -> +5491156348667 (direct, 65 chars)
+mar 10 23:46:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:46:27.740Z [whatsapp] Auto-replied to +5491156348667
+mar 10 23:51:05 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:51:05.934Z [ws] webchat disconnected code=1001 reason=n/a conn=7fa928c6-7284-4c5c-ac19-cb52a8153d49
+mar 10 23:51:05 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:51:05.957Z [ws] webchat connected conn=214d8216-611a-482f-b4ba-22f2da7c8c0d remote=127.0.0.1 client=openclaw-control-ui webchat vdev
+mar 11 00:03:40 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:03:40.008Z [ws] webchat disconnected code=1001 reason=n/a conn=214d8216-611a-482f-b4ba-22f2da7c8c0d
+mar 11 00:03:40 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:03:40.035Z [ws] webchat connected conn=25f3fb12-dd03-40a9-a90b-26890d849c05 remote=127.0.0.1 client=openclaw-control-ui webchat vdev
+mar 11 00:16:29 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:16:29.707Z [whatsapp] No messages received in 30m - restarting connection
+mar 11 00:16:29 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:16:29.709Z [whatsapp] Web connection closed (status 499). Retry 1/12 in 2.01s… (status=499)
+mar 11 00:16:33 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:16:33.349Z [whatsapp] Listening for personal WhatsApp inbound messages.
+mar 11 00:28:33 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:28:33.314Z [ws] webchat disconnected code=1001 reason=n/a conn=25f3fb12-dd03-40a9-a90b-26890d849c05
+mar 11 00:28:33 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:28:33.371Z [ws] webchat connected conn=47353fb9-d1d7-4cf7-9250-ca0fcfca9556 remote=127.0.0.1 client=openclaw-control-ui webchat vdev

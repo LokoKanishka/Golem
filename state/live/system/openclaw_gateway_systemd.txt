@@ -1,0 +1,21 @@
+● openclaw-gateway.service - OpenClaw Gateway (v2026.2.9)
+     Loaded: loaded (/home/lucy-ubuntu/.config/systemd/user/openclaw-gateway.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-03-10 23:09:24 -03; 1h 45min ago
+   Main PID: 412174 (openclaw)
+      Tasks: 50 (limit: 153355)
+     Memory: 535.8M (peak: 697.6M)
+        CPU: 3min 15.275s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/openclaw-gateway.service
+             ├─412174 openclaw
+             └─412182 openclaw-gateway
+
+mar 10 23:46:27 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:46:27.740Z [whatsapp] Auto-replied to +5491156348667
+mar 10 23:51:05 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:51:05.934Z [ws] webchat disconnected code=1001 reason=n/a conn=7fa928c6-7284-4c5c-ac19-cb52a8153d49
+mar 10 23:51:05 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T02:51:05.957Z [ws] webchat connected conn=214d8216-611a-482f-b4ba-22f2da7c8c0d remote=127.0.0.1 client=openclaw-control-ui webchat vdev
+mar 11 00:03:40 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:03:40.008Z [ws] webchat disconnected code=1001 reason=n/a conn=214d8216-611a-482f-b4ba-22f2da7c8c0d
+mar 11 00:03:40 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:03:40.035Z [ws] webchat connected conn=25f3fb12-dd03-40a9-a90b-26890d849c05 remote=127.0.0.1 client=openclaw-control-ui webchat vdev
+mar 11 00:16:29 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:16:29.707Z [whatsapp] No messages received in 30m - restarting connection
+mar 11 00:16:29 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:16:29.709Z [whatsapp] Web connection closed (status 499). Retry 1/12 in 2.01s… (status=499)
+mar 11 00:16:33 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:16:33.349Z [whatsapp] Listening for personal WhatsApp inbound messages.
+mar 11 00:28:33 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:28:33.314Z [ws] webchat disconnected code=1001 reason=n/a conn=25f3fb12-dd03-40a9-a90b-26890d849c05
+mar 11 00:28:33 lucy-ubuntu-System-Product-Name node[412182]: 2026-03-11T03:28:33.371Z [ws] webchat connected conn=47353fb9-d1d7-4cf7-9250-ca0fcfca9556 remote=127.0.0.1 client=openclaw-control-ui webchat vdev

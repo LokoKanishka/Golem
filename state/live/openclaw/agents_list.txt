@@ -1,0 +1,35 @@
+│
+◇  Doctor warnings ────────────────────────────────────────────╮
+│                                                              │
+│  - State dir migration skipped: target already exists        │
+│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │
+│                                                              │
+├──────────────────────────────────────────────────────────────╯
+Agents:
+- main (default)
+  Identity: ✨ Lumen (IDENTITY.md)
+  Workspace: ~/.openclaw/workspace
+  Agent dir: ~/.openclaw/agents/main/agent
+  Model: openai-codex/gpt-5.1-codex-mini
+  Routing rules: 0
+  Routing: default (no explicit rules)
+- lucy
+  Workspace: ~/clawd
+  Agent dir: ~/.clawdbot/agents/lucy/agent
+  Model: openai-codex/gpt-5.1-codex-mini
+  Routing rules: 0
+- ws
+  Workspace: ~/.openclaw/workspace-ws
+  Agent dir: ~/.openclaw/agents/ws/agent
+  Model: openai-codex/gpt-5.1-codex-mini
+  Routing rules: 0
+- wschat
+  Identity: 🌀 Lucy (IDENTITY.md)
+  Workspace: ~/.openclaw/workspace-wschat
+  Agent dir: ~/.openclaw/agents/wschat/agent
+  Model: openai-codex/gpt-5.1-codex-mini
+  Routing rules: 1
+  Routing rules:
+    - whatsapp accountId=default
+Routing rules map channel/account/peer to an agent. Use --bindings for full rules.
+Channel status reflects local config/creds. For live health: openclaw channels status --probe.

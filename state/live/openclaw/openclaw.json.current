@@ -1,0 +1,227 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.2.9",
+    "lastTouchedAt": "2026-03-11T02:06:00.182Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-03-10T05:35:08.629Z",
+    "lastRunVersion": "2026.2.9",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
+  },
+  "browser": {
+    "defaultProfile": "chrome"
+  },
+  "auth": {
+    "profiles": {
+      "openai-codex:default": {
+        "provider": "openai-codex",
+        "mode": "oauth"
+      },
+      "google:default": {
+        "provider": "google",
+        "mode": "api_key"
+      }
+    }
+  },
+  "models": {
+    "providers": {
+      "ollama": {
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "apiKey": "ollama-local",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "gpt-oss:20b",
+            "name": "gpt-oss:20b",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 128000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "openai-codex/gpt-5.1-codex-mini"
+      },
+      "models": {
+        "openai-codex/gpt-5.1-codex-mini": {},
+        "google/gemini-1.5-flash": {},
+        "google/gemini-1.5-flash-8b": {},
+        "google/gemini-1.5-flash-latest": {},
+        "anthropic/gemini-1.5-flash": {},
+        "google/gemini-3.1-flash-lite-preview": {}
+      },
+      "workspace": "/home/lucy-ubuntu/.openclaw/workspace",
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8
+      },
+      "sandbox": {
+        "mode": "off",
+        "browser": {
+          "allowHostControl": true
+        }
+      }
+    },
+    "list": [
+      {
+        "id": "main",
+        "tools": {
+          "allow": [
+            "read",
+            "edit",
+            "write",
+            "exec",
+            "process",
+            "browser",
+            "canvas",
+            "nodes",
+            "cron",
+            "message",
+            "tts",
+            "gateway",
+            "agents_list",
+            "sessions_list",
+            "sessions_history",
+            "sessions_send",
+            "sessions_spawn",
+            "session_status",
+            "web_search",
+            "web_fetch",
+            "lobster",
+            "llm-task",
+            "memory_search",
+            "memory_get",
+            "whatsapp_login"
+          ],
+          "deny": []
+        }
+      },
+      {
+        "id": "lucy",
+        "name": "lucy",
+        "workspace": "/home/lucy-ubuntu/clawd",
+        "agentDir": "/home/lucy-ubuntu/.clawdbot/agents/lucy/agent"
+      },
+      {
+        "id": "ws",
+        "name": "ws",
+        "workspace": "/home/lucy-ubuntu/.openclaw/workspace-ws",
+        "agentDir": "/home/lucy-ubuntu/.openclaw/agents/ws/agent"
+      },
+      {
+        "id": "wschat",
+        "name": "wschat",
+        "workspace": "/home/lucy-ubuntu/.openclaw/workspace-wschat",
+        "agentDir": "/home/lucy-ubuntu/.openclaw/agents/wschat/agent"
+      }
+    ]
+  },
+  "messages": {
+    "ackReactionScope": "group-mentions"
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto"
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "channels": {
+    "whatsapp": {
+      "accounts": {
+        "default": {
+          "enabled": true,
+          "dmPolicy": "pairing",
+          "groupPolicy": "allowlist",
+          "debounceMs": 0
+        }
+      },
+      "dmPolicy": "allowlist",
+      "selfChatMode": true,
+      "allowFrom": [
+        "+156348867"
+      ],
+      "groupPolicy": "allowlist",
+      "mediaMaxMb": 50,
+      "debounceMs": 0
+    }
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "loopback",
+    "auth": {
+      "mode": "token",
+      "token": "e738fcb4688672333267a7339d4bbd8fe8fefb94c9eb0ce0"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    },
+    "http": {
+      "endpoints": {
+        "chatCompletions": {
+          "enabled": true
+        },
+        "responses": {
+          "enabled": true
+        }
+      }
+    }
+  },
+  "skills": {
+    "install": {
+      "nodeManager": "npm"
+    },
+    "entries": {
+      "nano-banana-pro": {
+        "apiKey": "AIzaSyAPbfPtq-q35ixuc3xu1U_7txnEeRO1Jhs"
+      }
+    }
+  },
+  "plugins": {
+    "entries": {
+      "whatsapp": {
+        "enabled": true
+      },
+      "copilot-proxy": {
+        "enabled": true
+      },
+      "lobster": {
+        "enabled": true
+      },
+      "llm-task": {
+        "enabled": true
+      },
+      "open-prose": {
+        "enabled": true
+      }
+    }
+  },
+  "bindings": [
+    {
+      "agentId": "wschat",
+      "match": {
+        "channel": "whatsapp",
+        "accountId": "default"
+      }
+    }
+  ]
+}

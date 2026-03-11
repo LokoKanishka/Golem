@@ -1,0 +1,13 @@
+│
+◇  Doctor warnings ────────────────────────────────────────────╮
+│                                                              │
+│  - State dir migration skipped: target already exists        │
+│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │
+│                                                              │
+├──────────────────────────────────────────────────────────────╯
+1. Wikipedia, la enciclopedia libre
+   https://es.wikipedia.org/wiki/Wikipedia:Portada
+   id: 93DFD1287BFC383282C2270C062B6B03
+2. YouTube
+   https://www.youtube.com/
+   id: FEA989D2751944ABB7BB5A73A6DB0C84
