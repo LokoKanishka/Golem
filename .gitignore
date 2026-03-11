@@ -1,0 +1,19 @@
+# runtime / artifacts
+outbox/*
+!outbox/.gitkeep
+
+# transient state
+state/tmp/
+*.log
+*.tmp
+
+# editor / system
+.vscode/
+.idea/
+.DS_Store
+
+# env / secrets
+.env
+.env.*
+*.secret
+secrets/
