@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=Golem
+Comment=Launch the OpenClaw dashboard, Chrome work tabs, VS Code, and Golem self-check
+Exec=__GOLEM_LAUNCHER__
+Path=__GOLEM_REPO__
+Terminal=true
+Type=Application
+Categories=Development;
+StartupNotify=true
