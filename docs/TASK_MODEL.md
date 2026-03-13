@@ -46,8 +46,17 @@ Cada tarea incluye estos campos:
 Campo opcional cuando aplica:
 
 - `handoff`
+- `chain_type`
+- `chain_status`
+- `chain_summary`
 
 Los `outputs` tambien pueden incluir resultados manuales de worker, por ejemplo una entrada `worker-result` con `source: codex_manual`, `status` y `summary`.
+
+Las tareas raiz de cadena tambien pueden persistir:
+
+- `chain_type` para identificar el tipo de cadena ejecutada
+- `chain_status` para reflejar el estado interno de la orquestacion
+- `chain_summary` para dejar una vista agregada de las child tasks
 
 ## Estados validos
 

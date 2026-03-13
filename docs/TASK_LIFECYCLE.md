@@ -115,6 +115,8 @@ Allowed closing statuses are:
 
 If a note is provided, it is appended to `notes`.
 
+Chain root tasks may also persist a more expressive internal orchestration state in `chain_status` without changing the global lifecycle states.
+
 ## Delegate for future worker
 
 Prepared-but-not-executed worker handoff uses:
@@ -162,6 +164,12 @@ It prints:
 - output count
 - artifact count
 - last note
+
+Chain-specific inspection is also available through:
+
+```text
+./scripts/task_chain_summary.sh <task_id>
+```
 
 ## Why this reduces duplication
 

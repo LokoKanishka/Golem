@@ -1,0 +1,101 @@
+# Task Chain States
+
+This document defines the first explicit internal states for chain root tasks in Golem.
+
+## Why `chain_status` exists
+
+The general task `status` is still useful and should stay small:
+
+- `queued`
+- `running`
+- `delegated`
+- `done`
+- `failed`
+- `cancelled`
+
+But a chain root needs more semantic detail than that.
+
+Example:
+
+- `status: done`
+- `chain_status: completed_with_warnings`
+
+That means the chain finished and closed coherently, but one or more child tasks reported warning-level signals.
+
+## Supported `chain_status` values
+
+- `planned`
+- `running`
+- `completed`
+- `completed_with_warnings`
+- `failed`
+
+## Difference between task status and chain status
+
+Use task `status` for the high-level lifecycle outcome of the root task.
+
+Use `chain_status` for the internal orchestration outcome of the chain.
+
+Typical mappings in this version:
+
+- `status: done` + `chain_status: completed`
+- `status: done` + `chain_status: completed_with_warnings`
+- `status: failed` + `chain_status: failed`
+
+## What the root task summarizes
+
+The chain root should persist an aggregated summary of its direct children, including:
+
+- `child_task_ids`
+- `child_count`
+- `children_done`
+- `children_failed`
+- `children_with_warnings`
+- aggregated child artifact paths
+
+This version stores that summary in the root task under `chain_summary` and also persists a `chain-summary` output entry.
+
+## Failure behavior
+
+In this version, all children in the demo chains are treated as critical.
+
+That means:
+
+- if any child fails, the root chain closes as `failed`
+- the root task records the failure in `chain_status`
+- the aggregated summary shows the failed child count
+- the final artifact still gets generated for traceability
+
+## Final chain artifact
+
+Each chain run generates a final Markdown artifact under `outbox/manual/`.
+
+The artifact includes at least:
+
+- H1
+- `generated_at`
+- `root_task_id`
+- `chain_type`
+- summary
+- child task list
+- final result
+- notes
+- aggregated child artifacts
+
+The artifact must pass:
+
+```text
+./scripts/validate_markdown_artifact.sh <path>
+```
+
+## Why this is not a workflow engine
+
+This layer improves traceability and closure semantics, but it still does not add:
+
+- scheduling
+- retries
+- queue management
+- automatic ordering beyond the runner itself
+- parallel orchestration
+
+It only makes the chain root more honest and inspectable.

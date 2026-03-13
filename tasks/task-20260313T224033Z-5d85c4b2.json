@@ -1,0 +1,33 @@
+{
+  "task_id": "task-20260313T224033Z-5d85c4b2",
+  "type": "compare-files",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260313T224025Z-25159adf",
+  "depends_on": [
+    "task-20260313T224025Z-f62a0528"
+  ],
+  "status": "failed",
+  "created_at": "2026-03-13T22:40:33+00:00",
+  "updated_at": "2026-03-13T22:40:33+00:00",
+  "title": "Chain aggregation failure test / child compare",
+  "objective": "Chain aggregation failure test / child compare",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "comparison-files",
+      "captured_at": "2026-03-13T22:40:33+00:00",
+      "exit_code": 1,
+      "content": "ERROR: no existe el archivo: docs/NO_SUCH_FILE_FOR_CHAIN_FAIL.md",
+      "command": "./scripts/browser_compare.sh files chain-compare-task-20260313T224025Z-25159adf docs/TASK_MODEL.md docs/NO_SUCH_FILE_FOR_CHAIN_FAIL.md",
+      "mode": "files",
+      "slug": "chain-compare-task-20260313T224025Z-25159adf",
+      "input_a": "docs/TASK_MODEL.md",
+      "input_b": "docs/NO_SUCH_FILE_FOR_CHAIN_FAIL.md"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "comparison generation failed"
+  ]
+}

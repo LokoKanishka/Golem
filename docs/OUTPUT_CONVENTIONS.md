@@ -76,6 +76,12 @@ Examples by artifact type:
   - inputs
   - findings
   - notes
+- chain final artifact:
+  - summary
+  - child tasks
+  - result
+  - aggregated artifacts
+  - notes
 
 ## Formatting Rules
 

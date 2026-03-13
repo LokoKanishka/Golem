@@ -15,6 +15,7 @@ usage() {
   cat <<USAGE
 Uso:
   ./scripts/task_chain_run.sh self-check-compare "<title>"
+  ./scripts/task_chain_run.sh self-check-compare-fail "<title>"
 USAGE
 }
 
@@ -59,10 +60,33 @@ PY
 }
 
 close_root() {
-  local status="$1"
-  local note="$2"
-  ./scripts/task_close.sh "$root_task_id" "$status" "$note"
+  ./scripts/task_chain_finalize.sh "$root_task_id" >/dev/null
   finalized="1"
+}
+
+set_root_chain_state() {
+  local new_chain_status="$1"
+  local tmp_path
+  tmp_path="$(mktemp "$TASKS_DIR/.task-chain-state.XXXXXX.tmp")"
+  python3 - "$root_task_path" "$chain_type" "$new_chain_status" >"$tmp_path" <<'PY'
+import json
+import pathlib
+import sys
+
+task_path = pathlib.Path(sys.argv[1])
+chain_type = sys.argv[2]
+chain_status = sys.argv[3]
+
+with task_path.open(encoding="utf-8") as fh:
+    task = json.load(fh)
+
+task["chain_type"] = chain_type
+task["chain_status"] = chain_status
+
+json.dump(task, sys.stdout, indent=2, ensure_ascii=True)
+sys.stdout.write("\n")
+PY
+  mv "$tmp_path" "$root_task_path"
 }
 
 on_exit() {
@@ -70,7 +94,8 @@ on_exit() {
   set +e
 
   if [ "$exit_code" -ne 0 ] && [ "$finalized" != "1" ] && [ -n "$root_task_path" ] && [ -f "$root_task_path" ]; then
-    ./scripts/task_close.sh "$root_task_id" failed "task_chain_run aborted before completion" >/dev/null 2>&1 || true
+    ./scripts/task_chain_finalize.sh "$root_task_id" >/dev/null 2>&1 || \
+      ./scripts/task_close.sh "$root_task_id" failed "task_chain_run aborted before completion" >/dev/null 2>&1 || true
   fi
 
   exit "$exit_code"
@@ -87,7 +112,7 @@ if [ -z "$chain_type" ] || [ -z "$chain_title" ]; then
 fi
 
 case "$chain_type" in
-  self-check-compare) ;;
+  self-check-compare|self-check-compare-fail) ;;
   *)
     usage
     fatal "chain_type no soportado: $chain_type"
@@ -105,8 +130,10 @@ if [ -z "$root_task_path" ]; then
   fatal "no se pudo extraer la ruta de la tarea raiz"
 fi
 root_task_id="$(basename "$root_task_path" .json)"
+set_root_chain_state planned
 
 ./scripts/task_update.sh "$root_task_id" running
+set_root_chain_state running
 add_chain_output "chain-start" 0 "chain_type=$chain_type root_task_id=$root_task_id"
 
 set +e
@@ -128,11 +155,16 @@ if [ "$self_check_exit" -ne 0 ] || [ -z "$self_check_task_id" ]; then
   exit 1
 fi
 
+compare_file_b="docs/TASK_LIFECYCLE.md"
+if [ "$chain_type" = "self-check-compare-fail" ]; then
+  compare_file_b="docs/NO_SUCH_FILE_FOR_CHAIN_FAIL.md"
+fi
+
 set +e
 compare_output="$(
   TASK_PARENT_TASK_ID="$root_task_id" \
   TASK_DEPENDS_ON="[\"$self_check_task_id\"]" \
-  ./scripts/task_run_compare.sh files "$chain_title / child compare" "chain-compare-${root_task_id}" docs/TASK_MODEL.md docs/TASK_LIFECYCLE.md 2>&1
+  ./scripts/task_run_compare.sh files "$chain_title / child compare" "chain-compare-${root_task_id}" docs/TASK_MODEL.md "$compare_file_b" 2>&1
 )"
 compare_exit="$?"
 set -e

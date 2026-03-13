@@ -10,6 +10,7 @@ In this version, orchestration means only:
 - declaring simple dependencies
 - making child task creation explicit
 - running a short, honest demo chain that coordinates more than one task
+- leaving the root chain with an aggregated summary and final artifact
 
 This layer is intentionally small.
 
@@ -88,13 +89,20 @@ Use:
 ./scripts/task_chain_run.sh self-check-compare "<title>"
 ```
 
+For controlled failure validation:
+
+```text
+./scripts/task_chain_run.sh self-check-compare-fail "<title>"
+```
+
 The demo chain is:
 
 1. create a root task of type `task-chain`
 2. run a child `self-check`
 3. run a child `compare-files`
-4. record chain outputs on the root task
-5. close the root task as `done` or `failed`
+4. aggregate child results on the root task
+5. generate a final Markdown artifact for the chain
+6. close the root task as `done` or `failed`
 
 ## Why the demo uses `self-check-compare`
 
@@ -105,6 +113,8 @@ The demo chain is:
 - `self-check` exercises existing live capability checks
 - `compare-files` is local, deterministic, and low risk
 - the chain still proves that Golem can coordinate multiple related tasks
+
+The failure validation variant uses the same shape but points the compare step at a deliberately missing file. That keeps the failure path honest, local, and predictable.
 
 ## Why this is the step before stronger orchestration
 

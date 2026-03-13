@@ -8,7 +8,7 @@ TASKS_DIR="$REPO_ROOT/tasks"
 usage() {
   cat <<USAGE
 Uso:
-  ./scripts/task_summary.sh <task_id>
+  ./scripts/task_chain_summary.sh <task_id>
 USAGE
 }
 
@@ -39,25 +39,18 @@ with task_path.open(encoding="utf-8") as fh:
 
 notes = task.get("notes", [])
 last_note = notes[-1] if notes else "(none)"
-parent_task_id = task.get("parent_task_id") or "(none)"
-depends_on = task.get("depends_on") or []
-chain_type = task.get("chain_type") or ""
-chain_status = task.get("chain_status") or ""
+chain_type = task.get("chain_type", "(none)")
+chain_status = task.get("chain_status", "(none)")
 chain_summary = task.get("chain_summary") or {}
 
 print(f"task_id: {task.get('task_id', task_path.stem)}")
-print(f"type: {task.get('type', '?')}")
 print(f"status: {task.get('status', '?')}")
-print(f"title: {task.get('title', '')}")
-print(f"parent_task_id: {parent_task_id}")
-print(f"depends_on: {len(depends_on)}")
-if chain_type:
-    print(f"chain_type: {chain_type}")
-if chain_status:
-    print(f"chain_status: {chain_status}")
-if chain_summary:
-    print(f"child_count: {chain_summary.get('child_count', 0)}")
-print(f"outputs: {len(task.get('outputs', []))}")
+print(f"chain_status: {chain_status}")
+print(f"chain_type: {chain_type}")
+print(f"child_count: {chain_summary.get('child_count', 0)}")
+print(f"children_done: {chain_summary.get('children_done', 0)}")
+print(f"children_failed: {chain_summary.get('children_failed', 0)}")
+print(f"children_with_warnings: {chain_summary.get('children_with_warnings', 0)}")
 print(f"artifacts: {len(task.get('artifacts', []))}")
 print(f"last_note: {last_note}")
 PY
