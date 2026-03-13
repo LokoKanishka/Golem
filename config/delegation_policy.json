@@ -1,0 +1,60 @@
+{
+  "version": "1.0",
+  "default_owner": "review_required",
+  "rules": [
+    {
+      "task_type": "self-check",
+      "owner": "golem",
+      "rationale": "tarea operativa, reversible y ya soportada por el sistema actual",
+      "escalation": "none"
+    },
+    {
+      "task_type": "artifact-find",
+      "owner": "golem",
+      "rationale": "genera un artefacto de lectura sobre estado existente sin cambiar estructura del sistema",
+      "escalation": "escalar si el relay falla o si el objetivo del artefacto no esta claro"
+    },
+    {
+      "task_type": "artifact-snapshot",
+      "owner": "golem",
+      "rationale": "captura un snapshot operativo y reversible del estado actual del navegador",
+      "escalation": "escalar si el snapshot no es valido o si el origen no esta claro"
+    },
+    {
+      "task_type": "compare-files",
+      "owner": "golem",
+      "rationale": "comparacion local, deterministica y acotada a archivos dentro del repo",
+      "escalation": "escalar si los inputs no existen, salen del repo o el alcance de comparacion es ambiguo"
+    },
+    {
+      "task_type": "nav-tabs",
+      "owner": "golem",
+      "rationale": "consulta operativa y reversible del estado actual de tabs",
+      "escalation": "escalar si el relay o el browser no responden"
+    },
+    {
+      "task_type": "nav-open",
+      "owner": "review_required",
+      "rationale": "abrir una URL depende de la intencion del destino y del limite de confianza externo",
+      "escalation": "revisar humanamente cuando la URL o el objetivo no sean explicitamente confiables"
+    },
+    {
+      "task_type": "nav-snapshot",
+      "owner": "golem",
+      "rationale": "snapshot de navegacion solo-lectura y reversible",
+      "escalation": "escalar si el relay falla o si la salida es invalida"
+    },
+    {
+      "task_type": "read-find",
+      "owner": "golem",
+      "rationale": "lectura puntual, solo-lectura y bien definida sobre una pagina activa",
+      "escalation": "escalar si el relay falla o si la consulta requiere interpretacion humana"
+    },
+    {
+      "task_type": "read-snapshot",
+      "owner": "golem",
+      "rationale": "extraccion de snapshot solo-lectura y acotada al estado actual",
+      "escalation": "escalar si el relay falla o si la salida queda malformada"
+    }
+  ]
+}
