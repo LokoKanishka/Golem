@@ -69,114 +69,36 @@ PY
   attempt_records+=("$record_file")
 }
 
-finalize_task_json() {
-  local final_status="$1"
-  local note_message="$2"
-  local tmp_path
-
-  if [ -z "$task_path" ] || [ ! -f "$task_path" ]; then
-    return 0
-  fi
-
-  tmp_path="$(mktemp "$TASKS_DIR/.task-artifact-final.XXXXXX.tmp")"
-  register_cleanup "$tmp_path"
-
-  ATTEMPT_FILES="$(IFS=:; printf '%s' "${attempt_records[*]:-}")" \
-  ARTIFACT_RUN_OUTPUT="$run_output" \
-  ARTIFACT_EXIT="$artifact_exit" \
-  ARTIFACT_PROFILE="$artifact_profile" \
-  ARTIFACT_PATH="$artifact_path" \
-  FINAL_STATUS="$final_status" \
-  NOTE_MESSAGE="$note_message" \
-  TASK_MODE="$mode" \
-  TASK_SLUG="$slug" \
-  TASK_QUERY="$query" \
-  python3 - "$task_path" "$REPO_ROOT" > "$tmp_path" <<'PY'
-import datetime
-import json
-import os
-import pathlib
-import sys
-
-task_path = pathlib.Path(sys.argv[1])
-repo_root = pathlib.Path(sys.argv[2])
-
-with task_path.open(encoding="utf-8") as fh:
-    task = json.load(fh)
-
-now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
-final_status = os.environ["FINAL_STATUS"]
-note_message = os.environ["NOTE_MESSAGE"]
-mode = os.environ["TASK_MODE"]
-slug = os.environ["TASK_SLUG"]
-query = os.environ.get("TASK_QUERY", "")
-artifact_exit = int(os.environ.get("ARTIFACT_EXIT", "1"))
-artifact_profile = os.environ.get("ARTIFACT_PROFILE", "")
-artifact_path_raw = os.environ.get("ARTIFACT_PATH", "")
-run_output = os.environ.get("ARTIFACT_RUN_OUTPUT", "")
-attempt_files_raw = os.environ.get("ATTEMPT_FILES", "")
-
-attempts = []
-if attempt_files_raw:
-    for raw_path in attempt_files_raw.split(":"):
-        if not raw_path:
-            continue
-        with open(raw_path, encoding="utf-8") as fh:
-            attempts.append(json.load(fh))
-
-task["status"] = final_status
-task["updated_at"] = now
-
-output_entry = {
-    "kind": f"artifact-{mode}",
-    "captured_at": now,
-    "command": f"./scripts/browser_artifact.sh {mode} {slug}" + (f" {query}" if query else ""),
-    "mode": mode,
-    "slug": slug,
-    "exit_code": artifact_exit,
-    "profile": artifact_profile,
-    "content": run_output,
-    "attempts": attempts,
-}
-if query:
-    output_entry["query"] = query
-
-outputs = task.setdefault("outputs", [])
-outputs.append(output_entry)
-
-if artifact_path_raw:
-    artifact_path = pathlib.Path(artifact_path_raw)
-    try:
-      rel_path = artifact_path.relative_to(repo_root)
-    except ValueError:
-      rel_path = artifact_path
-
-    artifacts = task.setdefault("artifacts", [])
-    artifacts.append(
-        {
-            "path": str(rel_path),
-            "kind": f"artifact-{mode}",
-            "created_at": now,
-        }
-    )
-
-notes = task.setdefault("notes", [])
-if note_message:
-    notes.append(note_message)
-
-json.dump(task, sys.stdout, indent=2, ensure_ascii=True)
-sys.stdout.write("\n")
-PY
-
-  mv "$tmp_path" "$task_path"
-}
-
 on_exit() {
   local exit_code="$?"
   set +e
 
   if [ "$exit_code" -ne 0 ] && [ "$finalized" != "1" ] && [ -n "$task_path" ] && [ -f "$task_path" ]; then
-    finalize_task_json "failed" "task_run_artifact aborted before completion"
+    TASK_OUTPUT_EXTRA_JSON="$(
+      python3 - "${attempt_records[@]}" "$mode" "$slug" "$query" "$artifact_profile" <<'PY'
+import json
+import pathlib
+import sys
+
+attempt_paths = sys.argv[1:-4]
+mode, slug, query, profile = sys.argv[-4:]
+attempts = [json.loads(pathlib.Path(path).read_text(encoding="utf-8")) for path in attempt_paths]
+extra = {
+    "command": f"./scripts/browser_artifact.sh {mode} {slug}" + (f" {query}" if query else ""),
+    "mode": mode,
+    "slug": slug,
+    "profile": profile,
+    "attempts": attempts,
+}
+if query:
+    extra["query"] = query
+print(json.dumps(extra))
+PY
+    )" ./scripts/task_add_output.sh "$task_id" "artifact-$mode" "$artifact_exit" "$run_output" >/dev/null 2>&1 || true
+    if [ -n "$artifact_path" ]; then
+      ./scripts/task_add_artifact.sh "$task_id" "artifact-$mode" "${artifact_path#$REPO_ROOT/}" >/dev/null 2>&1 || true
+    fi
+    ./scripts/task_close.sh "$task_id" failed "task_run_artifact aborted before completion" >/dev/null 2>&1 || true
   fi
 
   cleanup
@@ -302,13 +224,56 @@ running_output="$(./scripts/task_update.sh "$task_id" running)"
 printf '%s\n' "$running_output"
 
 if run_artifact_attempts; then
-  finalize_task_json "done" "artifact generation completed and task closed"
+  TASK_OUTPUT_EXTRA_JSON="$(
+    python3 - "${attempt_records[@]}" "$mode" "$slug" "$query" "$artifact_profile" <<'PY'
+import json
+import pathlib
+import sys
+
+attempt_paths = sys.argv[1:-4]
+mode, slug, query, profile = sys.argv[-4:]
+attempts = [json.loads(pathlib.Path(path).read_text(encoding="utf-8")) for path in attempt_paths]
+extra = {
+    "command": f"./scripts/browser_artifact.sh {mode} {slug}" + (f" {query}" if query else ""),
+    "mode": mode,
+    "slug": slug,
+    "profile": profile,
+    "attempts": attempts,
+}
+if query:
+    extra["query"] = query
+print(json.dumps(extra))
+PY
+  )" ./scripts/task_add_output.sh "$task_id" "artifact-$mode" "$artifact_exit" "$run_output"
+  ./scripts/task_add_artifact.sh "$task_id" "artifact-$mode" "${artifact_path#$REPO_ROOT/}"
+  ./scripts/task_close.sh "$task_id" done "artifact generation completed and task closed"
   finalized="1"
   printf 'TASK_RUN_OK %s\n' "$task_id"
   exit 0
 fi
 
-finalize_task_json "failed" "artifact generation failed"
+TASK_OUTPUT_EXTRA_JSON="$(
+  python3 - "${attempt_records[@]}" "$mode" "$slug" "$query" "$artifact_profile" <<'PY'
+import json
+import pathlib
+import sys
+
+attempt_paths = sys.argv[1:-4]
+mode, slug, query, profile = sys.argv[-4:]
+attempts = [json.loads(pathlib.Path(path).read_text(encoding="utf-8")) for path in attempt_paths]
+extra = {
+    "command": f"./scripts/browser_artifact.sh {mode} {slug}" + (f" {query}" if query else ""),
+    "mode": mode,
+    "slug": slug,
+    "profile": profile,
+    "attempts": attempts,
+}
+if query:
+    extra["query"] = query
+print(json.dumps(extra))
+PY
+)" ./scripts/task_add_output.sh "$task_id" "artifact-$mode" "$artifact_exit" "$run_output"
+./scripts/task_close.sh "$task_id" failed "artifact generation failed"
 finalized="1"
 printf 'TASK_RUN_FAIL %s\n' "$task_id"
 exit 1

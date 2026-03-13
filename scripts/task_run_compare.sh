@@ -53,102 +53,30 @@ extract_comparison_path() {
   printf '%s\n' "$output" | awk '/^COMPARISON_OK / {print $2}' | tail -n 1
 }
 
-finalize_task_json() {
-  local final_status="$1"
-  local note_message="$2"
-  local tmp_path
-
-  if [ -z "$task_path" ] || [ ! -f "$task_path" ]; then
-    return 0
-  fi
-
-  tmp_path="$(mktemp "$TASKS_DIR/.task-compare-final.XXXXXX.tmp")"
-  register_cleanup "$tmp_path"
-
-  COMPARE_RUN_OUTPUT="$run_output" \
-  COMPARE_EXIT="$compare_exit" \
-  COMPARISON_PATH="$comparison_path" \
-  FINAL_STATUS="$final_status" \
-  NOTE_MESSAGE="$note_message" \
-  TASK_MODE="$mode" \
-  TASK_SLUG="$slug" \
-  TASK_INPUT_A="$input_a" \
-  TASK_INPUT_B="$input_b" \
-  python3 - "$task_path" "$REPO_ROOT" > "$tmp_path" <<'PY'
-import datetime
-import json
-import os
-import pathlib
-import sys
-
-task_path = pathlib.Path(sys.argv[1])
-repo_root = pathlib.Path(sys.argv[2])
-
-with task_path.open(encoding="utf-8") as fh:
-    task = json.load(fh)
-
-now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
-final_status = os.environ["FINAL_STATUS"]
-note_message = os.environ["NOTE_MESSAGE"]
-mode = os.environ["TASK_MODE"]
-slug = os.environ["TASK_SLUG"]
-input_a = os.environ["TASK_INPUT_A"]
-input_b = os.environ["TASK_INPUT_B"]
-compare_exit = int(os.environ.get("COMPARE_EXIT", "1"))
-comparison_path_raw = os.environ.get("COMPARISON_PATH", "")
-run_output = os.environ.get("COMPARE_RUN_OUTPUT", "")
-
-task["status"] = final_status
-task["updated_at"] = now
-
-output_entry = {
-    "kind": "comparison-files",
-    "captured_at": now,
-    "command": f"./scripts/browser_compare.sh {mode} {slug} {input_a} {input_b}",
-    "mode": mode,
-    "slug": slug,
-    "input_a": input_a,
-    "input_b": input_b,
-    "exit_code": compare_exit,
-    "content": run_output,
-}
-
-outputs = task.setdefault("outputs", [])
-outputs.append(output_entry)
-
-if comparison_path_raw:
-    comparison_path = pathlib.Path(comparison_path_raw)
-    try:
-        rel_path = comparison_path.relative_to(repo_root)
-    except ValueError:
-        rel_path = comparison_path
-
-    artifacts = task.setdefault("artifacts", [])
-    artifacts.append(
-        {
-            "path": str(rel_path),
-            "kind": "comparison-files",
-            "created_at": now,
-        }
-    )
-
-notes = task.setdefault("notes", [])
-if note_message:
-    notes.append(note_message)
-
-json.dump(task, sys.stdout, indent=2, ensure_ascii=True)
-sys.stdout.write("\n")
-PY
-
-  mv "$tmp_path" "$task_path"
-}
-
 on_exit() {
   local exit_code="$?"
   set +e
 
   if [ "$exit_code" -ne 0 ] && [ "$finalized" != "1" ] && [ -n "$task_path" ] && [ -f "$task_path" ]; then
-    finalize_task_json "failed" "task_run_compare aborted before completion"
+    TASK_OUTPUT_EXTRA_JSON="$(
+      python3 - "$mode" "$slug" "$input_a" "$input_b" <<'PY'
+import json
+import sys
+
+mode, slug, input_a, input_b = sys.argv[1:5]
+print(json.dumps({
+    "command": f"./scripts/browser_compare.sh {mode} {slug} {input_a} {input_b}",
+    "mode": mode,
+    "slug": slug,
+    "input_a": input_a,
+    "input_b": input_b,
+}))
+PY
+    )" ./scripts/task_add_output.sh "$task_id" "comparison-files" "$compare_exit" "$run_output" >/dev/null 2>&1 || true
+    if [ -n "$comparison_path" ]; then
+      ./scripts/task_add_artifact.sh "$task_id" "comparison-files" "${comparison_path#$REPO_ROOT/}" >/dev/null 2>&1 || true
+    fi
+    ./scripts/task_close.sh "$task_id" failed "task_run_compare aborted before completion" >/dev/null 2>&1 || true
   fi
 
   cleanup
@@ -201,11 +129,28 @@ set -e
 run_output="$(cat "$output_file")"
 printf '%s\n' "$run_output"
 
+TASK_OUTPUT_EXTRA_JSON="$(
+  python3 - "$mode" "$slug" "$input_a" "$input_b" <<'PY'
+import json
+import sys
+
+mode, slug, input_a, input_b = sys.argv[1:5]
+print(json.dumps({
+    "command": f"./scripts/browser_compare.sh {mode} {slug} {input_a} {input_b}",
+    "mode": mode,
+    "slug": slug,
+    "input_a": input_a,
+    "input_b": input_b,
+}))
+PY
+)" ./scripts/task_add_output.sh "$task_id" "comparison-files" "$compare_exit" "$run_output"
+
 if [ "$compare_exit" -eq 0 ]; then
   path="$(extract_comparison_path "$run_output")"
   if [ -n "$path" ]; then
     comparison_path="$REPO_ROOT/$path"
-    finalize_task_json "done" "comparison generation completed and task closed"
+    ./scripts/task_add_artifact.sh "$task_id" "comparison-files" "${comparison_path#$REPO_ROOT/}"
+    ./scripts/task_close.sh "$task_id" done "comparison generation completed and task closed"
     finalized="1"
     printf 'TASK_RUN_OK %s\n' "$task_id"
     exit 0
@@ -213,7 +158,7 @@ if [ "$compare_exit" -eq 0 ]; then
 fi
 
 comparison_path=""
-finalize_task_json "failed" "comparison generation failed"
+./scripts/task_close.sh "$task_id" failed "comparison generation failed"
 finalized="1"
 printf 'TASK_RUN_FAIL %s\n' "$task_id"
 exit 1

@@ -1,0 +1,112 @@
+# Task Lifecycle
+
+This document defines the basic lifecycle of a Golem task and the shared scripts that operate on it.
+
+## Basic lifecycle
+
+The minimal task flow is:
+
+1. create the task
+2. move it to `running`
+3. append outputs as work happens
+4. register artifacts when files are produced
+5. close the task as `done`, `failed`, or `cancelled`
+6. inspect a short summary when needed
+
+## Create
+
+New tasks are created with:
+
+```text
+./scripts/task_new.sh <type> <title>
+```
+
+This initializes the JSON file under `tasks/` with status `queued`.
+
+## Move to running
+
+Tasks move to running with:
+
+```text
+./scripts/task_update.sh <task_id> running
+```
+
+That keeps the existing task model intact and refreshes `updated_at`.
+
+## Add outputs
+
+Runners persist outputs with:
+
+```text
+./scripts/task_add_output.sh <task_id> <kind> <exit_code> <content>
+```
+
+Base fields are:
+
+- `kind`
+- `captured_at`
+- `exit_code`
+- `content`
+
+If a runner needs more metadata, it can pass `TASK_OUTPUT_EXTRA_JSON` as an object with extra fields such as command, mode, profile, inputs, or attempts.
+
+## Add artifacts
+
+Runners register generated files with:
+
+```text
+./scripts/task_add_artifact.sh <task_id> <kind> <path>
+```
+
+Base fields are:
+
+- `path`
+- `kind`
+- `created_at`
+
+If needed, runners can add metadata through `TASK_ARTIFACT_EXTRA_JSON`.
+
+## Close
+
+Tasks are closed with:
+
+```text
+./scripts/task_close.sh <task_id> <status> [note]
+```
+
+Allowed closing statuses are:
+
+- `done`
+- `failed`
+- `cancelled`
+
+If a note is provided, it is appended to `notes`.
+
+## Summary
+
+Short inspection is available through:
+
+```text
+./scripts/task_summary.sh <task_id>
+```
+
+It prints:
+
+- task id
+- type
+- status
+- title
+- output count
+- artifact count
+- last note
+
+## Why this reduces duplication
+
+Before this layer, each `task_run_*` script had to rewrite task JSON directly to:
+
+- append outputs
+- append artifacts
+- close the task
+- add notes
+
+Now runners can focus on their real work and delegate lifecycle persistence to shared scripts. That keeps future capability runners simpler and makes the task layer a clearer base for later worker integration.
