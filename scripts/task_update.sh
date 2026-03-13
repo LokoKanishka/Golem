@@ -41,11 +41,11 @@ import sys
 
 task_path = pathlib.Path(sys.argv[1])
 new_status = sys.argv[2]
-valid_statuses = {"queued", "running", "done", "failed", "cancelled"}
+valid_statuses = {"queued", "running", "delegated", "done", "failed", "cancelled"}
 
 if new_status not in valid_statuses:
     print(
-        "ERROR: status invalido. Usar uno de: cancelled, done, failed, queued, running",
+        "ERROR: status invalido. Usar uno de: cancelled, delegated, done, failed, queued, running",
         file=sys.stderr,
     )
     raise SystemExit(1)

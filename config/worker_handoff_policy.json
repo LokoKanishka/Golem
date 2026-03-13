@@ -1,0 +1,196 @@
+{
+  "version": "1.0",
+  "default_handoff_owner": "worker_future",
+  "status_on_handoff": "delegated",
+  "candidate_task_types": [
+    "long-read-report",
+    "bibliography-build",
+    "repo-analysis",
+    "batch-artifact-build",
+    "multi-step-research"
+  ],
+  "required_fields": [
+    "task_id",
+    "type",
+    "title",
+    "objective",
+    "status",
+    "created_at",
+    "updated_at"
+  ],
+  "rules": [
+    {
+      "task_type": "self-check",
+      "handoff_allowed": false,
+      "rationale": "tarea operativa corta que Golem ya puede ejecutar solo",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective"
+      ],
+      "recommended_next_step": "resolver con Golem sin handoff"
+    },
+    {
+      "task_type": "artifact-find",
+      "handoff_allowed": false,
+      "rationale": "capacidad ya formalizada y acotada a una ejecucion directa de Golem",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective"
+      ],
+      "recommended_next_step": "usar task_run_artifact.sh"
+    },
+    {
+      "task_type": "artifact-snapshot",
+      "handoff_allowed": false,
+      "rationale": "snapshot simple y reversible, no necesita worker futuro",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective"
+      ],
+      "recommended_next_step": "usar task_run_artifact.sh"
+    },
+    {
+      "task_type": "compare-files",
+      "handoff_allowed": false,
+      "rationale": "comparacion local corta y deterministica",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective"
+      ],
+      "recommended_next_step": "usar task_run_compare.sh"
+    },
+    {
+      "task_type": "nav-tabs",
+      "handoff_allowed": false,
+      "rationale": "inspeccion puntual del browser ya soportada por Golem",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective"
+      ],
+      "recommended_next_step": "usar task_run_nav.sh"
+    },
+    {
+      "task_type": "nav-open",
+      "handoff_allowed": false,
+      "rationale": "requiere revision humana del destino y no corresponde a worker futuro por defecto",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective"
+      ],
+      "recommended_next_step": "mantener revision humana"
+    },
+    {
+      "task_type": "nav-snapshot",
+      "handoff_allowed": false,
+      "rationale": "lectura breve y operativa del estado actual",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective"
+      ],
+      "recommended_next_step": "usar task_run_nav.sh"
+    },
+    {
+      "task_type": "read-find",
+      "handoff_allowed": false,
+      "rationale": "lectura puntual que no justifica worker futuro",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective"
+      ],
+      "recommended_next_step": "usar task_run_read.sh"
+    },
+    {
+      "task_type": "read-snapshot",
+      "handoff_allowed": false,
+      "rationale": "snapshot breve y operacional",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective"
+      ],
+      "recommended_next_step": "usar task_run_read.sh"
+    },
+    {
+      "task_type": "long-read-report",
+      "handoff_allowed": true,
+      "rationale": "trabajo largo de lectura y sintesis con salida estructurada",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective",
+        "created_at"
+      ],
+      "recommended_next_step": "preparar brief, fuentes y formato de entrega para el worker"
+    },
+    {
+      "task_type": "bibliography-build",
+      "handoff_allowed": true,
+      "rationale": "armado iterativo de fuentes, notas y consolidacion bibliografica",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective",
+        "created_at"
+      ],
+      "recommended_next_step": "adjuntar corpus inicial y definir criterio de inclusion para el worker"
+    },
+    {
+      "task_type": "repo-analysis",
+      "handoff_allowed": true,
+      "rationale": "analisis multiarchivo con tiempo y estructura suficientes para worker futuro",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective",
+        "created_at"
+      ],
+      "recommended_next_step": "delimitar alcance del repo y formato del informe esperado"
+    },
+    {
+      "task_type": "batch-artifact-build",
+      "handoff_allowed": true,
+      "rationale": "lote repetitivo de artefactos que se beneficia de ejecucion delegada",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective",
+        "created_at"
+      ],
+      "recommended_next_step": "dejar lista la lista de entradas y naming de artefactos"
+    },
+    {
+      "task_type": "multi-step-research",
+      "handoff_allowed": true,
+      "rationale": "investigacion por etapas con checkpoints y compilacion final",
+      "required_fields": [
+        "task_id",
+        "type",
+        "title",
+        "objective",
+        "created_at"
+      ],
+      "recommended_next_step": "definir preguntas, fuentes esperadas y criterio de cierre"
+    }
+  ]
+}

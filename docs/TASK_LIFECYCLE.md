@@ -10,7 +10,7 @@ The minimal task flow is:
 2. move it to `running`
 3. append outputs as work happens
 4. register artifacts when files are produced
-5. close the task as `done`, `failed`, or `cancelled`
+5. either close the task as `done`, `failed`, or `cancelled`, or delegate it for future worker execution
 6. inspect a short summary when needed
 
 ## Create
@@ -32,6 +32,8 @@ Tasks move to running with:
 ```
 
 That keeps the existing task model intact and refreshes `updated_at`.
+
+Tasks can also move to `delegated` when they are prepared for a future worker handoff without executing any worker yet.
 
 ## Add outputs
 
@@ -82,6 +84,22 @@ Allowed closing statuses are:
 
 If a note is provided, it is appended to `notes`.
 
+## Delegate for future worker
+
+Prepared-but-not-executed worker handoff uses:
+
+```text
+./scripts/task_delegate.sh <task_id>
+```
+
+This does not run any external worker. It persists a `handoff` block inside the task, appends a note, and moves the task to `delegated` when policy allows it.
+
+The handoff block can be inspected with:
+
+```text
+./scripts/task_handoff_show.sh <task_id>
+```
+
 ## Summary
 
 Short inspection is available through:
@@ -110,3 +128,5 @@ Before this layer, each `task_run_*` script had to rewrite task JSON directly to
 - add notes
 
 Now runners can focus on their real work and delegate lifecycle persistence to shared scripts. That keeps future capability runners simpler and makes the task layer a clearer base for later worker integration.
+
+The same layer now supports a clean bridge toward future workers: tasks remain local JSON records, but they can expose a machine-readable handoff contract before any real worker integration exists.

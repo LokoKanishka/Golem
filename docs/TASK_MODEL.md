@@ -41,12 +41,17 @@ Cada tarea incluye estos campos:
 - `artifacts`
 - `notes`
 
+Campo opcional cuando aplica:
+
+- `handoff`
+
 ## Estados validos
 
 La primera version valida solamente estos estados:
 
 - `queued`
 - `running`
+- `delegated`
 - `done`
 - `failed`
 - `cancelled`
@@ -57,6 +62,7 @@ La primera version valida solamente estos estados:
 - `canonical_session` se inicializa vacio
 - `objective` arranca igual al `title`
 - `inputs`, `outputs`, `artifacts` y `notes` arrancan como listas vacias
+- `handoff` es opcional y aparece solo cuando una tarea queda preparada para `worker_future`
 - `created_at` y `updated_at` usan timestamp UTC ISO 8601
 
 ## Scripts
@@ -81,3 +87,5 @@ La base operativa minima queda cubierta por:
 Esto no es todavia un scheduler, ni una cola de workers, ni una integracion viva con el panel.
 
 Es solamente la fundacion local del modelo de tarea para que Golem pueda hablar de trabajo estructurado con IDs, estados y metadata minima.
+
+Tambien permite dejar una tarea en estado `delegated` con un bloque `handoff` persistido para una futura integracion con workers, sin ejecutar nada externo todavia.
