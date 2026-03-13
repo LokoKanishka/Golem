@@ -9,6 +9,10 @@ usage() {
   cat <<USAGE
 Uso:
   ./scripts/task_new.sh <type> <title>
+
+Opcional por entorno:
+  TASK_PARENT_TASK_ID=<task_id_padre>
+  TASK_DEPENDS_ON='["task-a","task-b"]'
 USAGE
 }
 
@@ -56,19 +60,37 @@ task_path="$TASKS_DIR/${task_id}.json"
 tmp_path="$(mktemp "$TASKS_DIR/.task-new.XXXXXX.tmp")"
 trap 'rm -f "$tmp_path"' EXIT
 
+TASK_PARENT_TASK_ID="${TASK_PARENT_TASK_ID:-}" \
+TASK_DEPENDS_ON="${TASK_DEPENDS_ON:-}" \
 python3 - "$task_id" "$task_type" "$title" > "$tmp_path" <<'PY'
 import datetime
 import json
+import os
 import sys
 
 task_id, task_type, title = sys.argv[1:4]
 now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
+parent_task_id = os.environ.get("TASK_PARENT_TASK_ID", "").strip()
+depends_on_raw = os.environ.get("TASK_DEPENDS_ON", "").strip()
+
+depends_on = []
+if depends_on_raw:
+    try:
+        parsed = json.loads(depends_on_raw)
+    except json.JSONDecodeError:
+        parsed = [item.strip() for item in depends_on_raw.split(",") if item.strip()]
+    if isinstance(parsed, list):
+        depends_on = [str(item).strip() for item in parsed if str(item).strip()]
+    else:
+        raise SystemExit("TASK_DEPENDS_ON debe ser una lista JSON o una lista separada por comas")
 
 task = {
     "task_id": task_id,
     "type": task_type,
     "origin": "local",
     "canonical_session": "",
+    "parent_task_id": parent_task_id,
+    "depends_on": depends_on,
     "status": "queued",
     "created_at": now,
     "updated_at": now,

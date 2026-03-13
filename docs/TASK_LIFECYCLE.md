@@ -9,11 +9,12 @@ Markdown file outputs should also follow the minimum conventions in `docs/OUTPUT
 The minimal task flow is:
 
 1. create the task
-2. move it to `running`
-3. append outputs as work happens
-4. register artifacts when files are produced
-5. either close the task as `done`, `failed`, or `cancelled`, or delegate it for future worker execution
-6. inspect a short summary when needed
+2. optionally relate it to a parent task or declare dependencies
+3. move it to `running`
+4. append outputs as work happens
+5. register artifacts when files are produced
+6. either close the task as `done`, `failed`, or `cancelled`, or delegate it for future worker execution
+7. inspect a short summary when needed
 
 ## Create
 
@@ -24,6 +25,28 @@ New tasks are created with:
 ```
 
 This initializes the JSON file under `tasks/` with status `queued`.
+
+For orchestration-aware creation, `task_new.sh` also accepts:
+
+```text
+TASK_PARENT_TASK_ID=<task_id_padre>
+TASK_DEPENDS_ON='["task-a","task-b"]' ./scripts/task_new.sh <type> <title>
+```
+
+These fields are declarative only in this version. They do not schedule or block execution by themselves.
+
+## Spawn child task
+
+Direct child creation is available through:
+
+```text
+./scripts/task_spawn_child.sh <parent_task_id> <type> <title>
+```
+
+This creates a new task with:
+
+- `parent_task_id` set to the parent
+- `depends_on` initialized with the parent task id
 
 ## Move to running
 
@@ -134,6 +157,8 @@ It prints:
 - type
 - status
 - title
+- parent task id
+- dependency count
 - output count
 - artifact count
 - last note

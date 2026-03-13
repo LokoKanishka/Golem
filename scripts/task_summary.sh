@@ -39,11 +39,15 @@ with task_path.open(encoding="utf-8") as fh:
 
 notes = task.get("notes", [])
 last_note = notes[-1] if notes else "(none)"
+parent_task_id = task.get("parent_task_id") or "(none)"
+depends_on = task.get("depends_on") or []
 
 print(f"task_id: {task.get('task_id', task_path.stem)}")
 print(f"type: {task.get('type', '?')}")
 print(f"status: {task.get('status', '?')}")
 print(f"title: {task.get('title', '')}")
+print(f"parent_task_id: {parent_task_id}")
+print(f"depends_on: {len(depends_on)}")
 print(f"outputs: {len(task.get('outputs', []))}")
 print(f"artifacts: {len(task.get('artifacts', []))}")
 print(f"last_note: {last_note}")

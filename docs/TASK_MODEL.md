@@ -31,6 +31,8 @@ Cada tarea incluye estos campos:
 - `type`
 - `origin`
 - `canonical_session`
+- `parent_task_id`
+- `depends_on`
 - `status`
 - `created_at`
 - `updated_at`
@@ -62,10 +64,31 @@ La primera version valida solamente estos estados:
 
 - `origin` se inicializa como `local`
 - `canonical_session` se inicializa vacio
+- `parent_task_id` se inicializa vacio si no aplica
+- `depends_on` se inicializa como lista vacia
 - `objective` arranca igual al `title`
 - `inputs`, `outputs`, `artifacts` y `notes` arrancan como listas vacias
 - `handoff` es opcional y aparece solo cuando una tarea queda preparada para `worker_future`
 - `created_at` y `updated_at` usan timestamp UTC ISO 8601
+
+## Relacion minima entre tareas
+
+La primera capa de orquestacion local agrega dos campos simples:
+
+- `parent_task_id`
+- `depends_on`
+
+`parent_task_id` representa una relacion jerarquica minima entre una tarea y su tarea padre.
+
+`depends_on` representa dependencias declarativas minimas hacia otras tareas, por ejemplo cuando una child task solo tiene sentido despues de que otra termine.
+
+En esta etapa estos campos:
+
+- no activan scheduling
+- no bloquean ejecucion automaticamente
+- no resuelven orden por si solos
+
+Solo dejan trazabilidad estructural para coordinacion local y futura orquestacion.
 
 ## Scripts
 
@@ -75,6 +98,8 @@ La base operativa minima queda cubierta por:
 - `./scripts/task_show.sh <task_id>`
 - `./scripts/task_list.sh`
 - `./scripts/task_update.sh <task_id> <status>`
+- `./scripts/task_spawn_child.sh <parent_task_id> <type> <title>`
+- `./scripts/task_tree.sh <task_id>`
 
 ## Reglas de implementacion
 
