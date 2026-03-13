@@ -100,6 +100,16 @@ The handoff block can be inspected with:
 ./scripts/task_handoff_show.sh <task_id>
 ```
 
+## Record manual worker result
+
+Delegated tasks can be closed manually after Codex work returns:
+
+```text
+./scripts/task_record_worker_result.sh <task_id> <status> <summary> [--artifact <path> ...]
+```
+
+This appends a `worker-result` entry to `outputs`, optionally registers returned artifacts, and closes the task as `done` or `failed`.
+
 ## Summary
 
 Short inspection is available through:
@@ -130,3 +140,5 @@ Before this layer, each `task_run_*` script had to rewrite task JSON directly to
 Now runners can focus on their real work and delegate lifecycle persistence to shared scripts. That keeps future capability runners simpler and makes the task layer a clearer base for later worker integration.
 
 The same layer now supports a clean bridge toward future workers: tasks remain local JSON records, but they can expose a machine-readable handoff contract before any real worker integration exists.
+
+That bridge now also supports manual return: a delegated task can receive a formal worker result and move back into a normal closed state without any automatic callback integration.

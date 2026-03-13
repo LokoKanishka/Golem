@@ -45,6 +45,8 @@ Campo opcional cuando aplica:
 
 - `handoff`
 
+Los `outputs` tambien pueden incluir resultados manuales de worker, por ejemplo una entrada `worker-result` con `source: codex_manual`, `status` y `summary`.
+
 ## Estados validos
 
 La primera version valida solamente estos estados:
@@ -89,3 +91,5 @@ Esto no es todavia un scheduler, ni una cola de workers, ni una integracion viva
 Es solamente la fundacion local del modelo de tarea para que Golem pueda hablar de trabajo estructurado con IDs, estados y metadata minima.
 
 Tambien permite dejar una tarea en estado `delegated` con un bloque `handoff` persistido para una futura integracion con workers, sin ejecutar nada externo todavia.
+
+Cuando un worker externo devuelve resultado de manera manual, la misma tarea puede cerrarse en `done` o `failed` dejando ese retorno persistido en `outputs` y `artifacts`.

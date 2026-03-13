@@ -3,16 +3,36 @@
   "type": "bibliography-build",
   "origin": "local",
   "canonical_session": "",
-  "status": "delegated",
+  "status": "done",
   "created_at": "2026-03-13T03:26:39+00:00",
-  "updated_at": "2026-03-13T03:26:49+00:00",
+  "updated_at": "2026-03-13T03:51:31+00:00",
   "title": "Delegacion de bibliografia de prueba",
   "objective": "Delegacion de bibliografia de prueba",
   "inputs": [],
-  "outputs": [],
-  "artifacts": [],
+  "outputs": [
+    {
+      "kind": "worker-result",
+      "captured_at": "2026-03-13T03:51:30+00:00",
+      "exit_code": 0,
+      "content": "resultado manual de Codex de prueba",
+      "status": "done",
+      "summary": "resultado manual de Codex de prueba",
+      "source": "codex_manual",
+      "artifact_paths": [
+        "handoffs/task-20260313T032639Z-f470b6bf.codex.md"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260313T032639Z-f470b6bf.codex.md",
+      "kind": "worker-result",
+      "created_at": "2026-03-13T03:51:31+00:00"
+    }
+  ],
   "notes": [
-    "delegated to worker_future on 2026-03-13T03:26:49+00:00"
+    "delegated to worker_future on 2026-03-13T03:26:49+00:00",
+    "manual worker result recorded from codex"
   ],
   "handoff": {
     "delegated_to": "worker_future",
