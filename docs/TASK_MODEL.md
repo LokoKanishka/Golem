@@ -66,6 +66,17 @@ Las tareas delegadas que entran en corrida controlada de Codex tambien pueden pe
 - timestamps de inicio y fin
 - `exit_code`
 - estado interno de la corrida
+- `result_status`
+- `sandbox_mode`
+- `decision_source`
+- `policy_version`
+
+El estado interno recomendado de `worker_run.state` en esta etapa es:
+
+- `ready`
+- `running`
+- `finished`
+- `failed`
 
 ## Estados validos
 

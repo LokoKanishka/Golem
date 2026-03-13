@@ -53,8 +53,13 @@ with task_path.open(encoding="utf-8") as fh:
 
 task_id = task.get("task_id", task_path.stem)
 status = task.get("status")
+worker_run = task.get("worker_run") or {}
+worker_state = worker_run.get("state", "")
 if status not in {"worker_running", "delegated"}:
     print(f"ERROR: la tarea {task_id} no esta en worker_running ni delegated", file=sys.stderr)
+    raise SystemExit(1)
+if status == "worker_running" and worker_state not in {"finished", "failed"}:
+    print(f"ERROR: la tarea {task_id} aun no tiene una corrida worker terminada", file=sys.stderr)
     raise SystemExit(1)
 PY
 
@@ -157,6 +162,7 @@ with task_path.open(encoding="utf-8") as fh:
 worker_run = task.setdefault("worker_run", {})
 worker_run["finish_status"] = finish_status
 worker_run["finish_summary"] = summary
+worker_run["result_status"] = finish_status
 worker_run["closed_at"] = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
 task["updated_at"] = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
 task.setdefault("notes", []).append(f"controlled codex run finish requested with status={finish_status}")

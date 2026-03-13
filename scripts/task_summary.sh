@@ -60,6 +60,7 @@ if chain_summary:
     print(f"child_count: {chain_summary.get('child_count', 0)}")
 if worker_run:
     print(f"worker_state: {worker_run.get('state', '(none)')}")
+    print(f"worker_result_status: {worker_run.get('result_status', '(none)')}")
 print(f"outputs: {len(task.get('outputs', []))}")
 print(f"artifacts: {len(task.get('artifacts', []))}")
 print(f"last_note: {last_note}")

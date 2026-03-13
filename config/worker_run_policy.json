@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "default_mode": "deny",
+  "allow_real_codex_run_for": [
+    "repo-analysis",
+    "bibliography-build"
+  ],
+  "deny_real_codex_run_for": [
+    "self-check",
+    "artifact-find",
+    "artifact-snapshot",
+    "compare-files",
+    "nav-tabs",
+    "nav-open",
+    "nav-snapshot",
+    "read-find",
+    "read-snapshot",
+    "task-chain",
+    "orchestration-demo",
+    "smoke-task-core"
+  ],
+  "required_preconditions": [
+    "task_exists",
+    "task_status_delegated",
+    "task_not_closed",
+    "worker_not_already_running",
+    "handoff_present",
+    "codex_ticket_ready",
+    "repo_exists",
+    "codex_cli_available",
+    "policy_allows_real_run"
+  ],
+  "allowed_sandbox_modes": [
+    "read-only"
+  ]
+}

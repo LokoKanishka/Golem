@@ -26,6 +26,7 @@ Before this step, Golem only prepared:
 Now Golem can also:
 
 - mark the task as `worker_running`
+- validate policy and preconditions before launch
 - run Codex CLI over the prepared ticket
 - persist prompt, log, and final message
 
@@ -61,6 +62,13 @@ The delegated execution flow is now:
 - the run has a prompt/ticket/log trail
 - the task has not been formally closed yet
 
+The richer internal worker states live in `worker_run.state`:
+
+- `ready`
+- `running`
+- `finished`
+- `failed`
+
 ## How to start a controlled run
 
 Use:
@@ -71,12 +79,12 @@ Use:
 
 The script:
 
-1. verifies the task exists
-2. verifies it is in `delegated`
+1. runs preflight
+2. checks policy permission
 3. ensures `handoffs/<task_id>.codex.md` exists
 4. writes a controlled prompt file
-5. changes the task to `worker_running`
-6. runs Codex CLI in read-only mode
+5. marks the worker as `ready`, then `running`
+6. runs Codex CLI in the allowed sandbox mode
 7. persists:
    - prompt path
    - ticket path
@@ -84,6 +92,8 @@ The script:
    - last message path
    - command
    - exit code
+
+If `codex exec` exits non-zero, the task is marked failed immediately and the worker state becomes `failed`.
 
 ## How to close the run
 
@@ -99,6 +109,8 @@ The script:
 - can also accept `delegated` for a documented fallback
 - wraps the Codex last message into a Markdown artifact when possible
 - reuses `task_record_worker_result.sh`
+
+If the run finished technically well, `task_finish_codex_run.sh` records the semantic final result and persists `worker_run.result_status`.
 
 ## Where the evidence lives
 

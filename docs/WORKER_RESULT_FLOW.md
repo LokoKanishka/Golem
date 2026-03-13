@@ -50,6 +50,8 @@ Corrida controlada:
 ./scripts/task_start_codex_run.sh <task_id>
 ./scripts/task_finish_codex_run.sh <task_id> <status> <summary> [--artifact <path> ...]
 ./scripts/task_worker_run_show.sh <task_id>
+./scripts/task_worker_preflight.sh <task_id>
+./scripts/task_worker_can_run.sh <task_id>
 ```
 
 Validacion minima de artifacts Markdown:
@@ -76,5 +78,7 @@ Cuando hubo una corrida controlada, tambien conserva trazabilidad de:
 - prompt efectivo
 - log de la corrida
 - salida final de Codex
+- policy decision
+- sandbox mode
 
 Eso permite auditar la corrida sin convertirla todavia en una integracion automatica total.

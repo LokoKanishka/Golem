@@ -62,6 +62,13 @@ Tasks can also move to `delegated` when they are prepared for a future worker ha
 
 Delegated tasks can also move to `worker_running` when a controlled Codex CLI run starts.
 
+Before a real Codex run starts, Golem can validate governance with:
+
+```text
+./scripts/task_worker_can_run.sh <task_id>
+./scripts/task_worker_preflight.sh <task_id>
+```
+
 ## Add outputs
 
 Runners persist outputs with:
@@ -155,6 +162,8 @@ Controlled Codex execution uses:
 ```
 
 The start step moves the task into `worker_running` and persists run evidence.
+
+If `codex exec` exits non-zero, the start step now marks the task coherently as failed and leaves worker evidence behind.
 
 The finish step closes the loop coherently after the run has completed.
 

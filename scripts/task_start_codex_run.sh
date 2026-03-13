@@ -29,34 +29,16 @@ if [ ! -f "$task_path" ]; then
   fatal "no existe la tarea: $task_id"
 fi
 
-python3 - "$task_path" <<'PY'
-import json
-import pathlib
-import sys
-
-task_path = pathlib.Path(sys.argv[1])
-with task_path.open(encoding="utf-8") as fh:
-    task = json.load(fh)
-
-task_id = task.get("task_id", task_path.stem)
-if task.get("status") != "delegated":
-    print(f"ERROR: la tarea {task_id} no esta en estado delegated", file=sys.stderr)
-    raise SystemExit(1)
-
-if not isinstance(task.get("handoff"), dict):
-    print(f"ERROR: la tarea {task_id} no tiene bloque handoff", file=sys.stderr)
-    raise SystemExit(1)
-PY
-
 mkdir -p "$HANDOFFS_DIR"
 cd "$REPO_ROOT"
 
-ticket_path="$HANDOFFS_DIR/${task_id}.codex.md"
-if [ ! -f "$ticket_path" ]; then
-  ./scripts/task_prepare_codex_ticket.sh "$task_id" >/dev/null
-fi
+preflight_output="$(./scripts/task_worker_preflight.sh "$task_id")"
+printf '%s\n' "$preflight_output"
 
+ticket_path="$HANDOFFS_DIR/${task_id}.codex.md"
 [ -f "$ticket_path" ] || fatal "no existe el ticket Codex para $task_id"
+sandbox_mode="$(printf '%s\n' "$preflight_output" | sed -n 's/^sandbox_mode: //p' | tail -n 1)"
+[ -n "$sandbox_mode" ] || sandbox_mode="read-only"
 
 prompt_path="$HANDOFFS_DIR/${task_id}.run.prompt.md"
 log_path="$HANDOFFS_DIR/${task_id}.run.log"
@@ -102,17 +84,73 @@ mv "$tmp_prompt" "$prompt_path"
 trap - EXIT
 
 started_at="$(date -u --iso-8601=seconds)"
-command_string="codex exec -C \"$REPO_ROOT\" -s read-only --color never -o \"$last_message_path\" - < \"$prompt_path\" > \"$log_path\" 2>&1"
+command_string="codex exec -C \"$REPO_ROOT\" -s \"$sandbox_mode\" --color never -o \"$last_message_path\" - < \"$prompt_path\" >> \"$log_path\" 2>&1"
 
-tmp_task="$(mktemp "$TASKS_DIR/.task-worker-run.XXXXXX.tmp")"
+tmp_task="$(mktemp "$TASKS_DIR/.task-worker-ready.XXXXXX.tmp")"
 trap 'rm -f "$tmp_task"' EXIT
-python3 - "$task_path" "$ticket_path" "$prompt_path" "$log_path" "$last_message_path" "$command_string" "$started_at" >"$tmp_task" <<'PY'
+python3 - "$task_path" "$ticket_path" "$prompt_path" "$log_path" "$last_message_path" "$command_string" "$started_at" "$sandbox_mode" >"$tmp_task" <<'PY'
 import datetime
 import json
 import pathlib
 import sys
 
-task_path, ticket_path, prompt_path, log_path, last_message_path, command_string, started_at = sys.argv[1:8]
+task_path, ticket_path, prompt_path, log_path, last_message_path, command_string, started_at, sandbox_mode = sys.argv[1:9]
+task_path = pathlib.Path(task_path)
+with task_path.open(encoding="utf-8") as fh:
+    task = json.load(fh)
+
+task["updated_at"] = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
+task["worker_run"] = {
+    "runner": "codex_cli",
+    "state": "ready",
+    "result_status": "pending",
+    "decision_source": "worker_run_policy",
+    "policy_version": "1.0",
+    "ticket_path": pathlib.Path(ticket_path).relative_to(task_path.parent.parent).as_posix(),
+    "prompt_path": pathlib.Path(prompt_path).relative_to(task_path.parent.parent).as_posix(),
+    "log_path": pathlib.Path(log_path).relative_to(task_path.parent.parent).as_posix(),
+    "last_message_path": pathlib.Path(last_message_path).relative_to(task_path.parent.parent).as_posix(),
+    "command": command_string,
+    "sandbox_mode": sandbox_mode,
+    "started_at": started_at,
+}
+task.setdefault("notes", []).append(f"controlled codex run preflight passed on {started_at}")
+
+json.dump(task, sys.stdout, indent=2, ensure_ascii=True)
+sys.stdout.write("\n")
+PY
+mv "$tmp_task" "$task_path"
+trap - EXIT
+
+TASK_OUTPUT_EXTRA_JSON="$(
+  python3 - "$ticket_path" "$log_path" "$prompt_path" "$last_message_path" "$command_string" "$sandbox_mode" <<'PY'
+import json
+import pathlib
+import sys
+
+ticket_path, log_path, prompt_path, last_message_path, command_string, sandbox_mode = sys.argv[1:7]
+repo_root = pathlib.Path(ticket_path).resolve().parent.parent
+print(json.dumps({
+    "ticket_path": pathlib.Path(ticket_path).resolve().relative_to(repo_root).as_posix(),
+    "prompt_path": pathlib.Path(prompt_path).resolve().relative_to(repo_root).as_posix(),
+    "log_path": pathlib.Path(log_path).resolve().relative_to(repo_root).as_posix(),
+    "last_message_path": pathlib.Path(last_message_path).resolve().relative_to(repo_root).as_posix(),
+    "command": command_string,
+    "sandbox_mode": sandbox_mode,
+    "decision_source": "worker_run_policy",
+}))
+PY
+)" ./scripts/task_add_output.sh "$task_id" "worker-run-ready" 0 "controlled codex run passed preflight"
+
+tmp_task="$(mktemp "$TASKS_DIR/.task-worker-run.XXXXXX.tmp")"
+trap 'rm -f "$tmp_task"' EXIT
+python3 - "$task_path" "$ticket_path" "$prompt_path" "$log_path" "$last_message_path" "$command_string" "$started_at" "$sandbox_mode" >"$tmp_task" <<'PY'
+import datetime
+import json
+import pathlib
+import sys
+
+task_path, ticket_path, prompt_path, log_path, last_message_path, command_string, started_at, sandbox_mode = sys.argv[1:9]
 task_path = pathlib.Path(task_path)
 with task_path.open(encoding="utf-8") as fh:
     task = json.load(fh)
@@ -122,11 +160,15 @@ task["updated_at"] = datetime.datetime.now(datetime.timezone.utc).replace(micros
 task["worker_run"] = {
     "runner": "codex_cli",
     "state": "running",
+    "result_status": "pending",
+    "decision_source": "worker_run_policy",
+    "policy_version": "1.0",
     "ticket_path": pathlib.Path(ticket_path).relative_to(task_path.parent.parent).as_posix(),
     "prompt_path": pathlib.Path(prompt_path).relative_to(task_path.parent.parent).as_posix(),
     "log_path": pathlib.Path(log_path).relative_to(task_path.parent.parent).as_posix(),
     "last_message_path": pathlib.Path(last_message_path).relative_to(task_path.parent.parent).as_posix(),
     "command": command_string,
+    "sandbox_mode": sandbox_mode,
     "started_at": started_at,
 }
 task.setdefault("notes", []).append(f"controlled codex run started on {started_at}")
@@ -166,7 +208,7 @@ PY
 } >"$log_path"
 
 set +e
-codex exec -C "$REPO_ROOT" -s read-only --color never -o "$last_message_path" - <"$prompt_path" >>"$log_path" 2>&1
+codex exec -C "$REPO_ROOT" -s "$sandbox_mode" --color never -o "$last_message_path" - <"$prompt_path" >>"$log_path" 2>&1
 codex_exit="$?"
 set -e
 
@@ -188,10 +230,16 @@ with task_path.open(encoding="utf-8") as fh:
     task = json.load(fh)
 
 worker_run = task.setdefault("worker_run", {})
-worker_run["state"] = "finished"
+if codex_exit == 0:
+    worker_run["state"] = "finished"
+else:
+    worker_run["state"] = "failed"
+    worker_run["result_status"] = "failed"
 worker_run["exit_code"] = codex_exit
 worker_run["finished_at"] = finished_at
 task["updated_at"] = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
+if codex_exit != 0:
+    task["status"] = "failed"
 task.setdefault("notes", []).append(
     f"controlled codex run finished on {finished_at} with exit_code={codex_exit}"
 )
@@ -218,6 +266,23 @@ print(json.dumps({
 PY
 )" ./scripts/task_add_output.sh "$task_id" "worker-run-finish" "$codex_exit" "controlled codex run finished with exit_code=$codex_exit"
 
+if [ "$codex_exit" -ne 0 ]; then
+  TASK_OUTPUT_EXTRA_JSON="$(
+    python3 - "$log_path" "$last_message_path" <<'PY'
+import json
+import pathlib
+import sys
+
+log_path, last_message_path = sys.argv[1:3]
+repo_root = pathlib.Path(log_path).resolve().parent.parent
+print(json.dumps({
+    "log_path": pathlib.Path(log_path).resolve().relative_to(repo_root).as_posix(),
+    "last_message_path": pathlib.Path(last_message_path).resolve().relative_to(repo_root).as_posix(),
+}))
+PY
+  )" ./scripts/task_add_output.sh "$task_id" "worker-run-failed" "$codex_exit" "controlled codex run failed technically"
+fi
+
 printf '\nTASK_WORKER_RUN_FINISHED %s\n' "$task_id" >>"$log_path"
 printf 'finished_at: %s\n' "$finished_at" >>"$log_path"
 printf 'exit_code: %s\n' "$codex_exit" >>"$log_path"
@@ -225,3 +290,4 @@ printf 'exit_code: %s\n' "$codex_exit" >>"$log_path"
 printf 'TASK_WORKER_RUN_STARTED %s\n' "$task_id"
 printf 'TASK_WORKER_RUN_FINISHED %s\n' "$task_id"
 printf 'log_path: %s\n' "${log_path#$REPO_ROOT/}"
+exit "$codex_exit"
