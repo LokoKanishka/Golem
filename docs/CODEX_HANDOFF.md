@@ -70,6 +70,17 @@ Para ver el packet generado:
 ./scripts/task_handoff_packet_show.sh <task_id>
 ```
 
+## Relacion con el codex ticket
+
+El handoff packet no es todavia el ticket final para Codex.
+
+Sirve como capa intermedia entre:
+
+- la tarea delegada en JSON
+- el ticket listo para pegar en Codex
+
+El ticket listo para Codex se genera aparte y agrega restricciones operativas, framing de ejecucion y formato de entrega esperado.
+
 ## Uso manual con Codex
 
 El flujo manual esperado es:

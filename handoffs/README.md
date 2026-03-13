@@ -10,6 +10,7 @@ Formato actual:
 
 ```text
 handoffs/<task_id>.md
+handoffs/<task_id>.codex.md
 ```
 
 ## Relacion entre `tasks/` y `handoffs/`
@@ -20,7 +21,8 @@ handoffs/<task_id>.md
 En otras palabras:
 
 - la tarea registra el trabajo y su estado
-- el handoff packet resume y empaqueta esa tarea para Codex
+- el handoff packet resume y empaqueta esa tarea para delegacion
+- el codex ticket la deja lista para uso manual con Codex
 
 ## Que no significa
 
