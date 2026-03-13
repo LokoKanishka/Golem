@@ -19,13 +19,13 @@ This document summarizes which Golem capabilities already run as formal tasks an
   runner: `./scripts/task_run_artifact.sh`
 - simple comparison from files
   runner: `./scripts/task_run_compare.sh`
+- browser navigation
+  runner: `./scripts/task_run_nav.sh`
+- precise reading
+  runner: `./scripts/task_run_read.sh`
 
 ## Not yet integrated as formal tasks
 
-- browser navigation
-  today it remains a direct capability via `./scripts/browser_nav.sh`
-- precise reading
-  today it remains a direct capability via `./scripts/browser_read.sh`
 - launcher
   today it is an operational entrypoint, not a task runner
 
@@ -38,10 +38,10 @@ Golem now has a clear split:
 
 ## Next logical step
 
-The next reasonable step after this is to formalize reading and navigation under the same task model, so Golem can persist:
+The next reasonable step after this is to move from capability-specific task runners to session-aware orchestration, so Golem can persist:
 
-- what page or tab was used
-- what was extracted
-- what artifact or report resulted
+- which canonical session requested the work
+- how multiple task steps relate to the same objective
+- when a future worker should be woken up
 
-That would complete the first coherent task layer before any future live worker integration.
+That would be the bridge from the current task layer into a future worker phase without losing the discipline already built here.

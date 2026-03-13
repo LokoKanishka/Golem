@@ -1,0 +1,40 @@
+{
+  "task_id": "task-20260313T023944Z-55d0b2b6",
+  "type": "read-find",
+  "origin": "local",
+  "canonical_session": "",
+  "status": "failed",
+  "created_at": "2026-03-13T02:39:44+00:00",
+  "updated_at": "2026-03-13T02:39:48+00:00",
+  "title": "Read integration test",
+  "objective": "Read integration test",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "read-find",
+      "captured_at": "2026-03-13T02:39:48+00:00",
+      "exit_code": 1,
+      "content": "[profile=chrome exit=1]\nERROR: no hay tabs adjuntas al perfil chrome\nAdjunt\u00e1 una pesta\u00f1a con OpenClaw Browser Relay (badge ON) y volv\u00e9 a probar.\n\n\n[profile=openclaw exit=1]\nERROR: no hay tabs adjuntas al perfil openclaw\nAdjunt\u00e1 una pesta\u00f1a con OpenClaw Browser Relay (badge ON) y volv\u00e9 a probar.",
+      "command": "./scripts/browser_read.sh find Google",
+      "mode": "find",
+      "profile": "",
+      "attempts": [
+        {
+          "profile": "chrome",
+          "exit_code": 1,
+          "content": "ERROR: no hay tabs adjuntas al perfil chrome\nAdjunt\u00e1 una pesta\u00f1a con OpenClaw Browser Relay (badge ON) y volv\u00e9 a probar.\n"
+        },
+        {
+          "profile": "openclaw",
+          "exit_code": 1,
+          "content": "ERROR: no hay tabs adjuntas al perfil openclaw\nAdjunt\u00e1 una pesta\u00f1a con OpenClaw Browser Relay (badge ON) y volv\u00e9 a probar.\n"
+        }
+      ],
+      "query": "Google"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "reading failed"
+  ]
+}
