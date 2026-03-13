@@ -60,6 +60,8 @@ That keeps the existing task model intact and refreshes `updated_at`.
 
 Tasks can also move to `delegated` when they are prepared for a future worker handoff without executing any worker yet.
 
+Delegated tasks can also move to `worker_running` when a controlled Codex CLI run starts.
+
 ## Add outputs
 
 Runners persist outputs with:
@@ -144,6 +146,17 @@ Delegated tasks can be closed manually after Codex work returns:
 This appends a `worker-result` entry to `outputs`, optionally registers returned artifacts, and closes the task as `done` or `failed`.
 
 When the returned artifact is Markdown, the script validates it before registering it.
+
+Controlled Codex execution uses:
+
+```text
+./scripts/task_start_codex_run.sh <task_id>
+./scripts/task_finish_codex_run.sh <task_id> <status> <summary> [--artifact <path> ...]
+```
+
+The start step moves the task into `worker_running` and persists run evidence.
+
+The finish step closes the loop coherently after the run has completed.
 
 ## Summary
 

@@ -49,6 +49,7 @@ Campo opcional cuando aplica:
 - `chain_type`
 - `chain_status`
 - `chain_summary`
+- `worker_run`
 
 Los `outputs` tambien pueden incluir resultados manuales de worker, por ejemplo una entrada `worker-result` con `source: codex_manual`, `status` y `summary`.
 
@@ -58,6 +59,14 @@ Las tareas raiz de cadena tambien pueden persistir:
 - `chain_status` para reflejar el estado interno de la orquestacion
 - `chain_summary` para dejar una vista agregada de las child tasks
 
+Las tareas delegadas que entran en corrida controlada de Codex tambien pueden persistir:
+
+- `worker_run` con paths de ticket/prompt/log
+- comando ejecutado
+- timestamps de inicio y fin
+- `exit_code`
+- estado interno de la corrida
+
 ## Estados validos
 
 La primera version valida solamente estos estados:
@@ -65,6 +74,7 @@ La primera version valida solamente estos estados:
 - `queued`
 - `running`
 - `delegated`
+- `worker_running`
 - `done`
 - `failed`
 - `cancelled`

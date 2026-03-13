@@ -10,8 +10,9 @@ El flujo actual queda asi:
 2. si corresponde, se delega a `worker_future`
 3. se genera un handoff packet
 4. se genera un codex ticket listo para uso manual
-5. Codex trabaja fuera de esta capa
-6. el operador registra el resultado manualmente en la tarea original
+5. opcionalmente Golem inicia una corrida controlada de Codex CLI
+6. Codex trabaja y deja log/prompt/salida persistidos
+7. el operador o script de cierre registra el resultado en la tarea original
 
 ## Que se persiste al volver del worker
 
@@ -28,12 +29,12 @@ Si un artifact pasado al script es Markdown (`.md`), ahora tambien debe cumplir 
 
 ## Estados permitidos despues del resultado
 
-Una tarea en `delegated` puede pasar manualmente a:
+Una tarea en `delegated` o `worker_running` puede pasar manualmente a:
 
 - `done`
 - `failed`
 
-No se implementa todavia un estado de callback, worker activo o sincronizacion en tiempo real.
+No se implementa todavia un estado de callback, worker activo en background o sincronizacion en tiempo real.
 
 ## Scripts
 
@@ -41,6 +42,14 @@ Registro del resultado:
 
 ```text
 ./scripts/task_record_worker_result.sh <task_id> <status> <summary> [--artifact <path> ...]
+```
+
+Corrida controlada:
+
+```text
+./scripts/task_start_codex_run.sh <task_id>
+./scripts/task_finish_codex_run.sh <task_id> <status> <summary> [--artifact <path> ...]
+./scripts/task_worker_run_show.sh <task_id>
 ```
 
 Validacion minima de artifacts Markdown:
@@ -57,8 +66,15 @@ Resumen breve orientado a worker:
 
 ## Regla operativa
 
-Este paso no ejecuta Codex ni valida automaticamente la calidad semantica del resultado.
+El cierre del resultado no valida automaticamente la calidad semantica del trabajo de Codex.
 
 Pero si recibe artifacts Markdown, exige que no sean vacios, que tengan estructura minima y que lleven un timestamp trazable.
 
-Solo deja trazabilidad formal y coherente dentro del modelo de tareas para cerrar manualmente el loop.
+Cuando hubo una corrida controlada, tambien conserva trazabilidad de:
+
+- ticket usado
+- prompt efectivo
+- log de la corrida
+- salida final de Codex
+
+Eso permite auditar la corrida sin convertirla todavia en una integracion automatica total.

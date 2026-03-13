@@ -72,8 +72,8 @@ with task_path.open(encoding="utf-8") as fh:
     task = json.load(fh)
 
 task_id = task.get("task_id", task_path.stem)
-if task.get("status") != "delegated":
-    print(f"ERROR: la tarea {task_id} no esta en estado delegated", file=sys.stderr)
+if task.get("status") not in {"delegated", "worker_running"}:
+    print(f"ERROR: la tarea {task_id} no esta en estado delegated ni worker_running", file=sys.stderr)
     raise SystemExit(1)
 
 if not isinstance(task.get("handoff"), dict):
@@ -164,5 +164,5 @@ PY
   ./scripts/task_add_artifact.sh "$task_id" "worker-result" "$artifact_rel"
 done
 
-./scripts/task_close.sh "$task_id" "$status" "manual worker result recorded from codex"
+./scripts/task_close.sh "$task_id" "$status" "worker result recorded from codex"
 printf 'TASK_WORKER_RESULT_OK %s\n' "$task_id"

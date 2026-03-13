@@ -1,0 +1,142 @@
+# Codex Controlled Run
+
+This document defines the first controlled Codex CLI execution flow for delegated Golem tasks.
+
+## What "controlled run" means
+
+A controlled run means:
+
+1. a delegated task already exists
+2. Golem ensures the Codex ticket exists
+3. Golem launches `codex exec` explicitly
+4. the run leaves auditable evidence in the repo
+5. a human still decides how to close the task
+
+This is not background automation.
+
+## What changes compared to the previous manual loop
+
+Before this step, Golem only prepared:
+
+- task
+- delegated state
+- handoff packet
+- Codex-ready ticket
+
+Now Golem can also:
+
+- mark the task as `worker_running`
+- run Codex CLI over the prepared ticket
+- persist prompt, log, and final message
+
+## What remains manual
+
+This version still keeps manual closure.
+
+After the controlled run finishes, an operator or script still calls:
+
+```text
+./scripts/task_finish_codex_run.sh <task_id> <status> "<summary>" [--artifact <path> ...]
+```
+
+That means:
+
+- no scheduler
+- no background daemon
+- no callback integration
+- no silent auto-close
+
+## Worker-related task semantics
+
+The delegated execution flow is now:
+
+- `delegated`
+- `worker_running`
+- `done` or `failed`
+
+`worker_running` means:
+
+- the task was already delegated
+- a Codex run was explicitly started
+- the run has a prompt/ticket/log trail
+- the task has not been formally closed yet
+
+## How to start a controlled run
+
+Use:
+
+```text
+./scripts/task_start_codex_run.sh <task_id>
+```
+
+The script:
+
+1. verifies the task exists
+2. verifies it is in `delegated`
+3. ensures `handoffs/<task_id>.codex.md` exists
+4. writes a controlled prompt file
+5. changes the task to `worker_running`
+6. runs Codex CLI in read-only mode
+7. persists:
+   - prompt path
+   - ticket path
+   - log path
+   - last message path
+   - command
+   - exit code
+
+## How to close the run
+
+Use:
+
+```text
+./scripts/task_finish_codex_run.sh <task_id> <status> "<summary>" [--artifact <path> ...]
+```
+
+The script:
+
+- accepts `worker_running` as the normal pre-close state
+- can also accept `delegated` for a documented fallback
+- wraps the Codex last message into a Markdown artifact when possible
+- reuses `task_record_worker_result.sh`
+
+## Where the evidence lives
+
+The controlled run stores evidence under `handoffs/`:
+
+- `handoffs/<task_id>.codex.md`
+- `handoffs/<task_id>.run.prompt.md`
+- `handoffs/<task_id>.run.log`
+- `handoffs/<task_id>.run.last.md`
+- optionally `handoffs/<task_id>.run.result.md`
+
+## How to audit the run
+
+The core audit points are:
+
+- the exact ticket file used
+- the generated controlled prompt
+- the Codex CLI command recorded in the task
+- the run log
+- the last message file
+- the final worker result recorded in the task
+
+Useful commands:
+
+```text
+./scripts/task_worker_run_show.sh <task_id>
+./scripts/task_worker_summary.sh <task_id>
+sed -n '1,220p' handoffs/<task_id>.run.log
+```
+
+## Why this is not full automation yet
+
+This layer improves execution traceability, but it still does not provide:
+
+- automatic retries
+- job queueing
+- callback-based closure
+- async worker management
+- autonomous commit/push behavior
+
+It is an explicit, audited bridge between preparation and execution.
