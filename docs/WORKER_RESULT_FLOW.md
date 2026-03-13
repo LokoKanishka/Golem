@@ -1,6 +1,6 @@
 # Worker Result Flow
 
-Este documento define como se cierra manualmente el loop entre una tarea delegada y el resultado de Codex.
+Este documento define como se cierra el loop entre una tarea delegada y el resultado de Codex, ya sea con cierre manual o con extraccion automatica asistida.
 
 ## Relacion entre las piezas
 
@@ -13,19 +13,27 @@ El flujo actual queda asi:
 5. opcionalmente Golem inicia una corrida controlada de Codex CLI
 6. Codex trabaja y deja log/prompt/salida persistidos
 7. el operador o script de cierre registra el resultado en la tarea original
+8. opcionalmente Golem extrae un artifact final normalizado y resume el resultado automaticamente
 
 ## Que se persiste al volver del worker
 
-Cuando vuelve un resultado manual de Codex, la tarea registra:
+Cuando vuelve un resultado de Codex, la tarea registra:
 
 - una entrada nueva en `outputs` con `kind: worker-result`
 - `status` del resultado
 - `summary`
-- `source: codex_manual`
+- `source: codex_manual` o `codex_auto_extract`
 - artifacts opcionales si se pasan
 - una nota de cierre en `notes`
 
 Si un artifact pasado al script es Markdown (`.md`), ahora tambien debe cumplir la convencion minima documentada en `docs/OUTPUT_CONVENTIONS.md`.
+
+Cuando hubo extraccion automatica, tambien puede persistir en `worker_run`:
+
+- `extracted_summary`
+- `extracted_summary_lines`
+- `result_artifact_path`
+- `result_source_files`
 
 ## Estados permitidos despues del resultado
 
@@ -49,6 +57,8 @@ Corrida controlada:
 ```text
 ./scripts/task_start_codex_run.sh <task_id>
 ./scripts/task_finish_codex_run.sh <task_id> <status> <summary> [--artifact <path> ...]
+./scripts/task_extract_worker_result.sh <task_id>
+./scripts/task_finalize_codex_run.sh <task_id> <done|failed>
 ./scripts/task_worker_run_show.sh <task_id>
 ./scripts/task_worker_preflight.sh <task_id>
 ./scripts/task_worker_can_run.sh <task_id>
@@ -82,3 +92,13 @@ Cuando hubo una corrida controlada, tambien conserva trazabilidad de:
 - sandbox mode
 
 Eso permite auditar la corrida sin convertirla todavia en una integracion automatica total.
+
+## Regla practica nueva
+
+Si ya existe una corrida controlada terminada, el cierre recomendado pasa a ser:
+
+```text
+./scripts/task_finalize_codex_run.sh <task_id> <done|failed>
+```
+
+Ese wrapper genera primero un artifact final normalizado y luego reutiliza el mismo registro de `worker-result`.

@@ -10,7 +10,7 @@ A controlled run means:
 2. Golem ensures the Codex ticket exists
 3. Golem launches `codex exec` explicitly
 4. the run leaves auditable evidence in the repo
-5. a human still decides how to close the task
+5. a human or wrapper script still decides how to close the task
 
 This is not background automation.
 
@@ -32,12 +32,18 @@ Now Golem can also:
 
 ## What remains manual
 
-This version still keeps manual closure.
+This version still keeps explicit closure.
 
-After the controlled run finishes, an operator or script still calls:
+After the controlled run finishes, an operator can still call:
 
 ```text
 ./scripts/task_finish_codex_run.sh <task_id> <status> "<summary>" [--artifact <path> ...]
+```
+
+Or use the lower-friction wrapper:
+
+```text
+./scripts/task_finalize_codex_run.sh <task_id> <done|failed>
 ```
 
 That means:
@@ -107,10 +113,17 @@ The script:
 
 - accepts `worker_running` as the normal pre-close state
 - can also accept `delegated` for a documented fallback
-- wraps the Codex last message into a Markdown artifact when possible
+- reuses the automatic worker result extraction when no result artifact was passed
 - reuses `task_record_worker_result.sh`
 
 If the run finished technically well, `task_finish_codex_run.sh` records the semantic final result and persists `worker_run.result_status`.
+
+`task_finalize_codex_run.sh` goes one step further:
+
+- extracts a normalized result artifact from `run.last.md` and/or the log
+- derives a minimal summary
+- records the `worker-result`
+- closes the task with less manual writing
 
 ## Where the evidence lives
 
@@ -120,7 +133,7 @@ The controlled run stores evidence under `handoffs/`:
 - `handoffs/<task_id>.run.prompt.md`
 - `handoffs/<task_id>.run.log`
 - `handoffs/<task_id>.run.last.md`
-- optionally `handoffs/<task_id>.run.result.md`
+- `handoffs/<task_id>.run.result.md` after extraction/finalization
 
 ## How to audit the run
 

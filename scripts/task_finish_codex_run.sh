@@ -79,69 +79,22 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-auto_artifact="$(
-  python3 - "$task_path" "$summary" "$HANDOFFS_DIR" <<'PY'
-import datetime
-import json
-import pathlib
-import sys
+has_result_artifact="no"
+for artifact in "${artifacts[@]}"; do
+  case "$artifact" in
+    *.run.result.md|handoffs/*.run.result.md)
+      has_result_artifact="yes"
+      ;;
+  esac
+done
 
-task_path = pathlib.Path(sys.argv[1])
-summary = sys.argv[2]
-handoffs_dir = pathlib.Path(sys.argv[3])
-
-with task_path.open(encoding="utf-8") as fh:
-    task = json.load(fh)
-
-worker_run = task.get("worker_run") or {}
-last_message_rel = worker_run.get("last_message_path", "")
-if not last_message_rel:
-    print("")
-    raise SystemExit(0)
-
-repo_root = task_path.parent.parent
-last_message_path = repo_root / last_message_rel
-if not last_message_path.exists():
-    print("")
-    raise SystemExit(0)
-
-content = last_message_path.read_text(encoding="utf-8", errors="replace").strip()
-if not content:
-    print("")
-    raise SystemExit(0)
-
-artifact_path = handoffs_dir / f"{task.get('task_id', task_path.stem)}.run.result.md"
-generated_at = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
-
-lines = [
-    f"# Codex Controlled Run Result: {task.get('task_id', task_path.stem)}",
-    "",
-    f"generated_at: {generated_at}",
-    f"repo: {repo_root.as_posix()}",
-    f"task_type: {task.get('type', '')}",
-    f"task_id: {task.get('task_id', task_path.stem)}",
-    "",
-    "## Summary",
-    f"- {summary}",
-    "",
-    "## Worker Run",
-    f"- ticket_path: {worker_run.get('ticket_path', '(none)')}",
-    f"- prompt_path: {worker_run.get('prompt_path', '(none)')}",
-    f"- log_path: {worker_run.get('log_path', '(none)')}",
-    f"- exit_code: {worker_run.get('exit_code', '(none)')}",
-    "",
-    "## Codex Final Message",
-    content,
-]
-
-artifact_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-print(artifact_path.relative_to(repo_root).as_posix())
-PY
-)"
-
-if [ -n "$auto_artifact" ]; then
-  "$VALIDATE_MARKDOWN" "$REPO_ROOT/$auto_artifact" >/dev/null
-  artifacts+=("$auto_artifact")
+if [ "$has_result_artifact" = "no" ]; then
+  extract_output="$(./scripts/task_extract_worker_result.sh "$task_id" 2>/dev/null || true)"
+  auto_artifact="$(printf '%s\n' "$extract_output" | sed -n 's/^WORKER_RESULT_EXTRACTED //p' | tail -n 1)"
+  if [ -n "$auto_artifact" ]; then
+    "$VALIDATE_MARKDOWN" "$REPO_ROOT/$auto_artifact" >/dev/null
+    artifacts+=("$auto_artifact")
+  fi
 fi
 
 tmp_task="$(mktemp "$TASKS_DIR/.task-worker-run-close.XXXXXX.tmp")"

@@ -115,18 +115,28 @@ PY
 )"
 
 TASK_OUTPUT_EXTRA_JSON="$(
-  python3 - "$status" "$summary" "$artifact_paths_json" <<'PY'
+  WORKER_RESULT_EXTRA_JSON="${WORKER_RESULT_EXTRA_JSON:-}" python3 - "$status" "$summary" "$artifact_paths_json" <<'PY'
 import json
+import os
 import sys
 
 status, summary, artifact_paths_json = sys.argv[1:4]
 artifact_paths = json.loads(artifact_paths_json)
-print(json.dumps({
+payload = {
     "status": status,
     "summary": summary,
     "source": "codex_manual",
     "artifact_paths": artifact_paths,
-}))
+}
+
+extra_raw = os.environ.get("WORKER_RESULT_EXTRA_JSON", "")
+if extra_raw:
+    extra = json.loads(extra_raw)
+    if not isinstance(extra, dict):
+        raise SystemExit("WORKER_RESULT_EXTRA_JSON debe ser un objeto JSON")
+    payload.update(extra)
+
+print(json.dumps(payload))
 PY
 )" ./scripts/task_add_output.sh "$task_id" "worker-result" "$output_exit_code" "$summary"
 

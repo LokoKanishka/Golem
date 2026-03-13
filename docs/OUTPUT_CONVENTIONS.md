@@ -82,6 +82,11 @@ Examples by artifact type:
   - result
   - aggregated artifacts
   - notes
+- worker result artifact:
+  - summary
+  - source files
+  - raw result snippet
+  - notes
 
 ## Formatting Rules
 
