@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 OUTBOX_DIR="$REPO_ROOT/outbox/manual"
+VALIDATE_MARKDOWN="$REPO_ROOT/scripts/validate_markdown_artifact.sh"
 
 usage() {
   cat <<USAGE
@@ -82,6 +83,7 @@ publish_comparison() {
   local tmp="$1"
   local dest="$2"
 
+  "$VALIDATE_MARKDOWN" "$tmp" >/dev/null
   mv "$tmp" "$dest"
   chmod 664 "$dest"
   cleanup_files=("${cleanup_files[@]/$tmp}")
@@ -107,7 +109,7 @@ case "$cmd" in
     input_a="$(resolve_repo_file "$input_a_raw")"
     input_b="$(resolve_repo_file "$input_b_raw")"
     out_file="$(artifact_file "$slug")"
-    tmp_file="$(mktemp "$OUTBOX_DIR/.comparison.XXXXXX.tmp")"
+    tmp_file="$(mktemp "$OUTBOX_DIR/.comparison.XXXXXX.md")"
     register_cleanup "$tmp_file"
 
     python3 - "$slug" "$input_a" "$input_b" "$REPO_ROOT" > "$tmp_file" <<'PY'
@@ -178,6 +180,8 @@ input_b_rel = input_b_path.relative_to(repo_root_path)
 print(f"# {slug}")
 print()
 print(f"generated_at: {generated_at}")
+print(f"repo: {repo_root}")
+print("artifact_kind: compare-files")
 print(f"input_a: {input_a_rel}")
 print(f"input_b: {input_b_rel}")
 print()

@@ -24,6 +24,8 @@ Cuando vuelve un resultado manual de Codex, la tarea registra:
 - artifacts opcionales si se pasan
 - una nota de cierre en `notes`
 
+Si un artifact pasado al script es Markdown (`.md`), ahora tambien debe cumplir la convencion minima documentada en `docs/OUTPUT_CONVENTIONS.md`.
+
 ## Estados permitidos despues del resultado
 
 Una tarea en `delegated` puede pasar manualmente a:
@@ -41,6 +43,12 @@ Registro del resultado:
 ./scripts/task_record_worker_result.sh <task_id> <status> <summary> [--artifact <path> ...]
 ```
 
+Validacion minima de artifacts Markdown:
+
+```text
+./scripts/validate_markdown_artifact.sh <path>
+```
+
 Resumen breve orientado a worker:
 
 ```text
@@ -49,6 +57,8 @@ Resumen breve orientado a worker:
 
 ## Regla operativa
 
-Este paso no ejecuta Codex ni valida automaticamente el contenido del resultado.
+Este paso no ejecuta Codex ni valida automaticamente la calidad semantica del resultado.
+
+Pero si recibe artifacts Markdown, exige que no sean vacios, que tengan estructura minima y que lleven un timestamp trazable.
 
 Solo deja trazabilidad formal y coherente dentro del modelo de tareas para cerrar manualmente el loop.

@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TASKS_DIR="$REPO_ROOT/tasks"
 HANDOFFS_DIR="$REPO_ROOT/handoffs"
+VALIDATE_MARKDOWN="$REPO_ROOT/scripts/validate_markdown_artifact.sh"
 
 usage() {
   cat <<USAGE
@@ -37,10 +38,11 @@ if [ ! -f "$handoff_packet_path" ]; then
 fi
 
 ticket_path="$HANDOFFS_DIR/${task_id}.codex.md"
-tmp_path="$(mktemp "$HANDOFFS_DIR/.codex-ticket.XXXXXX.tmp")"
+tmp_path="$(mktemp "$HANDOFFS_DIR/.codex-ticket.XXXXXX.md")"
 trap 'rm -f "$tmp_path"' EXIT
 
 python3 - "$task_path" "$handoff_packet_path" >"$tmp_path" <<'PY'
+import datetime
 import json
 import pathlib
 import sys
@@ -110,12 +112,14 @@ def render_artifacts(artifacts):
 
 project = "Golem"
 repo = "~/Escritorio/golem"
+repo_abs = task_path.parent.parent.as_posix()
 task_type = task.get("type", "")
 title = task.get("title", "")
 objective = task.get("objective", "")
 notes = task.get("notes", [])
 outputs = task.get("outputs", [])
 artifacts = task.get("artifacts", [])
+generated_at = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
 
 goal = handoff.get("recommended_next_step", "resolver la tarea delegada de forma controlada")
 rationale = handoff.get("rationale", "")
@@ -124,6 +128,10 @@ missing_required = handoff.get("missing_required_fields", [])
 
 lines = [
     f"# Codex Ticket: {task_id}",
+    "",
+    f"generated_at: {generated_at}",
+    f"repo: {repo_abs}",
+    f"task_type: {task_type}",
     "",
     "## Header",
     f"- Proyecto: {project}",
@@ -177,6 +185,7 @@ lines.append(f"- path: {handoff_packet_path.as_posix()}")
 print("\n".join(lines))
 PY
 
+"$VALIDATE_MARKDOWN" "$tmp_path" >/dev/null
 mv "$tmp_path" "$ticket_path"
 trap - EXIT
 printf 'CODEX_TICKET_OK %s\n' "${ticket_path#$REPO_ROOT/}"

@@ -5,6 +5,7 @@ PROFILE="${GOLEM_BROWSER_PROFILE:-chrome}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 OUTBOX_DIR="$REPO_ROOT/outbox/manual"
+VALIDATE_MARKDOWN="$REPO_ROOT/scripts/validate_markdown_artifact.sh"
 
 usage() {
   cat <<USAGE
@@ -71,6 +72,8 @@ write_header() {
   local file="$1" slug="$2"
   printf "# %s\n\n" "$slug" > "$file"
   printf "generated_at: %s\n" "$(date -u --iso-8601=seconds)" >> "$file"
+  printf "repo: %s\n" "$REPO_ROOT" >> "$file"
+  printf "artifact_kind: browser\n" >> "$file"
   printf "profile: %s\n\n" "$PROFILE" >> "$file"
 }
 
@@ -100,6 +103,7 @@ capture_snapshot() {
 
 publish_artifact() {
   local tmp="$1" dest="$2"
+  "$VALIDATE_MARKDOWN" "$tmp" >/dev/null
   mv "$tmp" "$dest"
   chmod 664 "$dest"
   cleanup_files=("${cleanup_files[@]/$tmp}")
@@ -119,13 +123,19 @@ case "$cmd" in
     make_outbox
     ensure_tabs
     out_file="$(artifact_file "$slug")"
-    tmp_file="$(mktemp)"
+    tmp_file="$(mktemp "$OUTBOX_DIR/.artifact.XXXXXX.md")"
     snapshot_file="$(mktemp)"
     register_cleanup "$tmp_file"
     register_cleanup "$snapshot_file"
     write_header "$tmp_file" "$slug"
+    printf "## Summary\n" >> "$tmp_file"
+    printf "- mode: snapshot\n" >> "$tmp_file"
+    printf "- profile: %s\n\n" "$PROFILE" >> "$tmp_file"
+    printf "## Results\n" >> "$tmp_file"
     capture_snapshot "$snapshot_file"
     cat "$snapshot_file" >> "$tmp_file"
+    printf "\n\n## Notes\n" >> "$tmp_file"
+    printf "- Snapshot capturado desde el browser relay activo.\n" >> "$tmp_file"
     publish_artifact "$tmp_file" "$out_file"
     ;;
   find)
@@ -139,21 +149,29 @@ case "$cmd" in
     make_outbox
     ensure_tabs
     out_file="$(artifact_file "$slug")"
-    tmp_file="$(mktemp)"
+    tmp_file="$(mktemp "$OUTBOX_DIR/.artifact.XXXXXX.md")"
     snapshot_file="$(mktemp)"
     matches_file="$(mktemp)"
     register_cleanup "$tmp_file"
     register_cleanup "$snapshot_file"
     register_cleanup "$matches_file"
     write_header "$tmp_file" "$slug"
-    printf "query: %s\n\n" "$query" >> "$tmp_file"
+    printf "## Summary\n" >> "$tmp_file"
+    printf "- mode: find\n" >> "$tmp_file"
+    printf "- profile: %s\n" "$PROFILE" >> "$tmp_file"
+    printf "- query: %s\n\n" "$query" >> "$tmp_file"
+    printf "## Inputs\n" >> "$tmp_file"
+    printf "- query: %s\n\n" "$query" >> "$tmp_file"
 
     capture_snapshot "$snapshot_file"
+    printf "## Matches\n" >> "$tmp_file"
     if grep -Ein -C 2 -- "$query" "$snapshot_file" > "$matches_file"; then
       cat "$matches_file" >> "$tmp_file"
     else
       printf "Sin coincidencias para: %s\n" "$query" >> "$tmp_file"
     fi
+    printf "\n\n## Notes\n" >> "$tmp_file"
+    printf "- Resultado generado desde un snapshot valido del relay.\n" >> "$tmp_file"
     publish_artifact "$tmp_file" "$out_file"
     ;;
   *)

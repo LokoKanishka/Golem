@@ -30,6 +30,8 @@ Resume:
 
 Su objetivo es empaquetar la delegacion en un solo artefacto humano-legible.
 
+Como artefacto Markdown persistido, tambien debe seguir la convencion minima de `docs/OUTPUT_CONVENTIONS.md`.
+
 ### Codex ticket
 
 El codex ticket en `handoffs/<task_id>.codex.md` toma esa base y la convierte en instruccion de trabajo lista para usar con Codex.
@@ -41,6 +43,8 @@ Agrega:
 - objetivo explicito para Codex
 - restricciones operativas
 - entrega esperada
+
+Tambien debe quedar validable como Markdown no trivial y trazable.
 
 ## Que agrega el codex ticket respecto del handoff packet
 
@@ -74,6 +78,8 @@ El script:
 ```text
 handoffs/<task_id>.codex.md
 ```
+
+El handoff packet y el ticket pasan por validacion minima de artifact Markdown antes de publicarse.
 
 ## Como se usa manualmente con Codex
 

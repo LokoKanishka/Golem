@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TASKS_DIR="$REPO_ROOT/tasks"
 HANDOFFS_DIR="$REPO_ROOT/handoffs"
+VALIDATE_MARKDOWN="$REPO_ROOT/scripts/validate_markdown_artifact.sh"
 
 usage() {
   cat <<USAGE
@@ -32,13 +33,14 @@ fi
 mkdir -p "$HANDOFFS_DIR"
 
 packet_path="$HANDOFFS_DIR/${task_id}.md"
-tmp_path="$(mktemp "$HANDOFFS_DIR/.handoff-packet.XXXXXX.tmp")"
+tmp_path="$(mktemp "$HANDOFFS_DIR/.handoff-packet.XXXXXX.md")"
 trap 'rm -f "$tmp_path"' EXIT
 
 python3 - "$task_path" >"$tmp_path" <<'PY'
 import json
 import pathlib
 import sys
+import datetime
 
 task_path = pathlib.Path(sys.argv[1])
 with task_path.open(encoding="utf-8") as fh:
@@ -47,6 +49,7 @@ with task_path.open(encoding="utf-8") as fh:
 task_id = task.get("task_id", task_path.stem)
 status = task.get("status", "")
 handoff = task.get("handoff")
+generated_at = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
 
 if status != "delegated":
     print(f"ERROR: la tarea {task_id} no esta en estado delegated", file=sys.stderr)
@@ -107,6 +110,10 @@ codex_goal = handoff.get("recommended_next_step", "prepare and execute the deleg
 lines = [
     f"# Codex Handoff Packet: {task_id}",
     "",
+    f"generated_at: {generated_at}",
+    f"repo: {task_path.parent.parent.as_posix()}",
+    f"task_type: {task.get('type', '')}",
+    "",
     "## Task",
     f"- task_id: {task_id}",
     f"- type: {task.get('type', '')}",
@@ -145,6 +152,7 @@ lines = [
 print("\n".join(lines))
 PY
 
+"$VALIDATE_MARKDOWN" "$tmp_path" >/dev/null
 mv "$tmp_path" "$packet_path"
 trap - EXIT
 printf 'HANDOFF_PACKET_OK %s\n' "${packet_path#$REPO_ROOT/}"

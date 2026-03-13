@@ -2,6 +2,8 @@
 
 This document defines the basic lifecycle of a Golem task and the shared scripts that operate on it.
 
+Markdown file outputs should also follow the minimum conventions in `docs/OUTPUT_CONVENTIONS.md`.
+
 ## Basic lifecycle
 
 The minimal task flow is:
@@ -68,6 +70,12 @@ Base fields are:
 
 If needed, runners can add metadata through `TASK_ARTIFACT_EXTRA_JSON`.
 
+If an artifact is Markdown, it should be readable, timestamped, and non-trivial. The minimum validation is:
+
+```text
+./scripts/validate_markdown_artifact.sh <path>
+```
+
 ## Close
 
 Tasks are closed with:
@@ -109,6 +117,8 @@ Delegated tasks can be closed manually after Codex work returns:
 ```
 
 This appends a `worker-result` entry to `outputs`, optionally registers returned artifacts, and closes the task as `done` or `failed`.
+
+When the returned artifact is Markdown, the script validates it before registering it.
 
 ## Summary
 

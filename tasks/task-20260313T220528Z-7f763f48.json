@@ -1,0 +1,30 @@
+{
+  "task_id": "task-20260313T220528Z-7f763f48",
+  "type": "smoke-task-core",
+  "origin": "local",
+  "canonical_session": "",
+  "status": "done",
+  "created_at": "2026-03-13T22:05:28+00:00",
+  "updated_at": "2026-03-13T22:05:28+00:00",
+  "title": "Smoke task core",
+  "objective": "Smoke task core",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "smoke-output",
+      "captured_at": "2026-03-13T22:05:28+00:00",
+      "exit_code": 0,
+      "content": "smoke output recorded"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260313T220528Z-smoke-task-core.md",
+      "kind": "smoke-artifact",
+      "created_at": "2026-03-13T22:05:28+00:00"
+    }
+  ],
+  "notes": [
+    "smoke task core completed"
+  ]
+}

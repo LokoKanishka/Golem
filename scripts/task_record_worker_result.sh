@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TASKS_DIR="$REPO_ROOT/tasks"
+VALIDATE_MARKDOWN="$REPO_ROOT/scripts/validate_markdown_artifact.sh"
 
 usage() {
   cat <<USAGE
@@ -130,7 +131,7 @@ PY
 )" ./scripts/task_add_output.sh "$task_id" "worker-result" "$output_exit_code" "$summary"
 
 for artifact in "${artifacts[@]}"; do
-  artifact_rel="$(
+  artifact_abs="$(
     python3 - "$REPO_ROOT" "$artifact" <<'PY'
 import pathlib
 import sys
@@ -141,6 +142,22 @@ if not path.is_absolute():
     path = (repo_root / path).resolve()
 else:
     path = path.resolve()
+print(path)
+PY
+  )"
+
+  case "$artifact_abs" in
+    *.md)
+      "$VALIDATE_MARKDOWN" "$artifact_abs" >/dev/null
+      ;;
+  esac
+  artifact_rel="$(
+    python3 - "$REPO_ROOT" "$artifact_abs" <<'PY'
+import pathlib
+import sys
+
+repo_root = pathlib.Path(sys.argv[1]).resolve()
+path = pathlib.Path(sys.argv[2])
 print(path.relative_to(repo_root).as_posix())
 PY
   )"
