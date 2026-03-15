@@ -1,0 +1,37 @@
+{
+  "packet_kind": "worker_handoff_packet",
+  "packet_version": "1.0",
+  "generated_at": "2026-03-15T07:30:00Z",
+  "child_task_id": "task-20260315T073000Z-examplechild",
+  "root_task_id": "task-20260315T072500Z-exampleroot",
+  "origin": "local",
+  "requested_by": "diego",
+  "worker_target": "worker_future",
+  "worker_type": "repo-analysis",
+  "objective": "Analyze the repo and prepare a structured report for the root chain.",
+  "repo_path": "/home/lucy-ubuntu/Escritorio/golem",
+  "working_dir": "/home/lucy-ubuntu/Escritorio/golem",
+  "canonical_session": "panel://gateway/main",
+  "output_mode": "markdown_artifact",
+  "outbox_dir": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual",
+  "notify_policy": "manual",
+  "await_worker_result": true,
+  "critical": true,
+  "continuation_policy": {
+    "await_worker_result": true,
+    "continue_on_failed": false,
+    "continue_on_blocked": false,
+    "resume_via": "./scripts/task_chain_resume.sh task-20260315T072500Z-exampleroot",
+    "settle_via": "./scripts/task_chain_settle.sh task-20260315T073000Z-examplechild",
+    "degradation_mode": "fail_root_if_critical"
+  },
+  "artifact_paths": [
+    "handoffs/task-20260315T073000Z-examplechild.md",
+    "handoffs/task-20260315T073000Z-examplechild.codex.md",
+    "handoffs/task-20260315T073000Z-examplechild.packet.json"
+  ],
+  "notes": [
+    "Manual-controlled worker lane.",
+    "Root should wait for a formal worker result."
+  ]
+}

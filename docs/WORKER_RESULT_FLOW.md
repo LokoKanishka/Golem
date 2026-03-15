@@ -102,6 +102,14 @@ protocols/WORKER_RESULT_PACKET.md
 protocols/examples/worker_result_packet.example.json
 ```
 
+La salida canónica simétrica de delegación vive en:
+
+```text
+protocols/WORKER_HANDOFF_PACKET.md
+protocols/examples/worker_handoff_packet.example.json
+./scripts/task_export_worker_handoff.sh <task_id>
+```
+
 ## Regla operativa
 
 El cierre del resultado no valida automaticamente la calidad semantica del trabajo de Codex.

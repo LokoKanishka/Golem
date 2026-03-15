@@ -62,6 +62,12 @@ Si eso se cumple, crea:
 handoffs/<task_id>.md
 ```
 
+Y en el carril recomendado actual también puede dejar:
+
+```text
+handoffs/<task_id>.packet.json
+```
+
 Segun la runtime artifact policy, este packet es evidencia persistible y durable a nivel local, pero no se trackea en Git por defecto.
 
 ## Como se inspecciona
@@ -91,8 +97,15 @@ El flujo manual esperado es:
 
 1. Golem delega una tarea y deja `handoff` persistido
 2. Golem genera el handoff packet markdown
-3. un operador humano usa ese packet como insumo para Codex
-4. Codex ejecuta trabajo real fuera de esta capa
+3. Golem puede exportar un handoff packet JSON canónico y parseable
+4. un operador humano usa el markdown y/o el ticket como insumo para Codex
+5. Codex ejecuta trabajo real fuera de esta capa
+
+El exportador machine-readable es:
+
+```text
+./scripts/task_export_worker_handoff.sh <task_id>
+```
 
 ## Evolucion posible
 

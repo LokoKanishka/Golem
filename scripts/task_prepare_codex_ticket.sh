@@ -6,6 +6,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TASKS_DIR="$REPO_ROOT/tasks"
 HANDOFFS_DIR="$REPO_ROOT/handoffs"
 VALIDATE_MARKDOWN="$REPO_ROOT/scripts/validate_markdown_artifact.sh"
+EXPORT_HANDOFF_PACKET="$REPO_ROOT/scripts/task_export_worker_handoff.sh"
 
 usage() {
   cat <<USAGE
@@ -181,6 +182,7 @@ lines.append("- y solo si todo da bien: commit/push")
 lines.append("")
 lines.append("## Handoff Packet Reference")
 lines.append(f"- path: {handoff_packet_path.as_posix()}")
+lines.append(f"- handoff_packet_json: {(handoff_packet_path.parent / (task_id + '.packet.json')).as_posix()}")
 
 print("\n".join(lines))
 PY
@@ -188,4 +190,7 @@ PY
 "$VALIDATE_MARKDOWN" "$tmp_path" >/dev/null
 mv "$tmp_path" "$ticket_path"
 trap - EXIT
+if [ "${TASK_SKIP_HANDOFF_PACKET_EXPORT:-0}" != "1" ] && [ -x "$EXPORT_HANDOFF_PACKET" ]; then
+  "$EXPORT_HANDOFF_PACKET" "$task_id" >/dev/null
+fi
 printf 'CODEX_TICKET_OK %s\n' "${ticket_path#$REPO_ROOT/}"

@@ -41,6 +41,14 @@ Tambien puede incluir campos auxiliares como:
 - `missing_required_fields`
 - `rationale`
 
+Y ahora también puede materializarse como artifact JSON canónico exportable mediante:
+
+```text
+./scripts/task_export_worker_handoff.sh <task_id>
+```
+
+Ese artifact complementa, no reemplaza, el handoff markdown humano.
+
 ## Relacion entre task, delegation policy y worker_future
 
 - la tarea sigue siendo el registro fuente de verdad

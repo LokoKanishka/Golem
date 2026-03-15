@@ -26,6 +26,7 @@ Git should track the policy and the scripts, not every per-run operational bypro
 | Artifact | Default location | Durable evidence | Regenerable | Git default |
 | --- | --- | --- | --- | --- |
 | handoff packet | `handoffs/<task_id>.md` | yes | yes, from task + handoff | ignored |
+| canonical handoff packet | `handoffs/<task_id>.packet.json` | yes | yes, from task + handoff | ignored |
 | Codex ticket | `handoffs/<task_id>.codex.md` | yes | yes, from task + handoff packet | ignored |
 | controlled run prompt | `handoffs/<task_id>.run.prompt.md` | no | yes, from ticket + run policy | ignored |
 | controlled run log | `handoffs/<task_id>.run.log` | no | no, but considered debug-only | ignored |
@@ -58,6 +59,7 @@ Tracked by default:
 Ignored by default:
 
 - task-specific handoff packets
+- task-specific canonical handoff packets
 - task-specific Codex tickets
 - normalized worker result artifacts
 - runtime prompts, logs, and raw final messages
@@ -85,6 +87,7 @@ Rules:
 These files are still useful after the run:
 
 - handoff packet
+- canonical handoff packet
 - Codex ticket
 - normalized worker result
 - final artifacts in `outbox/manual/`
@@ -101,6 +104,7 @@ Rules:
 Safe to regenerate:
 
 - `handoffs/<task_id>.md`
+- `handoffs/<task_id>.packet.json`
 - `handoffs/<task_id>.codex.md`
 - `handoffs/<task_id>.run.prompt.md`
 - `handoffs/<task_id>.run.result.md` while the runtime sources still exist

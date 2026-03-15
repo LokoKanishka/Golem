@@ -11,6 +11,7 @@ Persistible como evidencia local, pero fuera de Git por defecto:
 ```text
 handoffs/<task_id>.md
 handoffs/<task_id>.codex.md
+handoffs/<task_id>.packet.json
 handoffs/<task_id>.run.result.md
 ```
 
@@ -18,6 +19,7 @@ Esto sirve para:
 
 - handoff durable
 - ticket durable
+- handoff machine-readable durable
 - evidencia normalizada del resultado worker
 
 ## Que queda como runtime-only en `handoffs/`
@@ -47,6 +49,7 @@ En otras palabras:
 - la tarea registra el trabajo y su estado
 - el handoff packet resume y empaqueta esa tarea para delegacion
 - el codex ticket la deja lista para uso manual con Codex
+- el handoff packet JSON deja una salida canónica machine-readable para la misma delegación
 - el worker result deja una evidencia normalizada y duradera
 - prompt/log/last message no son evidencia durable del repo
 

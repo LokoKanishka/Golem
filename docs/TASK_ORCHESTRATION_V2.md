@@ -179,6 +179,21 @@ protocols/WORKER_RESULT_PACKET.md
 protocols/examples/worker_result_packet.example.json
 ```
 
+The outbound worker leg now has a symmetric machine-readable packet too:
+
+```text
+protocols/WORKER_HANDOFF_PACKET.md
+protocols/examples/worker_handoff_packet.example.json
+./scripts/task_export_worker_handoff.sh <task_id>
+```
+
+That packet complements the existing:
+
+- `handoffs/<task_id>.md`
+- `handoffs/<task_id>.codex.md`
+
+instead of replacing the human-readable delegation lane.
+
 Current limitation:
 
 - it supports one `await_worker_result` worker step per root
