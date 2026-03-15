@@ -72,7 +72,7 @@ with task_path.open(encoding="utf-8") as fh:
 if chain_type == "repo-analysis-worker-manual":
     task["objective"] = (
         "Execute a mixed local-worker chain that delegates the worker step, prepares the handoff, "
-        "and leaves the root awaiting a manual-controlled worker result."
+        "waits for a manual-controlled worker result, and resumes one local closing step after that result exists."
     )
     steps = [
         {
@@ -104,8 +104,24 @@ if chain_type == "repo-analysis-worker-manual":
             "child_task_id": "",
             "await_worker_result": True,
         },
+        {
+            "step_name": "local-compare-orchestration-docs",
+            "step_order": 3,
+            "task_type": "compare-files",
+            "execution_mode": "local",
+            "critical": False,
+            "title": f"{chain_title} / local orchestration docs comparison",
+            "objective": (
+                "Produce one local artifact after the manual-controlled worker result is registered so the chain "
+                "can resume and close with mixed evidence."
+            ),
+            "depends_on_step_names": ["delegated-repo-analysis"],
+            "status": "planned",
+            "child_task_id": "",
+            "await_worker_result": False,
+        },
     ]
-    version = "2.1"
+    version = "2.2"
 else:
     task["objective"] = f"Execute a mixed local-worker chain and produce an aggregated final artifact for {chain_type}."
     steps = [
@@ -186,9 +202,9 @@ import sys
 chain_type = sys.argv[1]
 print(json.dumps({
     "chain_type": chain_type,
-    "plan_version": "2.1" if chain_type == "repo-analysis-worker-manual" else "2.0",
-    "step_count": 2 if chain_type == "repo-analysis-worker-manual" else 3,
-    "local_step_count": 1 if chain_type == "repo-analysis-worker-manual" else 2,
+    "plan_version": "2.2" if chain_type == "repo-analysis-worker-manual" else "2.0",
+    "step_count": 3,
+    "local_step_count": 2,
     "worker_step_count": 1,
     "critical_step_count": 2,
     "await_worker_result_step_count": 1 if chain_type == "repo-analysis-worker-manual" else 0,
@@ -196,7 +212,7 @@ print(json.dumps({
 PY
 )" ./scripts/task_add_output.sh "$root_task_id" "chain-plan" 0 "$(
   if [ "$chain_type" = "repo-analysis-worker-manual" ]; then
-    printf 'planned 2-step mixed local-worker chain with manual worker await'
+    printf 'planned 3-step mixed local-worker chain with manual worker await and resume'
   else
     printf 'planned 3-step mixed local-worker chain'
   fi

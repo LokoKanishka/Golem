@@ -30,7 +30,7 @@ fi
 shift 3
 
 case "$status" in
-  done|failed) ;;
+  done|failed|blocked) ;;
   *)
     fatal "status inválido para resultado worker: $status"
     ;;
@@ -39,6 +39,8 @@ esac
 output_exit_code="1"
 if [ "$status" = "done" ]; then
   output_exit_code="0"
+elif [ "$status" = "blocked" ]; then
+  output_exit_code="2"
 fi
 
 task_path="$TASKS_DIR/${task_id}.json"

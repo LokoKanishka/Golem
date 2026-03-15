@@ -41,6 +41,7 @@ Una tarea en `delegated` o `worker_running` puede pasar manualmente a:
 
 - `done`
 - `failed`
+- `blocked`
 
 No se implementa todavia un estado de callback, worker activo en background o sincronizacion en tiempo real.
 
@@ -92,6 +93,8 @@ Cuando hubo una corrida controlada, tambien conserva trazabilidad de:
 - sandbox mode
 
 Eso permite auditar la corrida sin convertirla todavia en una integracion automatica total.
+
+En el carril manual-controlado de chains mixtas, `blocked` sirve para representar que el worker no pudo devolver un resultado util por una precondicion externa u operativa, sin disfrazarlo como falla interna del repo.
 
 ## Regla practica nueva
 

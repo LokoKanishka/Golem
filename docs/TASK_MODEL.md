@@ -116,6 +116,8 @@ Las tareas raiz de cadena tambien pueden cerrar como `blocked` cuando una precon
 
 Tambien pueden quedar en `delegated` cuando la cadena ya avanzo hasta un paso worker manual-controlado y todavia espera un resultado registrado de ese worker.
 
+Cuando ese resultado ya existe, la raiz de cadena puede volver a `running` mediante una reanudacion explicita y cerrar luego como `done`, `failed` o `blocked` segun el outcome real del worker y de los pasos restantes.
+
 ## Convenciones iniciales
 
 - `origin` se inicializa como `local`

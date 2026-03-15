@@ -95,8 +95,9 @@ The manual-controlled plan is:
 
 1. local self-check
 2. delegated repo analysis with `await_worker_result: true`
+3. local comparison artifact after the worker result is registered
 
-That second plan intentionally stops with the root in `status: delegated` + `chain_status: awaiting_worker_result` until the worker result is registered.
+That plan intentionally stops after step 2 with the root in `status: delegated` + `chain_status: awaiting_worker_result` until the worker result is registered.
 
 ## Running
 
@@ -127,6 +128,22 @@ For `repo-analysis-worker-manual`, the runner:
 4. creates and delegates a child `repo-analysis` task
 5. prepares handoff packet and Codex ticket
 6. finalizes the root as `delegated` / `awaiting_worker_result`
+
+Resume the same root later with:
+
+```text
+./scripts/task_chain_resume.sh <root_task_id>
+```
+
+That resume flow:
+
+1. verifies the root is still `delegated` / `awaiting_worker_result`
+2. reads the delegated child worker task
+3. checks whether a formal worker result is already registered
+4. keeps the root delegated if the worker result is still absent
+5. updates the worker step to `done` / `failed` / `blocked` once the child result exists
+6. runs the trailing local step only when the worker result closed as `done`
+7. finalizes the root with the same collector/finalizer used elsewhere
 
 ## Status inspection
 
@@ -188,6 +205,10 @@ Rules in this version:
 - any failed or incomplete critical step makes the chain fail
 - any blocked critical step makes the chain block
 - any worker step with `await_worker_result: true` keeps the root delegated until the worker result exists
+- once that worker result is registered, `./scripts/task_chain_resume.sh` is the explicit bridge that moves the root forward again
+- a manual-controlled worker result may close as `done`, `failed`, or `blocked`
+- `done` resumes the trailing local step when one exists
+- `failed` or `blocked` on a critical worker step closes the root as `failed` or `blocked`
 - failed non-critical steps degrade the chain to `completed_with_warnings`
 - blocked non-critical steps also degrade the chain to `completed_with_warnings`
 - warning markers in child outputs also degrade to `completed_with_warnings`

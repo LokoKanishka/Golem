@@ -117,6 +117,10 @@ In v2 this becomes step-aware:
 - critical steps fail the chain
 - critical blocked steps block the chain
 - worker steps marked `await_worker_result` leave the root in `status: delegated` + `chain_status: awaiting_worker_result` while the worker result is still pending
+- once the delegated child has a formal worker result, `task_chain_resume.sh` updates that step and re-enters the chain from the root
+- a critical worker result of `failed` closes the root as `failed`
+- a critical worker result of `blocked` closes the root as `blocked`
+- a worker result of `done` allows the next dependent local step to run if the plan still has one pending
 - non-critical failed steps produce `completed_with_warnings`
 - non-critical blocked steps also produce `completed_with_warnings`
 - incomplete critical steps also fail the chain at finalization time

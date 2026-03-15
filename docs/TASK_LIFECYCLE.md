@@ -171,6 +171,7 @@ Delegated tasks can be closed manually after Codex work returns:
 ```
 
 This appends a `worker-result` entry to `outputs`, optionally registers returned artifacts, and closes the task as `done` or `failed`.
+It can also close the task as `blocked` when the worker result is available but the outcome was prevented by an external or operational blocker.
 
 When the returned artifact is Markdown, the script validates it before registering it.
 
