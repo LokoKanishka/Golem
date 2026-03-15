@@ -57,3 +57,7 @@ The task is marked:
 - `failed` when all attempted profiles fail, including no-tabs or relay errors
 
 Reading does not generate artifacts in this stage.
+
+## Diagnostic note
+
+If there is no usable attached tab or no usable managed-browser target, the task may fail operationally even though the honest classification is an environment block. Use `./scripts/verify_browser_stack.sh` to distinguish `BLOCKED` from a real script `FAIL`.

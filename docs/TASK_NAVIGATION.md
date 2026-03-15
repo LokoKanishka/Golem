@@ -59,3 +59,5 @@ The task is marked:
 
 - `done` when a navigation attempt finishes with exit code `0`
 - `failed` when all attempted profiles fail, including relay or tab errors
+
+If there is no usable attached tab or no usable managed-browser target, the task may fail operationally even though the real diagnosis is an environment block. Use `./scripts/verify_browser_stack.sh` for the final `PASS` / `FAIL` / `BLOCKED` classification.

@@ -15,6 +15,7 @@ Esta capacidad depende de que:
 - el gateway esté vivo
 - el browser relay esté running
 - exista al menos una pestaña adjunta cuando haga falta lectura
+- o exista un perfil browser gestionado realmente utilizable
 
 ## Exclusiones iniciales
 Todavía no incluye:
@@ -28,3 +29,5 @@ Golem puede:
 - ver qué pestañas tiene disponibles
 - abrir una URL operativamente
 - leer el estado/snapshot de la pestaña controlada
+
+La verificación honesta del success-path hoy debe pasar por `./scripts/verify_browser_stack.sh`.

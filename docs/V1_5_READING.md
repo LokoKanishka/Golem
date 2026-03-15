@@ -16,6 +16,7 @@ Esta capacidad depende de:
 - browser relay operativo
 - al menos una pestaña adjunta
 - contenido accesible por snapshot
+- o un perfil browser gestionado realmente utilizable
 
 ## Exclusiones iniciales
 Todavía no incluye:
@@ -29,3 +30,5 @@ Golem puede:
 - buscar una expresión puntual en la página activa
 - devolver coincidencias con contexto
 - usar esa lectura como base para respuestas más precisas
+
+La verificación honesta del success-path hoy debe pasar por `./scripts/verify_browser_stack.sh`.

@@ -88,6 +88,8 @@ Important:
   - browser relay available
   - at least one usable attached tab
 
+Current browser-specific diagnosis should be refined with `./scripts/verify_browser_stack.sh` and `docs/BROWSER_BLOCKERS_ANALYSIS.md`.
+
 ### 5. Comparison
 
 - name: `comparison`
