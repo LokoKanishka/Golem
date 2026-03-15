@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TASKS_DIR="$REPO_ROOT/tasks"
+COLLECT_RESULTS="$REPO_ROOT/scripts/task_chain_collect_results.sh"
 
 root_task_id=""
 root_task_path=""
@@ -238,7 +239,60 @@ PY
   TASK_OUTPUT_EXTRA_JSON="$extra_json" ./scripts/task_add_output.sh "$root_task_id" "$kind" "$exit_code" "$content" >/dev/null
 }
 
+record_chain_collection() {
+  local summary_json
+  local content
+  local extra_json
+
+  summary_json="$("$COLLECT_RESULTS" "$root_task_id")"
+  content="$(
+    python3 - "$summary_json" <<'PY'
+import json
+import sys
+
+summary = json.loads(sys.argv[1])
+print(
+    "chain_status={chain_status} steps_completed={steps_completed}/{step_count} "
+    "worker_steps_done={worker_steps_done} worker_steps_failed={worker_steps_failed} "
+    "delegated_steps_count={delegated_steps_count} local_steps_count={local_steps_count}".format(
+        chain_status=summary["chain_status"],
+        steps_completed=summary["steps_completed"],
+        step_count=summary["step_count"],
+        worker_steps_done=summary["worker_steps_done"],
+        worker_steps_failed=summary["worker_steps_failed"],
+        delegated_steps_count=summary["delegated_steps_count"],
+        local_steps_count=summary["local_steps_count"],
+    )
+)
+PY
+  )"
+  extra_json="$(
+    python3 - "$summary_json" <<'PY'
+import json
+import sys
+
+summary = json.loads(sys.argv[1])
+print(json.dumps({
+    "chain_type": summary["chain_type"],
+    "chain_status": summary["chain_status"],
+    "step_count": summary["step_count"],
+    "steps_completed": summary["steps_completed"],
+    "steps_failed": summary["steps_failed"],
+    "steps_pending": summary["steps_pending"],
+    "local_steps_count": summary["local_steps_count"],
+    "delegated_steps_count": summary["delegated_steps_count"],
+    "worker_steps_done": summary["worker_steps_done"],
+    "worker_steps_failed": summary["worker_steps_failed"],
+    "worker_result_summaries": summary["worker_result_summaries"],
+    "aggregated_artifact_paths": summary["aggregated_artifact_paths"],
+}))
+PY
+  )"
+  TASK_OUTPUT_EXTRA_JSON="$extra_json" ./scripts/task_add_output.sh "$root_task_id" "chain-results-collected" 0 "$content" >/dev/null
+}
+
 close_root() {
+  record_chain_collection
   ./scripts/task_chain_finalize.sh "$root_task_id" >/dev/null
   finalized="1"
 }

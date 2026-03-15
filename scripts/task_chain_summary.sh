@@ -56,12 +56,40 @@ print(f"step_count: {chain_summary.get('step_count', len(chain_plan.get('steps')
 print(f"steps_completed: {chain_summary.get('steps_completed', 0)}")
 print(f"steps_failed: {chain_summary.get('steps_failed', 0)}")
 print(f"steps_pending: {chain_summary.get('steps_pending', 0)}")
-print(f"local_steps: {chain_summary.get('local_step_count', 0)}")
-print(f"worker_steps: {chain_summary.get('worker_step_count', 0)}")
+print(f"local_steps: {chain_summary.get('local_steps_count', chain_summary.get('local_step_count', 0))}")
+print(f"delegated_steps: {chain_summary.get('delegated_steps_count', chain_summary.get('worker_step_count', 0))}")
+print(f"worker_steps_done: {chain_summary.get('worker_steps_done', 0)}")
+print(f"worker_steps_failed: {chain_summary.get('worker_steps_failed', 0)}")
 if chain_summary.get("final_artifact_path"):
     print(f"final_artifact_path: {chain_summary.get('final_artifact_path')}")
 if chain_summary.get("headline"):
     print(f"headline: {chain_summary.get('headline')}")
+aggregated_artifact_paths = chain_summary.get("aggregated_artifact_paths") or chain_summary.get("artifact_paths") or []
+print(f"aggregated_artifacts: {len(aggregated_artifact_paths)}")
+worker_result_summaries = chain_summary.get("worker_result_summaries") or []
+print(f"worker_result_summaries: {len(worker_result_summaries)}")
+if worker_result_summaries:
+    print("worker_result_summary_lines:")
+    for summary in worker_result_summaries:
+        print(f"- {summary}")
+worker_outcomes = chain_summary.get("worker_outcomes") or []
+if worker_outcomes:
+    print("worker_outcomes:")
+    for outcome in worker_outcomes:
+        print(
+            "- [{order}] {name} | child_task_id={child_task_id} | status={status} | worker_state={worker_state} | worker_result_status={worker_result_status}".format(
+                order=outcome.get("step_order", "?"),
+                name=outcome.get("step_name", "(none)"),
+                child_task_id=outcome.get("child_task_id") or "(none)",
+                status=outcome.get("status") or "(none)",
+                worker_state=outcome.get("worker_state") or "(none)",
+                worker_result_status=outcome.get("worker_result_status") or "(none)",
+            )
+        )
+        if outcome.get("summary"):
+            print(f"  summary: {outcome.get('summary')}")
+        if outcome.get("result_artifact_path"):
+            print(f"  result_artifact_path: {outcome.get('result_artifact_path')}")
 print(f"artifacts: {len(task.get('artifacts', []))}")
 print(f"last_note: {last_note}")
 PY

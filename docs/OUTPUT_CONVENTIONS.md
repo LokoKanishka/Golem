@@ -78,7 +78,8 @@ Examples by artifact type:
   - notes
 - chain final artifact:
   - summary
-  - child tasks
+  - chain plan
+  - worker outcomes when delegated execution exists
   - result
   - aggregated artifacts
   - notes
@@ -129,6 +130,8 @@ Durable local artifacts:
 - Codex ticket
 - normalized worker result
 - final artifacts under `outbox/manual/`
+
+For mixed chains, the root final artifact should incorporate the worker result summary and point to the normalized worker result artifact instead of treating the delegated step as a black box.
 
 Runtime-only files:
 

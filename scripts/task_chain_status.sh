@@ -58,10 +58,14 @@ print(f"step_count: {chain_summary.get('step_count', len(steps))}")
 print(f"steps_completed: {chain_summary.get('steps_completed', sum(1 for step in steps if step.get('status') == 'done'))}")
 print(f"steps_failed: {chain_summary.get('steps_failed', sum(1 for step in steps if step.get('status') == 'failed'))}")
 print(f"steps_pending: {chain_summary.get('steps_pending', sum(1 for step in steps if step.get('status') not in {'done', 'failed'}))}")
-print(f"local_steps: {chain_summary.get('local_step_count', chain_plan.get('local_step_count', 0))}")
-print(f"worker_steps: {chain_summary.get('worker_step_count', chain_plan.get('worker_step_count', 0))}")
+print(f"local_steps: {chain_summary.get('local_steps_count', chain_summary.get('local_step_count', chain_plan.get('local_step_count', 0)))}")
+print(f"delegated_steps: {chain_summary.get('delegated_steps_count', chain_summary.get('worker_step_count', chain_plan.get('worker_step_count', 0)))}")
+print(f"worker_steps_done: {chain_summary.get('worker_steps_done', 0)}")
+print(f"worker_steps_failed: {chain_summary.get('worker_steps_failed', 0)}")
 if chain_summary.get("final_artifact_path"):
     print(f"final_artifact_path: {chain_summary.get('final_artifact_path')}")
+aggregated_artifact_paths = chain_summary.get("aggregated_artifact_paths") or chain_summary.get("artifact_paths") or []
+print(f"aggregated_artifacts: {len(aggregated_artifact_paths)}")
 
 print("steps:")
 if not steps:
@@ -92,4 +96,31 @@ else:
             print(
                 f"  worker_state: {worker_state or '(none)'} | worker_result_status: {worker_result_status or '(none)'}"
             )
+        worker_result_summary = step.get("worker_result_summary", "")
+        if worker_result_summary:
+            print(f"  worker_result_summary: {worker_result_summary}")
+        worker_result_artifact_path = step.get("worker_result_artifact_path", "")
+        if worker_result_artifact_path:
+            print(f"  worker_result_artifact_path: {worker_result_artifact_path}")
+
+worker_outcomes = chain_summary.get("worker_outcomes") or []
+print("worker_outcomes:")
+if not worker_outcomes:
+    print("- (none)")
+else:
+    for outcome in worker_outcomes:
+        print(
+            "- [{order}] {name} | child_task_id={child_task_id} | status={status} | worker_state={worker_state} | worker_result_status={worker_result_status}".format(
+                order=outcome.get("step_order", "?"),
+                name=outcome.get("step_name", "(none)"),
+                child_task_id=outcome.get("child_task_id") or "(none)",
+                status=outcome.get("status") or "(none)",
+                worker_state=outcome.get("worker_state") or "(none)",
+                worker_result_status=outcome.get("worker_result_status") or "(none)",
+            )
+        )
+        if outcome.get("summary"):
+            print(f"  summary: {outcome.get('summary')}")
+        if outcome.get("result_artifact_path"):
+            print(f"  result_artifact_path: {outcome.get('result_artifact_path')}")
 PY

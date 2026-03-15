@@ -30,6 +30,8 @@ A v2 chain root keeps:
 
 `chain_summary` is the aggregated closure result.
 
+The worker portion of that result is collected explicitly so the root can describe delegated outcomes without relying on manual post-processing.
+
 ## Step contract
 
 Each planned step may include:
@@ -92,7 +94,8 @@ The runner:
 5. launches the real Codex run for that child
 6. finalizes the worker result
 7. executes the trailing local step
-8. finalizes the root chain with an aggregated artifact
+8. collects mixed chain results into a root-level snapshot
+9. finalizes the root chain with an aggregated artifact
 
 ## Status inspection
 
@@ -110,6 +113,7 @@ This shows:
 - per-step status
 - child task ids
 - worker evidence when a step used real Codex
+- worker outcomes copied into `chain_summary`
 
 ## Final aggregation
 
@@ -120,14 +124,26 @@ This shows:
 - `critical` semantics
 - warning signals from child outputs
 - worker extracted summaries
+- worker result outputs and source files
 - aggregated artifact paths from the whole chain
+
+The reusable collector is:
+
+```text
+./scripts/task_chain_collect_results.sh <root_task_id>
+```
 
 The root stores:
 
 - `headline`
 - step counters
 - local vs worker step counts
+- `worker_steps_done`
+- `worker_steps_failed`
 - `worker_child_ids`
+- `worker_result_summaries`
+- `worker_outcomes`
+- `aggregated_artifact_paths`
 - `final_artifact_path`
 
 It also writes a final Markdown artifact under `outbox/manual/`.

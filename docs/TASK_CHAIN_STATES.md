@@ -74,7 +74,14 @@ The stronger v2 summary may also include:
 - `critical_steps_failed`
 - `local_step_count`
 - `worker_step_count`
+- `local_steps_count`
+- `delegated_steps_count`
+- `worker_steps_done`
+- `worker_steps_failed`
 - `worker_child_ids`
+- `worker_result_summaries`
+- `worker_outcomes`
+- `aggregated_artifact_paths`
 - `headline`
 - `final_artifact_path`
 
@@ -112,6 +119,7 @@ The artifact includes at least:
 - aggregated child artifacts
 - step-by-step execution trace
 - worker evidence when the chain included delegated execution
+- worker outcomes copied into the root summary and final artifact
 
 The artifact must pass:
 
