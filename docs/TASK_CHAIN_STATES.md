@@ -185,3 +185,5 @@ It only makes the chain root more honest and inspectable.
 
 Before a complex v2/v3 chain starts, the repo now also validates that its `chain_plan` is well formed.
 That means some invalid inputs fail before any meaningful orchestration state transition happens.
+
+When you want to inspect the execution meaning of a valid plan before running it, use the chain-plan preflight tool instead of the validator.

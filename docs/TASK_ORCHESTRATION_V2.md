@@ -101,6 +101,12 @@ The built-in planner now validates that plan before returning it:
 ./scripts/validate_chain_plan.sh <task_id|task_json_path|plan_json_path>
 ```
 
+For an explanatory dry-run of the same plan before executing it, use:
+
+```text
+./scripts/task_chain_preflight.sh <task_id|task_json_path|plan_json_path> [--artifact]
+```
+
 The controlled default plan is:
 
 1. local self-check
@@ -174,6 +180,14 @@ For `repo-analysis-worker-manual-multi`, the runner:
 
 These runners no longer execute a complex plan blindly.
 Plan creation must validate cleanly before the runner continues.
+
+The preflight tool is intentionally separate from normal execution so operators can inspect:
+
+- ordered steps
+- worker vs local split
+- explicit barriers
+- partial vs full continuation points
+- root waiting/blocked/failed conditions
 
 Resume the same root later with:
 

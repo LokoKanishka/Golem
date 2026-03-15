@@ -157,3 +157,14 @@ La validacion reproducible vive en:
 ```
 
 Ese comando debe usarse antes de ejecutar chains complejas y tambien sirve como evidencia reproducible del contrato.
+
+La introspeccion explicativa del plan vive aparte en:
+
+```text
+./scripts/task_chain_preflight.sh <task_id|task_json_path|plan_json_path> [--artifact]
+```
+
+Separacion intencional:
+
+- `validate_chain_plan.sh`: el plan esta bien formado
+- `task_chain_preflight.sh`: asi se entiende y se ejecutaria el plan
