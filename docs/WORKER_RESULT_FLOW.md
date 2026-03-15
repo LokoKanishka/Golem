@@ -59,6 +59,12 @@ Settlement operativo de vuelta hacia la chain:
 ./scripts/task_chain_settle.sh <root_task_id|worker_task_id> [<done|failed|blocked> <summary> [--artifact <path> ...]]
 ```
 
+Barrido operativo de roots delegadas pendientes:
+
+```text
+./scripts/task_chain_reconcile_pending.sh [--apply] [<root_task_id> ...]
+```
+
 Corrida controlada:
 
 ```text
@@ -134,6 +140,36 @@ Limitacion actual honesta:
 
 - el settlement soporta una sola worker child `await_worker_result` por root
 - si una root expone varias al mismo tiempo, el script falla limpiamente y lo dice en vez de adivinar
+
+## Sweep recomendado para varias roots delegadas
+
+Cuando queres revisar varias roots manual-controladas sin acordarte cada ID, el barrido operativo recomendado es:
+
+```text
+./scripts/task_chain_reconcile_pending.sh
+```
+
+Ese modo no modifica nada y muestra por root:
+
+- `root_id`
+- `worker_child_id`
+- `current_status`
+- `chain_status`
+- presencia o ausencia de resultado worker
+- decision de reconciliacion sugerida
+
+Para aplicar reconciliacion real solo sobre roots listas:
+
+```text
+./scripts/task_chain_reconcile_pending.sh --apply
+```
+
+Ese modo:
+
+- no registra resultados nuevos por su cuenta
+- no toca roots que siguen esperando resultado
+- reutiliza `task_chain_settle.sh` solo cuando el resultado worker ya existe
+- deja el estado final de cada root visible en la salida
 
 ## Regla practica nueva
 

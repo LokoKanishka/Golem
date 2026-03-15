@@ -164,6 +164,20 @@ Current limitation:
 - it supports one `await_worker_result` worker step per root
 - if a root exposes multiple pending worker awaits, settlement exits with an explicit limitation message instead of guessing
 
+For a broader operational sweep across delegated roots, use:
+
+```text
+./scripts/task_chain_reconcile_pending.sh
+./scripts/task_chain_reconcile_pending.sh --apply
+```
+
+This sweep:
+
+1. scans manual-controlled roots with `await_worker_result`
+2. classifies each root as `still_waiting`, `ready_for_settlement`, `already_reconciled`, or `limitation`
+3. keeps inspect mode read-only
+4. uses `task_chain_settle.sh` in apply mode instead of inventing a parallel reconcile path
+
 ## Status inspection
 
 Use:
