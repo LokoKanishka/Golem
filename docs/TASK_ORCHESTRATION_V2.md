@@ -194,6 +194,19 @@ That packet complements the existing:
 
 instead of replacing the human-readable delegation lane.
 
+For an end-to-end protocol verification of the manual-controlled roundtrip, use:
+
+```text
+./scripts/verify_worker_packet_roundtrip.sh
+```
+
+That verify covers:
+
+1. automatic outbound handoff packet export
+2. canonical inbound worker result packet import
+3. settlement/resume of the delegated root
+4. both success and blocked paths
+
 Current limitation:
 
 - it supports one `await_worker_result` worker step per root

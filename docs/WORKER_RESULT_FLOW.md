@@ -71,6 +71,12 @@ Barrido operativo de roots delegadas pendientes:
 ./scripts/task_chain_reconcile_pending.sh [--apply] [<root_task_id> ...]
 ```
 
+Verificacion end-to-end del roundtrip packetizado:
+
+```text
+./scripts/verify_worker_packet_roundtrip.sh
+```
+
 Corrida controlada:
 
 ```text
@@ -218,6 +224,7 @@ Eso hace que los flujos queden asi:
 
 - packet puntual: `task_import_worker_result.sh --settle`
 - varios packets ya importados: `task_chain_reconcile_pending.sh --apply`
+- roundtrip reproducible completo: `verify_worker_packet_roundtrip.sh`
 
 ## Regla practica nueva
 
