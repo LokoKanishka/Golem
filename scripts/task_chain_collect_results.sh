@@ -359,6 +359,26 @@ worker_child_ids = [
     for step in step_results
     if step.get("execution_mode") == "worker" and step.get("child_task_id")
 ]
+awaiting_worker_child_ids = [
+    step.get("child_task_id", "")
+    for step in step_results
+    if step.get("await_worker_result") and step.get("status") in {"delegated", "running", "planned"} and step.get("child_task_id")
+]
+awaiting_worker_step_names = [
+    step.get("step_name", "")
+    for step in step_results
+    if step.get("await_worker_result") and step.get("status") in {"delegated", "running", "planned"}
+]
+resolved_worker_child_ids = [
+    step.get("child_task_id", "")
+    for step in step_results
+    if step.get("await_worker_result") and step.get("status") in {"done", "failed", "blocked"} and step.get("child_task_id")
+]
+resolved_worker_step_names = [
+    step.get("step_name", "")
+    for step in step_results
+    if step.get("await_worker_result") and step.get("status") in {"done", "failed", "blocked"}
+]
 local_child_ids = [
     step.get("child_task_id", "")
     for step in step_results
@@ -472,7 +492,7 @@ elif chain_status == "awaiting_worker_result":
         f"Chain delegated and waiting: {steps_completed}/{step_count} step(s) completed, "
         f"{steps_delegated} delegated, {steps_running} running"
     )
-    headline += ", and a worker result is still required before the chain can continue."
+    headline += f", awaiting {awaiting_worker_result_steps} worker result(s) before the chain can continue."
 elif chain_status == "completed_with_warnings":
     headline = f"Chain completed with warnings: {steps_completed}/{step_count} step(s) completed, {steps_failed} failed"
     if steps_blocked:
@@ -536,6 +556,12 @@ summary = {
     "worker_steps_delegated": worker_steps_delegated,
     "worker_steps_running": worker_steps_running,
     "worker_child_ids": worker_child_ids,
+    "awaiting_worker_child_ids": awaiting_worker_child_ids,
+    "awaiting_worker_step_names": awaiting_worker_step_names,
+    "awaiting_worker_result_steps": awaiting_worker_result_steps,
+    "resolved_worker_child_ids": resolved_worker_child_ids,
+    "resolved_worker_step_names": resolved_worker_step_names,
+    "resolved_worker_result_steps": len(resolved_worker_step_names),
     "local_child_ids": local_child_ids,
     "worker_result_summaries": worker_result_summaries,
     "worker_outcomes": worker_outcomes,
@@ -548,7 +574,6 @@ summary = {
     "headline": headline,
     "chain_status": chain_status,
     "final_task_status": final_task_status,
-    "awaiting_worker_result_steps": awaiting_worker_result_steps,
 }
 
 print(json.dumps(summary))

@@ -116,11 +116,13 @@ In v2 this becomes step-aware:
 
 - critical steps fail the chain
 - critical blocked steps block the chain
-- worker steps marked `await_worker_result` leave the root in `status: delegated` + `chain_status: awaiting_worker_result` while the worker result is still pending
-- once the delegated child has a formal worker result, `task_chain_resume.sh` updates that step and re-enters the chain from the root
+- worker steps marked `await_worker_result` leave the root in `status: delegated` + `chain_status: awaiting_worker_result` while one or more awaited worker results are still pending
+- once delegated children have a formal worker result, `task_chain_resume.sh` updates every resolved worker step and re-enters the chain from the root
 - a critical worker result of `failed` closes the root as `failed`
 - a critical worker result of `blocked` closes the root as `blocked`
-- a worker result of `done` allows the next dependent local step to run if the plan still has one pending
+- a worker result of `done` allows any dependent local step to run only when all of that step's dependencies are also `done`
+- if a dependency is still waiting, the dependent local step stays planned
+- if a dependency ended as `failed`, `blocked`, or `skipped`, the dependent local step becomes `skipped`
 - non-critical failed steps produce `completed_with_warnings`
 - non-critical blocked steps also produce `completed_with_warnings`
 - incomplete critical steps also fail the chain at finalization time
@@ -129,9 +131,10 @@ That means:
 
 - if any child fails, the root chain closes as `failed`
 - if no critical child failed but a critical child is `blocked`, the root chain closes as `blocked`
-- if a critical worker step is intentionally awaiting manual-controlled result, the root chain closes as `delegated`
+- if one or more critical worker steps are intentionally awaiting manual-controlled result, the root chain closes as `delegated`
 - the root task records the failure in `chain_status`
 - the aggregated summary shows failed vs blocked child counts separately
+- the aggregated summary also shows which awaited worker children are still pending and which already resolved
 - the final artifact still gets generated for traceability
 
 ## Final chain artifact

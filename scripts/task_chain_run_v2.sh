@@ -17,6 +17,7 @@ usage() {
 Uso:
   ./scripts/task_chain_run_v2.sh repo-analysis-worker "<title>"
   ./scripts/task_chain_run_v2.sh repo-analysis-worker-manual "<title>"
+  ./scripts/task_chain_run_v2.sh repo-analysis-worker-manual-multi "<title>"
 USAGE
 }
 
@@ -240,6 +241,96 @@ PY
   TASK_OUTPUT_EXTRA_JSON="$extra_json" ./scripts/task_add_output.sh "$root_task_id" "$kind" "$exit_code" "$content" >/dev/null
 }
 
+emit_manual_worker_steps() {
+  python3 - "$root_task_path" <<'PY'
+import json
+import pathlib
+import sys
+
+task = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+steps = ((task.get("chain_plan") or {}).get("steps") or [])
+for step in sorted(steps, key=lambda value: (int(value.get("step_order", 0) or 0), value.get("step_name", ""))):
+    if step.get("execution_mode") != "worker":
+        continue
+    if not step.get("await_worker_result"):
+        continue
+    values = [
+        step.get("step_name", ""),
+        str(step.get("step_order", "")),
+        "true" if step.get("critical") else "false",
+        step.get("task_type", ""),
+        step.get("title", ""),
+        step.get("objective", ""),
+    ]
+    print("\t".join(values))
+PY
+}
+
+spawn_manual_worker_step() {
+  local step_name="$1"
+  local step_order="$2"
+  local step_critical="$3"
+  local step_task_type="$4"
+  local step_title="$5"
+  local step_objective="$6"
+  local worker_create_output=""
+  local worker_summary=""
+  local requested_deliverable=""
+
+  update_chain_step "$step_name" running "" "delegated worker child started"
+  worker_create_output="$(
+    TASK_CHILD_DEPENDS_ON="[\"$self_check_task_id\"]" \
+    TASK_CHILD_OBJECTIVE="$step_objective" \
+    TASK_CHILD_STEP_NAME="$step_name" \
+    TASK_CHILD_STEP_ORDER="$step_order" \
+    TASK_CHILD_CRITICAL="$step_critical" \
+    TASK_CHILD_EXECUTION_MODE="worker" \
+    ./scripts/task_spawn_child.sh "$root_task_id" "$step_task_type" "$step_title"
+  )"
+  printf '%s\n' "$worker_create_output"
+
+  worker_task_id="$(extract_task_id "$worker_create_output" || true)"
+  if [ -z "$worker_task_id" ]; then
+    update_chain_step "$step_name" failed "" "worker child could not be created" "1"
+    add_chain_output "chain-step-worker" 1 "${step_name} child could not be created" "$step_name" "" "worker" "$step_critical"
+    return 1
+  fi
+
+  requested_deliverable="$(
+    python3 - "$step_objective" <<'PY'
+import sys
+
+objective = " ".join(sys.argv[1].split())
+if len(objective) <= 180:
+    print(objective)
+else:
+    print(objective[:177].rstrip() + "...")
+PY
+  )"
+
+  TASK_OUTPUT_EXTRA_JSON="$(
+    python3 - "$root_task_id" "$step_name" "$requested_deliverable" <<'PY'
+import json
+import sys
+
+print(json.dumps({
+    "root_task_id": sys.argv[1],
+    "step_name": sys.argv[2],
+    "requested_deliverable": sys.argv[3],
+}))
+PY
+  )" ./scripts/task_add_output.sh "$worker_task_id" "chain-context" 0 "Mixed local-worker chain child for ${step_name}." >/dev/null
+
+  printf '%s\n' "$(./scripts/task_delegate.sh "$worker_task_id")"
+  printf '%s\n' "$(./scripts/task_prepare_codex_handoff.sh "$worker_task_id")"
+  printf '%s\n' "$(./scripts/task_prepare_codex_ticket.sh "$worker_task_id")"
+
+  worker_summary="$(task_compact_summary "$worker_task_id" || true)"
+  update_chain_step "$step_name" delegated "$worker_task_id" "${worker_summary:-worker step delegated and awaiting manual-controlled result}" "0"
+  add_chain_output "chain-step-worker" 0 "${step_name} delegated awaiting manual-controlled worker result" "$step_name" "$worker_task_id" "worker" "$step_critical"
+  return 0
+}
+
 record_chain_collection() {
   local summary_json
   local content
@@ -338,7 +429,7 @@ if [ -z "$chain_type" ] || [ -z "$chain_title" ]; then
 fi
 
 case "$chain_type" in
-  repo-analysis-worker|repo-analysis-worker-manual) ;;
+  repo-analysis-worker|repo-analysis-worker-manual|repo-analysis-worker-manual-multi) ;;
   *)
     usage
     fatal "chain_type no soportado: $chain_type"
@@ -398,6 +489,54 @@ if [ "$self_check_exit" -ne 0 ] || [ -z "$self_check_task_id" ]; then
   exit 1
 fi
 
+if [ "$chain_type" = "repo-analysis-worker-manual" ] || [ "$chain_type" = "repo-analysis-worker-manual-multi" ]; then
+  manual_worker_spawn_failed="0"
+  first_worker_task_id=""
+  while IFS=$'\t' read -r step_name step_order step_critical step_task_type step_title step_objective; do
+    [ -n "$step_name" ] || continue
+    worker_task_id=""
+    if ! spawn_manual_worker_step "$step_name" "$step_order" "$step_critical" "$step_task_type" "$step_title" "$step_objective"; then
+      manual_worker_spawn_failed="1"
+    elif [ -z "$first_worker_task_id" ]; then
+      first_worker_task_id="$worker_task_id"
+    fi
+  done < <(emit_manual_worker_steps)
+
+  worker_task_id="$first_worker_task_id"
+  close_root
+
+  root_status="$(
+    python3 - "$root_task_path" <<'PY'
+import json
+import pathlib
+import sys
+
+task_path = pathlib.Path(sys.argv[1])
+with task_path.open(encoding="utf-8") as fh:
+    task = json.load(fh)
+print(task.get("status", ""))
+print(task.get("chain_status", ""))
+PY
+  )"
+  printf '%s\n' "$root_status"
+
+  root_final_status="$(printf '%s\n' "$root_status" | sed -n '1p')"
+  if [ "$manual_worker_spawn_failed" = "1" ] || [ "$root_final_status" = "failed" ]; then
+    printf 'TASK_CHAIN_FAIL %s\n' "$root_task_id"
+    exit 1
+  fi
+  if [ "$root_final_status" = "blocked" ]; then
+    printf 'TASK_CHAIN_BLOCKED %s\n' "$root_task_id"
+    exit 2
+  fi
+  if [ "$root_final_status" = "delegated" ]; then
+    printf 'TASK_CHAIN_DELEGATED %s\n' "$root_task_id"
+    exit 3
+  fi
+  printf 'TASK_CHAIN_OK %s\n' "$root_task_id"
+  exit 0
+fi
+
 update_chain_step "delegated-repo-analysis" running "" "delegated repo-analysis child started"
 worker_create_output="$(
   TASK_CHILD_DEPENDS_ON="[\"$self_check_task_id\"]" \
@@ -436,44 +575,6 @@ handoff_output="$(./scripts/task_prepare_codex_handoff.sh "$worker_task_id")"
 printf '%s\n' "$handoff_output"
 ticket_output="$(./scripts/task_prepare_codex_ticket.sh "$worker_task_id")"
 printf '%s\n' "$ticket_output"
-
-if [ "$chain_type" = "repo-analysis-worker-manual" ]; then
-  worker_summary="$(task_compact_summary "$worker_task_id" || true)"
-  update_chain_step "delegated-repo-analysis" delegated "$worker_task_id" "${worker_summary:-worker step delegated and awaiting manual-controlled result}" "0"
-  add_chain_output "chain-step-worker" 0 "delegated-repo-analysis delegated awaiting manual-controlled worker result" "delegated-repo-analysis" "$worker_task_id" "worker" "true"
-  close_root
-
-  root_status="$(
-    python3 - "$root_task_path" <<'PY'
-import json
-import pathlib
-import sys
-
-task_path = pathlib.Path(sys.argv[1])
-with task_path.open(encoding="utf-8") as fh:
-    task = json.load(fh)
-print(task.get("status", ""))
-print(task.get("chain_status", ""))
-PY
-  )"
-  printf '%s\n' "$root_status"
-
-  root_final_status="$(printf '%s\n' "$root_status" | sed -n '1p')"
-  if [ "$root_final_status" = "delegated" ]; then
-    printf 'TASK_CHAIN_DELEGATED %s\n' "$root_task_id"
-    exit 3
-  fi
-  if [ "$root_final_status" = "failed" ]; then
-    printf 'TASK_CHAIN_FAIL %s\n' "$root_task_id"
-    exit 1
-  fi
-  if [ "$root_final_status" = "blocked" ]; then
-    printf 'TASK_CHAIN_BLOCKED %s\n' "$root_task_id"
-    exit 2
-  fi
-  printf 'TASK_CHAIN_OK %s\n' "$root_task_id"
-  exit 0
-fi
 
 set +e
 worker_start_output="$(./scripts/task_start_codex_run.sh "$worker_task_id" 2>&1)"

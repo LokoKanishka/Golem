@@ -94,8 +94,9 @@ for path in tasks_dir.glob("*.json"):
 input_kind = "unknown"
 root = None
 child = None
-pending_steps = []
+await_steps = []
 limitation = ""
+ambiguous_result_target = ""
 
 if task_type == "task-chain":
     input_kind = "root"
@@ -123,9 +124,17 @@ if root and steps:
             continue
         step_child_id = step.get("child_task_id", "")
         step_child = all_tasks.get(step_child_id, {}) if step_child_id else {}
+        if not step_child and step.get("step_name"):
+            for candidate in all_tasks.values():
+                if candidate.get("parent_task_id") != root_task_id:
+                    continue
+                if candidate.get("step_name") == step.get("step_name"):
+                    step_child = candidate
+                    step_child_id = candidate.get("task_id", "")
+                    break
         worker_result = latest_worker_result_output(step_child) if step_child else {}
         worker_result_status = worker_result.get("status") or (step_child.get("worker_run") or {}).get("result_status", "")
-        pending_steps.append({
+        await_steps.append({
             "step_name": step.get("step_name", ""),
             "step_status": step.get("status", ""),
             "step_order": step.get("step_order", ""),
@@ -133,23 +142,36 @@ if root and steps:
             "child_task_id": step_child_id,
             "child_status": step_child.get("status", ""),
             "worker_result_status": worker_result_status,
+            "result_registered": bool(worker_result_status),
         })
 
-if root and len(pending_steps) > 1:
-    limitation = "settlement actual solo soporta una worker child awaiting per root"
-
-if root and pending_steps:
-    pending = pending_steps[0]
-    if not child:
-      child = all_tasks.get(pending.get("child_task_id", ""), {})
-else:
-    pending = {}
+if root and not child and await_steps:
+    unresolved_children = [
+        step for step in await_steps
+        if step.get("child_status") in {"delegated", "worker_running", "running", ""}
+        or not step.get("result_registered")
+    ]
+    if len(unresolved_children) == 1:
+        child = all_tasks.get(unresolved_children[0].get("child_task_id", ""), {})
+    elif len(unresolved_children) > 1:
+        ambiguous_result_target = "root input is ambiguous for direct result recording because multiple worker children are still unresolved"
 
 child_task_id = child.get("task_id", "") if isinstance(child, dict) else ""
 child_status = child.get("status", "") if isinstance(child, dict) else ""
 worker_result = latest_worker_result_output(child) if isinstance(child, dict) else {}
 worker_result_status = worker_result.get("status") or ((child.get("worker_run") or {}).get("result_status", "") if isinstance(child, dict) else "")
 result_registered = bool(worker_result_status or child_status in {"done", "failed", "blocked", "cancelled"})
+awaiting_child_ids = [step.get("child_task_id", "") for step in await_steps if step.get("child_task_id")]
+ready_child_ids = [
+    step.get("child_task_id", "")
+    for step in await_steps
+    if step.get("child_task_id") and step.get("result_registered")
+]
+pending_child_ids = [
+    step.get("child_task_id", "")
+    for step in await_steps
+    if step.get("child_task_id") and not step.get("result_registered")
+]
 
 values = {
     "INPUT_KIND": input_kind,
@@ -163,9 +185,10 @@ values = {
     "WORKER_RESULT_STATUS": worker_result_status,
     "RESULT_REGISTERED": "1" if result_registered else "0",
     "LIMITATION": limitation,
-    "PENDING_STEP_NAME": pending.get("step_name", ""),
-    "PENDING_STEP_CRITICAL": "1" if pending.get("critical") else "0",
-    "PENDING_STEP_STATUS": pending.get("step_status", ""),
+    "AMBIGUOUS_RESULT_TARGET": ambiguous_result_target,
+    "AWAITING_CHILD_IDS_JSON": json.dumps(awaiting_child_ids),
+    "READY_CHILD_IDS_JSON": json.dumps(ready_child_ids),
+    "PENDING_CHILD_IDS_JSON": json.dumps(pending_child_ids),
 }
 
 for key, value in values.items():
@@ -176,8 +199,15 @@ eval "$resolve_env"
 
 [ -z "$LIMITATION" ] || fatal "$LIMITATION"
 [ -n "$ROOT_TASK_ID" ] || fatal "no se pudo resolver una root task-chain"
-[ "$CHAIN_TYPE" = "repo-analysis-worker-manual" ] || fatal "settlement actual solo soporta repo-analysis-worker-manual"
-[ -n "$CHILD_TASK_ID" ] || fatal "no se encontro child worker pendiente o asociado"
+[ "$CHAIN_TYPE" = "repo-analysis-worker-manual" ] || [ "$CHAIN_TYPE" = "repo-analysis-worker-manual-multi" ] || fatal "settlement actual solo soporta chains manuales con worker awaitable"
+
+if [ -n "$result_status" ] && [ -n "$AMBIGUOUS_RESULT_TARGET" ] && [ "$INPUT_KIND" = "root" ]; then
+  fatal "$AMBIGUOUS_RESULT_TARGET"
+fi
+
+if [ -n "$result_status" ] && [ -z "$CHILD_TASK_ID" ]; then
+  fatal "no se encontro una child worker objetivo para registrar el resultado"
+fi
 
 recorded_now="false"
 if [ -n "$result_status" ] && [ "$RESULT_REGISTERED" != "1" ]; then
@@ -228,8 +258,19 @@ settlement_note=""
 settlement_exit=0
 
 if [ "$ROOT_STATUS" = "delegated" ] && [ "$ROOT_CHAIN_STATUS" = "awaiting_worker_result" ]; then
-  if [ "$RESULT_REGISTERED" != "1" ] || [ -z "$WORKER_RESULT_STATUS" ] || [ "$CHILD_STATUS" = "delegated" ] || [ "$CHILD_STATUS" = "worker_running" ]; then
-    settlement_note="worker result still pending for ${CHILD_TASK_ID}"
+  ready_count="$(python3 - "$READY_CHILD_IDS_JSON" <<'PY'
+import json, sys
+print(len(json.loads(sys.argv[1])))
+PY
+  )"
+  pending_count="$(python3 - "$PENDING_CHILD_IDS_JSON" <<'PY'
+import json, sys
+print(len(json.loads(sys.argv[1])))
+PY
+  )"
+
+  if [ "$ready_count" -eq 0 ] && [ "$pending_count" -gt 0 ]; then
+    settlement_note="worker results still pending for one or more awaitable children"
     settlement_exit=3
   else
     set +e
@@ -237,7 +278,7 @@ if [ "$ROOT_STATUS" = "delegated" ] && [ "$ROOT_CHAIN_STATUS" = "awaiting_worker
     resume_exit="$?"
     set -e
     printf '%s\n' "$resume_output"
-    settlement_note="worker result ${WORKER_RESULT_STATUS} settled for ${CHILD_TASK_ID}; resume_exit=${resume_exit}"
+    settlement_note="awaitable workers reconciled for root=${ROOT_TASK_ID}; resume_exit=${resume_exit}"
     settlement_exit="$resume_exit"
   fi
 else
@@ -260,11 +301,11 @@ ROOT_STATUS="$(printf '%s\n' "$root_status_snapshot" | sed -n '1p')"
 ROOT_CHAIN_STATUS="$(printf '%s\n' "$root_status_snapshot" | sed -n '2p')"
 
 extra_json="$(
-  python3 - "$task_id" "$INPUT_KIND" "$CHILD_TASK_ID" "$WORKER_RESULT_STATUS" "$recorded_now" "$ROOT_STATUS" "$ROOT_CHAIN_STATUS" "$settlement_exit" <<'PY'
+  python3 - "$task_id" "$INPUT_KIND" "$CHILD_TASK_ID" "$WORKER_RESULT_STATUS" "$recorded_now" "$ROOT_STATUS" "$ROOT_CHAIN_STATUS" "$settlement_exit" "$READY_CHILD_IDS_JSON" "$PENDING_CHILD_IDS_JSON" <<'PY'
 import json
 import sys
 
-input_task_id, input_kind, child_task_id, worker_result_status, recorded_now, root_status, root_chain_status, settlement_exit = sys.argv[1:9]
+input_task_id, input_kind, child_task_id, worker_result_status, recorded_now, root_status, root_chain_status, settlement_exit, ready_child_ids_json, pending_child_ids_json = sys.argv[1:11]
 print(json.dumps({
     "input_task_id": input_task_id,
     "input_kind": input_kind,
@@ -273,6 +314,8 @@ print(json.dumps({
     "recorded_worker_result_now": recorded_now == "true",
     "root_status": root_status,
     "root_chain_status": root_chain_status,
+    "ready_worker_child_ids": json.loads(ready_child_ids_json),
+    "pending_worker_child_ids": json.loads(pending_child_ids_json),
     "settlement_exit_code": int(settlement_exit),
 }))
 PY

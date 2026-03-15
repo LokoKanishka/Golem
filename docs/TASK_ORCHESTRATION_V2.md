@@ -22,6 +22,7 @@ The first concrete v2 chain types are:
 ```text
 repo-analysis-worker
 repo-analysis-worker-manual
+repo-analysis-worker-manual-multi
 ```
 
 ## New root-level contract
@@ -79,6 +80,7 @@ Use:
 ```text
 ./scripts/task_chain_plan.sh repo-analysis-worker "<title>"
 ./scripts/task_chain_plan.sh repo-analysis-worker-manual "<title>"
+./scripts/task_chain_plan.sh repo-analysis-worker-manual-multi "<title>"
 ```
 
 This creates a root `task-chain` task in `planned` chain state and writes a v2 `chain_plan`.
@@ -99,6 +101,15 @@ The manual-controlled plan is:
 
 That plan intentionally stops after step 2 with the root in `status: delegated` + `chain_status: awaiting_worker_result` until the worker result is registered.
 
+The multi-await manual plan is:
+
+1. local self-check
+2. delegated repo analysis architecture with `await_worker_result: true`
+3. delegated repo analysis verification with `await_worker_result: true`
+4. one local comparison artifact that depends on both worker steps
+
+That plan intentionally stops after delegating both workers with the root in `status: delegated` + `chain_status: awaiting_worker_result` while at least one awaited worker result is still missing.
+
 ## Running
 
 Use:
@@ -106,6 +117,7 @@ Use:
 ```text
 ./scripts/task_chain_run_v2.sh repo-analysis-worker "<title>"
 ./scripts/task_chain_run_v2.sh repo-analysis-worker-manual "<title>"
+./scripts/task_chain_run_v2.sh repo-analysis-worker-manual-multi "<title>"
 ```
 
 For `repo-analysis-worker`, the runner:
@@ -129,6 +141,15 @@ For `repo-analysis-worker-manual`, the runner:
 5. prepares handoff packet and Codex ticket
 6. finalizes the root as `delegated` / `awaiting_worker_result`
 
+For `repo-analysis-worker-manual-multi`, the runner:
+
+1. creates the v2 plan
+2. marks the root as running
+3. executes the local step
+4. creates and delegates every planned `await_worker_result` worker child
+5. prepares handoff packet and Codex ticket for each delegated worker child
+6. finalizes the root as `delegated` / `awaiting_worker_result`
+
 Resume the same root later with:
 
 ```text
@@ -138,12 +159,20 @@ Resume the same root later with:
 That resume flow:
 
 1. verifies the root is still `delegated` / `awaiting_worker_result`
-2. reads the delegated child worker task
-3. checks whether a formal worker result is already registered
-4. keeps the root delegated if the worker result is still absent
-5. updates the worker step to `done` / `failed` / `blocked` once the child result exists
-6. runs the trailing local step only when the worker result closed as `done`
+2. scans every worker step marked `await_worker_result`
+3. updates each resolved worker step to `done` / `failed` / `blocked` once its child result exists
+4. keeps the root delegated if one or more awaited worker results are still absent and no critical worker has already forced closure
+5. runs only the planned local steps whose dependencies are all `done`
+6. skips planned local steps when any dependency already ended in `failed`, `blocked`, or `skipped`
 7. finalizes the root with the same collector/finalizer used elsewhere
+
+Minimal continuation policy for multi-await roots:
+
+- a planned step can run only when all `depends_on_step_names` are `done`
+- if any dependency is still `delegated`, `running`, or `planned`, that step must wait
+- if any dependency is `failed`, `blocked`, or `skipped`, that step is skipped instead of guessed into a partial run
+- a critical worker outcome of `failed` or `blocked` can close the root immediately even if another awaited worker is still unresolved
+- if one worker is already `done` and another still waits, the root remains `awaiting_worker_result` unless an independent local step is now fully unblocked by dependencies
 
 For lower-friction operations, the recommended wrapper is now:
 
@@ -155,9 +184,10 @@ That settlement flow can:
 
 1. accept the root or the delegated worker child
 2. register the worker result when the operator already has it in hand
-3. detect whether the root still needs to wait
-4. trigger `task_chain_resume.sh` automatically when the result is sufficient
-5. leave a `chain-settlement` trace on the root
+3. reconcile one or more already-resolved awaited worker children
+4. detect whether the root still needs to wait for other workers
+5. trigger `task_chain_resume.sh` automatically when reconciliation work exists
+6. leave a `chain-settlement` trace on the root
 
 When the worker result arrives as a canonical packet instead of a manual shell call, the recommended entry point is:
 
@@ -221,10 +251,11 @@ inside the deep verification lane driven by:
 
 This keeps the normal `self-check` lightweight while still making the worker roundtrip visible as an official repository capability.
 
-Current limitation:
+Current policy:
 
-- it supports one `await_worker_result` worker step per root
-- if a root exposes multiple pending worker awaits, settlement exits with an explicit limitation message instead of guessing
+- multi-await settlement/resume now supports more than one `await_worker_result` worker step per root
+- local continuation stays intentionally simple: only steps whose dependencies are all `done` can run after reconciliation
+- unsupported local step task types in resume still fail explicitly instead of inventing an execution path
 
 For a broader operational sweep across delegated roots, use:
 
@@ -236,9 +267,22 @@ For a broader operational sweep across delegated roots, use:
 This sweep:
 
 1. scans manual-controlled roots with `await_worker_result`
-2. classifies each root as `still_waiting`, `ready_for_settlement`, `already_reconciled`, or `limitation`
+2. shows all awaited worker children per root, including which ones are already ready and which ones still wait
+3. classifies each root as `still_waiting`, `ready_for_settlement`, or `already_reconciled`
 3. keeps inspect mode read-only
 4. uses `task_chain_settle.sh` in apply mode instead of inventing a parallel reconcile path
+
+For a reproducible verify of the new multi-await behavior, use:
+
+```text
+./scripts/verify_multi_worker_await_roundtrip.sh
+```
+
+That verify covers:
+
+1. one worker resolved while another still waits
+2. both workers resolved so the root can continue and close
+3. one critical worker blocked while another still waits
 
 ## Status inspection
 

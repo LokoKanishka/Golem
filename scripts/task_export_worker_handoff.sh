@@ -93,6 +93,8 @@ if not isinstance(handoff, dict):
 root_task_id = ""
 await_worker_result = False
 critical = bool(task.get("critical", False))
+await_group_child_ids = []
+await_group_step_names = []
 continuation_policy = {
     "await_worker_result": False,
     "continue_on_failed": False,
@@ -100,6 +102,9 @@ continuation_policy = {
     "resume_via": "",
     "settle_via": f"./scripts/task_chain_settle.sh {task_id}",
     "degradation_mode": "none",
+    "resume_when_all_resolved": False,
+    "await_group_child_ids": [],
+    "await_group_step_names": [],
 }
 
 parent_task_id = str(task.get("parent_task_id", "")).strip()
@@ -110,6 +115,13 @@ if parent_task_id:
         if parent.get("type") == "task-chain":
             root_task_id = parent_task_id
             steps = ((parent.get("chain_plan") or {}).get("steps") or [])
+            for candidate in steps:
+                if not candidate.get("await_worker_result"):
+                    continue
+                await_group_step_names.append(candidate.get("step_name", ""))
+                candidate_child_id = str(candidate.get("child_task_id", "")).strip()
+                if candidate_child_id:
+                    await_group_child_ids.append(candidate_child_id)
             for step in steps:
                 if step.get("child_task_id") == task_id or step.get("step_name") == task.get("step_name"):
                     await_worker_result = bool(step.get("await_worker_result", False))
@@ -120,6 +132,9 @@ if parent_task_id:
                     "await_worker_result": await_worker_result,
                     "resume_via": f"./scripts/task_chain_resume.sh {root_task_id}" if await_worker_result else "",
                     "degradation_mode": "fail_root_if_critical" if critical else "completed_with_warnings",
+                    "resume_when_all_resolved": len(await_group_step_names) > 1,
+                    "await_group_child_ids": dedupe(await_group_child_ids),
+                    "await_group_step_names": dedupe(await_group_step_names),
                 }
             )
 
@@ -147,6 +162,12 @@ packet = {
     "notify_policy": task.get("notify_policy", "") or "manual",
     "await_worker_result": await_worker_result,
     "critical": critical,
+    "await_group": {
+        "step_names": dedupe(await_group_step_names),
+        "child_task_ids": dedupe(await_group_child_ids),
+        "step_count": len(dedupe(await_group_step_names)),
+        "resume_when_all_resolved": len(dedupe(await_group_step_names)) > 1,
+    },
     "continuation_policy": continuation_policy,
     "artifact_paths": artifact_paths,
     "notes": task.get("notes", []),

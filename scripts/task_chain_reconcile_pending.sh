@@ -72,7 +72,7 @@ results = []
 for task_id, task in sorted(all_tasks.items()):
     if task.get("type") != "task-chain":
         continue
-    if task.get("chain_type") != "repo-analysis-worker-manual":
+    if task.get("chain_type") not in {"repo-analysis-worker-manual", "repo-analysis-worker-manual-multi"}:
         continue
     if root_filters and task_id not in root_filters:
         continue
@@ -83,40 +83,42 @@ for task_id, task in sorted(all_tasks.items()):
     if not await_steps:
         continue
 
-    limitation = ""
-    if len(await_steps) > 1:
-        limitation = "multiple_await_worker_steps_not_supported"
+    await_worker_children = []
+    for worker_step in await_steps:
+        worker_child_id = worker_step.get("child_task_id", "")
+        worker_child = all_tasks.get(worker_child_id, {}) if worker_child_id else {}
+        if not worker_child_id:
+            for candidate in all_tasks.values():
+                if candidate.get("parent_task_id") == task_id and candidate.get("step_name") == worker_step.get("step_name"):
+                    worker_child = candidate
+                    worker_child_id = candidate.get("task_id", "")
+                    break
 
-    worker_step = await_steps[0]
-    worker_child_id = worker_step.get("child_task_id", "")
-    worker_child = all_tasks.get(worker_child_id, {}) if worker_child_id else {}
-    if not worker_child_id:
-        for candidate in all_tasks.values():
-            if candidate.get("parent_task_id") == task_id and candidate.get("step_name") == worker_step.get("step_name"):
-                worker_child = candidate
-                worker_child_id = candidate.get("task_id", "")
-                break
-
-    worker_result = latest_worker_result_output(worker_child) if worker_child else {}
-    worker_result_status = worker_result.get("status") or ((worker_child.get("worker_run") or {}).get("result_status", "") if worker_child else "")
-    worker_result_presence = "present" if worker_result_status else "missing"
-
-    continuation_step = None
-    for step in steps:
-        if step.get("step_name") == worker_step.get("step_name"):
-            continue
-        dependencies = step.get("depends_on_step_names") or []
-        if worker_step.get("step_name") in dependencies:
-            continuation_step = step
-            break
+        worker_result = latest_worker_result_output(worker_child) if worker_child else {}
+        worker_result_status = worker_result.get("status") or ((worker_child.get("worker_run") or {}).get("result_status", "") if worker_child else "")
+        await_worker_children.append(
+            {
+                "step_name": worker_step.get("step_name", ""),
+                "child_task_id": worker_child_id,
+                "child_status": worker_child.get("status", "") if worker_child else "",
+                "worker_result_status": worker_result_status,
+                "result_registered": bool(worker_result_status),
+            }
+        )
 
     root_status = task.get("status", "")
     chain_status = task.get("chain_status", "")
+    ready_children = [
+        child for child in await_worker_children
+        if child["result_registered"] and child["child_status"] in {"done", "failed", "blocked", "cancelled"}
+    ]
+    pending_children = [
+        child for child in await_worker_children
+        if not child["result_registered"] or child["child_status"] in {"delegated", "worker_running", "running", ""}
+    ]
 
-    if limitation:
-        decision = "limitation"
-    elif root_status == "delegated" and chain_status == "awaiting_worker_result":
-        if worker_result_status and worker_child.get("status") in {"done", "failed", "blocked", "cancelled"}:
+    if root_status == "delegated" and chain_status == "awaiting_worker_result":
+        if ready_children:
             decision = "ready_for_settlement"
         else:
             decision = "still_waiting"
@@ -129,14 +131,12 @@ for task_id, task in sorted(all_tasks.items()):
             "title": task.get("title", ""),
             "root_status": root_status,
             "chain_status": chain_status,
-            "worker_child_id": worker_child_id,
-            "worker_child_status": worker_child.get("status", "") if worker_child else "",
-            "worker_result_presence": worker_result_presence,
-            "worker_result_status": worker_result_status,
-            "pending_step_name": worker_step.get("step_name", ""),
-            "continuation_step_name": (continuation_step or {}).get("step_name", ""),
+            "worker_child_ids": [child["child_task_id"] for child in await_worker_children if child["child_task_id"]],
+            "ready_worker_child_ids": [child["child_task_id"] for child in ready_children if child["child_task_id"]],
+            "pending_worker_child_ids": [child["child_task_id"] for child in pending_children if child["child_task_id"]],
+            "worker_children": await_worker_children,
+            "await_step_names": [step.get("step_name", "") for step in await_steps],
             "reconcile_decision": decision,
-            "limitation": limitation,
         }
     )
 
@@ -156,10 +156,9 @@ if [ "$count_total" -eq 0 ]; then
 fi
 
 printf 'mode: %s\n' "$([ "$apply_mode" = "true" ] && printf 'apply' || printf 'inspect')"
-printf 'support_limit: one await_worker_result worker step per root\n'
 printf 'roots_considered: %s\n' "$count_total"
 printf '\n'
-printf 'root_id | worker_child_id | current_status | chain_status | worker_result_presence | worker_result_status | reconcile_decision | final_state_if_applied\n'
+printf 'root_id | worker_child_ids | ready_worker_child_ids | pending_worker_child_ids | current_status | chain_status | reconcile_decision | final_state_if_applied\n'
 
 while IFS= read -r row_json; do
   [ -n "$row_json" ] || continue
@@ -197,17 +196,30 @@ PY
     final_state_if_applied="unchanged_waiting"
   elif [ "$apply_mode" = "true" ] && [ "$RECONCILE_DECISION" = "already_reconciled" ]; then
     final_state_if_applied="already_reconciled"
-  elif [ "$apply_mode" = "true" ] && [ "$RECONCILE_DECISION" = "limitation" ]; then
-    final_state_if_applied="limit:${LIMITATION}"
   fi
 
   printf '%s | %s | %s | %s | %s | %s | %s | %s\n' \
     "$ROOT_ID" \
-    "${WORKER_CHILD_ID:-"(none)"}" \
+    "$(python3 - "$row_json" <<'PY'
+import json, sys
+row = json.loads(sys.argv[1])
+print(",".join(row.get("worker_child_ids", [])) or "(none)")
+PY
+)" \
+    "$(python3 - "$row_json" <<'PY'
+import json, sys
+row = json.loads(sys.argv[1])
+print(",".join(row.get("ready_worker_child_ids", [])) or "(none)")
+PY
+)" \
+    "$(python3 - "$row_json" <<'PY'
+import json, sys
+row = json.loads(sys.argv[1])
+print(",".join(row.get("pending_worker_child_ids", [])) or "(none)")
+PY
+)" \
     "$ROOT_STATUS" \
     "$CHAIN_STATUS" \
-    "$WORKER_RESULT_PRESENCE" \
-    "${WORKER_RESULT_STATUS:-"(none)"}" \
     "$RECONCILE_DECISION" \
     "$final_state_if_applied"
 done < <(
@@ -228,14 +240,13 @@ rows = json.loads(sys.argv[1])
 apply_mode = sys.argv[2] == "true"
 tasks_dir = pathlib.Path(sys.argv[3])
 
-summary = {"still_waiting": 0, "ready_for_settlement": 0, "already_reconciled": 0, "limitation": 0}
+summary = {"still_waiting": 0, "ready_for_settlement": 0, "already_reconciled": 0}
 for row in rows:
     summary[row["reconcile_decision"]] = summary.get(row["reconcile_decision"], 0) + 1
 
 print(f"still_waiting: {summary.get('still_waiting', 0)}")
 print(f"ready_for_settlement: {summary.get('ready_for_settlement', 0)}")
 print(f"already_reconciled: {summary.get('already_reconciled', 0)}")
-print(f"limitation: {summary.get('limitation', 0)}")
 
 if apply_mode:
     final_counts = {}

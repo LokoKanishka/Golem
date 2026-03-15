@@ -10,6 +10,7 @@ usage() {
 Uso:
   ./scripts/task_chain_plan.sh repo-analysis-worker "<title>"
   ./scripts/task_chain_plan.sh repo-analysis-worker-manual "<title>"
+  ./scripts/task_chain_plan.sh repo-analysis-worker-manual-multi "<title>"
 USAGE
 }
 
@@ -32,7 +33,7 @@ if [ -z "$chain_type" ] || [ -z "$chain_title" ]; then
 fi
 
 case "$chain_type" in
-  repo-analysis-worker|repo-analysis-worker-manual) ;;
+  repo-analysis-worker|repo-analysis-worker-manual|repo-analysis-worker-manual-multi) ;;
   *)
     usage
     fatal "chain_type no soportado: $chain_type"
@@ -122,6 +123,79 @@ if chain_type == "repo-analysis-worker-manual":
         },
     ]
     version = "2.2"
+elif chain_type == "repo-analysis-worker-manual-multi":
+    task["objective"] = (
+        "Execute a mixed local-worker chain that delegates multiple manual-controlled worker steps, "
+        "waits for their worker results independently, and resumes one local closing step only when all "
+        "its worker dependencies are done."
+    )
+    steps = [
+        {
+            "step_name": "local-self-check",
+            "step_order": 1,
+            "task_type": "self-check",
+            "execution_mode": "local",
+            "critical": True,
+            "title": f"{chain_title} / local self-check",
+            "objective": "Validate the local Golem environment before any delegation.",
+            "depends_on_step_names": [],
+            "status": "planned",
+            "child_task_id": "",
+            "await_worker_result": False,
+        },
+        {
+            "step_name": "delegated-repo-analysis-architecture",
+            "step_order": 2,
+            "task_type": "repo-analysis",
+            "execution_mode": "worker",
+            "critical": True,
+            "title": f"{chain_title} / delegated repo analysis architecture",
+            "objective": (
+                "Analyze the repository architecture and describe the multi-worker manual orchestration "
+                "structure, focusing on chain topology and dependency boundaries."
+            ),
+            "depends_on_step_names": ["local-self-check"],
+            "status": "planned",
+            "child_task_id": "",
+            "await_worker_result": True,
+        },
+        {
+            "step_name": "delegated-repo-analysis-verification",
+            "step_order": 3,
+            "task_type": "repo-analysis",
+            "execution_mode": "worker",
+            "critical": True,
+            "title": f"{chain_title} / delegated repo analysis verification",
+            "objective": (
+                "Analyze the repository verification surface and explain how multiple awaited worker results "
+                "should affect settlement, resume, and final aggregation."
+            ),
+            "depends_on_step_names": ["local-self-check"],
+            "status": "planned",
+            "child_task_id": "",
+            "await_worker_result": True,
+        },
+        {
+            "step_name": "local-compare-multi-worker-docs",
+            "step_order": 4,
+            "task_type": "compare-files",
+            "execution_mode": "local",
+            "critical": False,
+            "title": f"{chain_title} / local multi-worker docs comparison",
+            "objective": (
+                "Produce one local artifact only after both manual-controlled worker results are done so the "
+                "root closes with mixed evidence from multiple awaited workers."
+            ),
+            "depends_on_step_names": [
+                "delegated-repo-analysis-architecture",
+                "delegated-repo-analysis-verification",
+            ],
+            "status": "planned",
+            "child_task_id": "",
+            "await_worker_result": False,
+        },
+    ]
+    version = "2.3"
 else:
     task["objective"] = f"Execute a mixed local-worker chain and produce an aggregated final artifact for {chain_type}."
     steps = [
@@ -176,9 +250,9 @@ task["chain_plan"] = {
     "version": version,
     "planned_at": planned_at,
     "mixes_execution_modes": True,
-    "manual_worker_controlled": chain_type == "repo-analysis-worker-manual",
+    "manual_worker_controlled": chain_type in {"repo-analysis-worker-manual", "repo-analysis-worker-manual-multi"},
     "local_step_count": sum(1 for step in steps if step["execution_mode"] == "local"),
-    "worker_step_count": 1,
+    "worker_step_count": sum(1 for step in steps if step["execution_mode"] == "worker"),
     "critical_step_count": sum(1 for step in steps if step["critical"]),
     "await_worker_result_step_count": sum(1 for step in steps if step.get("await_worker_result")),
     "step_count": len(steps),
@@ -202,16 +276,22 @@ import sys
 chain_type = sys.argv[1]
 print(json.dumps({
     "chain_type": chain_type,
-    "plan_version": "2.2" if chain_type == "repo-analysis-worker-manual" else "2.0",
-    "step_count": 3,
+    "plan_version": (
+        "2.3" if chain_type == "repo-analysis-worker-manual-multi"
+        else "2.2" if chain_type == "repo-analysis-worker-manual"
+        else "2.0"
+    ),
+    "step_count": 4 if chain_type == "repo-analysis-worker-manual-multi" else 3,
     "local_step_count": 2,
-    "worker_step_count": 1,
-    "critical_step_count": 2,
-    "await_worker_result_step_count": 1 if chain_type == "repo-analysis-worker-manual" else 0,
+    "worker_step_count": 2 if chain_type == "repo-analysis-worker-manual-multi" else 1,
+    "critical_step_count": 3 if chain_type == "repo-analysis-worker-manual-multi" else 2,
+    "await_worker_result_step_count": 2 if chain_type == "repo-analysis-worker-manual-multi" else 1 if chain_type == "repo-analysis-worker-manual" else 0,
 }))
 PY
 )" ./scripts/task_add_output.sh "$root_task_id" "chain-plan" 0 "$(
-  if [ "$chain_type" = "repo-analysis-worker-manual" ]; then
+  if [ "$chain_type" = "repo-analysis-worker-manual-multi" ]; then
+    printf 'planned 4-step mixed local-worker chain with two awaited manual worker steps and one local resume step'
+  elif [ "$chain_type" = "repo-analysis-worker-manual" ]; then
     printf 'planned 3-step mixed local-worker chain with manual worker await and resume'
   else
     printf 'planned 3-step mixed local-worker chain'

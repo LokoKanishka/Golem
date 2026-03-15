@@ -183,8 +183,9 @@ Ese wrapper:
 
 1. resuelve la root asociada
 2. registra el resultado worker si todavia no estaba registrado
-3. detecta si la root sigue realmente esperando
-4. reanuda la chain cuando ya existe resultado suficiente
+3. puede reconciliar una o varias worker children ya resueltas
+4. detecta si la root sigue realmente esperando otras workers
+5. reanuda la chain cuando ya existe resultado suficiente para algun paso desbloqueable
 5. deja una salida `chain-settlement` trazable en la root
 
 Tambien acepta una root directamente:
@@ -195,14 +196,17 @@ Tambien acepta una root directamente:
 
 En ese modo:
 
-- si todavia falta el resultado worker, devuelve `still_waiting`
-- si el resultado ya existe, reconcilia y reanuda la root
+- si todas las awaited workers siguen pendientes, devuelve `still_waiting`
+- si ya existe uno o mas resultados worker, reconcilia todos los que esten listos y deja la root honestamente en `delegated`, `done`, `blocked` o `failed` segun corresponda
 - si la root ya estaba cerrada, responde como settlement no-op y deja evidencia
 
-Limitacion actual honesta:
+Politica minima actual para varias worker children awaitables:
 
-- el settlement soporta una sola worker child `await_worker_result` por root
-- si una root expone varias al mismo tiempo, el script falla limpiamente y lo dice en vez de adivinar
+- la root queda en `awaiting_worker_result` mientras exista al menos una worker child awaited sin resultado terminal
+- `task_chain_resume.sh` actualiza todas las worker children ya resueltas en la misma corrida
+- un paso local solo corre cuando todas sus dependencias quedaron `done`
+- si alguna dependencia termino en `failed`, `blocked` o `skipped`, ese paso local se marca `skipped`
+- si una worker critical termina en `failed` o `blocked`, la root puede cerrar inmediatamente aunque otra worker child siga esperando
 
 ## Sweep recomendado para varias roots delegadas
 
@@ -215,10 +219,12 @@ Cuando queres revisar varias roots manual-controladas sin acordarte cada ID, el 
 Ese modo no modifica nada y muestra por root:
 
 - `root_id`
-- `worker_child_id`
+- `worker_child_ids`
+- `ready_worker_child_ids`
+- `pending_worker_child_ids`
 - `current_status`
 - `chain_status`
-- presencia o ausencia de resultado worker
+- presencia parcial o total de resultados worker
 - decision de reconciliacion sugerida
 
 Para aplicar reconciliacion real solo sobre roots listas:
@@ -239,6 +245,7 @@ Eso hace que los flujos queden asi:
 - packet puntual: `task_import_worker_result.sh --settle`
 - varios packets ya importados: `task_chain_reconcile_pending.sh --apply`
 - roundtrip reproducible completo: `verify_worker_packet_roundtrip.sh`
+- roundtrip reproducible multi-await: `verify_multi_worker_await_roundtrip.sh`
 - capability oficial deep verify: `verify_capability_matrix.sh` -> `worker packet roundtrip`
 
 ## Regla practica nueva

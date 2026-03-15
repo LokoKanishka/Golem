@@ -315,6 +315,259 @@ print(task.get("chain_status", ""))
 PY
 }
 
+refresh_resume_state() {
+  eval "$(
+    python3 - "$root_task_path" "$TASKS_DIR" <<'PY'
+import json
+import pathlib
+import shlex
+import sys
+
+
+TERMINAL = {"done", "failed", "blocked", "skipped"}
+WAITING = {"delegated", "running", "planned"}
+
+
+def latest_worker_result_output(task: dict) -> dict:
+    for output in reversed(task.get("outputs", [])):
+        if output.get("kind") == "worker-result":
+            return output
+    return {}
+
+
+def normalize_step_status(step: dict, child: dict) -> str:
+    step_status = str(step.get("status", "")).strip().lower()
+    child_status = str((child or {}).get("status", "")).strip().lower()
+    worker_result = latest_worker_result_output(child or {})
+    worker_result_status = str(worker_result.get("status", "") or ((child or {}).get("worker_run") or {}).get("result_status", "")).strip().lower()
+
+    if step.get("await_worker_result"):
+        if child_status in {"done", "failed", "blocked", "cancelled"} and worker_result_status:
+            if child_status == "cancelled":
+                return "failed"
+            return child_status
+        if child_status in {"delegated", "worker_running", "running"}:
+            return "delegated" if child_status == "delegated" else "running"
+        if step_status in {"done", "failed", "blocked", "skipped"}:
+            return step_status
+        if child:
+            return "delegated"
+
+    if step_status in {"done", "failed", "blocked", "skipped", "delegated", "running", "planned"}:
+        return step_status
+    if child_status in {"done", "failed", "blocked"}:
+        return child_status
+    if child_status == "cancelled":
+        return "failed"
+    if child_status in {"delegated", "worker_running", "running"}:
+        return "delegated" if child_status == "delegated" else "running"
+    return "planned"
+
+
+task_path = pathlib.Path(sys.argv[1])
+tasks_dir = pathlib.Path(sys.argv[2])
+root = json.loads(task_path.read_text(encoding="utf-8"))
+steps = ((root.get("chain_plan") or {}).get("steps") or [])
+children = {}
+for path in tasks_dir.glob("*.json"):
+    task = json.loads(path.read_text(encoding="utf-8"))
+    children[task.get("task_id", path.stem)] = task
+
+step_states = {}
+step_children = {}
+resolved_workers = []
+waiting_workers = []
+
+for step in sorted(steps, key=lambda value: (int(value.get("step_order", 0) or 0), value.get("step_name", ""))):
+    child = {}
+    child_task_id = str(step.get("child_task_id", "")).strip()
+    if child_task_id:
+      child = children.get(child_task_id, {})
+    if not child and step.get("step_name"):
+        for candidate in children.values():
+            if candidate.get("parent_task_id") != root.get("task_id"):
+                continue
+            if candidate.get("step_name") == step.get("step_name"):
+                child = candidate
+                child_task_id = candidate.get("task_id", "")
+                break
+    status = normalize_step_status(step, child)
+    step_states[step.get("step_name", "")] = status
+    step_children[step.get("step_name", "")] = child
+
+    if step.get("await_worker_result"):
+        worker_result = latest_worker_result_output(child or {})
+        worker_result_status = (
+            worker_result.get("status")
+            or ((child or {}).get("worker_run") or {}).get("result_status", "")
+        )
+        item = {
+            "step_name": step.get("step_name", ""),
+            "step_order": step.get("step_order", ""),
+            "critical": bool(step.get("critical", False)),
+            "status": status,
+            "current_step_status": step.get("status", ""),
+            "child_task_id": child_task_id,
+            "child_status": (child or {}).get("status", ""),
+            "worker_result_status": worker_result_status,
+        }
+        if status in {"done", "failed", "blocked"} and child_task_id and worker_result_status:
+            resolved_workers.append(item)
+        elif status in WAITING or not child_task_id or not worker_result_status:
+            waiting_workers.append(item)
+
+runnable_local_steps = []
+skippable_steps = []
+for step in sorted(steps, key=lambda value: (int(value.get("step_order", 0) or 0), value.get("step_name", ""))):
+    if step.get("execution_mode") != "local":
+        continue
+    step_name = step.get("step_name", "")
+    if step_states.get(step_name) != "planned":
+        continue
+    dependencies = step.get("depends_on_step_names") or []
+    dependency_states = [step_states.get(name, "planned") for name in dependencies]
+
+    if any(state in {"failed", "blocked", "skipped"} for state in dependency_states):
+        blocking_dependencies = [
+            {"step_name": name, "status": step_states.get(name, "planned")}
+            for name in dependencies
+            if step_states.get(name, "planned") in {"failed", "blocked", "skipped"}
+        ]
+        skippable_steps.append(
+            {
+                "step_name": step_name,
+                "step_order": step.get("step_order", ""),
+                "critical": bool(step.get("critical", False)),
+                "task_type": step.get("task_type", ""),
+                "title": step.get("title", ""),
+                "objective": step.get("objective", ""),
+                "current_status": step.get("status", ""),
+                "reason": "dependencies_not_done",
+                "blocking_dependencies": blocking_dependencies,
+            }
+        )
+        continue
+    if any(state in WAITING for state in dependency_states):
+        continue
+    if dependencies and all(state == "done" for state in dependency_states):
+        runnable_local_steps.append(
+            {
+                "step_name": step_name,
+                "step_order": step.get("step_order", ""),
+                "critical": bool(step.get("critical", False)),
+                "task_type": step.get("task_type", ""),
+                "title": step.get("title", ""),
+                "objective": step.get("objective", ""),
+                "dependency_child_task_ids": [
+                    (step_children.get(name) or {}).get("task_id", "")
+                    for name in dependencies
+                    if (step_children.get(name) or {}).get("task_id", "")
+                ],
+            }
+        )
+
+values = {
+    "ROOT_STATUS": root.get("status", ""),
+    "ROOT_CHAIN_STATUS": root.get("chain_status", ""),
+    "CHAIN_TYPE": root.get("chain_type", ""),
+    "ROOT_TITLE": root.get("title", ""),
+    "RESOLVED_WORKERS_JSON": json.dumps(resolved_workers),
+    "WAITING_WORKERS_JSON": json.dumps(waiting_workers),
+    "RUNNABLE_LOCAL_STEPS_JSON": json.dumps(runnable_local_steps),
+    "SKIPPABLE_STEPS_JSON": json.dumps(skippable_steps),
+}
+
+for key, value in values.items():
+    print(f"{key}={shlex.quote(str(value))}")
+PY
+  )"
+}
+
+run_local_resume_step() {
+  local step_json="$1"
+  local step_name step_order step_critical step_task_type step_title step_objective depends_json
+  local compare_slug step_output step_exit step_task_id step_summary
+
+  step_name="$(python3 - "$step_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("step_name", ""))
+PY
+  )"
+  step_order="$(python3 - "$step_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("step_order", ""))
+PY
+  )"
+  step_critical="$(python3 - "$step_json" <<'PY'
+import json, sys
+print("true" if json.loads(sys.argv[1]).get("critical") else "false")
+PY
+  )"
+  step_task_type="$(python3 - "$step_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("task_type", ""))
+PY
+  )"
+  step_title="$(python3 - "$step_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("title", ""))
+PY
+  )"
+  step_objective="$(python3 - "$step_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("objective", ""))
+PY
+  )"
+  depends_json="$(python3 - "$step_json" <<'PY'
+import json, sys
+print(json.dumps(json.loads(sys.argv[1]).get("dependency_child_task_ids", [])))
+PY
+  )"
+
+  if [ "$step_task_type" != "compare-files" ]; then
+    fatal "resume v2 no sabe ejecutar local task_type=$step_task_type para step=$step_name"
+  fi
+
+  compare_slug="$(
+    python3 - "$root_task_id" "$step_name" <<'PY'
+import re
+import sys
+
+root_task_id, step_name = sys.argv[1:3]
+slug = re.sub(r"[^a-z0-9]+", "-", step_name.lower()).strip("-") or "step"
+print(f"chain-v2-{slug}-{root_task_id}")
+PY
+  )"
+
+  update_chain_step "$step_name" running "" "local continuation started"
+  set +e
+  step_output="$(
+    TASK_PARENT_TASK_ID="$root_task_id" \
+    TASK_DEPENDS_ON="$depends_json" \
+    TASK_OBJECTIVE="$step_objective" \
+    TASK_STEP_NAME="$step_name" \
+    TASK_STEP_ORDER="$step_order" \
+    TASK_CRITICAL="$step_critical" \
+    TASK_EXECUTION_MODE="local" \
+    ./scripts/task_run_compare.sh files "$step_title" "$compare_slug" docs/TASK_ORCHESTRATION.md docs/TASK_ORCHESTRATION_V2.md 2>&1
+  )"
+  step_exit="$?"
+  set -e
+  printf '%s\n' "$step_output"
+
+  step_task_id="$(extract_task_id "$step_output" || true)"
+  step_summary=""
+  if [ -n "$step_task_id" ] && [ -f "$TASKS_DIR/${step_task_id}.json" ]; then
+    enrich_task_metadata "$step_task_id" \
+      "$step_objective" \
+      "$step_name" "$step_order" "$step_critical" "local"
+    step_summary="$(task_compact_summary "$step_task_id")"
+  fi
+
+  update_chain_step "$step_name" "$([ "$step_exit" -eq 0 ] && printf 'done' || printf 'failed')" "$step_task_id" "${step_summary:-continuation step finished}" "$step_exit"
+  add_chain_output "chain-step-local" "$step_exit" "${step_name} exit_code=${step_exit}" "$step_name" "$step_task_id" "local" "$step_critical"
+}
+
 on_exit() {
   local exit_code="$?"
   set +e
@@ -347,191 +600,147 @@ if [ ! -f "$root_task_path" ]; then
   fatal "no existe la tarea raiz: $root_task_id"
 fi
 
-eval "$(
-  python3 - "$root_task_path" "$TASKS_DIR" <<'PY'
-import json
-import pathlib
-import shlex
-import sys
+refresh_resume_state
 
-
-def latest_worker_result_output(task: dict) -> dict:
-    for output in reversed(task.get("outputs", [])):
-        if output.get("kind") == "worker-result":
-            return output
-    return {}
-
-
-task_path = pathlib.Path(sys.argv[1])
-tasks_dir = pathlib.Path(sys.argv[2])
-
-with task_path.open(encoding="utf-8") as fh:
-    root = json.load(fh)
-
-chain_plan = root.get("chain_plan") if isinstance(root.get("chain_plan"), dict) else {}
-steps = chain_plan.get("steps") if isinstance(chain_plan.get("steps"), list) else []
-children = {}
-for path in tasks_dir.glob("*.json"):
-    with path.open(encoding="utf-8") as fh:
-        task = json.load(fh)
-    task_id = task.get("task_id", path.stem)
-    children[task_id] = task
-
-worker_step = {}
-for step in steps:
-    if step.get("await_worker_result"):
-        worker_step = step
-        break
-
-worker_child = {}
-worker_child_task_id = worker_step.get("child_task_id", "")
-if worker_child_task_id:
-    worker_child = children.get(worker_child_task_id, {})
-else:
-    for task in children.values():
-        if task.get("parent_task_id") == root.get("task_id") and task.get("step_name") == worker_step.get("step_name"):
-            worker_child = task
-            worker_child_task_id = task.get("task_id", "")
-            break
-
-worker_result = latest_worker_result_output(worker_child) if worker_child else {}
-worker_run = worker_child.get("worker_run") or {}
-
-continuation_step = {}
-worker_step_name = worker_step.get("step_name", "")
-for step in steps:
-    if step.get("status") not in {"planned", "queued"}:
-        continue
-    dependencies = step.get("depends_on_step_names") or []
-    if worker_step_name and worker_step_name in dependencies:
-        continuation_step = step
-        break
-
-values = {
-    "ROOT_STATUS": root.get("status", ""),
-    "ROOT_CHAIN_STATUS": root.get("chain_status", ""),
-    "CHAIN_TYPE": root.get("chain_type", ""),
-    "ROOT_TITLE": root.get("title", ""),
-    "WORKER_STEP_NAME": worker_step.get("step_name", ""),
-    "WORKER_STEP_ORDER": str(worker_step.get("step_order", "")),
-    "WORKER_STEP_CRITICAL": "1" if worker_step.get("critical") else "0",
-    "WORKER_STEP_STATUS": worker_step.get("status", ""),
-    "WORKER_CHILD_TASK_ID": worker_child_task_id,
-    "WORKER_CHILD_STATUS": worker_child.get("status", ""),
-    "WORKER_RESULT_STATUS": worker_result.get("status") or worker_run.get("result_status", ""),
-    "WORKER_RESULT_REGISTERED": "1" if (worker_result or worker_run.get("result_status")) else "0",
-    "CONTINUATION_STEP_NAME": continuation_step.get("step_name", ""),
-    "CONTINUATION_STEP_ORDER": str(continuation_step.get("step_order", "")),
-    "CONTINUATION_STEP_CRITICAL": "1" if continuation_step.get("critical") else "0",
-    "CONTINUATION_STEP_TITLE": continuation_step.get("title", ""),
-    "CONTINUATION_STEP_OBJECTIVE": continuation_step.get("objective", ""),
-    "CONTINUATION_STEP_STATUS": continuation_step.get("status", ""),
-}
-
-for key, value in values.items():
-    print(f"{key}={shlex.quote(str(value))}")
-PY
-)"
-
-if [ "$CHAIN_TYPE" != "repo-analysis-worker-manual" ]; then
-  fatal "resume v2 solo soporta por ahora repo-analysis-worker-manual"
+if [ "$CHAIN_TYPE" != "repo-analysis-worker-manual" ] && [ "$CHAIN_TYPE" != "repo-analysis-worker-manual-multi" ]; then
+  fatal "resume v2 solo soporta por ahora chains manuales con worker awaitable"
 fi
 
 if [ "$ROOT_STATUS" != "delegated" ] || [ "$ROOT_CHAIN_STATUS" != "awaiting_worker_result" ]; then
   fatal "la tarea raiz no esta en delegated/awaiting_worker_result"
 fi
 
-if [ -z "$WORKER_STEP_NAME" ] || [ -z "$WORKER_CHILD_TASK_ID" ]; then
-  fatal "no se encontro un step worker pendiente de reanudacion"
-fi
+resume_started="0"
+while :; do
+  refresh_resume_state
 
-if [ "$WORKER_RESULT_REGISTERED" != "1" ] || [ -z "$WORKER_RESULT_STATUS" ] || [[ "$WORKER_CHILD_STATUS" =~ ^(delegated|worker_running|running|queued)?$ ]]; then
-  printf 'TASK_CHAIN_STILL_WAITING %s\n' "$root_task_id"
-  exit 3
-fi
+  while IFS= read -r worker_json; do
+    [ -n "$worker_json" ] || continue
+    worker_step_name="$(python3 - "$worker_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("step_name", ""))
+PY
+    )"
+    worker_child_task_id="$(python3 - "$worker_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("child_task_id", ""))
+PY
+    )"
+    worker_child_status="$(python3 - "$worker_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("child_status", ""))
+PY
+    )"
+    worker_result_status="$(python3 - "$worker_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("worker_result_status", ""))
+PY
+    )"
+    worker_step_critical="$(python3 - "$worker_json" <<'PY'
+import json, sys
+print("1" if json.loads(sys.argv[1]).get("critical") else "0")
+PY
+    )"
+    current_step_status="$(python3 - "$worker_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("current_step_status", ""))
+PY
+    )"
 
-worker_step_exit="1"
-case "$WORKER_CHILD_STATUS" in
-  done) worker_step_exit="0" ;;
-  blocked) worker_step_exit="2" ;;
-  failed|cancelled) worker_step_exit="1" ;;
-  *)
-    printf 'TASK_CHAIN_STILL_WAITING %s\n' "$root_task_id"
-    exit 3
-    ;;
-esac
+    case "$worker_child_status" in
+      done) worker_step_exit="0" ;;
+      blocked) worker_step_exit="2" ;;
+      failed|cancelled) worker_step_exit="1" ;;
+      *) continue ;;
+    esac
 
-worker_summary="$(task_compact_summary "$WORKER_CHILD_TASK_ID" || true)"
-update_chain_step "$WORKER_STEP_NAME" "$WORKER_CHILD_STATUS" "$WORKER_CHILD_TASK_ID" "${worker_summary:-worker result recorded}" "$worker_step_exit"
-add_chain_output "chain-resume-worker" "$worker_step_exit" "${WORKER_STEP_NAME} resumed from worker child status=${WORKER_CHILD_STATUS} worker_result_status=${WORKER_RESULT_STATUS}" "$WORKER_STEP_NAME" "$WORKER_CHILD_TASK_ID" "worker" "$WORKER_STEP_CRITICAL"
+    if [ "$current_step_status" != "$worker_child_status" ]; then
+      worker_summary="$(task_compact_summary "$worker_child_task_id" || true)"
+      update_chain_step "$worker_step_name" "$worker_child_status" "$worker_child_task_id" "${worker_summary:-worker result recorded}" "$worker_step_exit"
+      add_chain_output "chain-resume-worker" "$worker_step_exit" "${worker_step_name} resumed from worker child status=${worker_child_status} worker_result_status=${worker_result_status}" "$worker_step_name" "$worker_child_task_id" "worker" "$worker_step_critical"
+    fi
+  done < <(
+    python3 - "$RESOLVED_WORKERS_JSON" <<'PY'
+import json, sys
+for item in json.loads(sys.argv[1]):
+    print(json.dumps(item))
+PY
+  )
 
-if [ "$WORKER_CHILD_STATUS" != "done" ]; then
-  if [ -n "$CONTINUATION_STEP_NAME" ] && [ "$CONTINUATION_STEP_STATUS" = "planned" ]; then
-    update_chain_step "$CONTINUATION_STEP_NAME" "skipped" "" "step skipped because worker outcome was ${WORKER_CHILD_STATUS}" ""
-    add_chain_output "chain-step-local" 0 "${CONTINUATION_STEP_NAME} skipped because worker outcome was ${WORKER_CHILD_STATUS}" "$CONTINUATION_STEP_NAME" "" "local" "$CONTINUATION_STEP_CRITICAL"
-  fi
-  close_root
-  root_status="$(root_status_snapshot)"
-  printf '%s\n' "$root_status"
-  root_final_status="$(printf '%s\n' "$root_status" | sed -n '1p')"
-  if [ "$root_final_status" = "blocked" ]; then
-    printf 'TASK_CHAIN_BLOCKED %s\n' "$root_task_id"
-    exit 2
-  fi
-  if [ "$root_final_status" = "failed" ]; then
-    printf 'TASK_CHAIN_FAIL %s\n' "$root_task_id"
-    exit 1
-  fi
-  if [ "$root_final_status" = "delegated" ]; then
-    printf 'TASK_CHAIN_DELEGATED %s\n' "$root_task_id"
-    exit 3
-  fi
-  printf 'TASK_CHAIN_OK %s\n' "$root_task_id"
-  exit 0
-fi
+  refresh_resume_state
 
-./scripts/task_update.sh "$root_task_id" running >/dev/null
-set_root_chain_status running
-add_chain_output "chain-resume" 0 "chain resume started after worker result" "$WORKER_STEP_NAME" "$WORKER_CHILD_TASK_ID" "worker" "$WORKER_STEP_CRITICAL"
+  while IFS= read -r skip_json; do
+    [ -n "$skip_json" ] || continue
+    skip_step_name="$(python3 - "$skip_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("step_name", ""))
+PY
+    )"
+    skip_current_status="$(python3 - "$skip_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("current_status", ""))
+PY
+    )"
+    skip_step_critical="$(python3 - "$skip_json" <<'PY'
+import json, sys
+print("1" if json.loads(sys.argv[1]).get("critical") else "0")
+PY
+    )"
+    skip_reason="$(python3 - "$skip_json" <<'PY'
+import json, sys
+row = json.loads(sys.argv[1])
+deps = ", ".join(f"{item.get('step_name')}={item.get('status')}" for item in row.get("blocking_dependencies", []))
+print(f"step skipped because blocking dependencies reached terminal non-done states: {deps}" if deps else "step skipped because dependencies did not finish as done")
+PY
+    )"
+    if [ "$skip_current_status" = "planned" ] || [ "$skip_current_status" = "queued" ]; then
+      update_chain_step "$skip_step_name" "skipped" "" "$skip_reason" ""
+      add_chain_output "chain-step-local" 0 "$skip_reason" "$skip_step_name" "" "local" "$skip_step_critical"
+    fi
+  done < <(
+    python3 - "$SKIPPABLE_STEPS_JSON" <<'PY'
+import json, sys
+for item in json.loads(sys.argv[1]):
+    print(json.dumps(item))
+PY
+  )
 
-compare_title="$CONTINUATION_STEP_TITLE"
-if [ -z "$compare_title" ] && [ -n "$CONTINUATION_STEP_NAME" ]; then
-  compare_title="${ROOT_TITLE} / ${CONTINUATION_STEP_NAME}"
-fi
-
-compare_objective="$CONTINUATION_STEP_OBJECTIVE"
-if [ -z "$compare_objective" ] && [ -n "$CONTINUATION_STEP_NAME" ]; then
-  compare_objective="Produce one local artifact after the manual-controlled worker result is registered so the chain can close with mixed evidence."
-fi
-
-if [ -n "$CONTINUATION_STEP_NAME" ] && [ "$CONTINUATION_STEP_STATUS" = "planned" ]; then
-  update_chain_step "$CONTINUATION_STEP_NAME" running "" "local continuation started"
-  set +e
-  compare_output="$(
-    TASK_PARENT_TASK_ID="$root_task_id" \
-    TASK_DEPENDS_ON="[\"$WORKER_CHILD_TASK_ID\"]" \
-    TASK_OBJECTIVE="$compare_objective" \
-    TASK_STEP_NAME="$CONTINUATION_STEP_NAME" \
-    TASK_STEP_ORDER="$CONTINUATION_STEP_ORDER" \
-    TASK_CRITICAL="$CONTINUATION_STEP_CRITICAL" \
-    TASK_EXECUTION_MODE="local" \
-    ./scripts/task_run_compare.sh files "$compare_title" "chain-v2-compare-${root_task_id}" docs/TASK_ORCHESTRATION.md docs/TASK_ORCHESTRATION_V2.md 2>&1
+  refresh_resume_state
+  runnable_count="$(python3 - "$RUNNABLE_LOCAL_STEPS_JSON" <<'PY'
+import json, sys
+print(len(json.loads(sys.argv[1])))
+PY
   )"
-  compare_exit="$?"
-  set -e
-  printf '%s\n' "$compare_output"
+  waiting_count="$(python3 - "$WAITING_WORKERS_JSON" <<'PY'
+import json, sys
+print(len(json.loads(sys.argv[1])))
+PY
+  )"
 
-  compare_task_id="$(extract_task_id "$compare_output" || true)"
-  compare_summary=""
-  if [ -n "$compare_task_id" ] && [ -f "$TASKS_DIR/${compare_task_id}.json" ]; then
-    enrich_task_metadata "$compare_task_id" \
-      "$compare_objective" \
-      "$CONTINUATION_STEP_NAME" "$CONTINUATION_STEP_ORDER" "$CONTINUATION_STEP_CRITICAL" "local"
-    compare_summary="$(task_compact_summary "$compare_task_id")"
+  if [ "$runnable_count" -eq 0 ]; then
+    break
   fi
-  update_chain_step "$CONTINUATION_STEP_NAME" "$([ "$compare_exit" -eq 0 ] && printf 'done' || printf 'failed')" "$compare_task_id" "${compare_summary:-continuation step finished}" "$compare_exit"
-  add_chain_output "chain-step-local" "$compare_exit" "${CONTINUATION_STEP_NAME} exit_code=${compare_exit}" "$CONTINUATION_STEP_NAME" "$compare_task_id" "local" "$CONTINUATION_STEP_CRITICAL"
-fi
+
+  if [ "$resume_started" != "1" ]; then
+    ./scripts/task_update.sh "$root_task_id" running >/dev/null
+    set_root_chain_status running
+    add_chain_output "chain-resume" 0 "chain resume started after one or more worker results"
+    resume_started="1"
+  fi
+
+  next_local_step_json="$(
+    python3 - "$RUNNABLE_LOCAL_STEPS_JSON" <<'PY'
+import json, sys
+
+steps = json.loads(sys.argv[1])
+if steps:
+    steps.sort(key=lambda item: (int(item.get("step_order", 0) or 0), item.get("step_name", "")))
+    print(json.dumps(steps[0]))
+PY
+  )"
+  [ -n "$next_local_step_json" ] || break
+  run_local_resume_step "$next_local_step_json"
+done
 
 close_root
 

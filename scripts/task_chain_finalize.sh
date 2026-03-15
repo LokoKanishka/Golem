@@ -101,6 +101,8 @@ print(f"- worker_steps_blocked: {summary['worker_steps_blocked']}")
 print(f"- worker_steps_failed: {summary['worker_steps_failed']}")
 print(f"- worker_steps_delegated: {summary['worker_steps_delegated']}")
 print(f"- worker_steps_running: {summary['worker_steps_running']}")
+print(f"- awaiting_worker_result_steps: {summary['awaiting_worker_result_steps']}")
+print(f"- resolved_worker_result_steps: {summary['resolved_worker_result_steps']}")
 if summary.get("decision_source_step"):
     print(f"- decision_source_step: {summary.get('decision_source_step')}")
 if summary.get("decision_source_worker_result_status"):
@@ -184,6 +186,10 @@ else:
     print("- All planned steps completed cleanly.")
 if summary["worker_result_summaries"]:
     print("- Worker result summaries were incorporated automatically into the root aggregation.")
+if summary.get("awaiting_worker_child_ids"):
+    print(f"- Awaiting worker children: {', '.join(summary['awaiting_worker_child_ids'])}")
+if summary.get("resolved_worker_child_ids"):
+    print(f"- Resolved worker children: {', '.join(summary['resolved_worker_child_ids'])}")
 print()
 print("## Aggregated Artifacts")
 if not summary["aggregated_artifact_paths"]:
@@ -201,6 +207,10 @@ if summary["warning_child_ids"]:
     print(f"- warning_child_ids: {', '.join(summary['warning_child_ids'])}")
 if summary["worker_child_ids"]:
     print(f"- worker_child_ids: {', '.join(summary['worker_child_ids'])}")
+if summary.get("awaiting_worker_child_ids"):
+    print(f"- awaiting_worker_child_ids: {', '.join(summary['awaiting_worker_child_ids'])}")
+if summary.get("resolved_worker_child_ids"):
+    print(f"- resolved_worker_child_ids: {', '.join(summary['resolved_worker_child_ids'])}")
 if not summary["failed_child_ids"] and not summary["blocked_child_ids"] and not summary["warning_child_ids"] and not summary["worker_child_ids"]:
     print("- no extra failure, blocked, warning, or worker notes")
 PY
@@ -262,6 +272,12 @@ task["chain_summary"] = {
     "worker_steps_delegated": summary["worker_steps_delegated"],
     "worker_steps_running": summary["worker_steps_running"],
     "worker_child_ids": summary["worker_child_ids"],
+    "awaiting_worker_child_ids": summary["awaiting_worker_child_ids"],
+    "awaiting_worker_step_names": summary["awaiting_worker_step_names"],
+    "awaiting_worker_result_steps": summary["awaiting_worker_result_steps"],
+    "resolved_worker_child_ids": summary["resolved_worker_child_ids"],
+    "resolved_worker_step_names": summary["resolved_worker_step_names"],
+    "resolved_worker_result_steps": summary["resolved_worker_result_steps"],
     "worker_result_summaries": summary["worker_result_summaries"],
     "worker_outcomes": summary["worker_outcomes"],
     "decision_reason": summary["decision_reason"],
@@ -302,7 +318,8 @@ print(
     "steps_running={steps_running} steps_skipped={steps_skipped} "
     "worker_steps_done={worker_steps_done} worker_steps_blocked={worker_steps_blocked} "
     "worker_steps_delegated={worker_steps_delegated} worker_steps_running={worker_steps_running} "
-    "worker_steps_failed={worker_steps_failed} next_step_selected={next_step_selected} "
+    "worker_steps_failed={worker_steps_failed} awaiting_worker_result_steps={awaiting_worker_result_steps} "
+    "resolved_worker_result_steps={resolved_worker_result_steps} next_step_selected={next_step_selected} "
     "headline={headline} final_artifact_path={artifact_rel}".format(
         chain_status=summary["chain_status"],
         step_count=summary["step_count"],
@@ -317,6 +334,8 @@ print(
         worker_steps_delegated=summary["worker_steps_delegated"],
         worker_steps_running=summary["worker_steps_running"],
         worker_steps_failed=summary["worker_steps_failed"],
+        awaiting_worker_result_steps=summary["awaiting_worker_result_steps"],
+        resolved_worker_result_steps=summary["resolved_worker_result_steps"],
         next_step_selected=summary["next_step_selected"] or "(none)",
         headline=summary["headline"],
         artifact_rel=artifact_rel,
@@ -360,6 +379,12 @@ extra = {
     "worker_steps_failed": summary["worker_steps_failed"],
     "worker_steps_delegated": summary["worker_steps_delegated"],
     "worker_steps_running": summary["worker_steps_running"],
+    "awaiting_worker_child_ids": summary["awaiting_worker_child_ids"],
+    "awaiting_worker_step_names": summary["awaiting_worker_step_names"],
+    "awaiting_worker_result_steps": summary["awaiting_worker_result_steps"],
+    "resolved_worker_child_ids": summary["resolved_worker_child_ids"],
+    "resolved_worker_step_names": summary["resolved_worker_step_names"],
+    "resolved_worker_result_steps": summary["resolved_worker_result_steps"],
     "worker_result_summaries": summary["worker_result_summaries"],
     "worker_outcomes": summary["worker_outcomes"],
     "decision_reason": summary["decision_reason"],
