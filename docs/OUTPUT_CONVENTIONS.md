@@ -119,6 +119,25 @@ How they should coexist:
   - an output explaining what happened
   - an artifact path pointing to the file
 
+## Runtime vs Durable Artifacts
+
+Not every generated file should be treated as a durable repository artifact.
+
+Durable local artifacts:
+
+- handoff packet
+- Codex ticket
+- normalized worker result
+- final artifacts under `outbox/manual/`
+
+Runtime-only files:
+
+- run prompt
+- run log
+- raw last-message capture
+
+Runtime-only files may still be referenced from task JSON for audit, but they should stay outside Git and should not be used as the primary durable artifact when a normalized result exists.
+
 ## Validation Rule
 
 Markdown artifacts should pass:

@@ -1,3 +1,7 @@
+# handoff evidence / runtime
+handoffs/*
+!handoffs/README.md
+
 # runtime / artifacts
 outbox/*
 !outbox/.gitkeep

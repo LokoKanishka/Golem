@@ -28,7 +28,7 @@ Now Golem can also:
 - mark the task as `worker_running`
 - validate policy and preconditions before launch
 - run Codex CLI over the prepared ticket
-- persist prompt, log, and final message
+- persist prompt, log, and final message as runtime-only files
 
 ## What remains manual
 
@@ -127,13 +127,28 @@ If the run finished technically well, `task_finish_codex_run.sh` records the sem
 
 ## Where the evidence lives
 
-The controlled run stores evidence under `handoffs/`:
+The controlled run now splits durable local evidence from runtime-only files.
+
+Durable local evidence under `handoffs/`:
 
 - `handoffs/<task_id>.codex.md`
+- `handoffs/<task_id>.run.result.md` after extraction/finalization
+
+Runtime-only files also under `handoffs/`:
+
 - `handoffs/<task_id>.run.prompt.md`
 - `handoffs/<task_id>.run.log`
 - `handoffs/<task_id>.run.last.md`
-- `handoffs/<task_id>.run.result.md` after extraction/finalization
+
+The runtime-only files are intentionally excluded from Git by default.
+
+They are useful for:
+
+- short-lived debugging
+- local audit while the run is fresh
+- extraction of the normalized result artifact
+
+But they are not treated as durable repository evidence once `run.result.md` exists.
 
 ## How to audit the run
 

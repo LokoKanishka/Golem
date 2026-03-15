@@ -62,6 +62,8 @@ Si eso se cumple, crea:
 handoffs/<task_id>.md
 ```
 
+Segun la runtime artifact policy, este packet es evidencia persistible y durable a nivel local, pero no se trackea en Git por defecto.
+
 ## Como se inspecciona
 
 Para ver el packet generado:
@@ -80,6 +82,8 @@ Sirve como capa intermedia entre:
 - el ticket listo para pegar en Codex
 
 El ticket listo para Codex se genera aparte y agrega restricciones operativas, framing de ejecucion y formato de entrega esperado.
+
+Ese ticket tambien es persistible como evidencia local, pero queda fuera de Git por defecto para evitar ruido operativo en el repo.
 
 ## Uso manual con Codex
 
