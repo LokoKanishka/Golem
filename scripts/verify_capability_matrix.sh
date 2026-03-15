@@ -9,6 +9,7 @@ TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 LOG_DIR="$OUTBOX_DIR/${TIMESTAMP}-capability-verification-logs"
 REPORT_PATH="$OUTBOX_DIR/${TIMESTAMP}-capability-verification-matrix.md"
 RESULTS_FILE="$(mktemp "${TMPDIR:-/tmp}/golem-capability-matrix-results.XXXXXX.jsonl")"
+SELECTED_CAPABILITIES=()
 
 mkdir -p "$TASKS_DIR" "$OUTBOX_DIR" "$LOG_DIR"
 
@@ -17,6 +18,37 @@ cleanup() {
 }
 
 trap cleanup EXIT
+
+normalize_capability_id() {
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr ' _' '--' | tr -s '-'
+}
+
+should_run_capability() {
+  local capability_id
+  local selected
+
+  capability_id="$(normalize_capability_id "$1")"
+  if [ "${#SELECTED_CAPABILITIES[@]}" -eq 0 ]; then
+    return 0
+  fi
+
+  for selected in "${SELECTED_CAPABILITIES[@]}"; do
+    if [ "$selected" = "$capability_id" ]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+run_selected_verification() {
+  local capability_id="$1"
+  local function_name="$2"
+
+  if should_run_capability "$capability_id"; then
+    "$function_name"
+  fi
+}
 
 log_command() {
   local log_path="$1"
@@ -178,6 +210,75 @@ browser_blocked_status() {
   fi
 }
 
+extract_roundtrip_root_id() {
+  local log_path="$1"
+  local key="$2"
+  python3 - "$log_path" "$key" <<'PY'
+import pathlib
+import re
+import sys
+
+log_path = pathlib.Path(sys.argv[1])
+key = sys.argv[2]
+pattern = re.compile(rf"{re.escape(key)}=([A-Za-z0-9._-]+)")
+
+for line in reversed(log_path.read_text(encoding="utf-8", errors="replace").splitlines()):
+    match = pattern.search(line)
+    if match:
+        print(match.group(1))
+        raise SystemExit(0)
+print("")
+PY
+}
+
+extract_roundtrip_child_id() {
+  local log_path="$1"
+  local which="$2"
+  python3 - "$log_path" "$which" <<'PY'
+import pathlib
+import sys
+
+log_path = pathlib.Path(sys.argv[1])
+which = sys.argv[2]
+children = []
+
+for line in log_path.read_text(encoding="utf-8", errors="replace").splitlines():
+    if line.startswith("worker_child_id: "):
+        children.append(line.split(": ", 1)[1].strip())
+
+if not children:
+    print("")
+elif which == "first":
+    print(children[0])
+else:
+    print(children[-1])
+PY
+}
+
+append_roundtrip_evidence() {
+  local log_path="$1"
+  local success_root_id blocked_root_id success_child_id blocked_child_id
+
+  success_root_id="$(extract_roundtrip_root_id "$log_path" "success_root")"
+  blocked_root_id="$(extract_roundtrip_root_id "$log_path" "blocked_root")"
+  success_child_id="$(extract_roundtrip_child_id "$log_path" "first")"
+  blocked_child_id="$(extract_roundtrip_child_id "$log_path" "last")"
+
+  append_chain_evidence "$log_path" "$success_root_id"
+  append_chain_evidence "$log_path" "$blocked_root_id"
+  append_worker_evidence "$log_path" "$success_child_id"
+  append_worker_evidence "$log_path" "$blocked_child_id"
+}
+
+worker_roundtrip_status() {
+  local log_path="$1"
+  if rg -qi 'Permission denied|Read-only file system|No space left on device|Operation not permitted' "$log_path"; then
+    printf 'BLOCKED\n'
+  else
+    printf 'FAIL\n'
+  fi
+}
+
 append_artifact_validation() {
   local log_path="$1"
   local artifact_path="$2"
@@ -210,13 +311,13 @@ verify_self_check() {
 
   if [ "$exit_code" -eq 0 ] && [ "$task_status" = "done" ]; then
     status="PASS"
-    note="self-check executed and closed the task as done"
+    note="fast self-check executed and closed the task as done"
     if rg -q 'estado_general: WARN|tabs: WARN' "$log_path"; then
       note="$note; warning signals were present and are visible in the evidence"
     fi
   else
     status="FAIL"
-    note="self-check did not complete cleanly"
+    note="fast self-check did not complete cleanly"
   fi
 
   record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "" "$task_id" "$task_status" "$cmd"
@@ -634,6 +735,36 @@ run_direct_worker_flow() {
     "$cmd_extract" "$cmd_finalize"
 }
 
+verify_worker_packet_roundtrip() {
+  local capability="worker packet roundtrip"
+  local log_path="$LOG_DIR/worker-packet-roundtrip.log"
+  local cmd="./scripts/verify_worker_packet_roundtrip.sh"
+  local exit_code status note
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && ./scripts/verify_worker_packet_roundtrip.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  append_roundtrip_evidence "$log_path"
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_WORKER_PACKET_ROUNDTRIP_OK ' "$log_path"; then
+    status="PASS"
+    note="deep verify reused the canonical roundtrip script and proved both success and blocked packet-settlement paths"
+  else
+    status="$(worker_roundtrip_status "$log_path")"
+    if [ "$status" = "BLOCKED" ]; then
+      note="deep verify could not complete because repo-local execution prerequisites were externally blocked"
+    else
+      note="deep verify exposed an internal failure in the packetized worker roundtrip flow"
+    fi
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "" "" "" "$cmd"
+}
+
 verify_orchestration_basic() {
   local capability="orchestration basic"
   local log_path="$LOG_DIR/orchestration-basic.log"
@@ -836,21 +967,33 @@ print("BLOCKED:", ", ".join([r["capability"] for r in results if r["status"] == 
 PY
 }
 
+if [ "$#" -gt 0 ]; then
+  while [ "$#" -gt 0 ]; do
+    SELECTED_CAPABILITIES+=("$(normalize_capability_id "$1")")
+    shift
+  done
+fi
+
 cd "$REPO_ROOT"
 
 printf 'VERIFY_START %s\n' "$TIMESTAMP"
-verify_self_check
-verify_navigation
-verify_reading
-verify_artifacts
-verify_comparison
-verify_task_core
-verify_task_lifecycle
-verify_delegation_decision
-run_direct_worker_flow
-verify_orchestration_basic
-verify_orchestration_v2
-verify_orchestration_v3
+run_selected_verification "self-check" verify_self_check
+run_selected_verification "navigation" verify_navigation
+run_selected_verification "reading" verify_reading
+run_selected_verification "artifacts" verify_artifacts
+run_selected_verification "comparison" verify_comparison
+run_selected_verification "task-core" verify_task_core
+run_selected_verification "task-lifecycle" verify_task_lifecycle
+run_selected_verification "delegation-decision" verify_delegation_decision
+run_selected_verification "direct-worker-flow" run_direct_worker_flow
+run_selected_verification "worker-packet-roundtrip" verify_worker_packet_roundtrip
+run_selected_verification "orchestration-basic" verify_orchestration_basic
+run_selected_verification "orchestration-v2" verify_orchestration_v2
+run_selected_verification "orchestration-v3" verify_orchestration_v3
+if [ ! -s "$RESULTS_FILE" ]; then
+  printf 'VERIFY_FAIL no capabilities matched the requested selection\n' >&2
+  exit 2
+fi
 generate_report
 print_summary
 printf 'VERIFY_DONE %s\n' "$REPORT_PATH"

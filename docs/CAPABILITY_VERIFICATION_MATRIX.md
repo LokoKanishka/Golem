@@ -6,6 +6,15 @@ This document defines the minimum verification matrix for the current Golem repo
 
 Measure the real health of the current system with reproducible evidence instead of trusting declarative summaries.
 
+The official verification layer intentionally separates:
+
+- fast operational self-checks
+- deep capability verifies
+
+`./scripts/task_run_self_check.sh` stays in the fast lane.
+
+Heavier end-to-end flows such as `worker packet roundtrip` belong to the deep verification matrix instead of the lightweight self-check wrapper.
+
 Every verification should prefer:
 
 - exact command executed
@@ -35,6 +44,7 @@ Important:
 
 - name: `self-check`
 - objective: verify that Golem can execute the local health check wrapper and persist the result as a task
+- verification lane: `fast self-check`
 - command(s):
   - `./scripts/task_run_self_check.sh "Capability verification / self-check"`
   - `./scripts/task_summary.sh <task_id>`
@@ -212,7 +222,26 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - completed controlled run
   - writable `handoffs/`
 
-### 13. Orchestration Basic
+### 13. Worker Packet Roundtrip
+
+- name: `worker packet roundtrip`
+- objective: verify the canonical packetized roundtrip for a manual-controlled worker chain, including outbound handoff packet, inbound result packet import, settlement, and honest root closure
+- verification lane: `deep verify`
+- command(s):
+  - `./scripts/verify_worker_packet_roundtrip.sh`
+  - `./scripts/task_chain_summary.sh <success_root_task_id>`
+  - `./scripts/task_chain_summary.sh <blocked_root_task_id>`
+- success criterion: the verify exits `0`, prints `VERIFY_WORKER_PACKET_ROUNDTRIP_OK`, validates the final artifacts, and proves both the success path and the blocked path end-to-end
+- failure criterion: the verify exits non-zero or any packet import/settlement/finalization assertion fails inside the roundtrip flow
+- blocked criterion: use `BLOCKED` only when the verify cannot run because a real external repo-local prerequisite is unavailable, such as an unwritable repo task/handoff/outbox path
+- path coverage: success-path and blocked-path
+- environment dependencies:
+  - writable `tasks/`
+  - writable `handoffs/`
+  - writable `outbox/manual/`
+  - local shell/python tooling required by the repo scripts
+
+### 14. Orchestration Basic
 
 - name: `orchestration básica`
 - objective: verify the original root-plus-children chain still closes coherently
@@ -228,7 +257,7 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - local self-check
   - local comparison scripts
 
-### 14. Orchestration V2 Mixed Local+Worker
+### 15. Orchestration V2 Mixed Local+Worker
 
 - name: `orchestration v2 mixta local+worker`
 - objective: verify the mixed root chain with one real worker step and aggregated summary/artifact
@@ -244,7 +273,7 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - controlled worker run available
   - local comparison scripts
 
-### 15. Orchestration V3 Conditional
+### 16. Orchestration V3 Conditional
 
 - name: `orchestration v3 condicional`
 - objective: verify that the root can decide what to do after a real worker outcome and persist that decision honestly
@@ -277,9 +306,17 @@ The matrix runner is:
 ./scripts/verify_capability_matrix.sh
 ```
 
+For a focused official run of just the new deep verify capability, use:
+
+```text
+./scripts/verify_capability_matrix.sh worker-packet-roundtrip
+```
+
 It should:
 
 - run the minimum real checks for the matrix
+- keep `./scripts/task_run_self_check.sh` as the fast lane and reserve deep end-to-end checks for matrix capabilities
+- include `worker packet roundtrip` as the official deep verify for the canonical manual-controlled worker roundtrip
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`
 - print a readable summary table at the end

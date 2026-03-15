@@ -19,6 +19,18 @@ The entry point is:
 ./scripts/task_run_self_check.sh "<title>"
 ```
 
+This runner is intentionally the fast operational lane.
+
+It does not execute deep capability verifies such as the canonical worker roundtrip packet flow.
+
+For the official deep verification sweep, use:
+
+```text
+./scripts/verify_capability_matrix.sh
+```
+
+and inspect the `worker packet roundtrip` capability there.
+
 ## Flow
 
 The runner performs these steps:

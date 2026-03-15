@@ -207,6 +207,20 @@ That verify covers:
 3. settlement/resume of the delegated root
 4. both success and blocked paths
 
+The official capability matrix now registers that flow as:
+
+```text
+worker packet roundtrip
+```
+
+inside the deep verification lane driven by:
+
+```text
+./scripts/verify_capability_matrix.sh
+```
+
+This keeps the normal `self-check` lightweight while still making the worker roundtrip visible as an official repository capability.
+
 Current limitation:
 
 - it supports one `await_worker_result` worker step per root

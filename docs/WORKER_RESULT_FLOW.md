@@ -77,6 +77,20 @@ Verificacion end-to-end del roundtrip packetizado:
 ./scripts/verify_worker_packet_roundtrip.sh
 ```
 
+Ese verify ahora tambien queda reconocido oficialmente en la capability matrix como:
+
+```text
+worker packet roundtrip
+```
+
+y corre en el carril de deep verify via:
+
+```text
+./scripts/verify_capability_matrix.sh
+```
+
+No forma parte del `self-check` operativo corto.
+
 Corrida controlada:
 
 ```text
@@ -225,6 +239,7 @@ Eso hace que los flujos queden asi:
 - packet puntual: `task_import_worker_result.sh --settle`
 - varios packets ya importados: `task_chain_reconcile_pending.sh --apply`
 - roundtrip reproducible completo: `verify_worker_packet_roundtrip.sh`
+- capability oficial deep verify: `verify_capability_matrix.sh` -> `worker packet roundtrip`
 
 ## Regla practica nueva
 
