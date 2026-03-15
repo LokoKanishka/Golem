@@ -109,7 +109,7 @@ for step in steps:
         step["last_exit_code"] = int(exit_code_raw)
     if new_status == "running":
         step.setdefault("started_at", now)
-    if new_status in {"done", "failed", "skipped"}:
+    if new_status in {"done", "failed", "blocked", "skipped"}:
         step["finished_at"] = now
     break
 else:
@@ -233,13 +233,15 @@ import sys
 summary = json.loads(sys.argv[1])
 print(
     "chain_status={chain_status} steps_completed={steps_completed}/{step_count} "
-    "steps_skipped={steps_skipped} worker_steps_done={worker_steps_done} "
-    "worker_steps_failed={worker_steps_failed} next_step_selected={next_step_selected}".format(
+    "steps_blocked={steps_blocked} steps_skipped={steps_skipped} worker_steps_done={worker_steps_done} "
+    "worker_steps_blocked={worker_steps_blocked} worker_steps_failed={worker_steps_failed} next_step_selected={next_step_selected}".format(
         chain_status=summary["chain_status"],
         steps_completed=summary["steps_completed"],
         step_count=summary["step_count"],
+        steps_blocked=summary["steps_blocked"],
         steps_skipped=summary["steps_skipped"],
         worker_steps_done=summary["worker_steps_done"],
+        worker_steps_blocked=summary["worker_steps_blocked"],
         worker_steps_failed=summary["worker_steps_failed"],
         next_step_selected=summary["next_step_selected"] or "(none)",
     )
@@ -258,11 +260,13 @@ print(json.dumps({
     "step_count": summary["step_count"],
     "steps_completed": summary["steps_completed"],
     "steps_failed": summary["steps_failed"],
+    "steps_blocked": summary["steps_blocked"],
     "steps_skipped": summary["steps_skipped"],
     "steps_pending": summary["steps_pending"],
     "local_steps_count": summary["local_steps_count"],
     "delegated_steps_count": summary["delegated_steps_count"],
     "worker_steps_done": summary["worker_steps_done"],
+    "worker_steps_blocked": summary["worker_steps_blocked"],
     "worker_steps_failed": summary["worker_steps_failed"],
     "decision_reason": summary["decision_reason"],
     "decision_source_step": summary["decision_source_step"],
@@ -709,6 +713,11 @@ root_final_status="$(printf '%s\n' "$root_status" | sed -n '1p')"
 if [ "$root_final_status" = "failed" ]; then
   printf 'TASK_CHAIN_FAIL %s\n' "$root_task_id"
   exit 1
+fi
+
+if [ "$root_final_status" = "blocked" ]; then
+  printf 'TASK_CHAIN_BLOCKED %s\n' "$root_task_id"
+  exit 2
 fi
 
 printf 'TASK_CHAIN_OK %s\n' "$root_task_id"

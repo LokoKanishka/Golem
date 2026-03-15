@@ -159,7 +159,9 @@ It also writes a final Markdown artifact under `outbox/manual/`.
 Rules in this version:
 
 - any failed or incomplete critical step makes the chain fail
+- any blocked critical step makes the chain block
 - failed non-critical steps degrade the chain to `completed_with_warnings`
+- blocked non-critical steps also degrade the chain to `completed_with_warnings`
 - warning markers in child outputs also degrade to `completed_with_warnings`
 
 This keeps the root result more expressive than a plain child count.

@@ -8,6 +8,7 @@ The general task `status` is still useful and should stay small:
 
 - `queued`
 - `running`
+- `blocked`
 - `delegated`
 - `done`
 - `failed`
@@ -28,6 +29,7 @@ That means the chain finished and closed coherently, but one or more child tasks
 - `running`
 - `completed`
 - `completed_with_warnings`
+- `blocked`
 - `failed`
 
 V2 chains also track step-level runtime state inside `chain_plan.steps[*].status`.
@@ -37,6 +39,7 @@ Current practical values are:
 - `planned`
 - `running`
 - `done`
+- `blocked`
 - `failed`
 - `skipped`
 
@@ -50,6 +53,7 @@ Typical mappings in this version:
 
 - `status: done` + `chain_status: completed`
 - `status: done` + `chain_status: completed_with_warnings`
+- `status: blocked` + `chain_status: blocked`
 - `status: failed` + `chain_status: failed`
 
 ## What the root task summarizes
@@ -60,6 +64,7 @@ The chain root should persist an aggregated summary of its direct children, incl
 - `child_count`
 - `children_done`
 - `children_failed`
+- `children_blocked`
 - `children_with_warnings`
 - aggregated child artifact paths
 
@@ -70,14 +75,17 @@ The stronger v2 summary may also include:
 - `step_count`
 - `steps_completed`
 - `steps_failed`
+- `steps_blocked`
 - `steps_pending`
 - `critical_step_count`
 - `critical_steps_failed`
+- `critical_steps_blocked`
 - `local_step_count`
 - `worker_step_count`
 - `local_steps_count`
 - `delegated_steps_count`
 - `worker_steps_done`
+- `worker_steps_blocked`
 - `worker_steps_failed`
 - `worker_child_ids`
 - `worker_result_summaries`
@@ -98,14 +106,17 @@ In this version, all children in the demo chains are treated as critical.
 In v2 this becomes step-aware:
 
 - critical steps fail the chain
+- critical blocked steps block the chain
 - non-critical failed steps produce `completed_with_warnings`
+- non-critical blocked steps also produce `completed_with_warnings`
 - incomplete critical steps also fail the chain at finalization time
 
 That means:
 
 - if any child fails, the root chain closes as `failed`
+- if no critical child failed but a critical child is `blocked`, the root chain closes as `blocked`
 - the root task records the failure in `chain_status`
-- the aggregated summary shows the failed child count
+- the aggregated summary shows failed vs blocked child counts separately
 - the final artifact still gets generated for traceability
 
 ## Final chain artifact

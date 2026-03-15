@@ -112,6 +112,8 @@ Semantica practica de esta etapa:
 
 En runners que quieran una senal maquina estable, `blocked` puede aparecer junto con `outputs[].exit_code = 2`.
 
+Las tareas raiz de cadena tambien pueden cerrar como `blocked` cuando una precondicion externa impide completar un paso critico sin que exista una falla interna real del motor.
+
 ## Convenciones iniciales
 
 - `origin` se inicializa como `local`

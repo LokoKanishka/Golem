@@ -44,6 +44,8 @@ def normalize_step_status(step_status: str, child_status: str, child_exists: boo
     status = (step_status or "").strip().lower()
     if status in {"done", "completed"}:
         return "done"
+    if status in {"blocked", "block"}:
+        return "blocked"
     if status in {"failed", "cancelled"}:
         return "failed"
     if status in {"skipped", "skip"}:
@@ -55,6 +57,8 @@ def normalize_step_status(step_status: str, child_status: str, child_exists: boo
 
     if child_status == "done":
         return "done"
+    if child_status == "blocked":
+        return "blocked"
     if child_status in {"failed", "cancelled"}:
         return "failed"
     if child_status in {"running", "delegated", "worker_running"}:
@@ -278,9 +282,11 @@ step_results.sort(key=lambda step: (step.get("step_order", 10**9), step.get("ste
 child_task_ids = [task.get("task_id", "") for task in children]
 children_done = sum(1 for child in children if child.get("status") == "done")
 children_failed = sum(1 for child in children if child.get("status") in {"failed", "cancelled"})
+children_blocked = sum(1 for child in children if child.get("status") == "blocked")
 warning_child_ids = [child.get("task_id", "") for child in children if has_warning(child)]
 children_with_warnings = len(warning_child_ids)
 failed_child_ids = [child.get("task_id", "") for child in children if child.get("status") in {"failed", "cancelled"}]
+blocked_child_ids = [child.get("task_id", "") for child in children if child.get("status") == "blocked"]
 
 aggregated_artifact_paths = dedupe_paths(
     path
@@ -291,21 +297,29 @@ aggregated_artifact_paths = dedupe_paths(
 step_count = len(step_results)
 steps_completed = sum(1 for step in step_results if step.get("status") == "done")
 steps_failed = sum(1 for step in step_results if step.get("status") == "failed")
+steps_blocked = sum(1 for step in step_results if step.get("status") == "blocked")
 steps_skipped = sum(1 for step in step_results if step.get("status") == "skipped")
-steps_pending = sum(1 for step in step_results if step.get("status") not in {"done", "failed", "skipped"})
+steps_pending = sum(1 for step in step_results if step.get("status") not in {"done", "failed", "blocked", "skipped"})
 critical_step_count = sum(1 for step in step_results if step.get("critical"))
 critical_steps_failed = sum(1 for step in step_results if step.get("critical") and step.get("status") == "failed")
+critical_steps_blocked = sum(1 for step in step_results if step.get("critical") and step.get("status") == "blocked")
 critical_steps_skipped = sum(1 for step in step_results if step.get("critical") and step.get("status") == "skipped")
-critical_steps_pending = sum(1 for step in step_results if step.get("critical") and step.get("status") not in {"done", "failed", "skipped"})
+critical_steps_pending = sum(1 for step in step_results if step.get("critical") and step.get("status") not in {"done", "failed", "blocked", "skipped"})
 noncritical_steps_failed = sum(1 for step in step_results if not step.get("critical") and step.get("status") == "failed")
+noncritical_steps_blocked = sum(1 for step in step_results if not step.get("critical") and step.get("status") == "blocked")
 noncritical_steps_skipped = sum(1 for step in step_results if not step.get("critical") and step.get("status") == "skipped")
-noncritical_steps_pending = sum(1 for step in step_results if not step.get("critical") and step.get("status") not in {"done", "failed", "skipped"})
+noncritical_steps_pending = sum(1 for step in step_results if not step.get("critical") and step.get("status") not in {"done", "failed", "blocked", "skipped"})
 local_step_count = sum(1 for step in step_results if step.get("execution_mode") == "local")
 worker_step_count = sum(1 for step in step_results if step.get("execution_mode") == "worker")
 worker_steps_done = sum(
     1
     for step in step_results
     if step.get("execution_mode") == "worker" and step.get("status") == "done"
+)
+worker_steps_blocked = sum(
+    1
+    for step in step_results
+    if step.get("execution_mode") == "worker" and step.get("status") == "blocked"
 )
 worker_steps_failed = sum(
     1
@@ -394,7 +408,10 @@ if not decision_source_worker_result_status and decision_source_step:
 if critical_steps_failed > 0 or critical_steps_pending > 0 or critical_steps_skipped > 0:
     chain_status = "failed"
     final_task_status = "failed"
-elif noncritical_steps_failed > 0 or noncritical_steps_pending > 0 or children_with_warnings > 0:
+elif critical_steps_blocked > 0:
+    chain_status = "blocked"
+    final_task_status = "blocked"
+elif noncritical_steps_failed > 0 or noncritical_steps_pending > 0 or noncritical_steps_blocked > 0 or children_with_warnings > 0:
     chain_status = "completed_with_warnings"
     final_task_status = "done"
 else:
@@ -403,11 +420,20 @@ else:
 
 if chain_status == "failed":
     headline = f"Chain failed: {steps_completed}/{step_count} step(s) completed"
+    if steps_blocked:
+        headline += f", {steps_blocked} blocked"
     if steps_skipped:
         headline += f", {steps_skipped} skipped"
     headline += ", and one or more critical steps did not finish cleanly."
+elif chain_status == "blocked":
+    headline = f"Chain blocked: {steps_completed}/{step_count} step(s) completed, {steps_blocked} blocked"
+    if steps_skipped:
+        headline += f", {steps_skipped} skipped"
+    headline += ", and one or more critical steps could not start or continue."
 elif chain_status == "completed_with_warnings":
     headline = f"Chain completed with warnings: {steps_completed}/{step_count} step(s) completed, {steps_failed} failed"
+    if steps_blocked:
+        headline += f", {steps_blocked} blocked"
     if steps_skipped:
         headline += f", {steps_skipped} skipped"
     headline += f", {children_with_warnings} warning signal(s)."
@@ -426,8 +452,10 @@ summary = {
     "child_count": len(children),
     "children_done": children_done,
     "children_failed": children_failed,
+    "children_blocked": children_blocked,
     "children_with_warnings": children_with_warnings,
     "failed_child_ids": failed_child_ids,
+    "blocked_child_ids": blocked_child_ids,
     "warning_child_ids": warning_child_ids,
     "aggregated_artifact_paths": aggregated_artifact_paths,
     "artifact_paths": aggregated_artifact_paths,
@@ -435,13 +463,16 @@ summary = {
     "step_count": step_count,
     "steps_completed": steps_completed,
     "steps_failed": steps_failed,
+    "steps_blocked": steps_blocked,
     "steps_skipped": steps_skipped,
     "steps_pending": steps_pending,
     "critical_step_count": critical_step_count,
     "critical_steps_failed": critical_steps_failed,
+    "critical_steps_blocked": critical_steps_blocked,
     "critical_steps_skipped": critical_steps_skipped,
     "critical_steps_pending": critical_steps_pending,
     "noncritical_steps_failed": noncritical_steps_failed,
+    "noncritical_steps_blocked": noncritical_steps_blocked,
     "noncritical_steps_skipped": noncritical_steps_skipped,
     "noncritical_steps_pending": noncritical_steps_pending,
     "local_step_count": local_step_count,
@@ -449,6 +480,7 @@ summary = {
     "local_steps_count": local_step_count,
     "delegated_steps_count": worker_step_count,
     "worker_steps_done": worker_steps_done,
+    "worker_steps_blocked": worker_steps_blocked,
     "worker_steps_failed": worker_steps_failed,
     "worker_child_ids": worker_child_ids,
     "local_child_ids": local_child_ids,
