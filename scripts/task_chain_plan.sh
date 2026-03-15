@@ -317,6 +317,8 @@ else:
 task["chain_type"] = chain_type
 task["chain_status"] = "planned"
 task["chain_plan"] = {
+    "plan_kind": "chain_plan",
+    "plan_version": version,
     "version": version,
     "planned_at": planned_at,
     "mixes_execution_modes": True,
@@ -339,6 +341,8 @@ PY
 
 mv "$tmp_path" "$root_task_path"
 trap - EXIT
+
+./scripts/validate_chain_plan.sh "$root_task_path"
 
 TASK_OUTPUT_EXTRA_JSON="$(
   python3 - "$chain_type" <<'PY'

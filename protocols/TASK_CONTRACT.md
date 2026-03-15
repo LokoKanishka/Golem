@@ -10,6 +10,12 @@ Hoy funciona como contrato doctrinal y de diseno.
 El modelo local actual de tareas vive en `docs/TASK_MODEL.md`.
 Este documento describe el contrato minimo hacia adelante.
 
+Cuando la tarea raiz usa `chain_plan`, el contrato especifico de ese plan vive en:
+
+```text
+protocols/CHAIN_PLAN_CONTRACT.md
+```
+
 ## Objetivo
 
 Definir una forma estable de hablar de una tarea sin suponer que hoy ya existe un worker real enchufado.

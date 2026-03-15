@@ -403,6 +403,8 @@ steps = [
 task["chain_type"] = chain_type
 task["chain_status"] = "planned"
 task["chain_plan"] = {
+    "plan_kind": "chain_plan",
+    "plan_version": "3.0",
     "version": "3.0",
     "planned_at": planned_at,
     "mixes_execution_modes": True,
@@ -410,6 +412,8 @@ task["chain_plan"] = {
     "local_step_count": 3,
     "worker_step_count": 1,
     "critical_step_count": 3,
+    "dependency_group_count": 0,
+    "dependency_groups": [],
     "conditional_step_count": 1,
     "step_count": len(steps),
     "steps": steps,
@@ -421,6 +425,8 @@ json.dump(task, sys.stdout, indent=2, ensure_ascii=True)
 sys.stdout.write("\n")
 PY
   mv "$tmp_path" "$root_task_path"
+
+  ./scripts/validate_chain_plan.sh "$root_task_path"
 
   TASK_OUTPUT_EXTRA_JSON="$(
     python3 - "$chain_type" <<'PY'

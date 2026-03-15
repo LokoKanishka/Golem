@@ -765,6 +765,8 @@ if [ ! -f "$root_task_path" ]; then
   fatal "no existe la tarea raiz: $root_task_id"
 fi
 
+./scripts/validate_chain_plan.sh "$root_task_id"
+
 refresh_resume_state
 
 if [ "$CHAIN_TYPE" != "repo-analysis-worker-manual" ] && [ "$CHAIN_TYPE" != "repo-analysis-worker-manual-multi" ]; then

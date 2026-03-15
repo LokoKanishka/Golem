@@ -40,6 +40,12 @@ A v2 chain root keeps:
 
 The worker portion of that result is collected explicitly so the root can describe delegated outcomes without relying on manual post-processing.
 
+The canonical chain-plan protocol now lives in:
+
+```text
+protocols/CHAIN_PLAN_CONTRACT.md
+```
+
 ## Step contract
 
 Each planned step may include:
@@ -88,6 +94,12 @@ Use:
 ```
 
 This creates a root `task-chain` task in `planned` chain state and writes a v2 `chain_plan`.
+
+The built-in planner now validates that plan before returning it:
+
+```text
+./scripts/validate_chain_plan.sh <task_id|task_json_path|plan_json_path>
+```
 
 The controlled default plan is:
 
@@ -159,6 +171,9 @@ For `repo-analysis-worker-manual-multi`, the runner:
 4. creates and delegates every planned `await_worker_result` worker child
 5. prepares handoff packet and Codex ticket for each delegated worker child
 6. finalizes the root as `delegated` / `awaiting_worker_result`
+
+These runners no longer execute a complex plan blindly.
+Plan creation must validate cleanly before the runner continues.
 
 Resume the same root later with:
 
@@ -269,6 +284,7 @@ Current policy:
 - multi-await settlement/resume now supports more than one `await_worker_result` worker step per root
 - local continuation stays intentionally simple: only steps whose explicit barrier is `satisfied` can run after reconciliation
 - dependency groups are visible in `chain_plan`, `chain_summary`, reconcile output, and the final artifact
+- built-in chain runners validate the `chain_plan` contract before executing complex orchestration logic
 - unsupported local step task types in resume still fail explicitly instead of inventing an execution path
 
 For a broader operational sweep across delegated roots, use:

@@ -201,6 +201,8 @@ eval "$resolve_env"
 [ -n "$ROOT_TASK_ID" ] || fatal "no se pudo resolver una root task-chain"
 [ "$CHAIN_TYPE" = "repo-analysis-worker-manual" ] || [ "$CHAIN_TYPE" = "repo-analysis-worker-manual-multi" ] || fatal "settlement actual solo soporta chains manuales con worker awaitable"
 
+./scripts/validate_chain_plan.sh "$ROOT_TASK_ID"
+
 if [ -n "$result_status" ] && [ -n "$AMBIGUOUS_RESULT_TARGET" ] && [ "$INPUT_KIND" = "root" ]; then
   fatal "$AMBIGUOUS_RESULT_TARGET"
 fi

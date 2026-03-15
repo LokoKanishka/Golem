@@ -182,3 +182,6 @@ This layer improves traceability and closure semantics, but it still does not ad
 - parallel orchestration
 
 It only makes the chain root more honest and inspectable.
+
+Before a complex v2/v3 chain starts, the repo now also validates that its `chain_plan` is well formed.
+That means some invalid inputs fail before any meaningful orchestration state transition happens.

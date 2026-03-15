@@ -29,6 +29,8 @@ if [ ! -f "$root_task_path" ]; then
   fatal "no existe la tarea raiz: $task_id"
 fi
 
+./scripts/validate_chain_plan.sh "$task_id"
+
 summary_json="$("$COLLECT_RESULTS" "$task_id")"
 tmp_path="$(mktemp "$TASKS_DIR/.task-chain-decision.XXXXXX.tmp")"
 trap 'rm -f "$tmp_path"' EXIT

@@ -1,0 +1,121 @@
+{
+  "plan_kind": "chain_plan",
+  "plan_version": "2.4",
+  "mixes_execution_modes": true,
+  "manual_worker_controlled": true,
+  "step_count": 5,
+  "local_step_count": 3,
+  "worker_step_count": 2,
+  "critical_step_count": 3,
+  "await_worker_result_step_count": 2,
+  "dependency_group_count": 2,
+  "steps": [
+    {
+      "step_name": "local-self-check",
+      "step_order": 1,
+      "task_type": "self-check",
+      "execution_mode": "local",
+      "critical": true,
+      "title": "Example / local self-check",
+      "objective": "Validate the local environment before any worker delegation.",
+      "depends_on_step_names": [],
+      "status": "planned",
+      "child_task_id": "",
+      "await_worker_result": false
+    },
+    {
+      "step_name": "delegated-repo-analysis-architecture",
+      "step_order": 2,
+      "task_type": "repo-analysis",
+      "execution_mode": "worker",
+      "critical": true,
+      "title": "Example / delegated architecture analysis",
+      "objective": "Produce architecture evidence for the partial barrier.",
+      "depends_on_step_names": [
+        "local-self-check"
+      ],
+      "await_group": "analysis-workers",
+      "status": "planned",
+      "child_task_id": "",
+      "await_worker_result": true
+    },
+    {
+      "step_name": "delegated-repo-analysis-verification",
+      "step_order": 3,
+      "task_type": "repo-analysis",
+      "execution_mode": "worker",
+      "critical": true,
+      "title": "Example / delegated verification analysis",
+      "objective": "Produce verification evidence for the full barrier.",
+      "depends_on_step_names": [
+        "local-self-check"
+      ],
+      "await_group": "analysis-workers",
+      "status": "planned",
+      "child_task_id": "",
+      "await_worker_result": true
+    },
+    {
+      "step_name": "local-summarize-architecture",
+      "step_order": 4,
+      "task_type": "compare-files",
+      "execution_mode": "local",
+      "critical": false,
+      "title": "Example / local architecture summary",
+      "objective": "Run after the narrow architecture barrier is satisfied.",
+      "depends_on_step_names": [
+        "delegated-repo-analysis-architecture"
+      ],
+      "join_group": "architecture-ready",
+      "status": "planned",
+      "child_task_id": "",
+      "await_worker_result": false
+    },
+    {
+      "step_name": "local-compare-multi-worker-docs",
+      "step_order": 5,
+      "task_type": "compare-files",
+      "execution_mode": "local",
+      "critical": false,
+      "title": "Example / local multi-worker comparison",
+      "objective": "Run only after the full multi-worker barrier is satisfied.",
+      "depends_on_step_names": [
+        "delegated-repo-analysis-architecture",
+        "delegated-repo-analysis-verification"
+      ],
+      "join_group": "analysis-workers",
+      "status": "planned",
+      "child_task_id": "",
+      "await_worker_result": false
+    }
+  ],
+  "dependency_groups": [
+    {
+      "group_name": "analysis-workers",
+      "group_type": "await_group",
+      "step_names": [
+        "delegated-repo-analysis-architecture",
+        "delegated-repo-analysis-verification"
+      ],
+      "satisfaction_policy": "all_done",
+      "continue_on_blocked": false,
+      "continue_on_failed": false,
+      "used_by_step_names": [
+        "local-compare-multi-worker-docs"
+      ]
+    },
+    {
+      "group_name": "architecture-ready",
+      "group_type": "join_barrier",
+      "step_names": [
+        "delegated-repo-analysis-architecture"
+      ],
+      "satisfaction_policy": "all_done",
+      "continue_on_blocked": false,
+      "continue_on_failed": false,
+      "used_by_step_names": [
+        "local-summarize-architecture"
+      ]
+    }
+  ]
+}
