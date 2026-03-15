@@ -53,6 +53,12 @@ Registro del resultado:
 ./scripts/task_record_worker_result.sh <task_id> <status> <summary> [--artifact <path> ...]
 ```
 
+Settlement operativo de vuelta hacia la chain:
+
+```text
+./scripts/task_chain_settle.sh <root_task_id|worker_task_id> [<done|failed|blocked> <summary> [--artifact <path> ...]]
+```
+
 Corrida controlada:
 
 ```text
@@ -95,6 +101,39 @@ Cuando hubo una corrida controlada, tambien conserva trazabilidad de:
 Eso permite auditar la corrida sin convertirla todavia en una integracion automatica total.
 
 En el carril manual-controlado de chains mixtas, `blocked` sirve para representar que el worker no pudo devolver un resultado util por una precondicion externa u operativa, sin disfrazarlo como falla interna del repo.
+
+## Settlement recomendado para chains mixtas
+
+Cuando un worker delegado pertenece a una root en `status: delegated` + `chain_status: awaiting_worker_result`, el cierre operativo recomendado pasa a ser:
+
+```text
+./scripts/task_chain_settle.sh <worker_task_id> <done|failed|blocked> "<summary>" [--artifact <path> ...]
+```
+
+Ese wrapper:
+
+1. resuelve la root asociada
+2. registra el resultado worker si todavia no estaba registrado
+3. detecta si la root sigue realmente esperando
+4. reanuda la chain cuando ya existe resultado suficiente
+5. deja una salida `chain-settlement` trazable en la root
+
+Tambien acepta una root directamente:
+
+```text
+./scripts/task_chain_settle.sh <root_task_id>
+```
+
+En ese modo:
+
+- si todavia falta el resultado worker, devuelve `still_waiting`
+- si el resultado ya existe, reconcilia y reanuda la root
+- si la root ya estaba cerrada, responde como settlement no-op y deja evidencia
+
+Limitacion actual honesta:
+
+- el settlement soporta una sola worker child `await_worker_result` por root
+- si una root expone varias al mismo tiempo, el script falla limpiamente y lo dice en vez de adivinar
 
 ## Regla practica nueva
 

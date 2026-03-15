@@ -145,6 +145,25 @@ That resume flow:
 6. runs the trailing local step only when the worker result closed as `done`
 7. finalizes the root with the same collector/finalizer used elsewhere
 
+For lower-friction operations, the recommended wrapper is now:
+
+```text
+./scripts/task_chain_settle.sh <root_task_id|worker_task_id> [<done|failed|blocked> "<summary>" [--artifact <path> ...]]
+```
+
+That settlement flow can:
+
+1. accept the root or the delegated worker child
+2. register the worker result when the operator already has it in hand
+3. detect whether the root still needs to wait
+4. trigger `task_chain_resume.sh` automatically when the result is sufficient
+5. leave a `chain-settlement` trace on the root
+
+Current limitation:
+
+- it supports one `await_worker_result` worker step per root
+- if a root exposes multiple pending worker awaits, settlement exits with an explicit limitation message instead of guessing
+
 ## Status inspection
 
 Use:
@@ -206,6 +225,7 @@ Rules in this version:
 - any blocked critical step makes the chain block
 - any worker step with `await_worker_result: true` keeps the root delegated until the worker result exists
 - once that worker result is registered, `./scripts/task_chain_resume.sh` is the explicit bridge that moves the root forward again
+- `./scripts/task_chain_settle.sh` is the shorter operational wrapper around that bridge
 - a manual-controlled worker result may close as `done`, `failed`, or `blocked`
 - `done` resumes the trailing local step when one exists
 - `failed` or `blocked` on a critical worker step closes the root as `failed` or `blocked`
