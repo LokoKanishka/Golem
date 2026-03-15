@@ -328,6 +328,18 @@ TERMINAL = {"done", "failed", "blocked", "skipped"}
 WAITING = {"delegated", "running", "planned"}
 
 
+def dedupe(items):
+    seen = set()
+    ordered = []
+    for item in items:
+        value = str(item or "").strip()
+        if not value or value in seen:
+            continue
+        seen.add(value)
+        ordered.append(value)
+    return ordered
+
+
 def latest_worker_result_output(task: dict) -> dict:
     for output in reversed(task.get("outputs", [])):
         if output.get("kind") == "worker-result":
@@ -367,7 +379,9 @@ def normalize_step_status(step: dict, child: dict) -> str:
 task_path = pathlib.Path(sys.argv[1])
 tasks_dir = pathlib.Path(sys.argv[2])
 root = json.loads(task_path.read_text(encoding="utf-8"))
-steps = ((root.get("chain_plan") or {}).get("steps") or [])
+chain_plan = root.get("chain_plan") or {}
+steps = chain_plan.get("steps") or []
+declared_groups = chain_plan.get("dependency_groups") or []
 children = {}
 for path in tasks_dir.glob("*.json"):
     task = json.loads(path.read_text(encoding="utf-8"))
@@ -410,11 +424,105 @@ for step in sorted(steps, key=lambda value: (int(value.get("step_order", 0) or 0
             "child_task_id": child_task_id,
             "child_status": (child or {}).get("status", ""),
             "worker_result_status": worker_result_status,
+            "await_group": step.get("await_group", ""),
         }
         if status in {"done", "failed", "blocked"} and child_task_id and worker_result_status:
             resolved_workers.append(item)
         elif status in WAITING or not child_task_id or not worker_result_status:
             waiting_workers.append(item)
+
+group_to_used_by = {}
+for step in steps:
+    join_group = str(step.get("join_group", "")).strip()
+    if join_group:
+        group_to_used_by.setdefault(join_group, []).append(step.get("step_name", ""))
+
+barrier_states = []
+barrier_state_map = {}
+for group in declared_groups:
+    group_name = str(group.get("group_name") or group.get("name") or "").strip()
+    if not group_name:
+        continue
+    group_type = str(group.get("group_type") or "join_barrier").strip() or "join_barrier"
+    satisfaction_policy = str(group.get("satisfaction_policy") or "all_done").strip() or "all_done"
+    continue_on_blocked = bool(group.get("continue_on_blocked", False))
+    continue_on_failed = bool(group.get("continue_on_failed", False))
+    step_names = dedupe(group.get("step_names") or [])
+    if not step_names and group_type == "await_group":
+        step_names = [
+            step.get("step_name", "")
+            for step in steps
+            if str(step.get("await_group", "")).strip() == group_name
+        ]
+    if not step_names:
+        step_names = dedupe(
+            dependency
+            for step in steps
+            if str(step.get("join_group", "")).strip() == group_name
+            for dependency in (step.get("depends_on_step_names") or [])
+        )
+
+    step_rows = []
+    done_names = []
+    waiting_names = []
+    failed_names = []
+    blocked_names = []
+    skipped_names = []
+    for step_name in step_names:
+        status = step_states.get(step_name, "planned")
+        row = {"step_name": step_name, "status": status}
+        step_rows.append(row)
+        if status == "done":
+            done_names.append(step_name)
+        elif status in WAITING:
+            waiting_names.append(step_name)
+        elif status == "failed":
+            failed_names.append(step_name)
+        elif status == "blocked":
+            blocked_names.append(step_name)
+        elif status == "skipped":
+            skipped_names.append(step_name)
+
+    if failed_names and not continue_on_failed:
+        barrier_status = "failed"
+        barrier_reason = "failed dependency steps: " + ", ".join(failed_names)
+    elif blocked_names and not continue_on_blocked:
+        barrier_status = "blocked"
+        barrier_reason = "blocked dependency steps: " + ", ".join(blocked_names)
+    elif skipped_names and not continue_on_failed:
+        barrier_status = "failed"
+        barrier_reason = "skipped dependency steps: " + ", ".join(skipped_names)
+    elif satisfaction_policy == "all_done" and step_names and len(done_names) == len(step_names):
+        barrier_status = "satisfied"
+        barrier_reason = "all dependency steps resolved as done"
+    else:
+        barrier_status = "waiting"
+        waiting_set = waiting_names or [row["step_name"] for row in step_rows if row["status"] != "done"]
+        barrier_reason = (
+            "waiting for dependency steps: " + ", ".join(waiting_set)
+            if waiting_set
+            else "waiting for dependency state changes"
+        )
+
+    barrier_state = {
+        "group_name": group_name,
+        "group_type": group_type,
+        "satisfaction_policy": satisfaction_policy,
+        "continue_on_blocked": continue_on_blocked,
+        "continue_on_failed": continue_on_failed,
+        "status": barrier_status,
+        "reason": barrier_reason,
+        "step_names": step_names,
+        "step_states": step_rows,
+        "done_step_names": done_names,
+        "waiting_step_names": waiting_names,
+        "failed_step_names": failed_names,
+        "blocked_step_names": blocked_names,
+        "skipped_step_names": skipped_names,
+        "used_by_step_names": dedupe(group.get("used_by_step_names") or group_to_used_by.get(group_name, [])),
+    }
+    barrier_states.append(barrier_state)
+    barrier_state_map[group_name] = barrier_state
 
 runnable_local_steps = []
 skippable_steps = []
@@ -425,8 +533,50 @@ for step in sorted(steps, key=lambda value: (int(value.get("step_order", 0) or 0
     if step_states.get(step_name) != "planned":
         continue
     dependencies = step.get("depends_on_step_names") or []
-    dependency_states = [step_states.get(name, "planned") for name in dependencies]
+    join_group = str(step.get("join_group", "")).strip()
+    barrier = barrier_state_map.get(join_group) if join_group else None
 
+    if barrier:
+        if barrier["status"] == "satisfied":
+            runnable_local_steps.append(
+                {
+                    "step_name": step_name,
+                    "step_order": step.get("step_order", ""),
+                    "critical": bool(step.get("critical", False)),
+                    "task_type": step.get("task_type", ""),
+                    "title": step.get("title", ""),
+                    "objective": step.get("objective", ""),
+                    "join_group": join_group,
+                    "join_group_status": barrier["status"],
+                    "join_group_reason": barrier["reason"],
+                    "dependency_child_task_ids": [
+                        (step_children.get(name) or {}).get("task_id", "")
+                        for name in dependencies
+                        if (step_children.get(name) or {}).get("task_id", "")
+                    ],
+                }
+            )
+            continue
+        if barrier["status"] in {"failed", "blocked"}:
+            skippable_steps.append(
+                {
+                    "step_name": step_name,
+                    "step_order": step.get("step_order", ""),
+                    "critical": bool(step.get("critical", False)),
+                    "task_type": step.get("task_type", ""),
+                    "title": step.get("title", ""),
+                    "objective": step.get("objective", ""),
+                    "current_status": step.get("status", ""),
+                    "join_group": join_group,
+                    "join_group_status": barrier["status"],
+                    "join_group_reason": barrier["reason"],
+                    "reason": "dependency_barrier_not_satisfied",
+                    "blocking_dependencies": barrier["step_states"],
+                }
+            )
+        continue
+
+    dependency_states = [step_states.get(name, "planned") for name in dependencies]
     if any(state in {"failed", "blocked", "skipped"} for state in dependency_states):
         blocking_dependencies = [
             {"step_name": name, "status": step_states.get(name, "planned")}
@@ -449,7 +599,7 @@ for step in sorted(steps, key=lambda value: (int(value.get("step_order", 0) or 0
         continue
     if any(state in WAITING for state in dependency_states):
         continue
-    if dependencies and all(state == "done" for state in dependency_states):
+    if not dependencies:
         runnable_local_steps.append(
             {
                 "step_name": step_name,
@@ -458,6 +608,20 @@ for step in sorted(steps, key=lambda value: (int(value.get("step_order", 0) or 0
                 "task_type": step.get("task_type", ""),
                 "title": step.get("title", ""),
                 "objective": step.get("objective", ""),
+                "dependency_child_task_ids": [],
+            }
+        )
+        continue
+    if all(state == "done" for state in dependency_states):
+        runnable_local_steps.append(
+            {
+                "step_name": step_name,
+                "step_order": step.get("step_order", ""),
+                "critical": bool(step.get("critical", False)),
+                "task_type": step.get("task_type", ""),
+                "title": step.get("title", ""),
+                "objective": step.get("objective", ""),
+                "join_group": join_group,
                 "dependency_child_task_ids": [
                     (step_children.get(name) or {}).get("task_id", "")
                     for name in dependencies
@@ -471,6 +635,7 @@ values = {
     "ROOT_CHAIN_STATUS": root.get("chain_status", ""),
     "CHAIN_TYPE": root.get("chain_type", ""),
     "ROOT_TITLE": root.get("title", ""),
+    "DEPENDENCY_BARRIERS_JSON": json.dumps(barrier_states),
     "RESOLVED_WORKERS_JSON": json.dumps(resolved_workers),
     "WAITING_WORKERS_JSON": json.dumps(waiting_workers),
     "RUNNABLE_LOCAL_STEPS_JSON": json.dumps(runnable_local_steps),
@@ -690,7 +855,18 @@ PY
 import json, sys
 row = json.loads(sys.argv[1])
 deps = ", ".join(f"{item.get('step_name')}={item.get('status')}" for item in row.get("blocking_dependencies", []))
-print(f"step skipped because blocking dependencies reached terminal non-done states: {deps}" if deps else "step skipped because dependencies did not finish as done")
+join_group = row.get("join_group", "")
+join_group_status = row.get("join_group_status", "")
+join_group_reason = row.get("join_group_reason", "")
+if join_group:
+    if join_group_reason:
+        print(f"step skipped because dependency barrier {join_group} is {join_group_status}: {join_group_reason}")
+    else:
+        print(f"step skipped because dependency barrier {join_group} is {join_group_status}")
+elif deps:
+    print(f"step skipped because blocking dependencies reached terminal non-done states: {deps}")
+else:
+    print("step skipped because dependencies did not finish as done")
 PY
     )"
     if [ "$skip_current_status" = "planned" ] || [ "$skip_current_status" = "queued" ]; then

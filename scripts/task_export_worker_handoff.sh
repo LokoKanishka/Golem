@@ -93,8 +93,10 @@ if not isinstance(handoff, dict):
 root_task_id = ""
 await_worker_result = False
 critical = bool(task.get("critical", False))
+await_group_name = ""
 await_group_child_ids = []
 await_group_step_names = []
+downstream_join_groups = []
 continuation_policy = {
     "await_worker_result": False,
     "continue_on_failed": False,
@@ -103,8 +105,10 @@ continuation_policy = {
     "settle_via": f"./scripts/task_chain_settle.sh {task_id}",
     "degradation_mode": "none",
     "resume_when_all_resolved": False,
+    "await_group_name": "",
     "await_group_child_ids": [],
     "await_group_step_names": [],
+    "downstream_join_groups": [],
 }
 
 parent_task_id = str(task.get("parent_task_id", "")).strip()
@@ -126,15 +130,25 @@ if parent_task_id:
                 if step.get("child_task_id") == task_id or step.get("step_name") == task.get("step_name"):
                     await_worker_result = bool(step.get("await_worker_result", False))
                     critical = bool(step.get("critical", critical))
+                    await_group_name = str(step.get("await_group", "")).strip()
                     break
+            dependency_groups = ((parent.get("chain_plan") or {}).get("dependency_groups") or [])
+            for group in dependency_groups:
+                group_name = str(group.get("group_name", "")).strip()
+                if not group_name:
+                    continue
+                if task.get("step_name") in (group.get("step_names") or []):
+                    downstream_join_groups.append(group_name)
             continuation_policy.update(
                 {
                     "await_worker_result": await_worker_result,
                     "resume_via": f"./scripts/task_chain_resume.sh {root_task_id}" if await_worker_result else "",
                     "degradation_mode": "fail_root_if_critical" if critical else "completed_with_warnings",
                     "resume_when_all_resolved": len(await_group_step_names) > 1,
+                    "await_group_name": await_group_name,
                     "await_group_child_ids": dedupe(await_group_child_ids),
                     "await_group_step_names": dedupe(await_group_step_names),
+                    "downstream_join_groups": dedupe(downstream_join_groups),
                 }
             )
 
@@ -163,11 +177,13 @@ packet = {
     "await_worker_result": await_worker_result,
     "critical": critical,
     "await_group": {
+        "name": await_group_name,
         "step_names": dedupe(await_group_step_names),
         "child_task_ids": dedupe(await_group_child_ids),
         "step_count": len(dedupe(await_group_step_names)),
         "resume_when_all_resolved": len(dedupe(await_group_step_names)) > 1,
     },
+    "downstream_join_groups": dedupe(downstream_join_groups),
     "continuation_policy": continuation_policy,
     "artifact_paths": artifact_paths,
     "notes": task.get("notes", []),

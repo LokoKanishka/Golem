@@ -143,6 +143,18 @@ def dedupe_paths(paths):
     return ordered
 
 
+def dedupe_values(items):
+    seen = set()
+    ordered = []
+    for item in items:
+        value = str(item or "").strip()
+        if not value or value in seen:
+            continue
+        seen.add(value)
+        ordered.append(value)
+    return ordered
+
+
 tasks_dir = pathlib.Path(sys.argv[1])
 root_task_path = pathlib.Path(sys.argv[2])
 
@@ -219,6 +231,8 @@ if plan_steps:
                 "title": step.get("title") or (child.get("title", "") if child else ""),
                 "objective": step.get("objective") or (child.get("objective", "") if child else ""),
                 "depends_on_step_names": step.get("depends_on_step_names") or [],
+                "join_group": step.get("join_group", ""),
+                "await_group": step.get("await_group", ""),
                 "await_worker_result": bool(step.get("await_worker_result", False)),
                 "condition_source_step": step.get("condition_source_step", ""),
                 "run_if_worker_result_status": step.get("run_if_worker_result_status", ""),
@@ -262,6 +276,8 @@ else:
                 "title": child.get("title", ""),
                 "objective": child.get("objective", ""),
                 "depends_on_step_names": [],
+                "join_group": child.get("join_group", ""),
+                "await_group": child.get("await_group", ""),
                 "await_worker_result": bool(child.get("await_worker_result", False)),
                 "condition_source_step": child.get("condition_source_step", ""),
                 "run_if_worker_result_status": child.get("run_if_worker_result_status", ""),
@@ -288,6 +304,111 @@ else:
         )
 
 step_results.sort(key=lambda step: (step.get("step_order", 10**9), step.get("step_name", "")))
+step_results_by_name = {step.get("step_name", ""): step for step in step_results}
+
+dependency_groups = plan.get("dependency_groups") if isinstance(plan.get("dependency_groups"), list) else []
+dependency_barriers = []
+dependency_barrier_map = {}
+for group in dependency_groups:
+    group_name = str(group.get("group_name") or group.get("name") or "").strip()
+    if not group_name:
+        continue
+
+    group_type = str(group.get("group_type") or "join_barrier").strip() or "join_barrier"
+    satisfaction_policy = str(group.get("satisfaction_policy") or "all_done").strip() or "all_done"
+    continue_on_blocked = bool(group.get("continue_on_blocked", False))
+    continue_on_failed = bool(group.get("continue_on_failed", False))
+    step_names = dedupe_values(group.get("step_names") or [])
+    if not step_names and group_type == "await_group":
+        step_names = [
+            step.get("step_name", "")
+            for step in step_results
+            if str(step.get("await_group", "")).strip() == group_name
+        ]
+    if not step_names:
+        step_names = dedupe_values(
+            dependency
+            for step in step_results
+            if str(step.get("join_group", "")).strip() == group_name
+            for dependency in (step.get("depends_on_step_names") or [])
+        )
+
+    step_states = []
+    done_step_names = []
+    waiting_step_names = []
+    failed_step_names = []
+    blocked_step_names = []
+    skipped_step_names = []
+    for step_name in step_names:
+        state = (step_results_by_name.get(step_name) or {}).get("status", "planned")
+        step_states.append({"step_name": step_name, "status": state})
+        if state == "done":
+            done_step_names.append(step_name)
+        elif state in {"delegated", "running", "planned"}:
+            waiting_step_names.append(step_name)
+        elif state == "failed":
+            failed_step_names.append(step_name)
+        elif state == "blocked":
+            blocked_step_names.append(step_name)
+        elif state == "skipped":
+            skipped_step_names.append(step_name)
+
+    if failed_step_names and not continue_on_failed:
+        barrier_status = "failed"
+        barrier_reason = "failed dependency steps: " + ", ".join(failed_step_names)
+    elif blocked_step_names and not continue_on_blocked:
+        barrier_status = "blocked"
+        barrier_reason = "blocked dependency steps: " + ", ".join(blocked_step_names)
+    elif skipped_step_names and not continue_on_failed:
+        barrier_status = "failed"
+        barrier_reason = "skipped dependency steps: " + ", ".join(skipped_step_names)
+    elif satisfaction_policy == "all_done" and step_names and len(done_step_names) == len(step_names):
+        barrier_status = "satisfied"
+        barrier_reason = "all dependency steps resolved as done"
+    else:
+        barrier_status = "waiting"
+        unresolved = waiting_step_names or [row["step_name"] for row in step_states if row["status"] != "done"]
+        barrier_reason = (
+            "waiting for dependency steps: " + ", ".join(unresolved)
+            if unresolved
+            else "waiting for dependency state changes"
+        )
+
+    barrier = {
+        "group_name": group_name,
+        "group_type": group_type,
+        "satisfaction_policy": satisfaction_policy,
+        "continue_on_blocked": continue_on_blocked,
+        "continue_on_failed": continue_on_failed,
+        "status": barrier_status,
+        "reason": barrier_reason,
+        "step_names": step_names,
+        "step_states": step_states,
+        "done_step_names": done_step_names,
+        "waiting_step_names": waiting_step_names,
+        "failed_step_names": failed_step_names,
+        "blocked_step_names": blocked_step_names,
+        "skipped_step_names": skipped_step_names,
+        "used_by_step_names": dedupe_values(group.get("used_by_step_names") or []),
+    }
+    dependency_barriers.append(barrier)
+    dependency_barrier_map[group_name] = barrier
+
+for step in step_results:
+    join_group = str(step.get("join_group", "")).strip()
+    await_group = str(step.get("await_group", "")).strip()
+    if join_group and join_group in dependency_barrier_map:
+        step["join_group_status"] = dependency_barrier_map[join_group]["status"]
+        step["join_group_reason"] = dependency_barrier_map[join_group]["reason"]
+    else:
+        step["join_group_status"] = ""
+        step["join_group_reason"] = ""
+    if await_group and await_group in dependency_barrier_map:
+        step["await_group_status"] = dependency_barrier_map[await_group]["status"]
+        step["await_group_reason"] = dependency_barrier_map[await_group]["reason"]
+    else:
+        step["await_group_status"] = ""
+        step["await_group_reason"] = ""
 
 child_task_ids = [task.get("task_id", "") for task in children]
 children_done = sum(1 for child in children if child.get("status") == "done")
@@ -378,6 +499,25 @@ resolved_worker_step_names = [
     step.get("step_name", "")
     for step in step_results
     if step.get("await_worker_result") and step.get("status") in {"done", "failed", "blocked"}
+]
+dependency_barriers_satisfied = sum(1 for barrier in dependency_barriers if barrier.get("status") == "satisfied")
+dependency_barriers_waiting = sum(1 for barrier in dependency_barriers if barrier.get("status") == "waiting")
+dependency_barriers_failed = sum(1 for barrier in dependency_barriers if barrier.get("status") == "failed")
+dependency_barriers_blocked = sum(1 for barrier in dependency_barriers if barrier.get("status") == "blocked")
+waiting_dependency_barrier_names = [
+    barrier.get("group_name", "")
+    for barrier in dependency_barriers
+    if barrier.get("status") == "waiting"
+]
+failed_dependency_barrier_names = [
+    barrier.get("group_name", "")
+    for barrier in dependency_barriers
+    if barrier.get("status") == "failed"
+]
+blocked_dependency_barrier_names = [
+    barrier.get("group_name", "")
+    for barrier in dependency_barriers
+    if barrier.get("status") == "blocked"
 ]
 local_child_ids = [
     step.get("child_task_id", "")
@@ -493,6 +633,8 @@ elif chain_status == "awaiting_worker_result":
         f"{steps_delegated} delegated, {steps_running} running"
     )
     headline += f", awaiting {awaiting_worker_result_steps} worker result(s) before the chain can continue."
+    if waiting_dependency_barrier_names:
+        headline += " Waiting dependency barriers: " + ", ".join(waiting_dependency_barrier_names) + "."
 elif chain_status == "completed_with_warnings":
     headline = f"Chain completed with warnings: {steps_completed}/{step_count} step(s) completed, {steps_failed} failed"
     if steps_blocked:
@@ -550,6 +692,15 @@ summary = {
     "worker_step_count": worker_step_count,
     "local_steps_count": local_step_count,
     "delegated_steps_count": worker_step_count,
+    "dependency_group_count": len(dependency_barriers),
+    "dependency_barriers": dependency_barriers,
+    "dependency_barriers_satisfied": dependency_barriers_satisfied,
+    "dependency_barriers_waiting": dependency_barriers_waiting,
+    "dependency_barriers_failed": dependency_barriers_failed,
+    "dependency_barriers_blocked": dependency_barriers_blocked,
+    "waiting_dependency_barrier_names": waiting_dependency_barrier_names,
+    "failed_dependency_barrier_names": failed_dependency_barrier_names,
+    "blocked_dependency_barrier_names": blocked_dependency_barrier_names,
     "worker_steps_done": worker_steps_done,
     "worker_steps_blocked": worker_steps_blocked,
     "worker_steps_failed": worker_steps_failed,

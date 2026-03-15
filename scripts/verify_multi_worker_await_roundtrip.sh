@@ -109,6 +109,13 @@ elif expression == "awaiting_worker_child_ids":
 elif expression == "resolved_worker_child_ids":
     for item in (task.get("chain_summary") or {}).get("resolved_worker_child_ids", []):
         print(item)
+elif expression.startswith("dependency_barrier_status:"):
+    barrier_name = expression.split(":", 1)[1]
+    for barrier in (task.get("chain_summary") or {}).get("dependency_barriers", []):
+        if barrier.get("group_name") == barrier_name:
+            print(barrier.get("status", ""))
+            raise SystemExit(0)
+    print("")
 elif expression.startswith("step_status:"):
     step_name = expression.split(":", 1)[1]
     for step in ((task.get("chain_plan") or {}).get("steps") or []):
@@ -193,7 +200,10 @@ assert_partial_state() {
   [ "$(task_json_value "$child_a" status)" = "done" ] || fail "partial path: child_a no quedo done"
   [ "$(task_json_value "$child_a" worker_result_status)" = "done" ] || fail "partial path: worker_result child_a inesperado"
   [ "$(task_json_value "$child_b" status)" = "delegated" ] || fail "partial path: child_b no sigue delegated"
+  [ "$(task_json_value "$root_task_id" step_status:local-summarize-architecture)" = "done" ] || fail "partial path: local barrier parcial no corrio"
   [ "$(task_json_value "$root_task_id" step_status:local-compare-multi-worker-docs)" = "planned" ] || fail "partial path: continuation no quedo planned"
+  [ "$(task_json_value "$root_task_id" dependency_barrier_status:architecture-ready)" = "satisfied" ] || fail "partial path: architecture-ready no quedo satisfied"
+  [ "$(task_json_value "$root_task_id" dependency_barrier_status:analysis-workers)" = "waiting" ] || fail "partial path: analysis-workers no quedo waiting"
 }
 
 assert_success_state() {
@@ -210,7 +220,10 @@ assert_success_state() {
   [ "$(task_json_value "$root_task_id" resolved_worker_result_steps)" = "2" ] || fail "success path: resolved count inesperado"
   [ "$(task_json_value "$child_a" status)" = "done" ] || fail "success path: child_a no termino done"
   [ "$(task_json_value "$child_b" status)" = "done" ] || fail "success path: child_b no termino done"
+  [ "$(task_json_value "$root_task_id" step_status:local-summarize-architecture)" = "done" ] || fail "success path: barrier parcial local no termino done"
   [ "$(task_json_value "$root_task_id" step_status:local-compare-multi-worker-docs)" = "done" ] || fail "success path: continuation local no termino done"
+  [ "$(task_json_value "$root_task_id" dependency_barrier_status:architecture-ready)" = "satisfied" ] || fail "success path: architecture-ready no quedo satisfied"
+  [ "$(task_json_value "$root_task_id" dependency_barrier_status:analysis-workers)" = "satisfied" ] || fail "success path: analysis-workers no quedo satisfied"
 }
 
 assert_blocked_state() {
@@ -220,12 +233,16 @@ assert_blocked_state() {
 
   [ "$(task_json_value "$root_task_id" status)" = "blocked" ] || fail "blocked path: root no termino blocked"
   [ "$(task_json_value "$root_task_id" chain_status)" = "blocked" ] || fail "blocked path: chain_status inesperado"
-  [ "$(task_json_value "$root_task_id" awaiting_worker_result_steps)" = "1" ] || fail "blocked path: awaiting count inesperado"
-  [ "$(task_json_value "$root_task_id" resolved_worker_result_steps)" = "1" ] || fail "blocked path: resolved count inesperado"
-  [ "$(task_json_value "$child_a" status)" = "blocked" ] || fail "blocked path: child_a no termino blocked"
-  [ "$(task_json_value "$child_a" worker_result_status)" = "blocked" ] || fail "blocked path: worker_result child_a inesperado"
-  [ "$(task_json_value "$child_b" status)" = "delegated" ] || fail "blocked path: child_b no siguio delegated"
+  [ "$(task_json_value "$root_task_id" awaiting_worker_result_steps)" = "0" ] || fail "blocked path: awaiting count inesperado"
+  [ "$(task_json_value "$root_task_id" resolved_worker_result_steps)" = "2" ] || fail "blocked path: resolved count inesperado"
+  [ "$(task_json_value "$child_a" status)" = "done" ] || fail "blocked path: child_a no quedo done"
+  [ "$(task_json_value "$child_a" worker_result_status)" = "done" ] || fail "blocked path: worker_result child_a inesperado"
+  [ "$(task_json_value "$child_b" status)" = "blocked" ] || fail "blocked path: child_b no termino blocked"
+  [ "$(task_json_value "$child_b" worker_result_status)" = "blocked" ] || fail "blocked path: worker_result child_b inesperado"
+  [ "$(task_json_value "$root_task_id" step_status:local-summarize-architecture)" = "done" ] || fail "blocked path: barrier parcial local no corrio"
   [ "$(task_json_value "$root_task_id" step_status:local-compare-multi-worker-docs)" = "skipped" ] || fail "blocked path: continuation local no quedo skipped"
+  [ "$(task_json_value "$root_task_id" dependency_barrier_status:architecture-ready)" = "satisfied" ] || fail "blocked path: architecture-ready no quedo satisfied"
+  [ "$(task_json_value "$root_task_id" dependency_barrier_status:analysis-workers)" = "blocked" ] || fail "blocked path: analysis-workers no quedo blocked"
 }
 
 print_case_summary() {
@@ -242,7 +259,10 @@ print_case_summary() {
   printf 'chain_status: %s\n' "$(task_json_value "$root_task_id" chain_status)"
   printf 'awaiting_worker_result_steps: %s\n' "$(task_json_value "$root_task_id" awaiting_worker_result_steps)"
   printf 'resolved_worker_result_steps: %s\n' "$(task_json_value "$root_task_id" resolved_worker_result_steps)"
-  printf 'continuation_status: %s\n' "$(task_json_value "$root_task_id" step_status:local-compare-multi-worker-docs)"
+  printf 'architecture_barrier_status: %s\n' "$(task_json_value "$root_task_id" dependency_barrier_status:architecture-ready)"
+  printf 'analysis_barrier_status: %s\n' "$(task_json_value "$root_task_id" dependency_barrier_status:analysis-workers)"
+  printf 'partial_continuation_status: %s\n' "$(task_json_value "$root_task_id" step_status:local-summarize-architecture)"
+  printf 'full_continuation_status: %s\n' "$(task_json_value "$root_task_id" step_status:local-compare-multi-worker-docs)"
 }
 
 mkdir -p "$OUTBOX_DIR"
@@ -289,11 +309,15 @@ BLOCKED_CHILD_A="${blocked_children[0]}"
 BLOCKED_CHILD_B="${blocked_children[1]}"
 
 blocked_packet="$OUTBOX_DIR/blocked-${BLOCKED_CHILD_A}.worker-result.json"
-create_result_packet "$BLOCKED_CHILD_A" "$BLOCKED_ROOT_ID" "blocked" "Critical worker blocked while another worker still waits" "$blocked_packet"
-run_cmd "Import Blocked Worker Result And Settle" "./scripts/task_import_worker_result.sh ${blocked_packet#$REPO_ROOT/} --settle"
+create_result_packet "$BLOCKED_CHILD_A" "$BLOCKED_ROOT_ID" "done" "Architecture worker resolved before the full-analysis barrier closed" "$blocked_packet"
+run_cmd "Import First Blocked-Path Worker Result And Settle" "./scripts/task_import_worker_result.sh ${blocked_packet#$REPO_ROOT/} --settle"
+assert_exit_in "$LAST_EXIT_CODE" 3
+partial_blocked_packet="$OUTBOX_DIR/blocked-${BLOCKED_CHILD_B}.worker-result.json"
+create_result_packet "$BLOCKED_CHILD_B" "$BLOCKED_ROOT_ID" "blocked" "Critical verification worker blocked after the architecture-only barrier had already opened" "$partial_blocked_packet"
+run_cmd "Import Blocked Worker Result And Settle" "./scripts/task_import_worker_result.sh ${partial_blocked_packet#$REPO_ROOT/} --settle"
 assert_exit_in "$LAST_EXIT_CODE" 2
 assert_blocked_state "$BLOCKED_ROOT_ID" "$BLOCKED_CHILD_A" "$BLOCKED_CHILD_B"
-print_case_summary "Blocked While Another Worker Waits" "$BLOCKED_ROOT_ID" "$BLOCKED_CHILD_A" "$BLOCKED_CHILD_B"
+print_case_summary "Blocked After Partial Barrier Success" "$BLOCKED_ROOT_ID" "$BLOCKED_CHILD_A" "$BLOCKED_CHILD_B"
 
 printf '\n## Final Summary\n'
 printf 'path | root_task_id | root_status | chain_status | awaiting_worker_result_steps | resolved_worker_result_steps\n'
@@ -303,7 +327,7 @@ printf 'partial_then_complete | %s | %s | %s | %s | %s\n' \
   "$(task_json_value "$PARTIAL_ROOT_ID" chain_status)" \
   "$(task_json_value "$PARTIAL_ROOT_ID" awaiting_worker_result_steps)" \
   "$(task_json_value "$PARTIAL_ROOT_ID" resolved_worker_result_steps)"
-printf 'blocked_while_waiting | %s | %s | %s | %s | %s\n' \
+printf 'blocked_after_partial_barrier | %s | %s | %s | %s | %s\n' \
   "$BLOCKED_ROOT_ID" \
   "$(task_json_value "$BLOCKED_ROOT_ID" status)" \
   "$(task_json_value "$BLOCKED_ROOT_ID" chain_status)" \

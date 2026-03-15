@@ -96,6 +96,11 @@ print(f"- steps_skipped: {summary['steps_skipped']}")
 print(f"- steps_pending: {summary['steps_pending']}")
 print(f"- local_steps_count: {summary['local_steps_count']}")
 print(f"- delegated_steps_count: {summary['delegated_steps_count']}")
+print(f"- dependency_group_count: {summary['dependency_group_count']}")
+print(f"- dependency_barriers_satisfied: {summary['dependency_barriers_satisfied']}")
+print(f"- dependency_barriers_waiting: {summary['dependency_barriers_waiting']}")
+print(f"- dependency_barriers_failed: {summary['dependency_barriers_failed']}")
+print(f"- dependency_barriers_blocked: {summary['dependency_barriers_blocked']}")
 print(f"- worker_steps_done: {summary['worker_steps_done']}")
 print(f"- worker_steps_blocked: {summary['worker_steps_blocked']}")
 print(f"- worker_steps_failed: {summary['worker_steps_failed']}")
@@ -129,10 +134,42 @@ else:
         )
         if step.get("summary"):
             print(f"  summary: {step.get('summary')}")
+        if step.get("await_group"):
+            print(
+                f"  await_group: {step.get('await_group')} "
+                f"({step.get('await_group_status') or 'unknown'})"
+            )
+            if step.get("await_group_reason"):
+                print(f"  await_group_reason: {step.get('await_group_reason')}")
+        if step.get("join_group"):
+            print(
+                f"  join_group: {step.get('join_group')} "
+                f"({step.get('join_group_status') or 'unknown'})"
+            )
+            if step.get("join_group_reason"):
+                print(f"  join_group_reason: {step.get('join_group_reason')}")
         if step.get("decision_reason"):
             print(f"  decision_reason: {step.get('decision_reason')}")
         if step.get("artifact_paths"):
             print(f"  artifacts: {', '.join(step.get('artifact_paths'))}")
+print()
+print("## Dependency Barriers")
+if not summary.get("dependency_barriers"):
+    print("- (none)")
+else:
+    for barrier in summary["dependency_barriers"]:
+        print(
+            f"- {barrier.get('group_name')} | "
+            f"type={barrier.get('group_type') or '(none)'} | "
+            f"status={barrier.get('status') or '(none)'} | "
+            f"policy={barrier.get('satisfaction_policy') or '(none)'}"
+        )
+        if barrier.get("reason"):
+            print(f"  reason: {barrier.get('reason')}")
+        if barrier.get("step_names"):
+            print(f"  step_names: {', '.join(barrier.get('step_names'))}")
+        if barrier.get("used_by_step_names"):
+            print(f"  used_by_step_names: {', '.join(barrier.get('used_by_step_names'))}")
 print()
 print("## Worker Outcomes")
 if not summary["worker_outcomes"]:
@@ -266,6 +303,15 @@ task["chain_summary"] = {
     "worker_step_count": summary["worker_step_count"],
     "local_steps_count": summary["local_steps_count"],
     "delegated_steps_count": summary["delegated_steps_count"],
+    "dependency_group_count": summary["dependency_group_count"],
+    "dependency_barriers": summary["dependency_barriers"],
+    "dependency_barriers_satisfied": summary["dependency_barriers_satisfied"],
+    "dependency_barriers_waiting": summary["dependency_barriers_waiting"],
+    "dependency_barriers_failed": summary["dependency_barriers_failed"],
+    "dependency_barriers_blocked": summary["dependency_barriers_blocked"],
+    "waiting_dependency_barrier_names": summary["waiting_dependency_barrier_names"],
+    "failed_dependency_barrier_names": summary["failed_dependency_barrier_names"],
+    "blocked_dependency_barrier_names": summary["blocked_dependency_barrier_names"],
     "worker_steps_done": summary["worker_steps_done"],
     "worker_steps_blocked": summary["worker_steps_blocked"],
     "worker_steps_failed": summary["worker_steps_failed"],
@@ -295,6 +341,8 @@ chain_plan = task.get("chain_plan") if isinstance(task.get("chain_plan"), dict) 
 chain_plan["step_count"] = summary["step_count"]
 chain_plan["local_step_count"] = summary["local_step_count"]
 chain_plan["worker_step_count"] = summary["worker_step_count"]
+chain_plan["dependency_group_count"] = summary["dependency_group_count"]
+chain_plan["dependency_groups"] = summary["dependency_barriers"]
 chain_plan["steps"] = summary["step_results"]
 chain_plan["last_finalized_at"] = summary["generated_at"]
 task["chain_plan"] = chain_plan
@@ -316,6 +364,8 @@ print(
     "chain_status={chain_status} step_count={step_count} steps_completed={steps_completed} "
     "steps_failed={steps_failed} steps_blocked={steps_blocked} steps_delegated={steps_delegated} "
     "steps_running={steps_running} steps_skipped={steps_skipped} "
+    "dependency_barriers_waiting={dependency_barriers_waiting} dependency_barriers_failed={dependency_barriers_failed} "
+    "dependency_barriers_blocked={dependency_barriers_blocked} "
     "worker_steps_done={worker_steps_done} worker_steps_blocked={worker_steps_blocked} "
     "worker_steps_delegated={worker_steps_delegated} worker_steps_running={worker_steps_running} "
     "worker_steps_failed={worker_steps_failed} awaiting_worker_result_steps={awaiting_worker_result_steps} "
@@ -329,6 +379,9 @@ print(
         steps_delegated=summary["steps_delegated"],
         steps_running=summary["steps_running"],
         steps_skipped=summary["steps_skipped"],
+        dependency_barriers_waiting=summary["dependency_barriers_waiting"],
+        dependency_barriers_failed=summary["dependency_barriers_failed"],
+        dependency_barriers_blocked=summary["dependency_barriers_blocked"],
         worker_steps_done=summary["worker_steps_done"],
         worker_steps_blocked=summary["worker_steps_blocked"],
         worker_steps_delegated=summary["worker_steps_delegated"],

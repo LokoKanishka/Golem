@@ -70,6 +70,8 @@ planned_at = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
 with task_path.open(encoding="utf-8") as fh:
     task = json.load(fh)
 
+dependency_groups = []
+
 if chain_type == "repo-analysis-worker-manual":
     task["objective"] = (
         "Execute a mixed local-worker chain that delegates the worker step, prepares the handoff, "
@@ -101,6 +103,7 @@ if chain_type == "repo-analysis-worker-manual":
                 "then wait for manual-controlled worker execution and result closure."
             ),
             "depends_on_step_names": ["local-self-check"],
+            "await_group": "delegated-repo-analysis",
             "status": "planned",
             "child_task_id": "",
             "await_worker_result": True,
@@ -117,17 +120,29 @@ if chain_type == "repo-analysis-worker-manual":
                 "can resume and close with mixed evidence."
             ),
             "depends_on_step_names": ["delegated-repo-analysis"],
+            "join_group": "delegated-repo-analysis",
             "status": "planned",
             "child_task_id": "",
             "await_worker_result": False,
         },
     ]
-    version = "2.2"
+    dependency_groups = [
+        {
+            "group_name": "delegated-repo-analysis",
+            "group_type": "await_group",
+            "step_names": ["delegated-repo-analysis"],
+            "satisfaction_policy": "all_done",
+            "continue_on_blocked": False,
+            "continue_on_failed": False,
+            "used_by_step_names": ["local-compare-orchestration-docs"],
+        },
+    ]
+    version = "2.4"
 elif chain_type == "repo-analysis-worker-manual-multi":
     task["objective"] = (
         "Execute a mixed local-worker chain that delegates multiple manual-controlled worker steps, "
-        "waits for their worker results independently, and resumes one local closing step only when all "
-        "its worker dependencies are done."
+        "waits for their worker results independently, and resumes local continuation steps through explicit "
+        "dependency barriers instead of relying on position-only ordering."
     )
     steps = [
         {
@@ -155,6 +170,7 @@ elif chain_type == "repo-analysis-worker-manual-multi":
                 "structure, focusing on chain topology and dependency boundaries."
             ),
             "depends_on_step_names": ["local-self-check"],
+            "await_group": "analysis-workers",
             "status": "planned",
             "child_task_id": "",
             "await_worker_result": True,
@@ -171,13 +187,31 @@ elif chain_type == "repo-analysis-worker-manual-multi":
                 "should affect settlement, resume, and final aggregation."
             ),
             "depends_on_step_names": ["local-self-check"],
+            "await_group": "analysis-workers",
             "status": "planned",
             "child_task_id": "",
             "await_worker_result": True,
         },
         {
-            "step_name": "local-compare-multi-worker-docs",
+            "step_name": "local-summarize-architecture",
             "step_order": 4,
+            "task_type": "compare-files",
+            "execution_mode": "local",
+            "critical": False,
+            "title": f"{chain_title} / local architecture summary",
+            "objective": (
+                "Produce one local artifact as soon as the architecture worker is done so the chain proves "
+                "that one dependency barrier can open while another still waits."
+            ),
+            "depends_on_step_names": ["delegated-repo-analysis-architecture"],
+            "join_group": "architecture-ready",
+            "status": "planned",
+            "child_task_id": "",
+            "await_worker_result": False,
+        },
+        {
+            "step_name": "local-compare-multi-worker-docs",
+            "step_order": 5,
             "task_type": "compare-files",
             "execution_mode": "local",
             "critical": False,
@@ -190,12 +224,36 @@ elif chain_type == "repo-analysis-worker-manual-multi":
                 "delegated-repo-analysis-architecture",
                 "delegated-repo-analysis-verification",
             ],
+            "join_group": "analysis-workers",
             "status": "planned",
             "child_task_id": "",
             "await_worker_result": False,
         },
     ]
-    version = "2.3"
+    dependency_groups = [
+        {
+            "group_name": "analysis-workers",
+            "group_type": "await_group",
+            "step_names": [
+                "delegated-repo-analysis-architecture",
+                "delegated-repo-analysis-verification",
+            ],
+            "satisfaction_policy": "all_done",
+            "continue_on_blocked": False,
+            "continue_on_failed": False,
+            "used_by_step_names": ["local-compare-multi-worker-docs"],
+        },
+        {
+            "group_name": "architecture-ready",
+            "group_type": "join_barrier",
+            "step_names": ["delegated-repo-analysis-architecture"],
+            "satisfaction_policy": "all_done",
+            "continue_on_blocked": False,
+            "continue_on_failed": False,
+            "used_by_step_names": ["local-summarize-architecture"],
+        },
+    ]
+    version = "2.4"
 else:
     task["objective"] = f"Execute a mixed local-worker chain and produce an aggregated final artifact for {chain_type}."
     steps = [
@@ -237,12 +295,24 @@ else:
             "title": f"{chain_title} / local orchestration docs comparison",
             "objective": "Produce one local artifact after the worker step to prove mixed execution inside one chain.",
             "depends_on_step_names": ["delegated-repo-analysis"],
+            "join_group": "delegated-repo-analysis",
             "status": "planned",
             "child_task_id": "",
             "await_worker_result": False,
         },
     ]
-    version = "2.0"
+    dependency_groups = [
+        {
+            "group_name": "delegated-repo-analysis",
+            "group_type": "join_barrier",
+            "step_names": ["delegated-repo-analysis"],
+            "satisfaction_policy": "all_done",
+            "continue_on_blocked": False,
+            "continue_on_failed": False,
+            "used_by_step_names": ["local-compare-orchestration-docs"],
+        },
+    ]
+    version = "2.1"
 
 task["chain_type"] = chain_type
 task["chain_status"] = "planned"
@@ -251,6 +321,8 @@ task["chain_plan"] = {
     "planned_at": planned_at,
     "mixes_execution_modes": True,
     "manual_worker_controlled": chain_type in {"repo-analysis-worker-manual", "repo-analysis-worker-manual-multi"},
+    "dependency_group_count": len(dependency_groups),
+    "dependency_groups": dependency_groups,
     "local_step_count": sum(1 for step in steps if step["execution_mode"] == "local"),
     "worker_step_count": sum(1 for step in steps if step["execution_mode"] == "worker"),
     "critical_step_count": sum(1 for step in steps if step["critical"]),
@@ -277,24 +349,24 @@ chain_type = sys.argv[1]
 print(json.dumps({
     "chain_type": chain_type,
     "plan_version": (
-        "2.3" if chain_type == "repo-analysis-worker-manual-multi"
-        else "2.2" if chain_type == "repo-analysis-worker-manual"
-        else "2.0"
+        "2.4" if chain_type in {"repo-analysis-worker-manual-multi", "repo-analysis-worker-manual"}
+        else "2.1"
     ),
-    "step_count": 4 if chain_type == "repo-analysis-worker-manual-multi" else 3,
-    "local_step_count": 2,
+    "step_count": 5 if chain_type == "repo-analysis-worker-manual-multi" else 3,
+    "local_step_count": 3 if chain_type == "repo-analysis-worker-manual-multi" else 2,
     "worker_step_count": 2 if chain_type == "repo-analysis-worker-manual-multi" else 1,
     "critical_step_count": 3 if chain_type == "repo-analysis-worker-manual-multi" else 2,
     "await_worker_result_step_count": 2 if chain_type == "repo-analysis-worker-manual-multi" else 1 if chain_type == "repo-analysis-worker-manual" else 0,
+    "dependency_group_count": 2 if chain_type == "repo-analysis-worker-manual-multi" else 1,
 }))
 PY
 )" ./scripts/task_add_output.sh "$root_task_id" "chain-plan" 0 "$(
   if [ "$chain_type" = "repo-analysis-worker-manual-multi" ]; then
-    printf 'planned 4-step mixed local-worker chain with two awaited manual worker steps and one local resume step'
+    printf 'planned 5-step mixed local-worker chain with explicit dependency barriers across two awaited manual worker steps'
   elif [ "$chain_type" = "repo-analysis-worker-manual" ]; then
-    printf 'planned 3-step mixed local-worker chain with manual worker await and resume'
+    printf 'planned 3-step mixed local-worker chain with one awaited worker barrier and one local resume step'
   else
-    printf 'planned 3-step mixed local-worker chain'
+    printf 'planned 3-step mixed local-worker chain with one explicit join barrier'
   fi
 )"
 

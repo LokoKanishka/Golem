@@ -301,11 +301,14 @@ ROOT_STATUS="$(printf '%s\n' "$root_status_snapshot" | sed -n '1p')"
 ROOT_CHAIN_STATUS="$(printf '%s\n' "$root_status_snapshot" | sed -n '2p')"
 
 extra_json="$(
-  python3 - "$task_id" "$INPUT_KIND" "$CHILD_TASK_ID" "$WORKER_RESULT_STATUS" "$recorded_now" "$ROOT_STATUS" "$ROOT_CHAIN_STATUS" "$settlement_exit" "$READY_CHILD_IDS_JSON" "$PENDING_CHILD_IDS_JSON" <<'PY'
+  python3 - "$TASKS_DIR/${ROOT_TASK_ID}.json" "$task_id" "$INPUT_KIND" "$CHILD_TASK_ID" "$WORKER_RESULT_STATUS" "$recorded_now" "$ROOT_STATUS" "$ROOT_CHAIN_STATUS" "$settlement_exit" "$READY_CHILD_IDS_JSON" "$PENDING_CHILD_IDS_JSON" <<'PY'
 import json
+import pathlib
 import sys
 
-input_task_id, input_kind, child_task_id, worker_result_status, recorded_now, root_status, root_chain_status, settlement_exit, ready_child_ids_json, pending_child_ids_json = sys.argv[1:11]
+task = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+input_task_id, input_kind, child_task_id, worker_result_status, recorded_now, root_status, root_chain_status, settlement_exit, ready_child_ids_json, pending_child_ids_json = sys.argv[2:12]
+chain_summary = task.get("chain_summary") if isinstance(task.get("chain_summary"), dict) else {}
 print(json.dumps({
     "input_task_id": input_task_id,
     "input_kind": input_kind,
@@ -316,6 +319,11 @@ print(json.dumps({
     "root_chain_status": root_chain_status,
     "ready_worker_child_ids": json.loads(ready_child_ids_json),
     "pending_worker_child_ids": json.loads(pending_child_ids_json),
+    "dependency_barrier_states": [
+        f"{barrier.get('group_name', '')}={barrier.get('status', '')}"
+        for barrier in (chain_summary.get("dependency_barriers") or [])
+        if barrier.get("group_name")
+    ],
     "settlement_exit_code": int(settlement_exit),
 }))
 PY

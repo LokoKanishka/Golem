@@ -52,10 +52,14 @@ Each planned step may include:
 - `title`
 - `objective`
 - `depends_on_step_names`
+- `join_group`
+- `await_group`
 - `await_worker_result`
 - `status`
 - `child_task_id`
 - optional runtime fields such as `summary`, `started_at`, `finished_at`
+
+`chain_plan` may also declare `dependency_groups` so multi-worker continuation is expressed as an explicit join/await barrier contract instead of only an implied ordering rule.
 
 ## Execution modes
 
@@ -106,9 +110,15 @@ The multi-await manual plan is:
 1. local self-check
 2. delegated repo analysis architecture with `await_worker_result: true`
 3. delegated repo analysis verification with `await_worker_result: true`
-4. one local comparison artifact that depends on both worker steps
+4. one local architecture summary behind the `architecture-ready` barrier
+5. one local comparison artifact behind the `analysis-workers` barrier
 
 That plan intentionally stops after delegating both workers with the root in `status: delegated` + `chain_status: awaiting_worker_result` while at least one awaited worker result is still missing.
+
+Current explicit barriers for that plan:
+
+- `architecture-ready`: depends only on `delegated-repo-analysis-architecture`
+- `analysis-workers`: depends on both awaited worker steps and is also the visible await group for them
 
 ## Running
 
@@ -161,18 +171,21 @@ That resume flow:
 1. verifies the root is still `delegated` / `awaiting_worker_result`
 2. scans every worker step marked `await_worker_result`
 3. updates each resolved worker step to `done` / `failed` / `blocked` once its child result exists
-4. keeps the root delegated if one or more awaited worker results are still absent and no critical worker has already forced closure
-5. runs only the planned local steps whose dependencies are all `done`
-6. skips planned local steps when any dependency already ended in `failed`, `blocked`, or `skipped`
-7. finalizes the root with the same collector/finalizer used elsewhere
+4. computes each declared dependency barrier as `satisfied`, `waiting`, `blocked`, or `failed`
+5. keeps the root delegated if one or more awaited worker results are still absent and no critical worker has already forced closure
+6. runs only the planned local steps whose barrier is already `satisfied`
+7. skips planned local steps when their barrier is already `failed` or `blocked`
+8. finalizes the root with the same collector/finalizer used elsewhere
 
 Minimal continuation policy for multi-await roots:
 
-- a planned step can run only when all `depends_on_step_names` are `done`
-- if any dependency is still `delegated`, `running`, or `planned`, that step must wait
-- if any dependency is `failed`, `blocked`, or `skipped`, that step is skipped instead of guessed into a partial run
+- a planned step can run only when its explicit barrier is `satisfied`
+- a barrier becomes `waiting` while one or more dependency steps are still `delegated`, `running`, or `planned`
+- a barrier becomes `failed` when one of its dependency steps is `failed` or `skipped`
+- a barrier becomes `blocked` when one of its dependency steps is `blocked`
+- continuation after only a subset of workers is now modeled by a smaller explicit barrier, not by guessing from step position
 - a critical worker outcome of `failed` or `blocked` can close the root immediately even if another awaited worker is still unresolved
-- if one worker is already `done` and another still waits, the root remains `awaiting_worker_result` unless an independent local step is now fully unblocked by dependencies
+- if one worker is already `done` and another still waits, the root remains `awaiting_worker_result` unless an independent local step is now fully unblocked by its own barrier
 
 For lower-friction operations, the recommended wrapper is now:
 
@@ -254,7 +267,8 @@ This keeps the normal `self-check` lightweight while still making the worker rou
 Current policy:
 
 - multi-await settlement/resume now supports more than one `await_worker_result` worker step per root
-- local continuation stays intentionally simple: only steps whose dependencies are all `done` can run after reconciliation
+- local continuation stays intentionally simple: only steps whose explicit barrier is `satisfied` can run after reconciliation
+- dependency groups are visible in `chain_plan`, `chain_summary`, reconcile output, and the final artifact
 - unsupported local step task types in resume still fail explicitly instead of inventing an execution path
 
 For a broader operational sweep across delegated roots, use:
@@ -281,8 +295,9 @@ For a reproducible verify of the new multi-await behavior, use:
 That verify covers:
 
 1. one worker resolved while another still waits
-2. both workers resolved so the root can continue and close
-3. one critical worker blocked while another still waits
+2. a local step behind `architecture-ready` runs while `analysis-workers` still waits
+3. both workers resolved so the full barrier can open and the root can continue and close
+4. one critical worker blocks `analysis-workers` after the narrower barrier already succeeded
 
 ## Status inspection
 
@@ -325,6 +340,7 @@ The root stores:
 - `headline`
 - step counters
 - local vs worker step counts
+- dependency barrier counts and per-barrier status
 - `worker_steps_done`
 - `worker_steps_delegated`
 - `worker_steps_running`

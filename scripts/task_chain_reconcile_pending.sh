@@ -108,6 +108,7 @@ for task_id, task in sorted(all_tasks.items()):
 
     root_status = task.get("status", "")
     chain_status = task.get("chain_status", "")
+    chain_summary = task.get("chain_summary") if isinstance(task.get("chain_summary"), dict) else {}
     ready_children = [
         child for child in await_worker_children
         if child["result_registered"] and child["child_status"] in {"done", "failed", "blocked", "cancelled"}
@@ -134,6 +135,12 @@ for task_id, task in sorted(all_tasks.items()):
             "worker_child_ids": [child["child_task_id"] for child in await_worker_children if child["child_task_id"]],
             "ready_worker_child_ids": [child["child_task_id"] for child in ready_children if child["child_task_id"]],
             "pending_worker_child_ids": [child["child_task_id"] for child in pending_children if child["child_task_id"]],
+            "dependency_barrier_states": [
+                f"{barrier.get('group_name', '')}={barrier.get('status', '')}"
+                for barrier in (chain_summary.get("dependency_barriers") or [])
+                if barrier.get("group_name")
+            ],
+            "waiting_dependency_barrier_names": chain_summary.get("waiting_dependency_barrier_names", []),
             "worker_children": await_worker_children,
             "await_step_names": [step.get("step_name", "") for step in await_steps],
             "reconcile_decision": decision,
@@ -158,7 +165,7 @@ fi
 printf 'mode: %s\n' "$([ "$apply_mode" = "true" ] && printf 'apply' || printf 'inspect')"
 printf 'roots_considered: %s\n' "$count_total"
 printf '\n'
-printf 'root_id | worker_child_ids | ready_worker_child_ids | pending_worker_child_ids | current_status | chain_status | reconcile_decision | final_state_if_applied\n'
+printf 'root_id | worker_child_ids | ready_worker_child_ids | pending_worker_child_ids | dependency_barriers | current_status | chain_status | reconcile_decision | final_state_if_applied\n'
 
 while IFS= read -r row_json; do
   [ -n "$row_json" ] || continue
@@ -198,7 +205,7 @@ PY
     final_state_if_applied="already_reconciled"
   fi
 
-  printf '%s | %s | %s | %s | %s | %s | %s | %s\n' \
+  printf '%s | %s | %s | %s | %s | %s | %s | %s | %s\n' \
     "$ROOT_ID" \
     "$(python3 - "$row_json" <<'PY'
 import json, sys
@@ -216,6 +223,12 @@ PY
 import json, sys
 row = json.loads(sys.argv[1])
 print(",".join(row.get("pending_worker_child_ids", [])) or "(none)")
+PY
+)" \
+    "$(python3 - "$row_json" <<'PY'
+import json, sys
+row = json.loads(sys.argv[1])
+print(",".join(row.get("dependency_barrier_states", [])) or "(none)")
 PY
 )" \
     "$ROOT_STATUS" \

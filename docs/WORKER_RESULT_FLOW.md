@@ -204,8 +204,12 @@ Politica minima actual para varias worker children awaitables:
 
 - la root queda en `awaiting_worker_result` mientras exista al menos una worker child awaited sin resultado terminal
 - `task_chain_resume.sh` actualiza todas las worker children ya resueltas en la misma corrida
-- un paso local solo corre cuando todas sus dependencias quedaron `done`
-- si alguna dependencia termino en `failed`, `blocked` o `skipped`, ese paso local se marca `skipped`
+- `chain_plan.dependency_groups` hace explicito que workers habilitan cada continuation local
+- un barrier queda `satisfied` solo cuando todos sus steps declarados quedaron `done`
+- un barrier queda `waiting` mientras siga faltando algun step del grupo
+- un barrier queda `failed` o `blocked` cuando uno de sus steps terminales rompe ese grupo
+- un paso local solo corre cuando su barrier explicito quedo `satisfied`
+- si el barrier correspondiente termina en `failed` o `blocked`, ese paso local se marca `skipped`
 - si una worker critical termina en `failed` o `blocked`, la root puede cerrar inmediatamente aunque otra worker child siga esperando
 
 ## Sweep recomendado para varias roots delegadas
@@ -222,6 +226,7 @@ Ese modo no modifica nada y muestra por root:
 - `worker_child_ids`
 - `ready_worker_child_ids`
 - `pending_worker_child_ids`
+- `dependency_barriers`
 - `current_status`
 - `chain_status`
 - presencia parcial o total de resultados worker
@@ -246,6 +251,7 @@ Eso hace que los flujos queden asi:
 - varios packets ya importados: `task_chain_reconcile_pending.sh --apply`
 - roundtrip reproducible completo: `verify_worker_packet_roundtrip.sh`
 - roundtrip reproducible multi-await: `verify_multi_worker_await_roundtrip.sh`
+- barrier / join behavior reproducible: `verify_multi_worker_await_roundtrip.sh`
 - capability oficial deep verify: `verify_capability_matrix.sh` -> `worker packet roundtrip`
 
 ## Regla practica nueva

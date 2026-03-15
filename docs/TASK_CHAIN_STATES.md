@@ -91,6 +91,11 @@ The stronger v2 summary may also include:
 - `worker_step_count`
 - `local_steps_count`
 - `delegated_steps_count`
+- `dependency_group_count`
+- `dependency_barriers`
+- `dependency_barriers_waiting`
+- `dependency_barriers_failed`
+- `dependency_barriers_blocked`
 - `worker_steps_done`
 - `worker_steps_blocked`
 - `worker_steps_delegated`
@@ -118,11 +123,12 @@ In v2 this becomes step-aware:
 - critical blocked steps block the chain
 - worker steps marked `await_worker_result` leave the root in `status: delegated` + `chain_status: awaiting_worker_result` while one or more awaited worker results are still pending
 - once delegated children have a formal worker result, `task_chain_resume.sh` updates every resolved worker step and re-enters the chain from the root
+- explicit dependency barriers now describe why a local continuation can run, must wait, or must be skipped
 - a critical worker result of `failed` closes the root as `failed`
 - a critical worker result of `blocked` closes the root as `blocked`
-- a worker result of `done` allows any dependent local step to run only when all of that step's dependencies are also `done`
-- if a dependency is still waiting, the dependent local step stays planned
-- if a dependency ended as `failed`, `blocked`, or `skipped`, the dependent local step becomes `skipped`
+- a barrier becomes `satisfied` only when all of its declared dependency steps are `done`
+- if a barrier is still waiting, the dependent local step stays planned
+- if a barrier reaches `failed` or `blocked`, the dependent local step becomes `skipped`
 - non-critical failed steps produce `completed_with_warnings`
 - non-critical blocked steps also produce `completed_with_warnings`
 - incomplete critical steps also fail the chain at finalization time
@@ -155,6 +161,7 @@ The artifact includes at least:
 - step-by-step execution trace
 - worker evidence when the chain included delegated execution
 - worker outcomes copied into the root summary and final artifact
+- dependency barrier evidence, including why a chain still waits or why a local continuation was skipped
 - conditional outcomes and skipped-step evidence when the chain made a runtime decision
 
 The artifact must pass:
