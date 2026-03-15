@@ -299,6 +299,18 @@ That verify covers:
 3. both workers resolved so the full barrier can open and the root can continue and close
 4. one critical worker blocks `analysis-workers` after the narrower barrier already succeeded
 
+That same verify now also appears in the official capability matrix as:
+
+```text
+multi-worker barrier orchestration
+```
+
+and can be run in focused mode via:
+
+```text
+./scripts/verify_capability_matrix.sh multi-worker-barrier-orchestration
+```
+
 ## Status inspection
 
 Use:

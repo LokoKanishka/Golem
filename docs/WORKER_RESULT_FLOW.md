@@ -253,6 +253,7 @@ Eso hace que los flujos queden asi:
 - roundtrip reproducible multi-await: `verify_multi_worker_await_roundtrip.sh`
 - barrier / join behavior reproducible: `verify_multi_worker_await_roundtrip.sh`
 - capability oficial deep verify: `verify_capability_matrix.sh` -> `worker packet roundtrip`
+- capability oficial deep verify: `verify_capability_matrix.sh` -> `multi-worker barrier orchestration`
 
 ## Regla practica nueva
 

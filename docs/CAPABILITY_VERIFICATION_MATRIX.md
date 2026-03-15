@@ -15,6 +15,8 @@ The official verification layer intentionally separates:
 
 Heavier end-to-end flows such as `worker packet roundtrip` belong to the deep verification matrix instead of the lightweight self-check wrapper.
 
+Multi-worker dependency-barrier orchestration now also belongs to that deep verification lane.
+
 Every verification should prefer:
 
 - exact command executed
@@ -241,7 +243,26 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - writable `outbox/manual/`
   - local shell/python tooling required by the repo scripts
 
-### 14. Orchestration Basic
+### 14. Multi-worker Barrier Orchestration
+
+- name: `multi-worker barrier orchestration`
+- objective: verify the official multi-worker dependency-barrier orchestration, including partial continuation after `architecture-ready`, full continuation only after `analysis-workers`, and blocked closure when the critical full barrier breaks
+- verification lane: `deep verify`
+- command(s):
+  - `./scripts/verify_multi_worker_await_roundtrip.sh`
+  - `./scripts/task_chain_summary.sh <partial_root_task_id>`
+  - `./scripts/task_chain_summary.sh <blocked_root_task_id>`
+- success criterion: the verify exits `0`, prints `VERIFY_MULTI_WORKER_AWAIT_OK`, proves `architecture-ready` becomes satisfied while `analysis-workers` is still waiting, proves the full continuation runs only after `analysis-workers` is satisfied, and proves the blocked path leaves the final continuation as `skipped`
+- failure criterion: the verify exits non-zero or any barrier, continuation, settlement, or finalization assertion fails inside the canonical multi-worker flow
+- blocked criterion: use `BLOCKED` only when the verify cannot run because a real external repo-local prerequisite is unavailable, such as an unwritable repo task/handoff/outbox path
+- path coverage: partial-success-path, full-success-path, and blocked-path
+- environment dependencies:
+  - writable `tasks/`
+  - writable `handoffs/`
+  - writable `outbox/manual/`
+  - local shell/python tooling required by the repo scripts
+
+### 15. Orchestration Basic
 
 - name: `orchestration básica`
 - objective: verify the original root-plus-children chain still closes coherently
@@ -257,7 +278,7 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - local self-check
   - local comparison scripts
 
-### 15. Orchestration V2 Mixed Local+Worker
+### 16. Orchestration V2 Mixed Local+Worker
 
 - name: `orchestration v2 mixta local+worker`
 - objective: verify the mixed root chain with one real worker step and aggregated summary/artifact
@@ -273,7 +294,7 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - controlled worker run available
   - local comparison scripts
 
-### 16. Orchestration V3 Conditional
+### 17. Orchestration V3 Conditional
 
 - name: `orchestration v3 condicional`
 - objective: verify that the root can decide what to do after a real worker outcome and persist that decision honestly
@@ -312,11 +333,18 @@ For a focused official run of just the new deep verify capability, use:
 ./scripts/verify_capability_matrix.sh worker-packet-roundtrip
 ```
 
+For the official barrier-aware multi-worker capability alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh multi-worker-barrier-orchestration
+```
+
 It should:
 
 - run the minimum real checks for the matrix
 - keep `./scripts/task_run_self_check.sh` as the fast lane and reserve deep end-to-end checks for matrix capabilities
 - include `worker packet roundtrip` as the official deep verify for the canonical manual-controlled worker roundtrip
+- include `multi-worker barrier orchestration` as the official deep verify for barrier-aware multi-worker continuation
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`
 - print a readable summary table at the end

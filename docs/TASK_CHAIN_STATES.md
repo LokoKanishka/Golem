@@ -141,6 +141,7 @@ That means:
 - the root task records the failure in `chain_status`
 - the aggregated summary shows failed vs blocked child counts separately
 - the aggregated summary also shows which awaited worker children are still pending and which already resolved
+- the aggregated summary also shows which dependency barriers are satisfied, waiting, failed, or blocked
 - the final artifact still gets generated for traceability
 
 ## Final chain artifact
