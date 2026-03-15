@@ -97,9 +97,15 @@ def load_source(repo_root: pathlib.Path, raw_ref: str):
         raise ValueError("el documento raiz debe ser un objeto JSON")
 
     root_task_id = as_string(data.get("task_id")) or path.stem
+    plan_source = "document"
     if isinstance(data.get("chain_plan"), dict):
         root = data
-        plan = data["chain_plan"]
+        if isinstance(data.get("effective_chain_plan"), dict):
+            plan = data["effective_chain_plan"]
+            plan_source = "effective_chain_plan"
+        else:
+            plan = data["chain_plan"]
+            plan_source = "chain_plan"
         source_kind = "task"
         source_id = root_task_id
     else:
@@ -107,8 +113,7 @@ def load_source(repo_root: pathlib.Path, raw_ref: str):
         plan = data
         source_kind = "plan"
         source_id = root_task_id
-
-    return path, source_kind, source_id, root, plan
+    return path, source_kind, source_id, root, plan, plan_source
 
 
 def unique(values):
@@ -128,7 +133,7 @@ raw_ref = sys.argv[2]
 write_artifact = sys.argv[3] == "true"
 validation_output = sys.argv[4]
 
-source_path, source_kind, source_id, root, plan = load_source(repo_root, raw_ref)
+source_path, source_kind, source_id, root, plan, plan_source = load_source(repo_root, raw_ref)
 
 plan_kind = as_string(plan.get("plan_kind")) or "chain_plan"
 plan_version = as_string(plan.get("plan_version") or plan.get("version"))
@@ -294,6 +299,7 @@ lines = []
 lines.append(f"CHAIN_PLAN_PREFLIGHT_OK {source_path}")
 lines.append(f"source_kind: {source_kind}")
 lines.append(f"source_id: {source_id}")
+lines.append(f"plan_source: {plan_source}")
 lines.append(f"plan_kind: {plan_kind}")
 lines.append(f"plan_version: {plan_version}")
 lines.append(f"title: {title}")
@@ -365,6 +371,7 @@ if write_artifact:
         "task_type: chain-plan-preflight",
         f"source_kind: {source_kind}",
         f"source_id: {source_id}",
+        f"plan_source: {plan_source}",
         f"plan_kind: {plan_kind}",
         f"plan_version: {plan_version}",
         f"preflight_artifact_path: {artifact_rel}",

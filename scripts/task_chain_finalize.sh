@@ -119,6 +119,15 @@ if summary.get("skipped_steps"):
 if summary.get("decision_reason"):
     print(f"- decision_reason: {summary.get('decision_reason')}")
 print()
+print("## Plan Traceability")
+print(f"- validated_plan_version: {summary.get('validated_plan_version') or '(none)'}")
+print(f"- validated_at: {summary.get('validated_at') or '(none)'}")
+print(f"- effective_plan_path: {summary.get('effective_plan_path') or '(none)'}")
+print(f"- effective_plan_sha256: {summary.get('effective_plan_sha256') or '(none)'}")
+print(f"- preflight_artifact_path: {summary.get('preflight_artifact_path') or '(none)'}")
+print(f"- preflight_sha256: {summary.get('preflight_sha256') or '(none)'}")
+print(f"- preflighted_at: {summary.get('preflighted_at') or '(none)'}")
+print()
 print("## Chain Plan")
 if not summary["step_results"]:
     print("- (none)")

@@ -95,7 +95,13 @@ Use:
 
 This creates a root `task-chain` task in `planned` chain state and writes a v2 `chain_plan`.
 
-The built-in planner now validates that plan before returning it:
+The built-in planner now validates that plan, freezes its effective snapshot, and persists the matching preflight before returning it:
+
+```text
+./scripts/task_chain_persist_effective_plan.sh <root_task_id|task_json_path>
+```
+
+Standalone structural validation remains:
 
 ```text
 ./scripts/validate_chain_plan.sh <task_id|task_json_path|plan_json_path>
@@ -106,6 +112,21 @@ For an explanatory dry-run of the same plan before executing it, use:
 ```text
 ./scripts/task_chain_preflight.sh <task_id|task_json_path|plan_json_path> [--artifact]
 ```
+
+New roots created through the supported planners now persist plan traceability fields such as:
+
+- `effective_plan_path`
+- `effective_plan_sha256`
+- `preflight_artifact_path`
+- `preflight_sha256`
+- `validated_plan_version`
+- `validated_at`
+- `preflighted_at`
+
+That split is intentional:
+
+- `chain_plan` keeps runtime step state
+- `effective_chain_plan` freezes the exact validated/preflighted plan used for the root
 
 The controlled default plan is:
 

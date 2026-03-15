@@ -177,8 +177,16 @@ for path in sorted(tasks_dir.glob("*.json")):
         children.append(task)
 
 children_by_id = {task.get("task_id", ""): task for task in children}
-plan = root_task.get("chain_plan") if isinstance(root_task.get("chain_plan"), dict) else {}
+runtime_plan = root_task.get("chain_plan") if isinstance(root_task.get("chain_plan"), dict) else {}
+effective_plan = root_task.get("effective_chain_plan") if isinstance(root_task.get("effective_chain_plan"), dict) else {}
+plan = effective_plan or runtime_plan
 plan_steps = plan.get("steps") if isinstance(plan.get("steps"), list) else []
+runtime_plan_steps = runtime_plan.get("steps") if isinstance(runtime_plan.get("steps"), list) else []
+runtime_steps_by_name = {
+    str(step.get("step_name") or "").strip(): step
+    for step in runtime_plan_steps
+    if isinstance(step, dict) and str(step.get("step_name") or "").strip()
+}
 chain_decision = root_task.get("chain_decision") if isinstance(root_task.get("chain_decision"), dict) else {}
 
 ordered_children = sorted(
@@ -194,7 +202,8 @@ step_results = []
 if plan_steps:
     for index, step in enumerate(plan_steps, start=1):
         step_name = step.get("step_name") or f"step-{index}"
-        child_task_id = step.get("child_task_id", "")
+        runtime_step = runtime_steps_by_name.get(step_name, step)
+        child_task_id = runtime_step.get("child_task_id", "") or step.get("child_task_id", "")
         child = children_by_id.get(child_task_id)
         if child is None:
             for candidate in ordered_children:
@@ -204,7 +213,7 @@ if plan_steps:
                     break
 
         child_status = child.get("status", "") if child else ""
-        status = normalize_step_status(step.get("status", ""), child_status, child is not None)
+        status = normalize_step_status(runtime_step.get("status", ""), child_status, child is not None)
         warning = has_warning(child)
         worker_run = (child or {}).get("worker_run") or {}
         worker_result = latest_worker_result_output(child or {})
@@ -219,7 +228,7 @@ if plan_steps:
             or worker_result.get("extracted_summary")
             or worker_run.get("extracted_summary", "")
         )
-        step_summary = compact_text(step.get("summary") or "") or task_summary_line(child)
+        step_summary = compact_text(runtime_step.get("summary") or "") or task_summary_line(child)
 
         step_results.append(
             {
@@ -241,8 +250,8 @@ if plan_steps:
                 "child_status": child_status,
                 "warning": warning,
                 "summary": step_summary,
-                "decision_source_step": step.get("decision_source_step", ""),
-                "decision_reason": step.get("decision_reason", ""),
+                "decision_source_step": runtime_step.get("decision_source_step", "") or step.get("decision_source_step", ""),
+                "decision_reason": runtime_step.get("decision_reason", "") or step.get("decision_reason", ""),
                 "artifact_paths": artifact_paths,
                 "worker_state": worker_run.get("state", ""),
                 "worker_result_status": worker_result.get("status") or worker_run.get("result_status", ""),
@@ -307,6 +316,13 @@ step_results.sort(key=lambda step: (step.get("step_order", 10**9), step.get("ste
 step_results_by_name = {step.get("step_name", ""): step for step in step_results}
 
 dependency_groups = plan.get("dependency_groups") if isinstance(plan.get("dependency_groups"), list) else []
+effective_plan_path = str(root_task.get("effective_plan_path") or "").strip()
+effective_plan_sha256 = str(root_task.get("effective_plan_sha256") or "").strip()
+preflight_artifact_path = str(root_task.get("preflight_artifact_path") or "").strip()
+preflight_sha256 = str(root_task.get("preflight_sha256") or "").strip()
+validated_plan_version = str(root_task.get("validated_plan_version") or plan.get("plan_version") or plan.get("version") or "").strip()
+validated_at = str(root_task.get("validated_at") or "").strip()
+preflighted_at = str(root_task.get("preflighted_at") or "").strip()
 dependency_barriers = []
 dependency_barrier_map = {}
 for group in dependency_groups:
@@ -666,6 +682,13 @@ summary = {
     "warning_child_ids": warning_child_ids,
     "aggregated_artifact_paths": aggregated_artifact_paths,
     "artifact_paths": aggregated_artifact_paths,
+    "effective_plan_path": effective_plan_path,
+    "effective_plan_sha256": effective_plan_sha256,
+    "preflight_artifact_path": preflight_artifact_path,
+    "preflight_sha256": preflight_sha256,
+    "validated_plan_version": validated_plan_version,
+    "validated_at": validated_at,
+    "preflighted_at": preflighted_at,
     "step_results": step_results,
     "step_count": step_count,
     "steps_completed": steps_completed,

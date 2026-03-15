@@ -168,3 +168,32 @@ Separacion intencional:
 
 - `validate_chain_plan.sh`: el plan esta bien formado
 - `task_chain_preflight.sh`: asi se entiende y se ejecutaria el plan
+
+## Effective plan trazable
+
+Cuando una root task-chain nueva se planifica desde los runners soportados, el repo ahora congela tambien:
+
+- un `effective_chain_plan` embebido en la root
+- un artifact JSON durable con ese mismo snapshot
+- un artifact Markdown de preflight generado contra ese snapshot congelado
+
+Persistencia reproducible:
+
+```text
+./scripts/task_chain_persist_effective_plan.sh <root_task_id|task_json_path>
+```
+
+Metadatos minimos esperables en la root nueva:
+
+- `effective_plan_path`
+- `effective_plan_sha256`
+- `preflight_artifact_path`
+- `preflight_sha256`
+- `validated_plan_version`
+- `validated_at`
+- `preflighted_at`
+
+Separacion intencional:
+
+- `chain_plan`: estado vivo y mutable de la ejecucion
+- `effective_chain_plan`: snapshot canonico de lo que realmente se valido y preflighteo

@@ -426,7 +426,7 @@ sys.stdout.write("\n")
 PY
   mv "$tmp_path" "$root_task_path"
 
-  ./scripts/validate_chain_plan.sh "$root_task_path"
+  ./scripts/task_chain_persist_effective_plan.sh "$root_task_path"
 
   TASK_OUTPUT_EXTRA_JSON="$(
     python3 - "$chain_type" <<'PY'
@@ -441,6 +441,7 @@ print(json.dumps({
     "worker_step_count": 1,
     "critical_step_count": 3,
     "conditional_step_count": 1,
+    "plan_traceability_persisted": True,
 }))
 PY
   )" ./scripts/task_add_output.sh "$root_task_id" "chain-plan" 0 "planned 4-step conditional mixed local-worker chain" >/dev/null

@@ -342,7 +342,7 @@ PY
 mv "$tmp_path" "$root_task_path"
 trap - EXIT
 
-./scripts/validate_chain_plan.sh "$root_task_path"
+./scripts/task_chain_persist_effective_plan.sh "$root_task_path"
 
 TASK_OUTPUT_EXTRA_JSON="$(
   python3 - "$chain_type" <<'PY'
@@ -362,6 +362,7 @@ print(json.dumps({
     "critical_step_count": 3 if chain_type == "repo-analysis-worker-manual-multi" else 2,
     "await_worker_result_step_count": 2 if chain_type == "repo-analysis-worker-manual-multi" else 1 if chain_type == "repo-analysis-worker-manual" else 0,
     "dependency_group_count": 2 if chain_type == "repo-analysis-worker-manual-multi" else 1,
+    "plan_traceability_persisted": True,
 }))
 PY
 )" ./scripts/task_add_output.sh "$root_task_id" "chain-plan" 0 "$(

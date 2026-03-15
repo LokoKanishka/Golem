@@ -82,6 +82,18 @@ if skipped_steps:
     print(f"skipped_step_names: {', '.join(skipped_steps)}")
 if chain_summary.get("decision_reason"):
     print(f"decision_reason: {chain_summary.get('decision_reason')}")
+if chain_summary.get("validated_plan_version"):
+    print(f"validated_plan_version: {chain_summary.get('validated_plan_version')}")
+elif task.get("validated_plan_version"):
+    print(f"validated_plan_version: {task.get('validated_plan_version')}")
+if chain_summary.get("effective_plan_path"):
+    print(f"effective_plan_path: {chain_summary.get('effective_plan_path')}")
+elif task.get("effective_plan_path"):
+    print(f"effective_plan_path: {task.get('effective_plan_path')}")
+if chain_summary.get("preflight_artifact_path"):
+    print(f"preflight_artifact_path: {chain_summary.get('preflight_artifact_path')}")
+elif task.get("preflight_artifact_path"):
+    print(f"preflight_artifact_path: {task.get('preflight_artifact_path')}")
 if chain_summary.get("final_artifact_path"):
     print(f"final_artifact_path: {chain_summary.get('final_artifact_path')}")
 if chain_summary.get("headline"):

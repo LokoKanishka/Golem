@@ -69,6 +69,12 @@ if chain_type:
     print(f"chain_type: {chain_type}")
 if chain_status:
     print(f"chain_status: {chain_status}")
+if task.get("validated_plan_version"):
+    print(f"validated_plan_version: {task.get('validated_plan_version')}")
+if task.get("effective_plan_path"):
+    print(f"effective_plan_path: {task.get('effective_plan_path')}")
+if task.get("preflight_artifact_path"):
+    print(f"preflight_artifact_path: {task.get('preflight_artifact_path')}")
 if chain_summary:
     print(f"child_count: {chain_summary.get('child_count', 0)}")
     if "step_count" in chain_summary:
