@@ -1,0 +1,15 @@
+{
+  "task_id": "task-20260315T000000Z-example01",
+  "canonical_session": "panel://gateway/main",
+  "status": "running",
+  "event": "task_started",
+  "event_at": "2026-03-15T00:05:00Z",
+  "summary": "La tarea fue aceptada y paso a ejecucion local controlada.",
+  "notify_policy": "panel_then_whatsapp",
+  "truth_policy": {
+    "primary_surface": "panel",
+    "secondary_surface": "whatsapp",
+    "worker_role": "future_optional",
+    "notes": "Codex todavia no esta integrado de forma viva; cualquier worker futuro debe reportar de vuelta a la sesion canonica."
+  }
+}

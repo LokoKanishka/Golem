@@ -1,0 +1,13 @@
+{
+  "task_id": "task-20260315T000000Z-example01",
+  "origin": "console",
+  "canonical_session": "panel://gateway/main",
+  "requested_by": "diego",
+  "objective": "Documentar el modelo operativo inicial de Golem sin tocar el sistema vivo.",
+  "repo_path": "/home/lucy-ubuntu/Escritorio/golem",
+  "working_dir": "/home/lucy-ubuntu/Escritorio/golem",
+  "output_mode": "markdown_artifact",
+  "outbox_dir": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual",
+  "notify_policy": "panel_then_whatsapp",
+  "status": "queued"
+}
