@@ -50,24 +50,28 @@ Important:
 - name: `navigation`
 - objective: verify that navigation can read browser state through the task wrapper
 - command(s):
+  - `./scripts/browser_ready_check.sh navigation tabs`
   - `./scripts/task_run_nav.sh tabs "Capability verification / navigation tabs"`
   - `./scripts/task_summary.sh <task_id>`
-- success criterion: wrapper exits `0` and the task closes as `done`
-- failure criterion: wrapper exits non-zero without an environment-based explanation
+- success criterion: readiness reports `READY` or `DEGRADED`, wrapper exits `0`, and the task closes as `done`
+- failure criterion: readiness reports `READY` or `DEGRADED` but the wrapper still exits non-zero for an internal reason
 - path coverage: success-path or BLOCKED path
 - environment dependencies:
   - browser relay available
   - at least one usable attached tab
+
+When readiness reports `BLOCKED`, that is an honest environment block, not a `PASS` and not a generic internal `FAIL`.
 
 ### 3. Reading
 
 - name: `reading`
 - objective: verify that reading can capture browser text through the task wrapper
 - command(s):
+  - `./scripts/browser_ready_check.sh reading snapshot`
   - `./scripts/task_run_read.sh snapshot "Capability verification / reading snapshot"`
   - `./scripts/task_summary.sh <task_id>`
-- success criterion: wrapper exits `0` and the task closes as `done`
-- failure criterion: wrapper exits non-zero without a clear environment block
+- success criterion: readiness reports `READY` or `DEGRADED`, wrapper exits `0`, and the task closes as `done`
+- failure criterion: readiness reports `READY` or `DEGRADED` but the wrapper exits non-zero for an internal reason
 - path coverage: success-path or BLOCKED path
 - environment dependencies:
   - browser relay available
@@ -78,17 +82,18 @@ Important:
 - name: `artifacts`
 - objective: verify that browser-derived markdown artifacts can be produced and validated
 - command(s):
+  - `./scripts/browser_ready_check.sh artifacts snapshot`
   - `./scripts/task_run_artifact.sh snapshot "Capability verification / artifact snapshot" capability-matrix-artifact-snapshot`
   - `./scripts/validate_markdown_artifact.sh <artifact>`
   - `./scripts/task_summary.sh <task_id>`
-- success criterion: wrapper exits `0`, task closes as `done`, and the markdown artifact validates
-- failure criterion: no artifact is produced or validation fails without an environment block explanation
+- success criterion: readiness reports `READY` or `DEGRADED`, wrapper exits `0`, task closes as `done`, and the markdown artifact validates
+- failure criterion: readiness reports `READY` or `DEGRADED` but no artifact is produced or validation fails for an internal reason
 - path coverage: success-path or BLOCKED path
 - environment dependencies:
   - browser relay available
   - at least one usable attached tab
 
-Current browser-specific diagnosis should be refined with `./scripts/verify_browser_stack.sh` and `docs/BROWSER_BLOCKERS_ANALYSIS.md`.
+Current browser-specific diagnosis should be refined with `./scripts/browser_ready_check.sh`, `./scripts/verify_browser_stack.sh`, and `docs/BROWSER_BLOCKERS_ANALYSIS.md`.
 
 ### 5. Comparison
 

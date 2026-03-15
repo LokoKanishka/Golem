@@ -17,6 +17,13 @@ slug=""
 query=""
 cleanup_files=()
 attempt_records=()
+browser_readiness_json=""
+browser_readiness_state=""
+browser_readiness_profile=""
+browser_readiness_reason=""
+browser_attempted_recovery="false"
+browser_final_decision=""
+browser_readiness_summary=""
 
 usage() {
   cat <<USAGE
@@ -75,13 +82,13 @@ on_exit() {
 
   if [ "$exit_code" -ne 0 ] && [ "$finalized" != "1" ] && [ -n "$task_path" ] && [ -f "$task_path" ]; then
     TASK_OUTPUT_EXTRA_JSON="$(
-      python3 - "${attempt_records[@]}" "$mode" "$slug" "$query" "$artifact_profile" <<'PY'
+      python3 - "${attempt_records[@]}" "$mode" "$slug" "$query" "$artifact_profile" "$browser_readiness_json" <<'PY'
 import json
 import pathlib
 import sys
 
-attempt_paths = sys.argv[1:-4]
-mode, slug, query, profile = sys.argv[-4:]
+attempt_paths = sys.argv[1:-5]
+mode, slug, query, profile, readiness_json = sys.argv[-5:]
 attempts = [json.loads(pathlib.Path(path).read_text(encoding="utf-8")) for path in attempt_paths]
 extra = {
     "command": f"./scripts/browser_artifact.sh {mode} {slug}" + (f" {query}" if query else ""),
@@ -89,6 +96,7 @@ extra = {
     "slug": slug,
     "profile": profile,
     "attempts": attempts,
+    "browser_readiness": json.loads(readiness_json) if readiness_json else {},
 }
 if query:
     extra["query"] = query
@@ -106,6 +114,39 @@ PY
 }
 
 trap on_exit EXIT
+
+run_browser_readiness() {
+  local fields readiness_exit
+  set +e
+  browser_readiness_json="$(./scripts/browser_ready_check.sh artifacts "$mode" --json)"
+  readiness_exit="$?"
+  set -e
+  fields="$(python3 - "$browser_readiness_json" <<'PY'
+import json
+import sys
+
+payload = json.loads(sys.argv[1])
+print(payload.get("readiness_state", ""))
+print(payload.get("chosen_profile", ""))
+print(payload.get("reason", ""))
+print("true" if payload.get("attempted_recovery") else "false")
+print(payload.get("final_decision", ""))
+print(payload.get("human_summary", ""))
+PY
+)"
+  mapfile -t readiness_parts <<<"$fields"
+  browser_readiness_state="${readiness_parts[0]:-}"
+  browser_readiness_profile="${readiness_parts[1]:-}"
+  browser_readiness_reason="${readiness_parts[2]:-}"
+  browser_attempted_recovery="${readiness_parts[3]:-false}"
+  browser_final_decision="${readiness_parts[4]:-}"
+  browser_readiness_summary="${readiness_parts[5]:-}"
+
+  if [ "$readiness_exit" -ne 0 ] && [ "$browser_final_decision" != "block" ]; then
+    printf 'ERROR: browser_ready_check devolvio exit=%s sin decision block valida\n' "$readiness_exit" >&2
+    return 1
+  fi
+}
 
 extract_task_id() {
   local created_output="$1"
@@ -220,18 +261,20 @@ printf '%s\n' "$created_output"
 task_id="$(extract_task_id "$created_output")"
 task_path="$TASKS_DIR/${task_id}.json"
 
-running_output="$(./scripts/task_update.sh "$task_id" running)"
-printf '%s\n' "$running_output"
+run_browser_readiness
 
-if run_artifact_attempts; then
+if [ "$browser_final_decision" = "block" ]; then
+  run_output="BROWSER_BLOCKED ${browser_readiness_summary}"
+  artifact_exit="2"
+  artifact_profile="$browser_readiness_profile"
   TASK_OUTPUT_EXTRA_JSON="$(
-    python3 - "${attempt_records[@]}" "$mode" "$slug" "$query" "$artifact_profile" <<'PY'
+    python3 - "${attempt_records[@]}" "$mode" "$slug" "$query" "$artifact_profile" "$browser_readiness_json" <<'PY'
 import json
 import pathlib
 import sys
 
-attempt_paths = sys.argv[1:-4]
-mode, slug, query, profile = sys.argv[-4:]
+attempt_paths = sys.argv[1:-5]
+mode, slug, query, profile, readiness_json = sys.argv[-5:]
 attempts = [json.loads(pathlib.Path(path).read_text(encoding="utf-8")) for path in attempt_paths]
 extra = {
     "command": f"./scripts/browser_artifact.sh {mode} {slug}" + (f" {query}" if query else ""),
@@ -239,6 +282,43 @@ extra = {
     "slug": slug,
     "profile": profile,
     "attempts": attempts,
+    "browser_readiness": json.loads(readiness_json) if readiness_json else {},
+}
+if query:
+    extra["query"] = query
+print(json.dumps(extra))
+PY
+  )" ./scripts/task_add_output.sh "$task_id" "artifact-$mode" "$artifact_exit" "$run_output"
+  ./scripts/task_close.sh "$task_id" failed "browser blocked before artifact execution"
+  finalized="1"
+  printf 'TASK_RUN_BLOCKED %s\n' "$task_id"
+  exit 2
+fi
+
+running_output="$(./scripts/task_update.sh "$task_id" running)"
+printf '%s\n' "$running_output"
+
+if [ -n "$browser_readiness_profile" ]; then
+  export GOLEM_BROWSER_PROFILE="$browser_readiness_profile"
+fi
+
+if run_artifact_attempts; then
+  TASK_OUTPUT_EXTRA_JSON="$(
+    python3 - "${attempt_records[@]}" "$mode" "$slug" "$query" "$artifact_profile" "$browser_readiness_json" <<'PY'
+import json
+import pathlib
+import sys
+
+attempt_paths = sys.argv[1:-5]
+mode, slug, query, profile, readiness_json = sys.argv[-5:]
+attempts = [json.loads(pathlib.Path(path).read_text(encoding="utf-8")) for path in attempt_paths]
+extra = {
+    "command": f"./scripts/browser_artifact.sh {mode} {slug}" + (f" {query}" if query else ""),
+    "mode": mode,
+    "slug": slug,
+    "profile": profile,
+    "attempts": attempts,
+    "browser_readiness": json.loads(readiness_json) if readiness_json else {},
 }
 if query:
     extra["query"] = query
@@ -253,13 +333,13 @@ PY
 fi
 
 TASK_OUTPUT_EXTRA_JSON="$(
-  python3 - "${attempt_records[@]}" "$mode" "$slug" "$query" "$artifact_profile" <<'PY'
+  python3 - "${attempt_records[@]}" "$mode" "$slug" "$query" "$artifact_profile" "$browser_readiness_json" <<'PY'
 import json
 import pathlib
 import sys
 
-attempt_paths = sys.argv[1:-4]
-mode, slug, query, profile = sys.argv[-4:]
+attempt_paths = sys.argv[1:-5]
+mode, slug, query, profile, readiness_json = sys.argv[-5:]
 attempts = [json.loads(pathlib.Path(path).read_text(encoding="utf-8")) for path in attempt_paths]
 extra = {
     "command": f"./scripts/browser_artifact.sh {mode} {slug}" + (f" {query}" if query else ""),
@@ -267,13 +347,14 @@ extra = {
     "slug": slug,
     "profile": profile,
     "attempts": attempts,
+    "browser_readiness": json.loads(readiness_json) if readiness_json else {},
 }
 if query:
     extra["query"] = query
 print(json.dumps(extra))
 PY
 )" ./scripts/task_add_output.sh "$task_id" "artifact-$mode" "$artifact_exit" "$run_output"
-./scripts/task_close.sh "$task_id" failed "artifact generation failed"
+./scripts/task_close.sh "$task_id" failed "artifact generation failed after browser readiness passed"
 finalized="1"
 printf 'TASK_RUN_FAIL %s\n' "$task_id"
 exit 1

@@ -24,6 +24,39 @@ As observed on March 15, 2026:
 - the managed `openclaw` profile exists but is `stopped`
 - attempts to use the managed `openclaw` profile do not currently provide a usable success-path in this environment
 
+## Readiness layer now in repo
+
+The repo now includes an explicit readiness gate:
+
+- `./scripts/browser_ready_check.sh <capability> <mode>`
+
+That probe checks:
+
+- gateway reachability
+- browser profiles
+- whether `chrome` has a usable tab
+- whether `openclaw` is already usable as a fallback
+- whether a minimal, non-destructive recovery attempt can make `openclaw` usable
+
+It classifies the current state as:
+
+- `READY`
+- `DEGRADED`
+- `BLOCKED`
+
+The browser task runners now consume that decision before calling the browser action itself:
+
+- `./scripts/task_run_nav.sh`
+- `./scripts/task_run_read.sh`
+- `./scripts/task_run_artifact.sh`
+
+If readiness is `BLOCKED`, the runner no longer fires blindly. Instead it:
+
+- records `exit_code: 2`
+- records `BROWSER_BLOCKED ...` as the task output content
+- persists the nested `browser_readiness` evidence block
+- closes the task with an explicit note such as `browser blocked before navigation execution`
+
 ## What is blocked by environment
 
 The main environment blocker is clear:
@@ -68,6 +101,8 @@ Based on the current evidence:
 
 The blocker is primarily environmental (`chrome` without an attached tab), with an additional managed-profile fragility that prevents using `openclaw` as a clean fallback today.
 
+The repo-side improvement is that this now becomes a traceable `BLOCKED` decision instead of a generic task failure.
+
 ## Implication for future matrix runs
 
 The capability matrix should not treat these browser capabilities as `PASS` until:
@@ -75,4 +110,7 @@ The capability matrix should not treat these browser capabilities as `PASS` unti
 1. a tab is really attached to the `chrome` relay profile, or
 2. the managed `openclaw` profile can be started and used successfully
 
-The right operational probe for this is `./scripts/verify_browser_stack.sh`.
+The right operational probes for this stage are:
+
+- `./scripts/browser_ready_check.sh <capability> <mode>`
+- `./scripts/verify_browser_stack.sh`

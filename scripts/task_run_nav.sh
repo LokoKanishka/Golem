@@ -15,6 +15,13 @@ mode=""
 url=""
 cleanup_files=()
 attempt_records=()
+browser_readiness_json=""
+browser_readiness_state=""
+browser_readiness_profile=""
+browser_readiness_reason=""
+browser_attempted_recovery="false"
+browser_final_decision=""
+browser_readiness_summary=""
 
 usage() {
   cat <<USAGE
@@ -82,13 +89,13 @@ extract_task_id() {
 }
 
 build_output_extra_json() {
-  python3 - "${attempt_records[@]}" "$mode" "$url" "$nav_profile" <<'PY'
+  python3 - "${attempt_records[@]}" "$mode" "$url" "$nav_profile" "$browser_readiness_json" <<'PY'
 import json
 import pathlib
 import sys
 
-attempt_paths = sys.argv[1:-3]
-mode, url, profile = sys.argv[-3:]
+attempt_paths = sys.argv[1:-4]
+mode, url, profile, readiness_json = sys.argv[-4:]
 attempts = [json.loads(pathlib.Path(path).read_text(encoding="utf-8")) for path in attempt_paths]
 
 extra = {
@@ -96,6 +103,7 @@ extra = {
     "mode": mode,
     "profile": profile,
     "attempts": attempts,
+    "browser_readiness": json.loads(readiness_json) if readiness_json else {},
 }
 if url:
     extra["url"] = url
@@ -118,6 +126,39 @@ on_exit() {
 }
 
 trap on_exit EXIT
+
+run_browser_readiness() {
+  local fields readiness_exit
+  set +e
+  browser_readiness_json="$(./scripts/browser_ready_check.sh navigation "$mode" --json)"
+  readiness_exit="$?"
+  set -e
+  fields="$(python3 - "$browser_readiness_json" <<'PY'
+import json
+import sys
+
+payload = json.loads(sys.argv[1])
+print(payload.get("readiness_state", ""))
+print(payload.get("chosen_profile", ""))
+print(payload.get("reason", ""))
+print("true" if payload.get("attempted_recovery") else "false")
+print(payload.get("final_decision", ""))
+print(payload.get("human_summary", ""))
+PY
+)"
+  mapfile -t readiness_parts <<<"$fields"
+  browser_readiness_state="${readiness_parts[0]:-}"
+  browser_readiness_profile="${readiness_parts[1]:-}"
+  browser_readiness_reason="${readiness_parts[2]:-}"
+  browser_attempted_recovery="${readiness_parts[3]:-false}"
+  browser_final_decision="${readiness_parts[4]:-}"
+  browser_readiness_summary="${readiness_parts[5]:-}"
+
+  if [ "$readiness_exit" -ne 0 ] && [ "$browser_final_decision" != "block" ]; then
+    printf 'ERROR: browser_ready_check devolvio exit=%s sin decision block valida\n' "$readiness_exit" >&2
+    return 1
+  fi
+}
 
 run_nav_for_profile() {
   local profile="$1"
@@ -251,8 +292,25 @@ printf '%s\n' "$created_output"
 task_id="$(extract_task_id "$created_output")"
 task_path="$TASKS_DIR/${task_id}.json"
 
+run_browser_readiness
+
+if [ "$browser_final_decision" = "block" ]; then
+  run_output="BROWSER_BLOCKED ${browser_readiness_summary}"
+  nav_exit="2"
+  nav_profile="$browser_readiness_profile"
+  TASK_OUTPUT_EXTRA_JSON="$(build_output_extra_json)" ./scripts/task_add_output.sh "$task_id" "nav-$mode" "$nav_exit" "$run_output"
+  ./scripts/task_close.sh "$task_id" failed "browser blocked before navigation execution"
+  finalized="1"
+  printf 'TASK_RUN_BLOCKED %s\n' "$task_id"
+  exit 2
+fi
+
 running_output="$(./scripts/task_update.sh "$task_id" running)"
 printf '%s\n' "$running_output"
+
+if [ -n "$browser_readiness_profile" ]; then
+  export GOLEM_BROWSER_PROFILE="$browser_readiness_profile"
+fi
 
 if run_nav_attempts; then
   TASK_OUTPUT_EXTRA_JSON="$(build_output_extra_json)" ./scripts/task_add_output.sh "$task_id" "nav-$mode" "$nav_exit" "$run_output"
@@ -263,7 +321,7 @@ if run_nav_attempts; then
 fi
 
 TASK_OUTPUT_EXTRA_JSON="$(build_output_extra_json)" ./scripts/task_add_output.sh "$task_id" "nav-$mode" "$nav_exit" "$run_output"
-./scripts/task_close.sh "$task_id" failed "navigation failed"
+./scripts/task_close.sh "$task_id" failed "navigation failed after browser readiness passed"
 finalized="1"
 printf 'TASK_RUN_FAIL %s\n' "$task_id"
 exit 1
