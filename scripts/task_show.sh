@@ -28,4 +28,15 @@ if [ ! -f "$task_path" ]; then
   fatal "no existe la tarea: $task_id"
 fi
 
-cat "$task_path"
+python3 - "$task_path" <<'PY'
+import json
+import pathlib
+import sys
+
+task_path = pathlib.Path(sys.argv[1])
+with task_path.open(encoding="utf-8") as fh:
+    task = json.load(fh)
+
+json.dump(task, sys.stdout, indent=2, ensure_ascii=True)
+sys.stdout.write("\n")
+PY

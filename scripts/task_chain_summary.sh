@@ -42,6 +42,7 @@ last_note = notes[-1] if notes else "(none)"
 chain_type = task.get("chain_type", "(none)")
 chain_status = task.get("chain_status", "(none)")
 chain_summary = task.get("chain_summary") or {}
+chain_plan = task.get("chain_plan") or {}
 
 print(f"task_id: {task.get('task_id', task_path.stem)}")
 print(f"status: {task.get('status', '?')}")
@@ -51,6 +52,16 @@ print(f"child_count: {chain_summary.get('child_count', 0)}")
 print(f"children_done: {chain_summary.get('children_done', 0)}")
 print(f"children_failed: {chain_summary.get('children_failed', 0)}")
 print(f"children_with_warnings: {chain_summary.get('children_with_warnings', 0)}")
+print(f"step_count: {chain_summary.get('step_count', len(chain_plan.get('steps') or []))}")
+print(f"steps_completed: {chain_summary.get('steps_completed', 0)}")
+print(f"steps_failed: {chain_summary.get('steps_failed', 0)}")
+print(f"steps_pending: {chain_summary.get('steps_pending', 0)}")
+print(f"local_steps: {chain_summary.get('local_step_count', 0)}")
+print(f"worker_steps: {chain_summary.get('worker_step_count', 0)}")
+if chain_summary.get("final_artifact_path"):
+    print(f"final_artifact_path: {chain_summary.get('final_artifact_path')}")
+if chain_summary.get("headline"):
+    print(f"headline: {chain_summary.get('headline')}")
 print(f"artifacts: {len(task.get('artifacts', []))}")
 print(f"last_note: {last_note}")
 PY

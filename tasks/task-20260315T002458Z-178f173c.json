@@ -1,0 +1,43 @@
+{
+  "task_id": "task-20260315T002458Z-178f173c",
+  "type": "compare-files",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260315T002150Z-7fc0ad62",
+  "depends_on": [
+    "task-20260315T002158Z-4f287308"
+  ],
+  "status": "done",
+  "created_at": "2026-03-15T00:24:58+00:00",
+  "updated_at": "2026-03-15T00:24:59+00:00",
+  "title": "V2 chain integration test / local orchestration docs comparison",
+  "objective": "Generate one local artifact after the worker step to keep the chain mixed and inspectable.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "comparison-files",
+      "captured_at": "2026-03-15T00:24:59+00:00",
+      "exit_code": 0,
+      "content": "COMPARISON_OK outbox/manual/20260315T002458Z_chain-v2-compare-task-20260315T002150Z-7fc0ad62.md",
+      "command": "./scripts/browser_compare.sh files chain-v2-compare-task-20260315T002150Z-7fc0ad62 docs/TASK_ORCHESTRATION.md docs/TASK_ORCHESTRATION_V2.md",
+      "mode": "files",
+      "slug": "chain-v2-compare-task-20260315T002150Z-7fc0ad62",
+      "input_a": "docs/TASK_ORCHESTRATION.md",
+      "input_b": "docs/TASK_ORCHESTRATION_V2.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T002458Z_chain-v2-compare-task-20260315T002150Z-7fc0ad62.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-15T00:24:59+00:00"
+    }
+  ],
+  "notes": [
+    "comparison generation completed and task closed"
+  ],
+  "step_name": "local-compare-orchestration-docs",
+  "step_order": 3,
+  "critical": false,
+  "execution_mode": "local"
+}

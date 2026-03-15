@@ -49,11 +49,24 @@ for path in sorted(tasks_dir.glob("*.json")):
         tasks.append(load_task(path))
 
 def describe(task):
-    return "{task_id} | {status} | {type} | {title}".format(
+    extras = []
+    if "step_order" in task:
+        extras.append(f"step_order={task.get('step_order')}")
+    if task.get("step_name"):
+        extras.append(f"step_name={task.get('step_name')}")
+    if "critical" in task:
+        extras.append(f"critical={'yes' if task.get('critical') else 'no'}")
+    if task.get("execution_mode"):
+        extras.append(f"execution_mode={task.get('execution_mode')}")
+    extra_suffix = ""
+    if extras:
+        extra_suffix = " | " + " | ".join(extras)
+    return "{task_id} | {status} | {type} | {title}{extra_suffix}".format(
         task_id=task.get("task_id", "?"),
         status=task.get("status", "?"),
         type=task.get("type", "?"),
         title=task.get("title", ""),
+        extra_suffix=extra_suffix,
     )
 
 parent_task_id = current.get("parent_task_id") or ""

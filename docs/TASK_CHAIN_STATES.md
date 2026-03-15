@@ -30,6 +30,15 @@ That means the chain finished and closed coherently, but one or more child tasks
 - `completed_with_warnings`
 - `failed`
 
+V2 chains also track step-level runtime state inside `chain_plan.steps[*].status`.
+
+Current practical values are:
+
+- `planned`
+- `running`
+- `done`
+- `failed`
+
 ## Difference between task status and chain status
 
 Use task `status` for the high-level lifecycle outcome of the root task.
@@ -55,9 +64,29 @@ The chain root should persist an aggregated summary of its direct children, incl
 
 This version stores that summary in the root task under `chain_summary` and also persists a `chain-summary` output entry.
 
+The stronger v2 summary may also include:
+
+- `step_count`
+- `steps_completed`
+- `steps_failed`
+- `steps_pending`
+- `critical_step_count`
+- `critical_steps_failed`
+- `local_step_count`
+- `worker_step_count`
+- `worker_child_ids`
+- `headline`
+- `final_artifact_path`
+
 ## Failure behavior
 
 In this version, all children in the demo chains are treated as critical.
+
+In v2 this becomes step-aware:
+
+- critical steps fail the chain
+- non-critical failed steps produce `completed_with_warnings`
+- incomplete critical steps also fail the chain at finalization time
 
 That means:
 
@@ -81,6 +110,8 @@ The artifact includes at least:
 - final result
 - notes
 - aggregated child artifacts
+- step-by-step execution trace
+- worker evidence when the chain included delegated execution
 
 The artifact must pass:
 

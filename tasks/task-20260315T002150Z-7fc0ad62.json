@@ -1,0 +1,207 @@
+{
+  "task_id": "task-20260315T002150Z-7fc0ad62",
+  "type": "task-chain",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "done",
+  "created_at": "2026-03-15T00:21:50+00:00",
+  "updated_at": "2026-03-15T00:24:59+00:00",
+  "title": "V2 chain integration test",
+  "objective": "Execute a mixed local-worker chain and produce an aggregated final artifact for repo-analysis-worker.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-plan",
+      "captured_at": "2026-03-15T00:21:50+00:00",
+      "exit_code": 0,
+      "content": "planned 3-step mixed local-worker chain",
+      "chain_type": "repo-analysis-worker",
+      "plan_version": "2.0",
+      "step_count": 3,
+      "local_step_count": 2,
+      "worker_step_count": 1,
+      "critical_step_count": 2
+    },
+    {
+      "kind": "chain-start",
+      "captured_at": "2026-03-15T00:21:50+00:00",
+      "exit_code": 0,
+      "content": "chain v2 started for repo-analysis-worker",
+      "chain_type": "repo-analysis-worker"
+    },
+    {
+      "kind": "chain-step-local",
+      "captured_at": "2026-03-15T00:21:58+00:00",
+      "exit_code": 0,
+      "content": "local-self-check exit_code=0",
+      "chain_type": "repo-analysis-worker",
+      "step_name": "local-self-check",
+      "child_task_id": "task-20260315T002150Z-9cf0065a",
+      "execution_mode": "local",
+      "critical": true
+    },
+    {
+      "kind": "chain-step-worker",
+      "captured_at": "2026-03-15T00:24:58+00:00",
+      "exit_code": 0,
+      "content": "delegated-repo-analysis exit_code=0",
+      "chain_type": "repo-analysis-worker",
+      "step_name": "delegated-repo-analysis",
+      "child_task_id": "task-20260315T002158Z-4f287308",
+      "execution_mode": "worker",
+      "critical": true
+    },
+    {
+      "kind": "chain-step-local",
+      "captured_at": "2026-03-15T00:24:59+00:00",
+      "exit_code": 0,
+      "content": "local-compare-orchestration-docs exit_code=0",
+      "chain_type": "repo-analysis-worker",
+      "step_name": "local-compare-orchestration-docs",
+      "child_task_id": "task-20260315T002458Z-178f173c",
+      "execution_mode": "local",
+      "critical": false
+    },
+    {
+      "kind": "chain-summary",
+      "captured_at": "2026-03-15T00:24:59+00:00",
+      "exit_code": 0,
+      "content": "chain_status=completed_with_warnings step_count=3 steps_completed=3 steps_failed=0 steps_pending=0 headline=Chain completed with warnings: 3/3 step(s) completed, 0 failed, 1 warning signal(s).",
+      "chain_type": "repo-analysis-worker",
+      "chain_status": "completed_with_warnings",
+      "child_task_ids": [
+        "task-20260315T002150Z-9cf0065a",
+        "task-20260315T002158Z-4f287308",
+        "task-20260315T002458Z-178f173c"
+      ],
+      "child_count": 3,
+      "children_done": 3,
+      "children_failed": 0,
+      "children_with_warnings": 1,
+      "artifact_paths": [
+        "handoffs/task-20260315T002158Z-4f287308.run.result.md",
+        "outbox/manual/20260315T002458Z_chain-v2-compare-task-20260315T002150Z-7fc0ad62.md"
+      ],
+      "step_count": 3,
+      "steps_completed": 3,
+      "steps_failed": 0,
+      "steps_pending": 0,
+      "headline": "Chain completed with warnings: 3/3 step(s) completed, 0 failed, 1 warning signal(s).",
+      "final_artifact_path": "outbox/manual/20260315T002459Z-repo-analysis-worker-chain-final.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T002459Z-repo-analysis-worker-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T00:24:59+00:00"
+    }
+  ],
+  "notes": [
+    "chain plan v2 created at 2026-03-15T00:21:50+00:00",
+    "Chain completed with warnings: 3/3 step(s) completed, 0 failed, 1 warning signal(s)."
+  ],
+  "chain_type": "repo-analysis-worker",
+  "chain_status": "completed_with_warnings",
+  "chain_plan": {
+    "version": "2.0",
+    "planned_at": "2026-03-15T00:21:50+00:00",
+    "mixes_execution_modes": true,
+    "local_step_count": 2,
+    "worker_step_count": 1,
+    "critical_step_count": 2,
+    "step_count": 3,
+    "steps": [
+      {
+        "step_name": "local-self-check",
+        "step_order": 1,
+        "task_type": "self-check",
+        "execution_mode": "local",
+        "critical": true,
+        "depends_on_step_names": [],
+        "status": "done",
+        "child_task_id": "task-20260315T002150Z-9cf0065a",
+        "child_status": "done",
+        "warning": true,
+        "summary": "SELF-CHECK GOLEM gateway: OK \u2014 gateway activo, runtime running, rpc ok whatsapp: OK \u2014 whatsapp conectado browser_relay: OK \u2014 browser relay chrome running tabs: WARN \u2014 relay activo pero 0 tabs adjuntas estado_general:...",
+        "artifact_paths": [],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_artifact_path": ""
+      },
+      {
+        "step_name": "delegated-repo-analysis",
+        "step_order": 2,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "status": "done",
+        "child_task_id": "task-20260315T002158Z-4f287308",
+        "child_status": "done",
+        "warning": false,
+        "summary": "resumen corto | El alcance real del repo hoy es orquestaci\u00f3n y trazabilidad operativa de Golem, no despliegue ni app productiva; para este ticket conviene acotar el an\u00e1lisis a `docs/`, `scripts/`, `tasks/`, `handoffs/...",
+        "artifact_paths": [
+          "handoffs/task-20260315T002158Z-4f287308.run.result.md"
+        ],
+        "worker_state": "finished",
+        "worker_result_status": "done",
+        "worker_result_artifact_path": "handoffs/task-20260315T002158Z-4f287308.run.result.md"
+      },
+      {
+        "step_name": "local-compare-orchestration-docs",
+        "step_order": 3,
+        "task_type": "compare-files",
+        "execution_mode": "local",
+        "critical": false,
+        "depends_on_step_names": [
+          "delegated-repo-analysis"
+        ],
+        "status": "done",
+        "child_task_id": "task-20260315T002458Z-178f173c",
+        "child_status": "done",
+        "warning": false,
+        "summary": "COMPARISON_OK outbox/manual/20260315T002458Z_chain-v2-compare-task-20260315T002150Z-7fc0ad62.md",
+        "artifact_paths": [
+          "outbox/manual/20260315T002458Z_chain-v2-compare-task-20260315T002150Z-7fc0ad62.md"
+        ],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_artifact_path": ""
+      }
+    ],
+    "last_finalized_at": "2026-03-15T00:24:59+00:00"
+  },
+  "chain_summary": {
+    "child_task_ids": [
+      "task-20260315T002150Z-9cf0065a",
+      "task-20260315T002158Z-4f287308",
+      "task-20260315T002458Z-178f173c"
+    ],
+    "child_count": 3,
+    "children_done": 3,
+    "children_failed": 0,
+    "children_with_warnings": 1,
+    "artifact_paths": [
+      "handoffs/task-20260315T002158Z-4f287308.run.result.md",
+      "outbox/manual/20260315T002458Z_chain-v2-compare-task-20260315T002150Z-7fc0ad62.md"
+    ],
+    "step_count": 3,
+    "steps_completed": 3,
+    "steps_failed": 0,
+    "steps_pending": 0,
+    "critical_step_count": 2,
+    "critical_steps_failed": 0,
+    "local_step_count": 2,
+    "worker_step_count": 1,
+    "worker_child_ids": [
+      "task-20260315T002158Z-4f287308"
+    ],
+    "headline": "Chain completed with warnings: 3/3 step(s) completed, 0 failed, 1 warning signal(s).",
+    "final_artifact_path": "outbox/manual/20260315T002459Z-repo-analysis-worker-chain-final.md"
+  }
+}

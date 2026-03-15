@@ -34,6 +34,8 @@ In this version:
 - `bibliography-build` is allowed
 - other task types are denied by default unless the policy changes
 
+This matters for v2 chain orchestration because the root `task-chain` stays denied, but a child step of type `repo-analysis` may still be delegated and executed as the worker leg of a mixed chain.
+
 ## What preflight validates
 
 `./scripts/task_worker_preflight.sh <task_id>` validates at least:
@@ -113,3 +115,5 @@ This layer still does not provide:
 - scheduling
 
 It only makes the existing controlled run auditable, policy-driven, and less ambiguous.
+
+That same evidence is now also consumable by the root chain finalizer, which can aggregate worker-backed child results into a final chain artifact.

@@ -105,6 +105,16 @@ This wrapper:
 
 The goal is not full automation. The goal is a standard low-friction closeout path.
 
+## How orchestration v2 uses this
+
+When a chain includes a delegated worker step, the root finalizer reads the child task after worker finalization and reuses:
+
+- `worker_run.extracted_summary`
+- `worker_run.result_artifact_path`
+- the normalized `worker-result` output
+
+That lets the root `chain_summary` and the final chain artifact include worker evidence without needing a second extraction mechanism.
+
 ## Limits
 
 This first extraction layer is intentionally simple:

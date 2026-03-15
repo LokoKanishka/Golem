@@ -1,57 +1,33 @@
 # Task Orchestration
 
-This document defines the first minimal orchestration layer between Golem tasks.
+This document now describes two orchestration layers in Golem:
 
-## What "minimal orchestration" means
+- the original minimal parent/dependency layer
+- the stronger v2 chain layer with explicit steps, mixed local plus worker execution, and richer root aggregation
 
-In this version, orchestration means only:
+The detailed v2 contract lives in `docs/TASK_ORCHESTRATION_V2.md`.
 
-- relating a task to a parent task
-- declaring simple dependencies
-- making child task creation explicit
-- running a short, honest demo chain that coordinates more than one task
-- leaving the root chain with an aggregated summary and final artifact
+## Shared relationship fields
 
-This layer is intentionally small.
-
-## New relationship fields
-
-Tasks may now include:
+Tasks may include:
 
 - `parent_task_id`
 - `depends_on`
 
-`parent_task_id` is the direct parent task when a task belongs to a larger objective.
+These fields are still structural. They do not add scheduling by themselves.
 
-`depends_on` is a list of task ids that should be considered predecessors from an orchestration point of view.
+## Step-aware task metadata
 
-Example:
+Child tasks that belong to an explicit chain step may also include:
 
-```json
-{
-  "task_id": "task-20260313T220608Z-5e26f38b",
-  "type": "compare-files",
-  "parent_task_id": "task-20260313T220000Z-root",
-  "depends_on": ["task-20260313T220500Z-selfcheck"],
-  "status": "done"
-}
-```
+- `step_name`
+- `step_order`
+- `critical`
+- `execution_mode`
 
-## What this version does not support
+Those fields let Golem keep the child task and the root `chain_plan` aligned.
 
-This version does not provide:
-
-- a scheduler
-- automatic execution ordering
-- parallelism
-- queueing
-- retries
-- real workflow definitions
-- automatic Codex execution
-
-The fields are structural, not operational policy engines.
-
-## Create a child task
+## Minimal child creation
 
 Use:
 
@@ -59,14 +35,19 @@ Use:
 ./scripts/task_spawn_child.sh <parent_task_id> <type> "<title>"
 ```
 
-The script:
+Optional environment variables now allow step-aware children:
 
-1. verifies that the parent task exists
-2. creates a new child task
-3. sets `parent_task_id`
-4. initializes `depends_on` with the parent task id
+```text
+TASK_CHILD_DEPENDS_ON='["task-a"]'
+TASK_CHILD_OBJECTIVE="..."
+TASK_CHILD_STEP_NAME="delegated-repo-analysis"
+TASK_CHILD_STEP_ORDER=2
+TASK_CHILD_CRITICAL=true
+TASK_CHILD_EXECUTION_MODE=worker
+./scripts/task_spawn_child.sh <parent_task_id> repo-analysis "<title>"
+```
 
-## Inspect a task relationship tree
+## Inspect the tree
 
 Use:
 
@@ -74,54 +55,48 @@ Use:
 ./scripts/task_tree.sh <task_id>
 ```
 
-The output is intentionally simple:
+The tree now shows step metadata when present, so mixed local-worker chains are easier to inspect.
 
-- parent
-- current task
-- declared dependencies
-- direct children
+## Original demo runner
 
-## Demo chain
-
-Use:
+The original demo runner remains:
 
 ```text
 ./scripts/task_chain_run.sh self-check-compare "<title>"
 ```
 
-For controlled failure validation:
+That path is still useful as the smallest orchestration baseline.
+
+## Stronger v2 chain flow
+
+The new v2 chain flow adds:
+
+- explicit planning before execution
+- step ordering inside `chain_plan`
+- critical vs non-critical steps
+- mixed `local` and `worker` execution modes in one chain
+- a richer root `chain_summary`
+- a final chain artifact that aggregates the whole execution
+
+Main entrypoints:
 
 ```text
-./scripts/task_chain_run.sh self-check-compare-fail "<title>"
+./scripts/task_chain_plan.sh repo-analysis-worker "<title>"
+./scripts/task_chain_run_v2.sh repo-analysis-worker "<title>"
+./scripts/task_chain_status.sh <root_task_id>
+./scripts/task_chain_summary.sh <root_task_id>
 ```
 
-The demo chain is:
+## Why v2 matters
 
-1. create a root task of type `task-chain`
-2. run a child `self-check`
-3. run a child `compare-files`
-4. aggregate child results on the root task
-5. generate a final Markdown artifact for the chain
-6. close the root task as `done` or `failed`
+The root chain is no longer just a shell around child tasks.
 
-## Why the demo uses `self-check-compare`
+It now persists:
 
-`self-check-artifact` would depend on live browser tabs, which makes the demonstration too fragile for a baseline orchestration layer.
+- the intended step sequence
+- the execution mode of each step
+- whether a failed step should fail the chain
+- which child task fulfilled each step
+- a stronger aggregate result at the end
 
-`self-check-compare` is a safer real chain because:
-
-- `self-check` exercises existing live capability checks
-- `compare-files` is local, deterministic, and low risk
-- the chain still proves that Golem can coordinate multiple related tasks
-
-The failure validation variant uses the same shape but points the compare step at a deliberately missing file. That keeps the failure path honest, local, and predictable.
-
-## Why this is the step before stronger orchestration
-
-Before adding scheduling or workflows, Golem needs a stable way to say:
-
-- which task belongs to which parent objective
-- which task depends on which previous task
-- how to inspect a small task tree
-
-This layer gives that structure without pretending to solve full orchestration yet.
+That makes a mixed local plus delegated chain inspectable without pretending to be a full scheduler.

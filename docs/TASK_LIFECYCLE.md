@@ -33,6 +33,17 @@ TASK_PARENT_TASK_ID=<task_id_padre>
 TASK_DEPENDS_ON='["task-a","task-b"]' ./scripts/task_new.sh <type> <title>
 ```
 
+It also accepts optional step metadata:
+
+```text
+TASK_OBJECTIVE="..."
+TASK_STEP_NAME="delegated-repo-analysis"
+TASK_STEP_ORDER=2
+TASK_CRITICAL=true
+TASK_EXECUTION_MODE=worker
+./scripts/task_new.sh <type> <title>
+```
+
 These fields are declarative only in this version. They do not schedule or block execution by themselves.
 
 ## Spawn child task
@@ -47,6 +58,15 @@ This creates a new task with:
 
 - `parent_task_id` set to the parent
 - `depends_on` initialized with the parent task id
+
+It may also inherit step-aware metadata through environment variables such as:
+
+- `TASK_CHILD_OBJECTIVE`
+- `TASK_CHILD_STEP_NAME`
+- `TASK_CHILD_STEP_ORDER`
+- `TASK_CHILD_CRITICAL`
+- `TASK_CHILD_EXECUTION_MODE`
+- `TASK_CHILD_DEPENDS_ON`
 
 ## Move to running
 
@@ -191,7 +211,24 @@ Chain-specific inspection is also available through:
 
 ```text
 ./scripts/task_chain_summary.sh <task_id>
+./scripts/task_chain_status.sh <task_id>
 ```
+
+## Plan and run a stronger mixed chain
+
+The stronger orchestration flow now uses:
+
+```text
+./scripts/task_chain_plan.sh repo-analysis-worker "<title>"
+./scripts/task_chain_run_v2.sh repo-analysis-worker "<title>"
+```
+
+That flow keeps the root in sync with:
+
+- a planned step list
+- local plus worker execution modes
+- critical semantics
+- final aggregated closure data
 
 ## Why this reduces duplication
 

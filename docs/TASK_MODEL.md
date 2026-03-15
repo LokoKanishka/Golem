@@ -46,8 +46,13 @@ Cada tarea incluye estos campos:
 Campo opcional cuando aplica:
 
 - `handoff`
+- `step_name`
+- `step_order`
+- `critical`
+- `execution_mode`
 - `chain_type`
 - `chain_status`
+- `chain_plan`
 - `chain_summary`
 - `worker_run`
 
@@ -57,7 +62,15 @@ Las tareas raiz de cadena tambien pueden persistir:
 
 - `chain_type` para identificar el tipo de cadena ejecutada
 - `chain_status` para reflejar el estado interno de la orquestacion
+- `chain_plan` para declarar los steps previstos y su metadata
 - `chain_summary` para dejar una vista agregada de las child tasks
+
+Las child tasks creadas como parte de una cadena tambien pueden persistir:
+
+- `step_name` para mapearlas a un paso del plan
+- `step_order` para mantener orden estable
+- `critical` para definir si su falla rompe la cadena
+- `execution_mode` para distinguir `local` de `worker`
 
 Las tareas delegadas que entran en corrida controlada de Codex tambien pueden persistir:
 
@@ -107,6 +120,10 @@ La primera capa de orquestacion local agrega dos campos simples:
 
 - `parent_task_id`
 - `depends_on`
+- `step_name`
+- `step_order`
+- `critical`
+- `execution_mode`
 
 `parent_task_id` representa una relacion jerarquica minima entre una tarea y su tarea padre.
 
@@ -130,6 +147,8 @@ La base operativa minima queda cubierta por:
 - `./scripts/task_update.sh <task_id> <status>`
 - `./scripts/task_spawn_child.sh <parent_task_id> <type> <title>`
 - `./scripts/task_tree.sh <task_id>`
+- `./scripts/task_chain_plan.sh <chain_type> <title>`
+- `./scripts/task_chain_status.sh <task_id>`
 
 ## Reglas de implementacion
 
