@@ -197,3 +197,15 @@ Separacion intencional:
 
 - `chain_plan`: estado vivo y mutable de la ejecucion
 - `effective_chain_plan`: snapshot canonico de lo que realmente se valido y preflighteo
+
+Auditoria reproducible contra ese snapshot:
+
+```text
+./scripts/task_chain_audit_execution.sh <root_task_id|task_json_path> [--artifact]
+```
+
+Semantica minima:
+
+- `OK`: la ejecucion observada es coherente con el effective plan congelado
+- `WARN`: la root sigue incompleta o no tiene trazabilidad congelada suficiente para una auditoria fuerte
+- `FAIL`: hay drift o contradicciones entre el effective plan y la ejecucion observada

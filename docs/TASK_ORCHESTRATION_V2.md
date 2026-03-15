@@ -128,6 +128,18 @@ That split is intentional:
 - `chain_plan` keeps runtime step state
 - `effective_chain_plan` freezes the exact validated/preflighted plan used for the root
 
+Post-execution auditing against that frozen plan now lives in:
+
+```text
+./scripts/task_chain_audit_execution.sh <root_task_id|task_json_path> [--artifact]
+```
+
+Audit semantics:
+
+- `OK`: execution is coherent with the frozen effective plan
+- `WARN`: execution is coherent but still incomplete, or the root lacks enough frozen traceability
+- `FAIL`: observed execution drifts from the frozen plan or contradicts root/chain closure semantics
+
 The controlled default plan is:
 
 1. local self-check
