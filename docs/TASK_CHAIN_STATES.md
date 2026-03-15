@@ -38,6 +38,7 @@ Current practical values are:
 - `running`
 - `done`
 - `failed`
+- `skipped`
 
 ## Difference between task status and chain status
 
@@ -82,6 +83,11 @@ The stronger v2 summary may also include:
 - `worker_result_summaries`
 - `worker_outcomes`
 - `aggregated_artifact_paths`
+- `decision_reason`
+- `decision_source_step`
+- `next_step_selected`
+- `skipped_steps`
+- `conditional_outcomes`
 - `headline`
 - `final_artifact_path`
 
@@ -120,6 +126,7 @@ The artifact includes at least:
 - step-by-step execution trace
 - worker evidence when the chain included delegated execution
 - worker outcomes copied into the root summary and final artifact
+- conditional outcomes and skipped-step evidence when the chain made a runtime decision
 
 The artifact must pass:
 

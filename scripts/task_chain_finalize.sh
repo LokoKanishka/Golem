@@ -84,11 +84,22 @@ print(f"- child_count: {summary['child_count']}")
 print(f"- step_count: {summary['step_count']}")
 print(f"- steps_completed: {summary['steps_completed']}")
 print(f"- steps_failed: {summary['steps_failed']}")
+print(f"- steps_skipped: {summary['steps_skipped']}")
 print(f"- steps_pending: {summary['steps_pending']}")
 print(f"- local_steps_count: {summary['local_steps_count']}")
 print(f"- delegated_steps_count: {summary['delegated_steps_count']}")
 print(f"- worker_steps_done: {summary['worker_steps_done']}")
 print(f"- worker_steps_failed: {summary['worker_steps_failed']}")
+if summary.get("decision_source_step"):
+    print(f"- decision_source_step: {summary.get('decision_source_step')}")
+if summary.get("decision_source_worker_result_status"):
+    print(f"- decision_source_worker_result_status: {summary.get('decision_source_worker_result_status')}")
+if summary.get("next_step_selected"):
+    print(f"- next_step_selected: {summary.get('next_step_selected')}")
+if summary.get("skipped_steps"):
+    print(f"- skipped_steps: {', '.join(summary.get('skipped_steps'))}")
+if summary.get("decision_reason"):
+    print(f"- decision_reason: {summary.get('decision_reason')}")
 print()
 print("## Chain Plan")
 if not summary["step_results"]:
@@ -105,6 +116,8 @@ else:
         )
         if step.get("summary"):
             print(f"  summary: {step.get('summary')}")
+        if step.get("decision_reason"):
+            print(f"  decision_reason: {step.get('decision_reason')}")
         if step.get("artifact_paths"):
             print(f"  artifacts: {', '.join(step.get('artifact_paths'))}")
 print()
@@ -128,6 +141,23 @@ else:
             print(f"  result_source_files: {', '.join(outcome.get('result_source_files'))}")
         if outcome.get("artifact_paths"):
             print(f"  artifact_paths: {', '.join(outcome.get('artifact_paths'))}")
+print()
+print("## Conditional Outcomes")
+if not summary["conditional_outcomes"]:
+    print("- (none)")
+else:
+    for outcome in summary["conditional_outcomes"]:
+        print(
+            f"- [{outcome.get('step_order')}] {outcome.get('step_name')} | "
+            f"selected={'yes' if outcome.get('selected') else 'no'} | "
+            f"status={outcome.get('status') or '(none)'} | "
+            f"condition_source_step={outcome.get('condition_source_step') or '(none)'} | "
+            f"expected_worker_result_status={outcome.get('expected_worker_result_status') or '(none)'}"
+        )
+        if outcome.get("decision_reason"):
+            print(f"  decision_reason: {outcome.get('decision_reason')}")
+        if outcome.get("summary"):
+            print(f"  summary: {outcome.get('summary')}")
 print()
 print("## Result")
 print(f"- {summary['headline']}")
@@ -191,9 +221,11 @@ task["chain_summary"] = {
     "step_count": summary["step_count"],
     "steps_completed": summary["steps_completed"],
     "steps_failed": summary["steps_failed"],
+    "steps_skipped": summary["steps_skipped"],
     "steps_pending": summary["steps_pending"],
     "critical_step_count": summary["critical_step_count"],
     "critical_steps_failed": summary["critical_steps_failed"],
+    "critical_steps_skipped": summary["critical_steps_skipped"],
     "critical_steps_pending": summary["critical_steps_pending"],
     "local_step_count": summary["local_step_count"],
     "worker_step_count": summary["worker_step_count"],
@@ -204,6 +236,12 @@ task["chain_summary"] = {
     "worker_child_ids": summary["worker_child_ids"],
     "worker_result_summaries": summary["worker_result_summaries"],
     "worker_outcomes": summary["worker_outcomes"],
+    "decision_reason": summary["decision_reason"],
+    "decision_source_step": summary["decision_source_step"],
+    "decision_source_worker_result_status": summary["decision_source_worker_result_status"],
+    "next_step_selected": summary["next_step_selected"],
+    "skipped_steps": summary["skipped_steps"],
+    "conditional_outcomes": summary["conditional_outcomes"],
     "headline": summary["headline"],
     "final_artifact_path": artifact_rel,
     "last_collected_at": summary["generated_at"],
@@ -232,14 +270,17 @@ summary = json.loads(sys.argv[1])
 artifact_rel = sys.argv[2]
 print(
     "chain_status={chain_status} step_count={step_count} steps_completed={steps_completed} "
-    "steps_failed={steps_failed} worker_steps_done={worker_steps_done} "
-    "worker_steps_failed={worker_steps_failed} headline={headline} final_artifact_path={artifact_rel}".format(
+    "steps_failed={steps_failed} steps_skipped={steps_skipped} worker_steps_done={worker_steps_done} "
+    "worker_steps_failed={worker_steps_failed} next_step_selected={next_step_selected} "
+    "headline={headline} final_artifact_path={artifact_rel}".format(
         chain_status=summary["chain_status"],
         step_count=summary["step_count"],
         steps_completed=summary["steps_completed"],
         steps_failed=summary["steps_failed"],
+        steps_skipped=summary["steps_skipped"],
         worker_steps_done=summary["worker_steps_done"],
         worker_steps_failed=summary["worker_steps_failed"],
+        next_step_selected=summary["next_step_selected"] or "(none)",
         headline=summary["headline"],
         artifact_rel=artifact_rel,
     )
@@ -267,6 +308,7 @@ extra = {
     "step_count": summary["step_count"],
     "steps_completed": summary["steps_completed"],
     "steps_failed": summary["steps_failed"],
+    "steps_skipped": summary["steps_skipped"],
     "steps_pending": summary["steps_pending"],
     "local_steps_count": summary["local_steps_count"],
     "delegated_steps_count": summary["delegated_steps_count"],
@@ -274,6 +316,12 @@ extra = {
     "worker_steps_failed": summary["worker_steps_failed"],
     "worker_result_summaries": summary["worker_result_summaries"],
     "worker_outcomes": summary["worker_outcomes"],
+    "decision_reason": summary["decision_reason"],
+    "decision_source_step": summary["decision_source_step"],
+    "decision_source_worker_result_status": summary["decision_source_worker_result_status"],
+    "next_step_selected": summary["next_step_selected"],
+    "skipped_steps": summary["skipped_steps"],
+    "conditional_outcomes": summary["conditional_outcomes"],
     "headline": summary["headline"],
     "final_artifact_path": artifact_rel,
 }

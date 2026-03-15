@@ -29,6 +29,7 @@ The collector reads:
 - child artifacts
 - `worker_run`
 - the latest `worker-result` output when a worker step exists
+- persisted root decision data when a conditional chain already chose the next step
 
 It returns one JSON summary that the finalizer and runner can reuse.
 
@@ -45,6 +46,14 @@ For v2 chains, the root should persist at least:
 - `worker_outcomes`
 - `headline`
 - `final_artifact_path`
+
+Conditional chains extend that summary with:
+
+- `decision_reason`
+- `decision_source_step`
+- `next_step_selected`
+- `skipped_steps`
+- `conditional_outcomes`
 
 Compatibility fields may stay in parallel:
 
@@ -94,6 +103,7 @@ The chain final artifact should now include:
 - `## Summary`
 - `## Chain Plan`
 - `## Worker Outcomes`
+- `## Conditional Outcomes` when the chain made a runtime decision
 - `## Result`
 - `## Aggregated Artifacts`
 - `## Notes`
@@ -103,6 +113,8 @@ This keeps the worker contribution visible in the root deliverable instead of on
 ## Runner Interaction
 
 `task_chain_run_v2.sh` may record a pre-finalization `chain-results-collected` output so the root already shows the collected counts and worker summaries before closure.
+
+`task_chain_run_v3.sh` does the same, but includes the decision fields and skipped-step evidence.
 
 The final persisted closure still happens in:
 

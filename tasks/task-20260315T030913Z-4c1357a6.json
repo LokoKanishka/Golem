@@ -1,0 +1,34 @@
+{
+  "task_id": "task-20260315T030913Z-4c1357a6",
+  "type": "self-check",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260315T030912Z-ec4deaf2",
+  "depends_on": [
+    "task-20260315T030912Z-ec4deaf2"
+  ],
+  "status": "done",
+  "created_at": "2026-03-15T03:09:13+00:00",
+  "updated_at": "2026-03-15T03:09:20+00:00",
+  "title": "V3 conditional success test / local self check",
+  "objective": "Validate the local Golem environment before a delegated worker run.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "self-check",
+      "captured_at": "2026-03-15T03:09:20+00:00",
+      "exit_code": 0,
+      "content": "SELF-CHECK GOLEM\ngateway: OK \u2014 gateway activo, runtime running, rpc ok\nwhatsapp: OK \u2014 whatsapp conectado\nbrowser_relay: OK \u2014 browser relay chrome running\ntabs: WARN \u2014 relay activo pero 0 tabs adjuntas\nestado_general: WARN\nsintesis: el sistema est\u00e1 mayormente operativo pero hay se\u00f1ales a revisar.",
+      "command": "./scripts/self_check.sh",
+      "estado_general": "WARN"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "self-check completed and task closed"
+  ],
+  "step_name": "local-self-check",
+  "step_order": 1,
+  "critical": true,
+  "execution_mode": "local"
+}

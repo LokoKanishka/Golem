@@ -46,6 +46,8 @@ def normalize_step_status(step_status: str, child_status: str, child_exists: boo
         return "done"
     if status in {"failed", "cancelled"}:
         return "failed"
+    if status in {"skipped", "skip"}:
+        return "skipped"
     if status in {"running", "worker_running", "delegated"}:
         return "running"
     if status in {"planned", "queued"}:
@@ -157,6 +159,7 @@ for path in sorted(tasks_dir.glob("*.json")):
 children_by_id = {task.get("task_id", ""): task for task in children}
 plan = root_task.get("chain_plan") if isinstance(root_task.get("chain_plan"), dict) else {}
 plan_steps = plan.get("steps") if isinstance(plan.get("steps"), list) else []
+chain_decision = root_task.get("chain_decision") if isinstance(root_task.get("chain_decision"), dict) else {}
 
 ordered_children = sorted(
     children,
@@ -206,11 +209,15 @@ if plan_steps:
                 "execution_mode": step.get("execution_mode") or (child.get("execution_mode", "") if child else ""),
                 "critical": bool(step.get("critical", False)),
                 "depends_on_step_names": step.get("depends_on_step_names") or [],
+                "condition_source_step": step.get("condition_source_step", ""),
+                "run_if_worker_result_status": step.get("run_if_worker_result_status", ""),
                 "status": status,
                 "child_task_id": child_task_id,
                 "child_status": child_status,
                 "warning": warning,
                 "summary": step_summary,
+                "decision_source_step": step.get("decision_source_step", ""),
+                "decision_reason": step.get("decision_reason", ""),
                 "artifact_paths": artifact_paths,
                 "worker_state": worker_run.get("state", ""),
                 "worker_result_status": worker_result.get("status") or worker_run.get("result_status", ""),
@@ -242,11 +249,15 @@ else:
                 "execution_mode": child.get("execution_mode", ""),
                 "critical": bool(child.get("critical", True)),
                 "depends_on_step_names": [],
+                "condition_source_step": child.get("condition_source_step", ""),
+                "run_if_worker_result_status": child.get("run_if_worker_result_status", ""),
                 "status": normalize_step_status("", child.get("status", ""), True),
                 "child_task_id": child.get("task_id", ""),
                 "child_status": child.get("status", ""),
                 "warning": has_warning(child),
                 "summary": task_summary_line(child),
+                "decision_source_step": child.get("decision_source_step", ""),
+                "decision_reason": child.get("decision_reason", ""),
                 "artifact_paths": artifact_paths,
                 "worker_state": worker_run.get("state", ""),
                 "worker_result_status": worker_result.get("status") or worker_run.get("result_status", ""),
@@ -280,12 +291,15 @@ aggregated_artifact_paths = dedupe_paths(
 step_count = len(step_results)
 steps_completed = sum(1 for step in step_results if step.get("status") == "done")
 steps_failed = sum(1 for step in step_results if step.get("status") == "failed")
-steps_pending = sum(1 for step in step_results if step.get("status") not in {"done", "failed"})
+steps_skipped = sum(1 for step in step_results if step.get("status") == "skipped")
+steps_pending = sum(1 for step in step_results if step.get("status") not in {"done", "failed", "skipped"})
 critical_step_count = sum(1 for step in step_results if step.get("critical"))
 critical_steps_failed = sum(1 for step in step_results if step.get("critical") and step.get("status") == "failed")
-critical_steps_pending = sum(1 for step in step_results if step.get("critical") and step.get("status") != "done")
+critical_steps_skipped = sum(1 for step in step_results if step.get("critical") and step.get("status") == "skipped")
+critical_steps_pending = sum(1 for step in step_results if step.get("critical") and step.get("status") not in {"done", "failed", "skipped"})
 noncritical_steps_failed = sum(1 for step in step_results if not step.get("critical") and step.get("status") == "failed")
-noncritical_steps_pending = sum(1 for step in step_results if not step.get("critical") and step.get("status") not in {"done", "failed"})
+noncritical_steps_skipped = sum(1 for step in step_results if not step.get("critical") and step.get("status") == "skipped")
+noncritical_steps_pending = sum(1 for step in step_results if not step.get("critical") and step.get("status") not in {"done", "failed", "skipped"})
 local_step_count = sum(1 for step in step_results if step.get("execution_mode") == "local")
 worker_step_count = sum(1 for step in step_results if step.get("execution_mode") == "worker")
 worker_steps_done = sum(
@@ -332,7 +346,52 @@ for step in step_results:
     if outcome["summary"]:
         worker_result_summaries.append(outcome["summary"])
 
-if critical_steps_failed > 0 or critical_steps_pending > 0:
+conditional_outcomes = []
+skipped_steps = []
+for step in step_results:
+    has_condition = bool(step.get("condition_source_step") or step.get("run_if_worker_result_status"))
+    if not has_condition and step.get("status") != "skipped":
+        continue
+    if step.get("status") == "skipped":
+        skipped_steps.append(step.get("step_name", ""))
+    conditional_outcomes.append(
+        {
+            "step_name": step.get("step_name"),
+            "step_order": step.get("step_order"),
+            "condition_source_step": step.get("condition_source_step") or chain_decision.get("decision_source_step", ""),
+            "expected_worker_result_status": step.get("run_if_worker_result_status", ""),
+            "selected": step.get("status") != "skipped",
+            "status": step.get("status", ""),
+            "child_task_id": step.get("child_task_id", ""),
+            "decision_source_step": step.get("decision_source_step") or chain_decision.get("decision_source_step", ""),
+            "decision_reason": step.get("decision_reason") or chain_decision.get("decision_reason", ""),
+            "summary": step.get("summary", ""),
+        }
+    )
+
+decision_reason = chain_decision.get("decision_reason", "")
+decision_source_step = chain_decision.get("decision_source_step", "")
+next_step_selected = chain_decision.get("next_step_selected", "")
+decision_source_worker_result_status = chain_decision.get("decision_source_worker_result_status", "")
+
+if not decision_source_step and conditional_outcomes:
+    decision_source_step = conditional_outcomes[0].get("condition_source_step", "")
+if not skipped_steps:
+    skipped_steps = [step.get("step_name", "") for step in step_results if step.get("status") == "skipped"]
+if not next_step_selected:
+    for outcome in conditional_outcomes:
+        if outcome.get("selected"):
+            next_step_selected = outcome.get("step_name", "")
+            break
+if not decision_reason and conditional_outcomes:
+    decision_reason = conditional_outcomes[0].get("decision_reason", "")
+if not decision_source_worker_result_status and decision_source_step:
+    for step in step_results:
+        if step.get("step_name") == decision_source_step:
+            decision_source_worker_result_status = step.get("worker_result_status") or step.get("status", "")
+            break
+
+if critical_steps_failed > 0 or critical_steps_pending > 0 or critical_steps_skipped > 0:
     chain_status = "failed"
     final_task_status = "failed"
 elif noncritical_steps_failed > 0 or noncritical_steps_pending > 0 or children_with_warnings > 0:
@@ -343,19 +402,20 @@ else:
     final_task_status = "done"
 
 if chain_status == "failed":
-    headline = (
-        f"Chain failed: {steps_completed}/{step_count} step(s) completed and one or more critical steps did not finish cleanly."
-    )
+    headline = f"Chain failed: {steps_completed}/{step_count} step(s) completed"
+    if steps_skipped:
+        headline += f", {steps_skipped} skipped"
+    headline += ", and one or more critical steps did not finish cleanly."
 elif chain_status == "completed_with_warnings":
-    headline = (
-        f"Chain completed with warnings: {steps_completed}/{step_count} step(s) completed, "
-        f"{steps_failed} failed, {children_with_warnings} warning signal(s)."
-    )
+    headline = f"Chain completed with warnings: {steps_completed}/{step_count} step(s) completed, {steps_failed} failed"
+    if steps_skipped:
+        headline += f", {steps_skipped} skipped"
+    headline += f", {children_with_warnings} warning signal(s)."
 else:
-    headline = (
-        f"Chain completed cleanly: {steps_completed}/{step_count} step(s) done "
-        f"across {local_step_count} local and {worker_step_count} worker step(s)."
-    )
+    headline = f"Chain completed cleanly: {steps_completed}/{step_count} step(s) done"
+    if steps_skipped:
+        headline += f", {steps_skipped} skipped"
+    headline += f" across {local_step_count} local and {worker_step_count} worker step(s)."
 
 summary = {
     "root_task_id": root_task_id,
@@ -375,11 +435,14 @@ summary = {
     "step_count": step_count,
     "steps_completed": steps_completed,
     "steps_failed": steps_failed,
+    "steps_skipped": steps_skipped,
     "steps_pending": steps_pending,
     "critical_step_count": critical_step_count,
     "critical_steps_failed": critical_steps_failed,
+    "critical_steps_skipped": critical_steps_skipped,
     "critical_steps_pending": critical_steps_pending,
     "noncritical_steps_failed": noncritical_steps_failed,
+    "noncritical_steps_skipped": noncritical_steps_skipped,
     "noncritical_steps_pending": noncritical_steps_pending,
     "local_step_count": local_step_count,
     "worker_step_count": worker_step_count,
@@ -391,6 +454,12 @@ summary = {
     "local_child_ids": local_child_ids,
     "worker_result_summaries": worker_result_summaries,
     "worker_outcomes": worker_outcomes,
+    "decision_reason": decision_reason,
+    "decision_source_step": decision_source_step,
+    "decision_source_worker_result_status": decision_source_worker_result_status,
+    "next_step_selected": next_step_selected,
+    "skipped_steps": [step_name for step_name in skipped_steps if step_name],
+    "conditional_outcomes": conditional_outcomes,
     "headline": headline,
     "chain_status": chain_status,
     "final_task_status": final_task_status,

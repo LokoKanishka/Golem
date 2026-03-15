@@ -57,11 +57,24 @@ print(f"chain_type: {root.get('chain_type', '(none)')}")
 print(f"step_count: {chain_summary.get('step_count', len(steps))}")
 print(f"steps_completed: {chain_summary.get('steps_completed', sum(1 for step in steps if step.get('status') == 'done'))}")
 print(f"steps_failed: {chain_summary.get('steps_failed', sum(1 for step in steps if step.get('status') == 'failed'))}")
-print(f"steps_pending: {chain_summary.get('steps_pending', sum(1 for step in steps if step.get('status') not in {'done', 'failed'}))}")
+print(f"steps_skipped: {chain_summary.get('steps_skipped', sum(1 for step in steps if step.get('status') == 'skipped'))}")
+print(f"steps_pending: {chain_summary.get('steps_pending', sum(1 for step in steps if step.get('status') not in {'done', 'failed', 'skipped'}))}")
 print(f"local_steps: {chain_summary.get('local_steps_count', chain_summary.get('local_step_count', chain_plan.get('local_step_count', 0)))}")
 print(f"delegated_steps: {chain_summary.get('delegated_steps_count', chain_summary.get('worker_step_count', chain_plan.get('worker_step_count', 0)))}")
 print(f"worker_steps_done: {chain_summary.get('worker_steps_done', 0)}")
 print(f"worker_steps_failed: {chain_summary.get('worker_steps_failed', 0)}")
+if chain_summary.get("decision_source_step"):
+    print(f"decision_source_step: {chain_summary.get('decision_source_step')}")
+if chain_summary.get("decision_source_worker_result_status"):
+    print(f"decision_source_worker_result_status: {chain_summary.get('decision_source_worker_result_status')}")
+if chain_summary.get("next_step_selected"):
+    print(f"next_step_selected: {chain_summary.get('next_step_selected')}")
+skipped_steps = chain_summary.get("skipped_steps") or []
+print(f"skipped_steps: {len(skipped_steps)}")
+if skipped_steps:
+    print(f"skipped_step_names: {', '.join(skipped_steps)}")
+if chain_summary.get("decision_reason"):
+    print(f"decision_reason: {chain_summary.get('decision_reason')}")
 if chain_summary.get("final_artifact_path"):
     print(f"final_artifact_path: {chain_summary.get('final_artifact_path')}")
 aggregated_artifact_paths = chain_summary.get("aggregated_artifact_paths") or chain_summary.get("artifact_paths") or []
@@ -90,6 +103,9 @@ else:
         )
         if summary:
             print(f"  summary: {summary}")
+        decision_reason = step.get("decision_reason", "")
+        if decision_reason:
+            print(f"  decision_reason: {decision_reason}")
         worker_state = step.get("worker_state") or ((child.get("worker_run") or {}).get("state", "") if child else "")
         worker_result_status = step.get("worker_result_status") or ((child.get("worker_run") or {}).get("result_status", "") if child else "")
         if worker_state or worker_result_status:
@@ -123,4 +139,23 @@ else:
             print(f"  summary: {outcome.get('summary')}")
         if outcome.get("result_artifact_path"):
             print(f"  result_artifact_path: {outcome.get('result_artifact_path')}")
+
+conditional_outcomes = chain_summary.get("conditional_outcomes") or []
+print("conditional_outcomes:")
+if not conditional_outcomes:
+    print("- (none)")
+else:
+    for outcome in conditional_outcomes:
+        print(
+            "- [{order}] {name} | selected={selected} | status={status} | condition_source_step={condition_source_step} | expected_worker_result_status={expected_worker_result_status}".format(
+                order=outcome.get("step_order", "?"),
+                name=outcome.get("step_name", "(none)"),
+                selected="yes" if outcome.get("selected") else "no",
+                status=outcome.get("status") or "(none)",
+                condition_source_step=outcome.get("condition_source_step") or "(none)",
+                expected_worker_result_status=outcome.get("expected_worker_result_status") or "(none)",
+            )
+        )
+        if outcome.get("decision_reason"):
+            print(f"  decision_reason: {outcome.get('decision_reason')}")
 PY

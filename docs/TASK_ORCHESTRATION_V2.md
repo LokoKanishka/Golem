@@ -2,6 +2,12 @@
 
 This document defines the stronger chain orchestration layer for Golem.
 
+The first conditional extension on top of this layer lives in:
+
+```text
+docs/TASK_ORCHESTRATION_CONDITIONAL.md
+```
+
 ## Goal
 
 Allow one root chain to mix:
@@ -157,3 +163,17 @@ Rules in this version:
 - warning markers in child outputs also degrade to `completed_with_warnings`
 
 This keeps the root result more expressive than a plain child count.
+
+## Conditional Extension
+
+The v3 conditional layer keeps the same mixed local plus worker model, but lets the root choose one next step after the worker outcome is known.
+
+That layer adds:
+
+- `decision_reason`
+- `decision_source_step`
+- `next_step_selected`
+- `skipped_steps`
+- `conditional_outcomes`
+
+It remains intentionally small and does not turn Golem into a generic workflow engine.
