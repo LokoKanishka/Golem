@@ -50,7 +50,9 @@ def normalize_step_status(step_status: str, child_status: str, child_exists: boo
         return "failed"
     if status in {"skipped", "skip"}:
         return "skipped"
-    if status in {"running", "worker_running", "delegated"}:
+    if status == "delegated":
+        return "delegated"
+    if status in {"running", "worker_running"}:
         return "running"
     if status in {"planned", "queued"}:
         return "planned"
@@ -61,7 +63,9 @@ def normalize_step_status(step_status: str, child_status: str, child_exists: boo
         return "blocked"
     if child_status in {"failed", "cancelled"}:
         return "failed"
-    if child_status in {"running", "delegated", "worker_running"}:
+    if child_status == "delegated":
+        return "delegated"
+    if child_status in {"running", "worker_running"}:
         return "running"
     if child_exists:
         return "planned"
@@ -213,6 +217,7 @@ if plan_steps:
                 "execution_mode": step.get("execution_mode") or (child.get("execution_mode", "") if child else ""),
                 "critical": bool(step.get("critical", False)),
                 "depends_on_step_names": step.get("depends_on_step_names") or [],
+                "await_worker_result": bool(step.get("await_worker_result", False)),
                 "condition_source_step": step.get("condition_source_step", ""),
                 "run_if_worker_result_status": step.get("run_if_worker_result_status", ""),
                 "status": status,
@@ -253,6 +258,7 @@ else:
                 "execution_mode": child.get("execution_mode", ""),
                 "critical": bool(child.get("critical", True)),
                 "depends_on_step_names": [],
+                "await_worker_result": bool(child.get("await_worker_result", False)),
                 "condition_source_step": child.get("condition_source_step", ""),
                 "run_if_worker_result_status": child.get("run_if_worker_result_status", ""),
                 "status": normalize_step_status("", child.get("status", ""), True),
@@ -283,6 +289,8 @@ child_task_ids = [task.get("task_id", "") for task in children]
 children_done = sum(1 for child in children if child.get("status") == "done")
 children_failed = sum(1 for child in children if child.get("status") in {"failed", "cancelled"})
 children_blocked = sum(1 for child in children if child.get("status") == "blocked")
+children_delegated = sum(1 for child in children if child.get("status") == "delegated")
+children_running = sum(1 for child in children if child.get("status") in {"running", "worker_running"})
 warning_child_ids = [child.get("task_id", "") for child in children if has_warning(child)]
 children_with_warnings = len(warning_child_ids)
 failed_child_ids = [child.get("task_id", "") for child in children if child.get("status") in {"failed", "cancelled"}]
@@ -298,17 +306,23 @@ step_count = len(step_results)
 steps_completed = sum(1 for step in step_results if step.get("status") == "done")
 steps_failed = sum(1 for step in step_results if step.get("status") == "failed")
 steps_blocked = sum(1 for step in step_results if step.get("status") == "blocked")
+steps_delegated = sum(1 for step in step_results if step.get("status") == "delegated")
+steps_running = sum(1 for step in step_results if step.get("status") == "running")
 steps_skipped = sum(1 for step in step_results if step.get("status") == "skipped")
-steps_pending = sum(1 for step in step_results if step.get("status") not in {"done", "failed", "blocked", "skipped"})
+steps_pending = sum(1 for step in step_results if step.get("status") == "planned")
 critical_step_count = sum(1 for step in step_results if step.get("critical"))
 critical_steps_failed = sum(1 for step in step_results if step.get("critical") and step.get("status") == "failed")
 critical_steps_blocked = sum(1 for step in step_results if step.get("critical") and step.get("status") == "blocked")
+critical_steps_delegated = sum(1 for step in step_results if step.get("critical") and step.get("status") == "delegated")
+critical_steps_running = sum(1 for step in step_results if step.get("critical") and step.get("status") == "running")
 critical_steps_skipped = sum(1 for step in step_results if step.get("critical") and step.get("status") == "skipped")
-critical_steps_pending = sum(1 for step in step_results if step.get("critical") and step.get("status") not in {"done", "failed", "blocked", "skipped"})
+critical_steps_pending = sum(1 for step in step_results if step.get("critical") and step.get("status") == "planned")
 noncritical_steps_failed = sum(1 for step in step_results if not step.get("critical") and step.get("status") == "failed")
 noncritical_steps_blocked = sum(1 for step in step_results if not step.get("critical") and step.get("status") == "blocked")
+noncritical_steps_delegated = sum(1 for step in step_results if not step.get("critical") and step.get("status") == "delegated")
+noncritical_steps_running = sum(1 for step in step_results if not step.get("critical") and step.get("status") == "running")
 noncritical_steps_skipped = sum(1 for step in step_results if not step.get("critical") and step.get("status") == "skipped")
-noncritical_steps_pending = sum(1 for step in step_results if not step.get("critical") and step.get("status") not in {"done", "failed", "blocked", "skipped"})
+noncritical_steps_pending = sum(1 for step in step_results if not step.get("critical") and step.get("status") == "planned")
 local_step_count = sum(1 for step in step_results if step.get("execution_mode") == "local")
 worker_step_count = sum(1 for step in step_results if step.get("execution_mode") == "worker")
 worker_steps_done = sum(
@@ -325,6 +339,16 @@ worker_steps_failed = sum(
     1
     for step in step_results
     if step.get("execution_mode") == "worker" and step.get("status") == "failed"
+)
+worker_steps_delegated = sum(
+    1
+    for step in step_results
+    if step.get("execution_mode") == "worker" and step.get("status") == "delegated"
+)
+worker_steps_running = sum(
+    1
+    for step in step_results
+    if step.get("execution_mode") == "worker" and step.get("status") == "running"
 )
 worker_child_ids = [
     step.get("child_task_id", "")
@@ -405,12 +429,21 @@ if not decision_source_worker_result_status and decision_source_step:
             decision_source_worker_result_status = step.get("worker_result_status") or step.get("status", "")
             break
 
+awaiting_worker_result_steps = sum(
+    1
+    for step in step_results
+    if step.get("await_worker_result") and step.get("status") in {"delegated", "running"}
+)
+
 if critical_steps_failed > 0 or critical_steps_pending > 0 or critical_steps_skipped > 0:
     chain_status = "failed"
     final_task_status = "failed"
 elif critical_steps_blocked > 0:
     chain_status = "blocked"
     final_task_status = "blocked"
+elif awaiting_worker_result_steps > 0:
+    chain_status = "awaiting_worker_result"
+    final_task_status = "delegated"
 elif noncritical_steps_failed > 0 or noncritical_steps_pending > 0 or noncritical_steps_blocked > 0 or children_with_warnings > 0:
     chain_status = "completed_with_warnings"
     final_task_status = "done"
@@ -430,6 +463,12 @@ elif chain_status == "blocked":
     if steps_skipped:
         headline += f", {steps_skipped} skipped"
     headline += ", and one or more critical steps could not start or continue."
+elif chain_status == "awaiting_worker_result":
+    headline = (
+        f"Chain delegated and waiting: {steps_completed}/{step_count} step(s) completed, "
+        f"{steps_delegated} delegated, {steps_running} running"
+    )
+    headline += ", and a worker result is still required before the chain can continue."
 elif chain_status == "completed_with_warnings":
     headline = f"Chain completed with warnings: {steps_completed}/{step_count} step(s) completed, {steps_failed} failed"
     if steps_blocked:
@@ -453,6 +492,8 @@ summary = {
     "children_done": children_done,
     "children_failed": children_failed,
     "children_blocked": children_blocked,
+    "children_delegated": children_delegated,
+    "children_running": children_running,
     "children_with_warnings": children_with_warnings,
     "failed_child_ids": failed_child_ids,
     "blocked_child_ids": blocked_child_ids,
@@ -464,15 +505,21 @@ summary = {
     "steps_completed": steps_completed,
     "steps_failed": steps_failed,
     "steps_blocked": steps_blocked,
+    "steps_delegated": steps_delegated,
+    "steps_running": steps_running,
     "steps_skipped": steps_skipped,
     "steps_pending": steps_pending,
     "critical_step_count": critical_step_count,
     "critical_steps_failed": critical_steps_failed,
     "critical_steps_blocked": critical_steps_blocked,
+    "critical_steps_delegated": critical_steps_delegated,
+    "critical_steps_running": critical_steps_running,
     "critical_steps_skipped": critical_steps_skipped,
     "critical_steps_pending": critical_steps_pending,
     "noncritical_steps_failed": noncritical_steps_failed,
     "noncritical_steps_blocked": noncritical_steps_blocked,
+    "noncritical_steps_delegated": noncritical_steps_delegated,
+    "noncritical_steps_running": noncritical_steps_running,
     "noncritical_steps_skipped": noncritical_steps_skipped,
     "noncritical_steps_pending": noncritical_steps_pending,
     "local_step_count": local_step_count,
@@ -482,6 +529,8 @@ summary = {
     "worker_steps_done": worker_steps_done,
     "worker_steps_blocked": worker_steps_blocked,
     "worker_steps_failed": worker_steps_failed,
+    "worker_steps_delegated": worker_steps_delegated,
+    "worker_steps_running": worker_steps_running,
     "worker_child_ids": worker_child_ids,
     "local_child_ids": local_child_ids,
     "worker_result_summaries": worker_result_summaries,
@@ -495,6 +544,7 @@ summary = {
     "headline": headline,
     "chain_status": chain_status,
     "final_task_status": final_task_status,
+    "awaiting_worker_result_steps": awaiting_worker_result_steps,
 }
 
 print(json.dumps(summary))

@@ -16,6 +16,7 @@ usage() {
   cat <<USAGE
 Uso:
   ./scripts/task_chain_run_v2.sh repo-analysis-worker "<title>"
+  ./scripts/task_chain_run_v2.sh repo-analysis-worker-manual "<title>"
 USAGE
 }
 
@@ -255,6 +256,8 @@ print(
     "chain_status={chain_status} steps_completed={steps_completed}/{step_count} "
     "steps_blocked={steps_blocked} worker_steps_done={worker_steps_done} "
     "worker_steps_blocked={worker_steps_blocked} worker_steps_failed={worker_steps_failed} "
+    "steps_delegated={steps_delegated} steps_running={steps_running} "
+    "worker_steps_delegated={worker_steps_delegated} worker_steps_running={worker_steps_running} "
     "delegated_steps_count={delegated_steps_count} local_steps_count={local_steps_count}".format(
         chain_status=summary["chain_status"],
         steps_completed=summary["steps_completed"],
@@ -263,6 +266,10 @@ print(
         worker_steps_done=summary["worker_steps_done"],
         worker_steps_blocked=summary["worker_steps_blocked"],
         worker_steps_failed=summary["worker_steps_failed"],
+        steps_delegated=summary["steps_delegated"],
+        steps_running=summary["steps_running"],
+        worker_steps_delegated=summary["worker_steps_delegated"],
+        worker_steps_running=summary["worker_steps_running"],
         delegated_steps_count=summary["delegated_steps_count"],
         local_steps_count=summary["local_steps_count"],
     )
@@ -282,11 +289,17 @@ print(json.dumps({
     "steps_completed": summary["steps_completed"],
     "steps_failed": summary["steps_failed"],
     "steps_blocked": summary["steps_blocked"],
+    "steps_delegated": summary["steps_delegated"],
+    "steps_running": summary["steps_running"],
     "steps_pending": summary["steps_pending"],
+    "children_delegated": summary["children_delegated"],
+    "children_running": summary["children_running"],
     "local_steps_count": summary["local_steps_count"],
     "delegated_steps_count": summary["delegated_steps_count"],
     "worker_steps_done": summary["worker_steps_done"],
     "worker_steps_blocked": summary["worker_steps_blocked"],
+    "worker_steps_delegated": summary["worker_steps_delegated"],
+    "worker_steps_running": summary["worker_steps_running"],
     "worker_steps_failed": summary["worker_steps_failed"],
     "worker_result_summaries": summary["worker_result_summaries"],
     "aggregated_artifact_paths": summary["aggregated_artifact_paths"],
@@ -325,7 +338,7 @@ if [ -z "$chain_type" ] || [ -z "$chain_title" ]; then
 fi
 
 case "$chain_type" in
-  repo-analysis-worker) ;;
+  repo-analysis-worker|repo-analysis-worker-manual) ;;
   *)
     usage
     fatal "chain_type no soportado: $chain_type"
@@ -419,8 +432,48 @@ PY
 
 delegate_output="$(./scripts/task_delegate.sh "$worker_task_id")"
 printf '%s\n' "$delegate_output"
+handoff_output="$(./scripts/task_prepare_codex_handoff.sh "$worker_task_id")"
+printf '%s\n' "$handoff_output"
 ticket_output="$(./scripts/task_prepare_codex_ticket.sh "$worker_task_id")"
 printf '%s\n' "$ticket_output"
+
+if [ "$chain_type" = "repo-analysis-worker-manual" ]; then
+  worker_summary="$(task_compact_summary "$worker_task_id" || true)"
+  update_chain_step "delegated-repo-analysis" delegated "$worker_task_id" "${worker_summary:-worker step delegated and awaiting manual-controlled result}" "0"
+  add_chain_output "chain-step-worker" 0 "delegated-repo-analysis delegated awaiting manual-controlled worker result" "delegated-repo-analysis" "$worker_task_id" "worker" "true"
+  close_root
+
+  root_status="$(
+    python3 - "$root_task_path" <<'PY'
+import json
+import pathlib
+import sys
+
+task_path = pathlib.Path(sys.argv[1])
+with task_path.open(encoding="utf-8") as fh:
+    task = json.load(fh)
+print(task.get("status", ""))
+print(task.get("chain_status", ""))
+PY
+  )"
+  printf '%s\n' "$root_status"
+
+  root_final_status="$(printf '%s\n' "$root_status" | sed -n '1p')"
+  if [ "$root_final_status" = "delegated" ]; then
+    printf 'TASK_CHAIN_DELEGATED %s\n' "$root_task_id"
+    exit 3
+  fi
+  if [ "$root_final_status" = "failed" ]; then
+    printf 'TASK_CHAIN_FAIL %s\n' "$root_task_id"
+    exit 1
+  fi
+  if [ "$root_final_status" = "blocked" ]; then
+    printf 'TASK_CHAIN_BLOCKED %s\n' "$root_task_id"
+    exit 2
+  fi
+  printf 'TASK_CHAIN_OK %s\n' "$root_task_id"
+  exit 0
+fi
 
 set +e
 worker_start_output="$(./scripts/task_start_codex_run.sh "$worker_task_id" 2>&1)"
@@ -507,6 +560,11 @@ fi
 if [ "$root_final_status" = "blocked" ]; then
   printf 'TASK_CHAIN_BLOCKED %s\n' "$root_task_id"
   exit 2
+fi
+
+if [ "$root_final_status" = "delegated" ]; then
+  printf 'TASK_CHAIN_DELEGATED %s\n' "$root_task_id"
+  exit 3
 fi
 
 printf 'TASK_CHAIN_OK %s\n' "$root_task_id"

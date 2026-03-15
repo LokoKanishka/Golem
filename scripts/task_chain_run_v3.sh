@@ -233,15 +233,21 @@ import sys
 summary = json.loads(sys.argv[1])
 print(
     "chain_status={chain_status} steps_completed={steps_completed}/{step_count} "
-    "steps_blocked={steps_blocked} steps_skipped={steps_skipped} worker_steps_done={worker_steps_done} "
-    "worker_steps_blocked={worker_steps_blocked} worker_steps_failed={worker_steps_failed} next_step_selected={next_step_selected}".format(
+    "steps_blocked={steps_blocked} steps_delegated={steps_delegated} steps_running={steps_running} "
+    "steps_skipped={steps_skipped} worker_steps_done={worker_steps_done} "
+    "worker_steps_blocked={worker_steps_blocked} worker_steps_delegated={worker_steps_delegated} "
+    "worker_steps_running={worker_steps_running} worker_steps_failed={worker_steps_failed} next_step_selected={next_step_selected}".format(
         chain_status=summary["chain_status"],
         steps_completed=summary["steps_completed"],
         step_count=summary["step_count"],
         steps_blocked=summary["steps_blocked"],
+        steps_delegated=summary["steps_delegated"],
+        steps_running=summary["steps_running"],
         steps_skipped=summary["steps_skipped"],
         worker_steps_done=summary["worker_steps_done"],
         worker_steps_blocked=summary["worker_steps_blocked"],
+        worker_steps_delegated=summary["worker_steps_delegated"],
+        worker_steps_running=summary["worker_steps_running"],
         worker_steps_failed=summary["worker_steps_failed"],
         next_step_selected=summary["next_step_selected"] or "(none)",
     )
@@ -261,12 +267,18 @@ print(json.dumps({
     "steps_completed": summary["steps_completed"],
     "steps_failed": summary["steps_failed"],
     "steps_blocked": summary["steps_blocked"],
+    "steps_delegated": summary["steps_delegated"],
+    "steps_running": summary["steps_running"],
     "steps_skipped": summary["steps_skipped"],
     "steps_pending": summary["steps_pending"],
+    "children_delegated": summary["children_delegated"],
+    "children_running": summary["children_running"],
     "local_steps_count": summary["local_steps_count"],
     "delegated_steps_count": summary["delegated_steps_count"],
     "worker_steps_done": summary["worker_steps_done"],
     "worker_steps_blocked": summary["worker_steps_blocked"],
+    "worker_steps_delegated": summary["worker_steps_delegated"],
+    "worker_steps_running": summary["worker_steps_running"],
     "worker_steps_failed": summary["worker_steps_failed"],
     "decision_reason": summary["decision_reason"],
     "decision_source_step": summary["decision_source_step"],

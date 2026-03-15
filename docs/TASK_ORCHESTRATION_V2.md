@@ -17,10 +17,11 @@ Allow one root chain to mix:
 - richer planning
 - smarter final aggregation
 
-The first concrete v2 chain type is:
+The first concrete v2 chain types are:
 
 ```text
 repo-analysis-worker
+repo-analysis-worker-manual
 ```
 
 ## New root-level contract
@@ -50,6 +51,7 @@ Each planned step may include:
 - `title`
 - `objective`
 - `depends_on_step_names`
+- `await_worker_result`
 - `status`
 - `child_task_id`
 - optional runtime fields such as `summary`, `started_at`, `finished_at`
@@ -63,7 +65,12 @@ Supported execution modes in this layer:
 
 `local` means Golem runs the step directly with existing scripts.
 
-`worker` means the step materializes as a delegated child task, goes through handoff plus ticket preparation, launches a real controlled Codex run, and returns through the worker result flow.
+`worker` means the step materializes as a delegated child task.
+
+This layer now supports two honest worker policies:
+
+- controlled worker step: delegate, launch the real controlled Codex run, finalize the worker result, then continue local steps
+- manual-controlled worker step: delegate, prepare handoff and ticket, and leave the root waiting for a later worker result instead of pretending the chain already completed
 
 ## Planning
 
@@ -71,11 +78,12 @@ Use:
 
 ```text
 ./scripts/task_chain_plan.sh repo-analysis-worker "<title>"
+./scripts/task_chain_plan.sh repo-analysis-worker-manual "<title>"
 ```
 
 This creates a root `task-chain` task in `planned` chain state and writes a v2 `chain_plan`.
 
-The current default plan is:
+The controlled default plan is:
 
 1. local self-check
 2. delegated repo analysis with real Codex run
@@ -83,15 +91,23 @@ The current default plan is:
 
 The third step is intentionally non-critical so the chain can express warning-grade completion instead of only binary success/failure.
 
+The manual-controlled plan is:
+
+1. local self-check
+2. delegated repo analysis with `await_worker_result: true`
+
+That second plan intentionally stops with the root in `status: delegated` + `chain_status: awaiting_worker_result` until the worker result is registered.
+
 ## Running
 
 Use:
 
 ```text
 ./scripts/task_chain_run_v2.sh repo-analysis-worker "<title>"
+./scripts/task_chain_run_v2.sh repo-analysis-worker-manual "<title>"
 ```
 
-The runner:
+For `repo-analysis-worker`, the runner:
 
 1. creates the v2 plan
 2. marks the root as running
@@ -102,6 +118,15 @@ The runner:
 7. executes the trailing local step
 8. collects mixed chain results into a root-level snapshot
 9. finalizes the root chain with an aggregated artifact
+
+For `repo-analysis-worker-manual`, the runner:
+
+1. creates the v2 plan
+2. marks the root as running
+3. executes the local step
+4. creates and delegates a child `repo-analysis` task
+5. prepares handoff packet and Codex ticket
+6. finalizes the root as `delegated` / `awaiting_worker_result`
 
 ## Status inspection
 
@@ -145,6 +170,8 @@ The root stores:
 - step counters
 - local vs worker step counts
 - `worker_steps_done`
+- `worker_steps_delegated`
+- `worker_steps_running`
 - `worker_steps_failed`
 - `worker_child_ids`
 - `worker_result_summaries`
@@ -160,6 +187,7 @@ Rules in this version:
 
 - any failed or incomplete critical step makes the chain fail
 - any blocked critical step makes the chain block
+- any worker step with `await_worker_result: true` keeps the root delegated until the worker result exists
 - failed non-critical steps degrade the chain to `completed_with_warnings`
 - blocked non-critical steps also degrade the chain to `completed_with_warnings`
 - warning markers in child outputs also degrade to `completed_with_warnings`

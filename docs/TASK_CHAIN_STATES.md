@@ -27,6 +27,7 @@ That means the chain finished and closed coherently, but one or more child tasks
 
 - `planned`
 - `running`
+- `awaiting_worker_result`
 - `completed`
 - `completed_with_warnings`
 - `blocked`
@@ -38,6 +39,7 @@ Current practical values are:
 
 - `planned`
 - `running`
+- `delegated`
 - `done`
 - `blocked`
 - `failed`
@@ -53,6 +55,7 @@ Typical mappings in this version:
 
 - `status: done` + `chain_status: completed`
 - `status: done` + `chain_status: completed_with_warnings`
+- `status: delegated` + `chain_status: awaiting_worker_result`
 - `status: blocked` + `chain_status: blocked`
 - `status: failed` + `chain_status: failed`
 
@@ -65,6 +68,8 @@ The chain root should persist an aggregated summary of its direct children, incl
 - `children_done`
 - `children_failed`
 - `children_blocked`
+- `children_delegated`
+- `children_running`
 - `children_with_warnings`
 - aggregated child artifact paths
 
@@ -76,6 +81,8 @@ The stronger v2 summary may also include:
 - `steps_completed`
 - `steps_failed`
 - `steps_blocked`
+- `steps_delegated`
+- `steps_running`
 - `steps_pending`
 - `critical_step_count`
 - `critical_steps_failed`
@@ -86,6 +93,8 @@ The stronger v2 summary may also include:
 - `delegated_steps_count`
 - `worker_steps_done`
 - `worker_steps_blocked`
+- `worker_steps_delegated`
+- `worker_steps_running`
 - `worker_steps_failed`
 - `worker_child_ids`
 - `worker_result_summaries`
@@ -107,6 +116,7 @@ In v2 this becomes step-aware:
 
 - critical steps fail the chain
 - critical blocked steps block the chain
+- worker steps marked `await_worker_result` leave the root in `status: delegated` + `chain_status: awaiting_worker_result` while the worker result is still pending
 - non-critical failed steps produce `completed_with_warnings`
 - non-critical blocked steps also produce `completed_with_warnings`
 - incomplete critical steps also fail the chain at finalization time
@@ -115,6 +125,7 @@ That means:
 
 - if any child fails, the root chain closes as `failed`
 - if no critical child failed but a critical child is `blocked`, the root chain closes as `blocked`
+- if a critical worker step is intentionally awaiting manual-controlled result, the root chain closes as `delegated`
 - the root task records the failure in `chain_status`
 - the aggregated summary shows failed vs blocked child counts separately
 - the final artifact still gets generated for traceability

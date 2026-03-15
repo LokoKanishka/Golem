@@ -84,10 +84,14 @@ print(f"- child_count: {summary['child_count']}")
 print(f"- children_done: {summary['children_done']}")
 print(f"- children_failed: {summary['children_failed']}")
 print(f"- children_blocked: {summary['children_blocked']}")
+print(f"- children_delegated: {summary['children_delegated']}")
+print(f"- children_running: {summary['children_running']}")
 print(f"- step_count: {summary['step_count']}")
 print(f"- steps_completed: {summary['steps_completed']}")
 print(f"- steps_failed: {summary['steps_failed']}")
 print(f"- steps_blocked: {summary['steps_blocked']}")
+print(f"- steps_delegated: {summary['steps_delegated']}")
+print(f"- steps_running: {summary['steps_running']}")
 print(f"- steps_skipped: {summary['steps_skipped']}")
 print(f"- steps_pending: {summary['steps_pending']}")
 print(f"- local_steps_count: {summary['local_steps_count']}")
@@ -95,6 +99,8 @@ print(f"- delegated_steps_count: {summary['delegated_steps_count']}")
 print(f"- worker_steps_done: {summary['worker_steps_done']}")
 print(f"- worker_steps_blocked: {summary['worker_steps_blocked']}")
 print(f"- worker_steps_failed: {summary['worker_steps_failed']}")
+print(f"- worker_steps_delegated: {summary['worker_steps_delegated']}")
+print(f"- worker_steps_running: {summary['worker_steps_running']}")
 if summary.get("decision_source_step"):
     print(f"- decision_source_step: {summary.get('decision_source_step')}")
 if summary.get("decision_source_worker_result_status"):
@@ -172,6 +178,8 @@ elif summary["chain_status"] == "completed_with_warnings":
     print("- Final status stayed done, but warning-level evidence or non-critical failures were recorded.")
 elif summary["chain_status"] == "blocked":
     print("- Final status was blocked because one or more critical steps hit an external or operational blocker.")
+elif summary["chain_status"] == "awaiting_worker_result":
+    print("- Final status was delegated because a worker step is still awaiting a manual-controlled result.")
 else:
     print("- All planned steps completed cleanly.")
 if summary["worker_result_summaries"]:
@@ -223,6 +231,8 @@ task["chain_summary"] = {
     "children_done": summary["children_done"],
     "children_failed": summary["children_failed"],
     "children_blocked": summary["children_blocked"],
+    "children_delegated": summary["children_delegated"],
+    "children_running": summary["children_running"],
     "children_with_warnings": summary["children_with_warnings"],
     "failed_child_ids": summary["failed_child_ids"],
     "blocked_child_ids": summary["blocked_child_ids"],
@@ -233,6 +243,8 @@ task["chain_summary"] = {
     "steps_completed": summary["steps_completed"],
     "steps_failed": summary["steps_failed"],
     "steps_blocked": summary["steps_blocked"],
+    "steps_delegated": summary["steps_delegated"],
+    "steps_running": summary["steps_running"],
     "steps_skipped": summary["steps_skipped"],
     "steps_pending": summary["steps_pending"],
     "critical_step_count": summary["critical_step_count"],
@@ -247,6 +259,8 @@ task["chain_summary"] = {
     "worker_steps_done": summary["worker_steps_done"],
     "worker_steps_blocked": summary["worker_steps_blocked"],
     "worker_steps_failed": summary["worker_steps_failed"],
+    "worker_steps_delegated": summary["worker_steps_delegated"],
+    "worker_steps_running": summary["worker_steps_running"],
     "worker_child_ids": summary["worker_child_ids"],
     "worker_result_summaries": summary["worker_result_summaries"],
     "worker_outcomes": summary["worker_outcomes"],
@@ -284,8 +298,10 @@ summary = json.loads(sys.argv[1])
 artifact_rel = sys.argv[2]
 print(
     "chain_status={chain_status} step_count={step_count} steps_completed={steps_completed} "
-    "steps_failed={steps_failed} steps_blocked={steps_blocked} steps_skipped={steps_skipped} "
+    "steps_failed={steps_failed} steps_blocked={steps_blocked} steps_delegated={steps_delegated} "
+    "steps_running={steps_running} steps_skipped={steps_skipped} "
     "worker_steps_done={worker_steps_done} worker_steps_blocked={worker_steps_blocked} "
+    "worker_steps_delegated={worker_steps_delegated} worker_steps_running={worker_steps_running} "
     "worker_steps_failed={worker_steps_failed} next_step_selected={next_step_selected} "
     "headline={headline} final_artifact_path={artifact_rel}".format(
         chain_status=summary["chain_status"],
@@ -293,9 +309,13 @@ print(
         steps_completed=summary["steps_completed"],
         steps_failed=summary["steps_failed"],
         steps_blocked=summary["steps_blocked"],
+        steps_delegated=summary["steps_delegated"],
+        steps_running=summary["steps_running"],
         steps_skipped=summary["steps_skipped"],
         worker_steps_done=summary["worker_steps_done"],
         worker_steps_blocked=summary["worker_steps_blocked"],
+        worker_steps_delegated=summary["worker_steps_delegated"],
+        worker_steps_running=summary["worker_steps_running"],
         worker_steps_failed=summary["worker_steps_failed"],
         next_step_selected=summary["next_step_selected"] or "(none)",
         headline=summary["headline"],
@@ -320,6 +340,8 @@ extra = {
     "children_done": summary["children_done"],
     "children_failed": summary["children_failed"],
     "children_blocked": summary["children_blocked"],
+    "children_delegated": summary["children_delegated"],
+    "children_running": summary["children_running"],
     "children_with_warnings": summary["children_with_warnings"],
     "artifact_paths": summary["artifact_paths"],
     "aggregated_artifact_paths": summary["aggregated_artifact_paths"],
@@ -327,6 +349,8 @@ extra = {
     "steps_completed": summary["steps_completed"],
     "steps_failed": summary["steps_failed"],
     "steps_blocked": summary["steps_blocked"],
+    "steps_delegated": summary["steps_delegated"],
+    "steps_running": summary["steps_running"],
     "steps_skipped": summary["steps_skipped"],
     "steps_pending": summary["steps_pending"],
     "local_steps_count": summary["local_steps_count"],
@@ -334,6 +358,8 @@ extra = {
     "worker_steps_done": summary["worker_steps_done"],
     "worker_steps_blocked": summary["worker_steps_blocked"],
     "worker_steps_failed": summary["worker_steps_failed"],
+    "worker_steps_delegated": summary["worker_steps_delegated"],
+    "worker_steps_running": summary["worker_steps_running"],
     "worker_result_summaries": summary["worker_result_summaries"],
     "worker_outcomes": summary["worker_outcomes"],
     "decision_reason": summary["decision_reason"],

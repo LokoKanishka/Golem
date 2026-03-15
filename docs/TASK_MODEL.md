@@ -114,6 +114,8 @@ En runners que quieran una senal maquina estable, `blocked` puede aparecer junto
 
 Las tareas raiz de cadena tambien pueden cerrar como `blocked` cuando una precondicion externa impide completar un paso critico sin que exista una falla interna real del motor.
 
+Tambien pueden quedar en `delegated` cuando la cadena ya avanzo hasta un paso worker manual-controlado y todavia espera un resultado registrado de ese worker.
+
 ## Convenciones iniciales
 
 - `origin` se inicializa como `local`
