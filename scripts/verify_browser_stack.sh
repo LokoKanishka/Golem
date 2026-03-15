@@ -62,6 +62,9 @@ classify_browser_capability() {
   if [ "$exit_code" -eq 0 ] && [ "$task_final_status" = "done" ]; then
     status="PASS"
     note="success-path real verificado con salida util"
+  elif [ "$task_final_status" = "blocked" ] || printf '%s\n' "$output" | grep -Eq '^TASK_RUN_BLOCKED '; then
+    status="BLOCKED"
+    note="la tarea cerro como blocked con evidencia de readiness y bloqueo operacional"
   elif printf '%s\n' "$output" | grep -Eqi 'no hay tabs adjuntas|No tabs|no tab is connected|browser closed or no targets|Failed to start Chrome CDP|gateway timeout'; then
     status="BLOCKED"
     note="sin tab utilizable en chrome y sin fallback openclaw realmente usable"

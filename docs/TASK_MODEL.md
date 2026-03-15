@@ -97,11 +97,20 @@ La primera version valida solamente estos estados:
 
 - `queued`
 - `running`
+- `blocked`
 - `delegated`
 - `worker_running`
 - `done`
 - `failed`
 - `cancelled`
+
+Semantica practica de esta etapa:
+
+- `pending` es la idea general de algo pendiente; el estado persistido equivalente es `queued`
+- `blocked` significa que la tarea no pudo avanzar por una precondicion externa u operativa no satisfecha
+- `failed` queda reservado para falla interna real o para una ejecucion no exitosa despues de haber podido correr
+
+En runners que quieran una senal maquina estable, `blocked` puede aparecer junto con `outputs[].exit_code = 2`.
 
 ## Convenciones iniciales
 

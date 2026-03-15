@@ -54,13 +54,13 @@ Important:
   - `./scripts/task_run_nav.sh tabs "Capability verification / navigation tabs"`
   - `./scripts/task_summary.sh <task_id>`
 - success criterion: readiness reports `READY` or `DEGRADED`, wrapper exits `0`, and the task closes as `done`
-- failure criterion: readiness reports `READY` or `DEGRADED` but the wrapper still exits non-zero for an internal reason
+- failure criterion: readiness reports `READY` or `DEGRADED` but the wrapper still exits non-zero or closes as `failed` for an internal reason
 - path coverage: success-path or BLOCKED path
 - environment dependencies:
   - browser relay available
   - at least one usable attached tab
 
-When readiness reports `BLOCKED`, that is an honest environment block, not a `PASS` and not a generic internal `FAIL`.
+When readiness reports `BLOCKED`, the wrapper should exit with the blocked convention and the task should close as `blocked`, not `failed`.
 
 ### 3. Reading
 
@@ -71,7 +71,7 @@ When readiness reports `BLOCKED`, that is an honest environment block, not a `PA
   - `./scripts/task_run_read.sh snapshot "Capability verification / reading snapshot"`
   - `./scripts/task_summary.sh <task_id>`
 - success criterion: readiness reports `READY` or `DEGRADED`, wrapper exits `0`, and the task closes as `done`
-- failure criterion: readiness reports `READY` or `DEGRADED` but the wrapper exits non-zero for an internal reason
+- failure criterion: readiness reports `READY` or `DEGRADED` but the wrapper exits non-zero or closes as `failed` for an internal reason
 - path coverage: success-path or BLOCKED path
 - environment dependencies:
   - browser relay available
@@ -87,7 +87,7 @@ When readiness reports `BLOCKED`, that is an honest environment block, not a `PA
   - `./scripts/validate_markdown_artifact.sh <artifact>`
   - `./scripts/task_summary.sh <task_id>`
 - success criterion: readiness reports `READY` or `DEGRADED`, wrapper exits `0`, task closes as `done`, and the markdown artifact validates
-- failure criterion: readiness reports `READY` or `DEGRADED` but no artifact is produced or validation fails for an internal reason
+- failure criterion: readiness reports `READY` or `DEGRADED` but no artifact is produced, the task closes as `failed`, or validation fails for an internal reason
 - path coverage: success-path or BLOCKED path
 - environment dependencies:
   - browser relay available

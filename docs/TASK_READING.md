@@ -9,7 +9,7 @@ Run reading operations as tasks so Golem keeps:
 - task creation
 - transition to `running`
 - persisted textual output
-- final closure as `done` or `failed`
+- final closure as `done`, `blocked`, or `failed`
 
 ## Script
 
@@ -30,10 +30,11 @@ The entry point is:
 The runner:
 
 1. creates a task of type `read-find` or `read-snapshot`
-2. moves it to `running`
-3. runs `./scripts/browser_read.sh`
-4. persists the textual result in `outputs`
-5. closes the task as `done` or `failed`
+2. runs a browser readiness gate first
+3. if readiness passes, moves it to `running`
+4. runs `./scripts/browser_read.sh`
+5. persists the textual result in `outputs`
+6. closes the task as `done`, `blocked`, or `failed`
 
 ## Persisted data
 
@@ -54,10 +55,11 @@ Each run appends an entry to `outputs` with fields such as:
 The task is marked:
 
 - `done` when a reading attempt finishes with exit code `0`
-- `failed` when all attempted profiles fail, including no-tabs or relay errors
+- `blocked` when browser readiness proves that no usable browser target exists before execution
+- `failed` when readiness passed but the reading flow still fails for an internal or runtime reason
 
 Reading does not generate artifacts in this stage.
 
 ## Diagnostic note
 
-If there is no usable attached tab or no usable managed-browser target, the task may fail operationally even though the honest classification is an environment block. Use `./scripts/verify_browser_stack.sh` to distinguish `BLOCKED` from a real script `FAIL`.
+If readiness blocks execution, the runner persists `browser_readiness` evidence and uses `exit_code: 2` as the machine-readable blocked convention. Use `./scripts/verify_browser_stack.sh` to distinguish `BLOCKED` from a real script `FAIL`.

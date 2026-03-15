@@ -289,7 +289,7 @@ if query:
 print(json.dumps(extra))
 PY
   )" ./scripts/task_add_output.sh "$task_id" "artifact-$mode" "$artifact_exit" "$run_output"
-  ./scripts/task_close.sh "$task_id" failed "browser blocked before artifact execution"
+  ./scripts/task_close.sh "$task_id" blocked "browser blocked before artifact execution"
   finalized="1"
   printf 'TASK_RUN_BLOCKED %s\n' "$task_id"
   exit 2

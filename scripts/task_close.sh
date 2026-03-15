@@ -27,7 +27,7 @@ if [ -z "$task_id" ] || [ -z "$status" ]; then
 fi
 
 case "$status" in
-  done|failed|cancelled) ;;
+  done|failed|blocked|cancelled) ;;
   *)
     fatal "status de cierre inválido: $status"
     ;;

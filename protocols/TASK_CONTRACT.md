@@ -113,13 +113,30 @@ Para este contrato minimo, los estados permitidos son:
 
 - `queued`
 - `running`
+- `blocked`
 - `delegated`
 - `worker_running`
 - `done`
 - `failed`
 - `cancelled`
 
-Estos estados son compatibles con el modelo local actual del repo y alcanzan para esta etapa.
+Semantica minima:
+
+- `pending`: concepto general de trabajo todavia no iniciado; en el repo actual se persiste como `queued`
+- `queued`: tarea aceptada pero aun no ejecutada
+- `running`: ejecucion local activa o chequeo en curso
+- `blocked`: la tarea no pudo avanzar por una precondicion externa u operativa no satisfecha, por ejemplo browser no utilizable
+- `delegated`: la tarea fue entregada al flujo gobernado de worker, pero el worker todavia no esta corriendo
+- `worker_running`: el worker ya esta ejecutando la tarea delegada
+- `done`: la tarea termino de forma exitosa
+- `failed`: hubo falla interna real, ejecucion fallida o resultado no exitoso una vez satisfechas las precondiciones
+- `cancelled`: la tarea fue detenida por decision explicita
+
+Convencion minima para esta etapa:
+
+- `blocked` no cuenta como `done`
+- `blocked` tampoco debe disfrazarse como `failed`
+- cuando un runner necesita una senal maquina simple, puede conservar `exit_code: 2` dentro de `outputs` para representar bloqueo operacional
 
 ## Eventos minimos
 
@@ -132,6 +149,7 @@ Eventos base:
 - `task_started`
 - `task_progress`
 - `task_delegated_future`
+- `task_blocked`
 - `artifact_published`
 - `task_completed`
 - `task_failed`

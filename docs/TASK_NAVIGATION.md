@@ -9,7 +9,7 @@ Run navigation operations as tasks so Golem keeps:
 - task creation
 - transition to `running`
 - persisted navigation output
-- final closure as `done` or `failed`
+- final closure as `done`, `blocked`, or `failed`
 
 ## Script
 
@@ -32,10 +32,11 @@ The entry point is:
 The runner:
 
 1. creates a task of type `nav-tabs`, `nav-open`, or `nav-snapshot`
-2. moves it to `running`
-3. runs `./scripts/browser_nav.sh`
-4. persists the result in `outputs`
-5. closes the task as `done` or `failed`
+2. runs a browser readiness gate first
+3. if readiness passes, moves the task to `running`
+4. runs `./scripts/browser_nav.sh`
+5. persists the result in `outputs`
+6. closes the task as `done`, `blocked`, or `failed`
 
 ## Persisted data
 
@@ -58,6 +59,7 @@ Navigation does not create artifacts in this stage.
 The task is marked:
 
 - `done` when a navigation attempt finishes with exit code `0`
-- `failed` when all attempted profiles fail, including relay or tab errors
+- `blocked` when browser readiness detects that no usable browser target exists before execution
+- `failed` when readiness passed but navigation still fails for an internal or runtime reason
 
-If there is no usable attached tab or no usable managed-browser target, the task may fail operationally even though the real diagnosis is an environment block. Use `./scripts/verify_browser_stack.sh` for the final `PASS` / `FAIL` / `BLOCKED` classification.
+When the runner closes as `blocked`, it keeps the readiness evidence in `outputs.browser_readiness` and uses `exit_code: 2` as the machine-readable convention for operational blocking.

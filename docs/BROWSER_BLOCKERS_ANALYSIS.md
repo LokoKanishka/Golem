@@ -52,10 +52,11 @@ The browser task runners now consume that decision before calling the browser ac
 
 If readiness is `BLOCKED`, the runner no longer fires blindly. Instead it:
 
+- closes the task as `status: blocked`
 - records `exit_code: 2`
 - records `BROWSER_BLOCKED ...` as the task output content
 - persists the nested `browser_readiness` evidence block
-- closes the task with an explicit note such as `browser blocked before navigation execution`
+- appends an explicit note such as `browser blocked before navigation execution`
 
 ## What is blocked by environment
 
@@ -101,7 +102,7 @@ Based on the current evidence:
 
 The blocker is primarily environmental (`chrome` without an attached tab), with an additional managed-profile fragility that prevents using `openclaw` as a clean fallback today.
 
-The repo-side improvement is that this now becomes a traceable `BLOCKED` decision instead of a generic task failure.
+The repo-side improvement is that this now becomes a first-class `blocked` task state instead of a generic task failure.
 
 ## Implication for future matrix runs
 

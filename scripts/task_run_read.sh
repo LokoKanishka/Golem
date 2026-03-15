@@ -295,7 +295,7 @@ if [ "$browser_final_decision" = "block" ]; then
   read_exit="2"
   read_profile="$browser_readiness_profile"
   TASK_OUTPUT_EXTRA_JSON="$(build_output_extra_json)" ./scripts/task_add_output.sh "$task_id" "read-$mode" "$read_exit" "$run_output"
-  ./scripts/task_close.sh "$task_id" failed "browser blocked before reading execution"
+  ./scripts/task_close.sh "$task_id" blocked "browser blocked before reading execution"
   finalized="1"
   printf 'TASK_RUN_BLOCKED %s\n' "$task_id"
   exit 2

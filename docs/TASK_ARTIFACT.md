@@ -10,7 +10,7 @@ Run simple artifact generation under the task model so Golem keeps:
 - status transitions
 - persisted command output
 - recorded artifact paths
-- final closure as `done` or `failed`
+- final closure as `done`, `blocked`, or `failed`
 
 ## Script
 
@@ -33,11 +33,12 @@ The runner creates one of these task types:
 The runner performs these steps:
 
 1. creates a new task
-2. updates it to `running`
-3. runs `./scripts/browser_artifact.sh` in the requested mode
-4. persists the output in the task JSON
-5. records the generated file in `artifacts`
-6. closes the task as `done` or `failed`
+2. runs a browser readiness gate first
+3. if readiness passes, updates it to `running`
+4. runs `./scripts/browser_artifact.sh` in the requested mode
+5. persists the output in the task JSON
+6. records the generated file in `artifacts` when one exists
+7. closes the task as `done`, `blocked`, or `failed`
 
 ## Browser profile selection
 
@@ -77,7 +78,10 @@ It also refreshes `updated_at` and appends a short note to `notes`.
 The runner marks the task:
 
 - `done` when `browser_artifact.sh` returns success and prints `ARTIFACT_OK <ruta>`
-- `failed` when every attempted profile fails or when no valid artifact path is produced
+- `blocked` when browser readiness detects that no usable browser target exists before execution
+- `failed` when readiness passed but no valid artifact path is produced or the artifact flow fails internally
+
+When the task closes as `blocked`, the runner preserves `browser_readiness` evidence in `outputs` and uses `exit_code: 2` as the machine-readable blocked convention.
 
 ## Safety
 

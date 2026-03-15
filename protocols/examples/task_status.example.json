@@ -1,10 +1,10 @@
 {
   "task_id": "task-20260315T000000Z-example01",
   "canonical_session": "panel://gateway/main",
-  "status": "running",
-  "event": "task_started",
+  "status": "blocked",
+  "event": "task_blocked",
   "event_at": "2026-03-15T00:05:00Z",
-  "summary": "La tarea fue aceptada y paso a ejecucion local controlada.",
+  "summary": "La tarea no pudo avanzar porque la precondicion operativa externa no estaba disponible.",
   "notify_policy": "panel_then_whatsapp",
   "truth_policy": {
     "primary_surface": "panel",
