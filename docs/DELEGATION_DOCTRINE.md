@@ -34,11 +34,13 @@ Use `human` when the task:
 
 ### `worker_future`
 
-Use `worker_future` when the task is a better fit for a future worker but not for Golem alone today, for example:
+Use `worker_future` when the task is a better fit for the delegated worker path than for Golem alone, for example:
 
 - long-running execution
 - structured multi-step production
-- tasks that will need a real delegated worker loop once integration exists
+- tasks that already have a governed delegated worker loop in this repo
+
+Today this includes explicitly allowed delegated types such as `repo-analysis`.
 
 ### `review_required`
 
@@ -61,12 +63,20 @@ Delegation decisions should consider:
 - need for external access or unfinished integration
   weakly governed integrations should not default to autonomous execution
 
+## Source of truth
+
+Delegation decisions should follow this order:
+
+1. `config/delegation_policy.json` is the source of truth for `owner`, `rationale`, and `escalation`
+2. `docs/DELEGATION_MATRIX.md` is the human-readable summary of the current policy
+3. other docs may explain related handoff or worker flows, but should not contradict the policy
+
 ## Central rule
 
 Golem resolves alone only what is operational, reversible, and well defined.
 
 Humans keep structural or risky changes.
 
-`worker_future` is reserved for longer, structured work once a real worker integration exists.
+`worker_future` is reserved for longer, structured work that the current policy explicitly marks as delegated.
 
 If classification is unclear, the safe result is `review_required`.

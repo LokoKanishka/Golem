@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "default_owner": "review_required",
   "rules": [
     {
@@ -25,6 +25,12 @@
       "owner": "golem",
       "rationale": "comparacion local, deterministica y acotada a archivos dentro del repo",
       "escalation": "escalar si los inputs no existen, salen del repo o el alcance de comparacion es ambiguo"
+    },
+    {
+      "task_type": "repo-analysis",
+      "owner": "worker_future",
+      "rationale": "analisis multiarchivo, estructurado y ya alineado con el handoff policy y el controlled worker run vigentes",
+      "escalation": "escalar a revision humana solo si el alcance del analisis o el formato esperado del informe no estan definidos"
     },
     {
       "task_type": "nav-tabs",
