@@ -1,0 +1,27 @@
+{
+  "packet_kind": "worker_result_packet",
+  "packet_version": "1.0",
+  "generated_at": "2026-03-15T07:15:00Z",
+  "child_task_id": "task-20260315T070000Z-examplechild",
+  "root_task_id": "task-20260315T065500Z-exampleroot",
+  "worker_name": "codex",
+  "source": "codex_manual",
+  "result_status": "done",
+  "summary": "Repo analysis completed and the chain can resume its local closing step.",
+  "notes": [
+    "The worker finished through the manual-controlled lane.",
+    "Use --settle if the root should resume immediately."
+  ],
+  "artifact_paths": [
+    "outbox/manual/20260315T071500Z-example-worker-result.md"
+  ],
+  "commit_info": {
+    "commit": "abc1234",
+    "branch": "main",
+    "remote": "origin"
+  },
+  "evidence": {
+    "result_artifact_path": "outbox/manual/20260315T071500Z-example-worker-result.md",
+    "proof": "result reviewed by operator before import"
+  }
+}

@@ -159,6 +159,26 @@ That settlement flow can:
 4. trigger `task_chain_resume.sh` automatically when the result is sufficient
 5. leave a `chain-settlement` trace on the root
 
+When the worker result arrives as a canonical packet instead of a manual shell call, the recommended entry point is:
+
+```text
+./scripts/task_import_worker_result.sh <packet_path> --settle
+```
+
+That import flow:
+
+1. validates the packet against the current canonical worker-result protocol
+2. validates the delegated child task and optional root reference
+3. records the worker result through the existing task lifecycle
+4. optionally triggers settlement immediately
+
+Canonical packet protocol:
+
+```text
+protocols/WORKER_RESULT_PACKET.md
+protocols/examples/worker_result_packet.example.json
+```
+
 Current limitation:
 
 - it supports one `await_worker_result` worker step per root

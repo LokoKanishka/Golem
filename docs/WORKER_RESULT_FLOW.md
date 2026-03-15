@@ -53,6 +53,12 @@ Registro del resultado:
 ./scripts/task_record_worker_result.sh <task_id> <status> <summary> [--artifact <path> ...]
 ```
 
+Importacion desde packet canónico:
+
+```text
+./scripts/task_import_worker_result.sh <packet_path> [--settle]
+```
+
 Settlement operativo de vuelta hacia la chain:
 
 ```text
@@ -89,6 +95,13 @@ Resumen breve orientado a worker:
 ./scripts/task_worker_summary.sh <task_id>
 ```
 
+Protocolo canónico del packet:
+
+```text
+protocols/WORKER_RESULT_PACKET.md
+protocols/examples/worker_result_packet.example.json
+```
+
 ## Regla operativa
 
 El cierre del resultado no valida automaticamente la calidad semantica del trabajo de Codex.
@@ -107,6 +120,28 @@ Cuando hubo una corrida controlada, tambien conserva trazabilidad de:
 Eso permite auditar la corrida sin convertirla todavia en una integracion automatica total.
 
 En el carril manual-controlado de chains mixtas, `blocked` sirve para representar que el worker no pudo devolver un resultado util por una precondicion externa u operativa, sin disfrazarlo como falla interna del repo.
+
+## Carril recomendado nuevo
+
+El registro manual directo sigue soportado y no se elimina:
+
+```text
+./scripts/task_record_worker_result.sh ...
+```
+
+Pero el carril recomendado nuevo pasa a ser:
+
+```text
+./scripts/task_import_worker_result.sh <packet_path> --settle
+```
+
+Ese importador:
+
+1. valida el packet canónico
+2. valida que la child task delegada exista de verdad
+3. registra el `worker-result` con metadatos útiles del packet
+4. registra el packet como artifact de evidencia
+5. opcionalmente dispara settlement sobre la chain
 
 ## Settlement recomendado para chains mixtas
 
@@ -170,6 +205,11 @@ Ese modo:
 - no toca roots que siguen esperando resultado
 - reutiliza `task_chain_settle.sh` solo cuando el resultado worker ya existe
 - deja el estado final de cada root visible en la salida
+
+Eso hace que los flujos queden asi:
+
+- packet puntual: `task_import_worker_result.sh --settle`
+- varios packets ya importados: `task_chain_reconcile_pending.sh --apply`
 
 ## Regla practica nueva
 
