@@ -26,17 +26,29 @@ As observed on March 15, 2026:
 
 ## Readiness layer now in repo
 
-The repo now includes an explicit readiness gate:
+The repo now includes an explicit remediation-aware readiness layer:
 
 - `./scripts/browser_ready_check.sh <capability> <mode>`
+- `./scripts/browser_remediate.sh <capability> <mode>`
 
-That probe checks:
+The canonical remediation ladder now records structured evidence for:
 
 - gateway reachability
 - browser profiles
 - whether `chrome` has a usable tab
+- whether there is any non-destructive chrome-side attach path in repo
 - whether `openclaw` is already usable as a fallback
-- whether a minimal, non-destructive recovery attempt can make `openclaw` usable
+- whether a minimal, non-destructive managed-browser recovery attempt can make `openclaw` usable
+- the exact remediation steps attempted vs skipped
+
+The remediation evidence exposes:
+
+- `remediation_step`
+- `attempted`
+- `result`
+- `chosen_profile`
+- `final_decision`
+- `reason`
 
 It classifies the current state as:
 
@@ -50,6 +62,8 @@ The browser task runners now consume that decision before calling the browser ac
 - `./scripts/task_run_read.sh`
 - `./scripts/task_run_artifact.sh`
 
+Those wrappers persist the nested `browser_readiness` payload, which now also contains the remediation ladder evidence.
+
 If readiness is `BLOCKED`, the runner no longer fires blindly. Instead it:
 
 - closes the task as `status: blocked`
@@ -57,6 +71,11 @@ If readiness is `BLOCKED`, the runner no longer fires blindly. Instead it:
 - records `BROWSER_BLOCKED ...` as the task output content
 - persists the nested `browser_readiness` evidence block
 - appends an explicit note such as `browser blocked before navigation execution`
+
+The browser subsystem verify now reuses that same source of truth and can be run in two honest modes:
+
+- `./scripts/verify_browser_stack.sh` for diagnosis plus remediation attempt
+- `./scripts/verify_browser_stack.sh --diagnosis-only` for pure diagnosis without the managed-browser recovery attempt
 
 ## What is blocked by environment
 
@@ -113,5 +132,6 @@ The capability matrix should not treat these browser capabilities as `PASS` unti
 
 The right operational probes for this stage are:
 
+- `./scripts/browser_remediate.sh <capability> <mode>`
 - `./scripts/browser_ready_check.sh <capability> <mode>`
 - `./scripts/verify_browser_stack.sh`

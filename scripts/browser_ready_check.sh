@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -uo pipefail
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -7,340 +7,148 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 usage() {
   cat <<USAGE
 Uso:
-  ./scripts/browser_ready_check.sh <navigation|reading|artifacts> <mode> [--json]
+  ./scripts/browser_ready_check.sh <navigation|reading|artifacts> <mode> [--json] [--diagnosis-only]
 USAGE
 }
 
 capability="${1:-}"
 mode="${2:-}"
-output_json="0"
+shift 2 || true
 
-if [ "${3:-}" = "--json" ]; then
-  output_json="1"
-fi
+output_json="0"
+diagnosis_only="0"
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --json)
+      output_json="1"
+      ;;
+    --diagnosis-only)
+      diagnosis_only="1"
+      ;;
+    *)
+      usage
+      printf 'ERROR: argumento no soportado: %s\n' "$1" >&2
+      exit 1
+      ;;
+  esac
+  shift
+done
 
 if [ -z "$capability" ] || [ -z "$mode" ]; then
   usage
   exit 1
 fi
 
-tmp_dir="$(mktemp -d)"
-cleanup() {
-  rm -rf "$tmp_dir"
-}
-trap cleanup EXIT
-
-LAST_OUTPUT_FILE=""
-LAST_EXIT_CODE="0"
-attempted_recovery="false"
-readiness_state="BLOCKED"
-chosen_profile=""
-reason=""
-final_decision="block"
-
-run_cmd() {
-  local key="$1"
-  local cmd="$2"
-  local output_file="$tmp_dir/${key}.out"
-
-  set +e
-  (cd "$REPO_ROOT" && bash -lc "$cmd") >"$output_file" 2>&1
-  LAST_EXIT_CODE="$?"
-  set -e
-  LAST_OUTPUT_FILE="$output_file"
-}
-
-text_has_tabs() {
-  local file="$1"
-  grep -Eq '^[0-9]+\.' "$file"
-}
-
-text_has_no_tabs() {
-  local file="$1"
-  grep -Eq 'No tabs|no tab is connected|browser closed or no targets' "$file"
-}
-
-text_has_runtime_failure() {
-  local file="$1"
-  grep -Eqi 'Failed to start Chrome CDP|gateway timeout|gateway closed|abnormal closure|Error:' "$file"
-}
-
-requires_active_target="1"
-if [ "$capability" = "navigation" ] && [ "$mode" = "open" ]; then
-  requires_active_target="0"
-fi
-
-run_cmd gateway_status "openclaw gateway status"
-gateway_exit="$LAST_EXIT_CODE"
-gateway_file="$LAST_OUTPUT_FILE"
-
-run_cmd browser_profiles "openclaw browser profiles"
-profiles_exit="$LAST_EXIT_CODE"
-profiles_file="$LAST_OUTPUT_FILE"
-
-run_cmd chrome_status "openclaw browser --browser-profile chrome status"
-chrome_status_exit="$LAST_EXIT_CODE"
-chrome_status_file="$LAST_OUTPUT_FILE"
-
-run_cmd chrome_tabs "openclaw browser --browser-profile chrome tabs"
-chrome_tabs_exit="$LAST_EXIT_CODE"
-chrome_tabs_file="$LAST_OUTPUT_FILE"
-
-gateway_ready="false"
-if [ "$gateway_exit" -eq 0 ] && grep -q 'RPC probe: ok' "$gateway_file"; then
-  gateway_ready="true"
-fi
-
-chrome_tab_usable="false"
-if [ "$chrome_tabs_exit" -eq 0 ] && text_has_tabs "$chrome_tabs_file"; then
-  chrome_tab_usable="true"
-fi
-
-openclaw_running="false"
-if [ "$profiles_exit" -eq 0 ] && grep -q '^openclaw: running' "$profiles_file"; then
-  openclaw_running="true"
-fi
-
-openclaw_status_file=""
-openclaw_status_exit="1"
-openclaw_tabs_file=""
-openclaw_tabs_exit="1"
-openclaw_snapshot_file=""
-openclaw_snapshot_exit="1"
-openclaw_start_file=""
-openclaw_start_exit="1"
-openclaw_snapshot_after_start_file=""
-openclaw_snapshot_after_start_exit="1"
-openclaw_usable="false"
-
-run_cmd openclaw_status "openclaw browser --browser-profile openclaw status"
-openclaw_status_exit="$LAST_EXIT_CODE"
-openclaw_status_file="$LAST_OUTPUT_FILE"
-
-run_cmd openclaw_tabs "openclaw browser --browser-profile openclaw tabs"
-openclaw_tabs_exit="$LAST_EXIT_CODE"
-openclaw_tabs_file="$LAST_OUTPUT_FILE"
-
-if [ "$requires_active_target" = "1" ]; then
-  run_cmd openclaw_snapshot "openclaw browser --browser-profile openclaw snapshot"
-  openclaw_snapshot_exit="$LAST_EXIT_CODE"
-  openclaw_snapshot_file="$LAST_OUTPUT_FILE"
-
-  if [ "$openclaw_snapshot_exit" -eq 0 ] && ! text_has_runtime_failure "$openclaw_snapshot_file"; then
-    openclaw_usable="true"
+load_cached_json() {
+  local cache_file="${GOLEM_BROWSER_READYNESS_JSON_FILE:-}"
+  if [ -z "$cache_file" ] || [ ! -f "$cache_file" ]; then
+    return 1
   fi
-else
-  if [ "$openclaw_running" = "true" ]; then
-    openclaw_usable="true"
-  fi
-fi
 
-if [ "$gateway_ready" != "true" ]; then
-  readiness_state="BLOCKED"
-  reason="gateway_not_ready"
-  final_decision="block"
-elif [ "$chrome_tab_usable" = "true" ]; then
-  readiness_state="READY"
-  chosen_profile="chrome"
-  reason="chrome_has_usable_tab"
-  final_decision="proceed"
-elif [ "$openclaw_usable" = "true" ]; then
-  readiness_state="DEGRADED"
-  chosen_profile="openclaw"
-  reason="managed_openclaw_fallback_usable"
-  final_decision="proceed"
-else
-  attempted_recovery="true"
-  run_cmd openclaw_start "openclaw browser --browser-profile openclaw start"
-  openclaw_start_exit="$LAST_EXIT_CODE"
-  openclaw_start_file="$LAST_OUTPUT_FILE"
-
-  if [ "$openclaw_start_exit" -eq 0 ]; then
-    if [ "$requires_active_target" = "1" ]; then
-      run_cmd openclaw_snapshot_after_start "openclaw browser --browser-profile openclaw snapshot"
-      openclaw_snapshot_after_start_exit="$LAST_EXIT_CODE"
-      openclaw_snapshot_after_start_file="$LAST_OUTPUT_FILE"
-      if [ "$openclaw_snapshot_after_start_exit" -eq 0 ] && ! text_has_runtime_failure "$openclaw_snapshot_after_start_file"; then
-        readiness_state="DEGRADED"
-        chosen_profile="openclaw"
-        reason="managed_openclaw_recovered"
-        final_decision="proceed"
-      else
-        readiness_state="BLOCKED"
-        reason="chrome_without_tab_and_openclaw_not_usable"
-        final_decision="block"
-      fi
-    else
-      readiness_state="DEGRADED"
-      chosen_profile="openclaw"
-      reason="managed_openclaw_started_for_navigation_open"
-      final_decision="proceed"
-    fi
-  else
-    readiness_state="BLOCKED"
-    reason="chrome_without_tab_and_openclaw_recovery_failed"
-    final_decision="block"
-  fi
-fi
-
-human_summary="readiness_state=${readiness_state}; chosen_profile=${chosen_profile:-none}; reason=${reason}; attempted_recovery=${attempted_recovery}; final_decision=${final_decision}"
-
-json_output="$(python3 - \
-  "$capability" "$mode" "$readiness_state" "$chosen_profile" "$reason" "$attempted_recovery" "$final_decision" "$human_summary" \
-  "$gateway_exit" "$gateway_file" \
-  "$profiles_exit" "$profiles_file" \
-  "$chrome_status_exit" "$chrome_status_file" \
-  "$chrome_tabs_exit" "$chrome_tabs_file" \
-  "$openclaw_status_exit" "$openclaw_status_file" \
-  "$openclaw_tabs_exit" "$openclaw_tabs_file" \
-  "$openclaw_snapshot_exit" "$openclaw_snapshot_file" \
-  "$openclaw_start_exit" "$openclaw_start_file" \
-  "$openclaw_snapshot_after_start_exit" "$openclaw_snapshot_after_start_file" <<'PY'
+  python3 - "$cache_file" "$capability" "$mode" <<'PY'
 import json
 import pathlib
 import sys
 
-(
-    capability,
-    mode,
-    readiness_state,
-    chosen_profile,
-    reason,
-    attempted_recovery,
-    final_decision,
-    human_summary,
-    gateway_exit,
-    gateway_file,
-    profiles_exit,
-    profiles_file,
-    chrome_status_exit,
-    chrome_status_file,
-    chrome_tabs_exit,
-    chrome_tabs_file,
-    openclaw_status_exit,
-    openclaw_status_file,
-    openclaw_tabs_exit,
-    openclaw_tabs_file,
-    openclaw_snapshot_exit,
-    openclaw_snapshot_file,
-    openclaw_start_exit,
-    openclaw_start_file,
-    openclaw_snapshot_after_start_exit,
-    openclaw_snapshot_after_start_file,
-) = sys.argv[1:]
+cache_path = pathlib.Path(sys.argv[1])
+capability = sys.argv[2]
+mode = sys.argv[3]
+payload = json.loads(cache_path.read_text(encoding="utf-8"))
 
-def read_text(path_str):
-    if not path_str:
-        return ""
-    path = pathlib.Path(path_str)
-    if not path.exists():
-        return ""
-    return path.read_text(encoding="utf-8", errors="replace")
-
-payload = {
-    "capability": capability,
-    "mode": mode,
-    "readiness_state": readiness_state,
-    "chosen_profile": chosen_profile,
-    "reason": reason,
-    "attempted_recovery": attempted_recovery == "true",
-    "final_decision": final_decision,
-    "human_summary": human_summary,
-    "checks": {
-        "gateway_status": {
-            "exit_code": int(gateway_exit),
-            "output": read_text(gateway_file),
-        },
-        "browser_profiles": {
-            "exit_code": int(profiles_exit),
-            "output": read_text(profiles_file),
-        },
-        "chrome_status": {
-            "exit_code": int(chrome_status_exit),
-            "output": read_text(chrome_status_file),
-        },
-        "chrome_tabs": {
-            "exit_code": int(chrome_tabs_exit),
-            "output": read_text(chrome_tabs_file),
-        },
-        "openclaw_status": {
-            "exit_code": int(openclaw_status_exit),
-            "output": read_text(openclaw_status_file),
-        },
-        "openclaw_tabs": {
-            "exit_code": int(openclaw_tabs_exit),
-            "output": read_text(openclaw_tabs_file),
-        },
-        "openclaw_snapshot": {
-            "exit_code": int(openclaw_snapshot_exit),
-            "output": read_text(openclaw_snapshot_file),
-        },
-        "openclaw_start": {
-            "exit_code": int(openclaw_start_exit),
-            "output": read_text(openclaw_start_file),
-        },
-        "openclaw_snapshot_after_start": {
-            "exit_code": int(openclaw_snapshot_after_start_exit),
-            "output": read_text(openclaw_snapshot_after_start_file),
-        },
-    },
-}
+if payload.get("capability") != capability or payload.get("mode") != mode:
+    raise SystemExit(1)
 
 print(json.dumps(payload, ensure_ascii=True))
 PY
-)"
+}
 
-if [ "$output_json" = "1" ]; then
-  printf '%s\n' "$json_output"
-else
-  printf '# Browser Readiness Check\n'
-  printf 'capability: %s\n' "$capability"
-  printf 'mode: %s\n' "$mode"
-  printf 'readiness_state: %s\n' "$readiness_state"
-  printf 'chosen_profile: %s\n' "${chosen_profile:-none}"
-  printf 'reason: %s\n' "$reason"
-  printf 'attempted_recovery: %s\n' "$attempted_recovery"
-  printf 'final_decision: %s\n' "$final_decision"
-  printf 'summary: %s\n' "$human_summary"
-  printf '\n## Gateway Status\n'
-  printf '$ openclaw gateway status\n'
-  printf 'exit_code: %s\n' "$gateway_exit"
-  cat "$gateway_file"
-  printf '\n## Browser Profiles\n'
-  printf '$ openclaw browser profiles\n'
-  printf 'exit_code: %s\n' "$profiles_exit"
-  cat "$profiles_file"
-  printf '\n## Chrome Tabs\n'
-  printf '$ openclaw browser --browser-profile chrome tabs\n'
-  printf 'exit_code: %s\n' "$chrome_tabs_exit"
-  cat "$chrome_tabs_file"
-  printf '\n## OpenClaw Status\n'
-  printf '$ openclaw browser --browser-profile openclaw status\n'
-  printf 'exit_code: %s\n' "$openclaw_status_exit"
-  cat "$openclaw_status_file"
-  printf '\n## OpenClaw Tabs\n'
-  printf '$ openclaw browser --browser-profile openclaw tabs\n'
-  printf 'exit_code: %s\n' "$openclaw_tabs_exit"
-  cat "$openclaw_tabs_file"
-  if [ -s "$openclaw_snapshot_file" ]; then
-    printf '\n## OpenClaw Snapshot\n'
-    printf '$ openclaw browser --browser-profile openclaw snapshot\n'
-    printf 'exit_code: %s\n' "$openclaw_snapshot_exit"
-    cat "$openclaw_snapshot_file"
+render_text_from_json() {
+  python3 - "$1" <<'PY'
+import json
+import sys
+
+payload = json.loads(sys.argv[1])
+
+print("# Browser Readiness Check")
+print(f"capability: {payload.get('capability', '')}")
+print(f"mode: {payload.get('mode', '')}")
+print(f"remediation_mode: {payload.get('remediation_mode', '')}")
+print(f"readiness_state: {payload.get('readiness_state', '')}")
+chosen_profile = payload.get("chosen_profile") or "none"
+print(f"chosen_profile: {chosen_profile}")
+print(f"reason: {payload.get('reason', '')}")
+print("attempted_recovery: " + ("true" if payload.get("attempted_recovery") else "false"))
+print(f"final_decision: {payload.get('final_decision', '')}")
+print(f"summary: {payload.get('human_summary', '')}")
+print("")
+print("## Remediation Steps")
+print("remediation_step | attempted | result | note")
+for step in payload.get("remediation_steps", []):
+    attempted = "true" if step.get("attempted") else "false"
+    print(f"{step.get('remediation_step', '')} | {attempted} | {step.get('result', '')} | {step.get('note', '')}")
+
+section_order = [
+    ("gateway_status", "Gateway Status"),
+    ("browser_profiles", "Browser Profiles"),
+    ("chrome_status", "Chrome Status"),
+    ("chrome_tabs", "Chrome Tabs"),
+    ("openclaw_status", "OpenClaw Status"),
+    ("openclaw_tabs", "OpenClaw Tabs"),
+    ("openclaw_snapshot", "OpenClaw Snapshot"),
+    ("openclaw_start", "OpenClaw Start"),
+    ("openclaw_status_after_start", "OpenClaw Status After Start"),
+    ("openclaw_tabs_after_start", "OpenClaw Tabs After Start"),
+    ("openclaw_snapshot_after_start", "OpenClaw Snapshot After Start"),
+]
+
+for key, title in section_order:
+    data = payload.get("checks", {}).get(key, {})
+    command = data.get("command", "")
+    output = data.get("output", "")
+    if not command and not output:
+        continue
+    if not output and data.get("exit_code", 0) == 0:
+        continue
+    print("")
+    print(f"## {title}")
+    print(f"$ {command}")
+    print(f"exit_code: {data.get('exit_code', 0)}")
+    if output:
+        print(output, end="" if output.endswith("\n") else "\n")
+PY
+}
+
+readiness_json=""
+if ! readiness_json="$(load_cached_json)"; then
+  remediate_args=("$capability" "$mode" "--json")
+  if [ "$diagnosis_only" = "1" ]; then
+    remediate_args+=("--diagnosis-only")
   fi
-  if [ -s "$openclaw_start_file" ]; then
-    printf '\n## OpenClaw Start\n'
-    printf '$ openclaw browser --browser-profile openclaw start\n'
-    printf 'exit_code: %s\n' "$openclaw_start_exit"
-    cat "$openclaw_start_file"
-  fi
-  if [ -s "$openclaw_snapshot_after_start_file" ]; then
-    printf '\n## OpenClaw Snapshot After Start\n'
-    printf '$ openclaw browser --browser-profile openclaw snapshot\n'
-    printf 'exit_code: %s\n' "$openclaw_snapshot_after_start_exit"
-    cat "$openclaw_snapshot_after_start_file"
+  set +e
+  readiness_json="$(cd "$REPO_ROOT" && ./scripts/browser_remediate.sh "${remediate_args[@]}")"
+  remediation_exit="$?"
+  set -e
+  if [ "$remediation_exit" -ne 0 ] && [ -z "$readiness_json" ]; then
+    printf 'ERROR: browser_remediate no produjo salida reutilizable\n' >&2
+    exit "$remediation_exit"
   fi
 fi
+
+if [ "$output_json" = "1" ]; then
+  printf '%s\n' "$readiness_json"
+else
+  render_text_from_json "$readiness_json"
+fi
+
+final_decision="$(python3 - "$readiness_json" <<'PY'
+import json
+import sys
+
+payload = json.loads(sys.argv[1])
+print(payload.get("final_decision", ""))
+PY
+)"
 
 case "$final_decision" in
   proceed) exit 0 ;;

@@ -203,7 +203,7 @@ PY
 
 browser_blocked_status() {
   local log_path="$1"
-  if rg -qi 'No tabs|no hay tabs adjuntas|Adjunta una pestana|Adjunt[aá] una pestaña|relay activo pero 0 tabs|0 tabs adjuntas|gateway closed|abnormal closure' "$log_path"; then
+  if rg -qi 'BROWSER_BLOCKED|No tabs|no hay tabs adjuntas|Adjunta una pestana|Adjunt[aá] una pestaña|relay activo pero 0 tabs|0 tabs adjuntas|gateway closed|abnormal closure|chrome_without_tab_and_openclaw|managed openclaw start failed during the controlled recovery attempt' "$log_path"; then
     printf 'BLOCKED\n'
   else
     printf 'FAIL\n'

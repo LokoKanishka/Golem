@@ -74,6 +74,7 @@ Important:
 - name: `navigation`
 - objective: verify that navigation can read browser state through the task wrapper
 - command(s):
+  - `./scripts/browser_remediate.sh navigation tabs`
   - `./scripts/browser_ready_check.sh navigation tabs`
   - `./scripts/task_run_nav.sh tabs "Capability verification / navigation tabs"`
   - `./scripts/task_summary.sh <task_id>`
@@ -91,6 +92,7 @@ When readiness reports `BLOCKED`, the wrapper should exit with the blocked conve
 - name: `reading`
 - objective: verify that reading can capture browser text through the task wrapper
 - command(s):
+  - `./scripts/browser_remediate.sh reading snapshot`
   - `./scripts/browser_ready_check.sh reading snapshot`
   - `./scripts/task_run_read.sh snapshot "Capability verification / reading snapshot"`
   - `./scripts/task_summary.sh <task_id>`
@@ -106,6 +108,7 @@ When readiness reports `BLOCKED`, the wrapper should exit with the blocked conve
 - name: `artifacts`
 - objective: verify that browser-derived markdown artifacts can be produced and validated
 - command(s):
+  - `./scripts/browser_remediate.sh artifacts snapshot`
   - `./scripts/browser_ready_check.sh artifacts snapshot`
   - `./scripts/task_run_artifact.sh snapshot "Capability verification / artifact snapshot" capability-matrix-artifact-snapshot`
   - `./scripts/validate_markdown_artifact.sh <artifact>`
@@ -117,7 +120,12 @@ When readiness reports `BLOCKED`, the wrapper should exit with the blocked conve
   - browser relay available
   - at least one usable attached tab
 
-Current browser-specific diagnosis should be refined with `./scripts/browser_ready_check.sh`, `./scripts/verify_browser_stack.sh`, and `docs/BROWSER_BLOCKERS_ANALYSIS.md`.
+Current browser-specific diagnosis/remediation should be refined with `./scripts/browser_remediate.sh`, `./scripts/browser_ready_check.sh`, `./scripts/verify_browser_stack.sh`, and `docs/BROWSER_BLOCKERS_ANALYSIS.md`.
+
+The browser stack verify now supports:
+
+- `./scripts/verify_browser_stack.sh` for diagnosis plus controlled remediation attempt
+- `./scripts/verify_browser_stack.sh --diagnosis-only` for pure diagnosis without the managed-browser recovery attempt
 
 ### 5. Comparison
 

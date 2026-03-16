@@ -69,9 +69,9 @@ run_browser_stack() {
   local blocked_caps fail_caps
 
   printf '\n## browser stack\n'
-  printf '$ %s\n' 'timeout 90s bash ./scripts/verify_browser_stack.sh'
+  printf '$ %s\n' 'timeout 180s bash ./scripts/verify_browser_stack.sh'
   set +e
-  output="$(cd "$REPO_ROOT" && timeout 90s bash ./scripts/verify_browser_stack.sh 2>&1)"
+  output="$(cd "$REPO_ROOT" && timeout 180s bash ./scripts/verify_browser_stack.sh 2>&1)"
   exit_code="$?"
   set -e
   printf '%s\n' "$output"
@@ -84,7 +84,7 @@ run_browser_stack() {
 
   if [ "$exit_code" -eq 124 ]; then
     status="BLOCKED"
-    note="browser stack verify did not complete before the operational timeout and remains externally blocked"
+    note="browser stack verify did not complete before the operational timeout budget and remains externally blocked"
   elif [ "$fail_count" -gt 0 ]; then
     status="FAIL"
     note="browser stack verify reported internal failures: ${fail_caps:-unknown}"
