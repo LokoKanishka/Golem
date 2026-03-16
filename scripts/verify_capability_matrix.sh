@@ -819,7 +819,7 @@ verify_multi_worker_barrier_orchestration() {
   exit_code="$?"
   set -e
 
-  append_chain_execution_audit_evidence "$log_path"
+  append_multi_worker_barrier_evidence "$log_path"
 
   if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_MULTI_WORKER_AWAIT_OK ' "$log_path" && \
      rg -q 'analysis-workers=waiting,architecture-ready=satisfied' "$log_path" && \
@@ -853,7 +853,7 @@ verify_chain_execution_audit() {
   exit_code="$?"
   set -e
 
-  append_multi_worker_barrier_evidence "$log_path"
+  append_chain_execution_audit_evidence "$log_path"
 
   if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_CHAIN_EXECUTION_AUDIT_OK ' "$log_path" && \
      rg -q '^audit_status: WARN$' "$log_path" && \
@@ -872,6 +872,36 @@ verify_chain_execution_audit() {
     else
       note="deep verify exposed an internal failure in the chain execution audit flow"
     fi
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "" "" "" "$cmd"
+}
+
+verify_worker_orchestration_stack() {
+  local capability="worker orchestration stack"
+  local log_path="$LOG_DIR/worker-orchestration-stack.log"
+  local cmd="bash ./scripts/verify_worker_orchestration_stack.sh"
+  local exit_code status note
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && bash ./scripts/verify_worker_orchestration_stack.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_WORKER_ORCHESTRATION_STACK_OK ' "$log_path" && \
+     rg -q '^worker packet roundtrip \| PASS \|' "$log_path" && \
+     rg -q '^multi-worker barrier orchestration \| PASS \|' "$log_path" && \
+     rg -q '^chain execution audit \| PASS \|' "$log_path"; then
+    status="PASS"
+    note="deep subsystem verify aggregated roundtrip, barrier orchestration, and execution audit as one worker-orchestration-traceability stack health check"
+  elif rg -q '^VERIFY_WORKER_ORCHESTRATION_STACK_BLOCKED ' "$log_path"; then
+    status="BLOCKED"
+    note="deep subsystem verify was externally blocked because at least one canonical stack verify could not run"
+  else
+    status="FAIL"
+    note="deep subsystem verify exposed an internal failure in the worker-orchestration-traceability stack"
   fi
 
   record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "" "" "" "$cmd"
@@ -1101,6 +1131,7 @@ run_selected_verification "direct-worker-flow" run_direct_worker_flow
 run_selected_verification "worker-packet-roundtrip" verify_worker_packet_roundtrip
 run_selected_verification "multi-worker-barrier-orchestration" verify_multi_worker_barrier_orchestration
 run_selected_verification "chain-execution-audit" verify_chain_execution_audit
+run_selected_verification "worker-orchestration-stack" verify_worker_orchestration_stack
 run_selected_verification "orchestration-basic" verify_orchestration_basic
 run_selected_verification "orchestration-v2" verify_orchestration_v2
 run_selected_verification "orchestration-v3" verify_orchestration_v3

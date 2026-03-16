@@ -140,6 +140,18 @@ Audit semantics:
 - `WARN`: execution is coherent but still incomplete, or the root lacks enough frozen traceability
 - `FAIL`: observed execution drifts from the frozen plan or contradicts root/chain closure semantics
 
+For one higher-level red-button check of the whole worker/orchestration/traceability subsystem, use:
+
+```text
+./scripts/verify_worker_orchestration_stack.sh
+```
+
+That subsystem verify intentionally reuses the canonical deep verifies for:
+
+- worker packet roundtrip
+- multi-worker barrier orchestration
+- chain execution audit
+
 The controlled default plan is:
 
 1. local self-check

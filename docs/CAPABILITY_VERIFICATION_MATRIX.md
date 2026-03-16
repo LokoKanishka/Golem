@@ -10,6 +10,7 @@ The official verification layer intentionally separates:
 
 - fast operational self-checks
 - deep capability verifies
+- deep subsystem verifies
 
 `./scripts/task_run_self_check.sh` stays in the fast lane.
 
@@ -18,6 +19,8 @@ Heavier end-to-end flows such as `worker packet roundtrip` belong to the deep ve
 Multi-worker dependency-barrier orchestration now also belongs to that deep verification lane.
 
 Execution-audit drift detection now belongs to that same deep verification lane too.
+
+The composed worker/orchestration/traceability subsystem verify belongs to the deep subsystem lane and reuses those capability verifies as its source of truth.
 
 Every verification should prefer:
 
@@ -282,7 +285,27 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - writable `outbox/manual/`
   - local shell/python tooling required by the repo scripts
 
-### 16. Orchestration Basic
+### 16. Worker Orchestration Stack
+
+- name: `worker orchestration stack`
+- objective: verify the full worker/orchestration/traceability subsystem through one official deep/system check
+- verification lane: `deep subsystem verify`
+- command(s):
+  - `./scripts/verify_worker_orchestration_stack.sh`
+  - `./scripts/verify_worker_packet_roundtrip.sh`
+  - `./scripts/verify_multi_worker_await_roundtrip.sh`
+  - `./scripts/verify_chain_execution_audit.sh`
+- success criterion: the verify exits `0`, prints `VERIFY_WORKER_ORCHESTRATION_STACK_OK`, and shows the three canonical sub-capabilities as `PASS`
+- failure criterion: the verify exits non-zero because one or more canonical sub-verifies fail internally
+- blocked criterion: use `BLOCKED` only when one or more canonical sub-verifies return a real external block
+- path coverage: composed subsystem pass-path, composed subsystem blocked-path, and composed subsystem fail-path through delegated sub-verifies
+- environment dependencies:
+  - writable `tasks/`
+  - writable `handoffs/`
+  - writable `outbox/manual/`
+  - local shell/python tooling required by the repo scripts
+
+### 17. Orchestration Basic
 
 - name: `orchestration básica`
 - objective: verify the original root-plus-children chain still closes coherently
@@ -298,7 +321,7 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - local self-check
   - local comparison scripts
 
-### 17. Orchestration V2 Mixed Local+Worker
+### 18. Orchestration V2 Mixed Local+Worker
 
 - name: `orchestration v2 mixta local+worker`
 - objective: verify the mixed root chain with one real worker step and aggregated summary/artifact
@@ -314,7 +337,7 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - controlled worker run available
   - local comparison scripts
 
-### 18. Orchestration V3 Conditional
+### 19. Orchestration V3 Conditional
 
 - name: `orchestration v3 condicional`
 - objective: verify that the root can decide what to do after a real worker outcome and persist that decision honestly
@@ -365,6 +388,12 @@ For the official execution-audit capability alone, use:
 ./scripts/verify_capability_matrix.sh chain-execution-audit
 ```
 
+For the official worker/orchestration/traceability subsystem verify alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh worker-orchestration-stack
+```
+
 It should:
 
 - run the minimum real checks for the matrix
@@ -372,6 +401,7 @@ It should:
 - include `worker packet roundtrip` as the official deep verify for the canonical manual-controlled worker roundtrip
 - include `multi-worker barrier orchestration` as the official deep verify for barrier-aware multi-worker continuation
 - include `chain execution audit` as the official deep verify for coherent, incomplete, and drift-aware execution auditing against `effective_chain_plan`
+- include `worker orchestration stack` as the official deep subsystem verify for the whole worker/orchestration/traceability column
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`
 - print a readable summary table at the end
