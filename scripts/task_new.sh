@@ -100,6 +100,14 @@ task = {
     "outputs": [],
     "artifacts": [],
     "notes": [],
+    "delivery": {
+        "protocol_version": "1.0",
+        "minimum_user_facing_success_state": "visible",
+        "current_state": "",
+        "user_facing_ready": False,
+        "transitions": [],
+        "claim_history": [],
+    },
 }
 
 json.dump(task, sys.stdout, indent=2, ensure_ascii=True)

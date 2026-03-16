@@ -31,6 +31,8 @@ The system readiness verify lives one level above that and aggregates:
 
 The live smoke profile lives one step above readiness and captures a short real demo-state of the current local stack with generated evidence.
 
+User-facing delivery truth is a separate capability lane from both technical task closure and browser/worker readiness.
+
 Every verification should prefer:
 
 - exact command executed
@@ -414,6 +416,23 @@ It should preserve the operational reading that worker stack can be `PASS` while
   - writable repo-local `handoffs/`
   - writable repo-local `outbox/manual/`
 
+### 22. User-Facing Delivery Truth
+
+- name: `user-facing delivery truth`
+- objective: prove that technical acceptance and real user-visible delivery are tracked separately and audited by task id
+- verification lane: `delivery truth`
+- command(s):
+  - `./scripts/verify_user_facing_delivery_truth.sh`
+  - `./scripts/task_record_delivery_transition.sh <task_id> <state> <actor> <channel> <evidence>`
+  - `./scripts/task_delivery_summary.sh <task_id>`
+  - `./scripts/task_claim_user_facing_success.sh <task_id> <actor> <channel> <evidence> [claim]`
+- success criterion: the verify exits `0`, prints `VERIFY_USER_FACING_DELIVERY_TRUTH_OK`, and proves the partial, visible, verified, and invalid-drift paths
+- failure criterion: the verify exits non-zero or allows a user-facing success claim before `visible`
+- path coverage: partial accepted path, visible path, verified-by-user path, invalid drift path
+- environment dependencies:
+  - writable repo-local `tasks/`
+  - writable repo-local `outbox/manual/`
+
 ## Final Classification Table
 
 | status | meaning |
@@ -466,6 +485,12 @@ For the official live smoke/demo profile alone, use:
 ./scripts/verify_capability_matrix.sh live-smoke-profile
 ```
 
+For the official user-facing delivery truth capability alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh user-facing-delivery-truth
+```
+
 It should:
 
 - run the minimum real checks for the matrix
@@ -476,6 +501,7 @@ It should:
 - include `worker orchestration stack` as the official deep subsystem verify for the whole worker/orchestration/traceability column
 - include `system readiness` as the official top-level operational view across fast self-check, browser stack, and worker stack
 - include `live smoke profile` as the official short live demo-state of the current local stack
+- include `user-facing delivery truth` as the official guardrail against claiming user-visible success before `visible`
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`
 - print a readable summary table at the end

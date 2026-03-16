@@ -4,6 +4,8 @@ This document defines the basic lifecycle of a Golem task and the shared scripts
 
 Markdown file outputs should also follow the minimum conventions in `docs/OUTPUT_CONVENTIONS.md`.
 
+User-facing delivery truth is now tracked separately from the technical lifecycle. See `docs/TASK_USER_DELIVERY.md`.
+
 ## Basic lifecycle
 
 The minimal task flow is:
@@ -146,6 +148,10 @@ If a note is provided, it is appended to `notes`.
 
 Chain root tasks may also persist a more expressive internal orchestration state in `chain_status` without changing the global lifecycle states.
 
+Closing a task as `done` still means technical completion only.
+
+It does not automatically authorize a user-facing success claim such as "already delivered" or "the user can see it".
+
 ## Delegate for future worker
 
 Prepared-but-not-executed worker handoff uses:
@@ -187,6 +193,36 @@ The start step moves the task into `worker_running` and persists run evidence.
 If `codex exec` exits non-zero, the start step now marks the task coherently as failed and leaves worker evidence behind.
 
 The finish step closes the loop coherently after the run has completed.
+
+## Record user-facing delivery
+
+The canonical delivery states are recorded separately from `status`:
+
+```text
+./scripts/task_record_delivery_transition.sh <task_id> <submitted|accepted|delivered|visible|verified_by_user> <actor> <channel> <evidence>
+```
+
+Each transition persists:
+
+- `state`
+- `timestamp`
+- `actor`
+- `channel`
+- `evidence`
+
+For a compact audit view, use:
+
+```text
+./scripts/task_delivery_summary.sh <task_id>
+```
+
+To guard a final user-facing success claim, use:
+
+```text
+./scripts/task_claim_user_facing_success.sh <task_id> <actor> <channel> <evidence> [claim]
+```
+
+That claim must not pass unless the task reached at least `visible`.
 
 ## Summary
 

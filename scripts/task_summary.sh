@@ -46,6 +46,13 @@ chain_status = task.get("chain_status") or ""
 chain_summary = task.get("chain_summary") or {}
 chain_plan = task.get("chain_plan") or {}
 worker_run = task.get("worker_run") or {}
+delivery = task.get("delivery") or {}
+delivery_transitions = delivery.get("transitions") or []
+delivery_claim_history = delivery.get("claim_history") or []
+delivery_state = delivery.get("current_state") or "(none)"
+delivery_ready = "yes" if delivery.get("user_facing_ready") else "no"
+delivery_last_transition = delivery_transitions[-1] if delivery_transitions else {}
+delivery_last_claim = delivery_claim_history[-1] if delivery_claim_history else {}
 step_name = task.get("step_name") or ""
 step_order = task.get("step_order")
 critical = task.get("critical")
@@ -93,6 +100,18 @@ if worker_run:
     extracted_summary = worker_run.get("extracted_summary", "")
     if extracted_summary:
         print(f"worker_extracted_summary: {extracted_summary}")
+print(f"delivery_state: {delivery_state}")
+print(f"user_facing_ready: {delivery_ready}")
+print(f"delivery_transitions: {len(delivery_transitions)}")
+if delivery_last_transition:
+    print(f"last_delivery_transition: {delivery_last_transition.get('state', '(none)')}")
+    print(f"last_delivery_timestamp: {delivery_last_transition.get('timestamp', '(none)')}")
+    print(f"last_delivery_actor: {delivery_last_transition.get('actor', '(none)')}")
+    print(f"last_delivery_channel: {delivery_last_transition.get('channel', '(none)')}")
+print(f"user_facing_claims: {len(delivery_claim_history)}")
+if delivery_last_claim:
+    print("last_user_facing_claim_allowed: " + ("yes" if delivery_last_claim.get("allowed") else "no"))
+    print(f"last_user_facing_claim_state: {delivery_last_claim.get('current_state', '(none)')}")
 print(f"outputs: {len(task.get('outputs', []))}")
 print(f"artifacts: {len(task.get('artifacts', []))}")
 print(f"last_note: {last_note}")

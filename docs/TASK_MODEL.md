@@ -46,6 +46,7 @@ Cada tarea incluye estos campos:
 Campo opcional cuando aplica:
 
 - `handoff`
+- `delivery`
 - `step_name`
 - `step_order`
 - `critical`
@@ -84,6 +85,17 @@ Las tareas delegadas que entran en corrida controlada de Codex tambien pueden pe
 - `decision_source`
 - `policy_version`
 
+Las tareas tambien pueden persistir un submodelo canónico de entrega user-facing en:
+
+- `delivery.protocol_version`
+- `delivery.minimum_user_facing_success_state`
+- `delivery.current_state`
+- `delivery.user_facing_ready`
+- `delivery.transitions`
+- `delivery.claim_history`
+
+Ese bloque no reemplaza `status`. Sirve para separar la aceptacion tecnica de la entrega real percibida por el usuario.
+
 El estado interno recomendado de `worker_run.state` en esta etapa es:
 
 - `ready`
@@ -113,6 +125,12 @@ Semantica practica de esta etapa:
 En runners que quieran una senal maquina estable, `blocked` puede aparecer junto con `outputs[].exit_code = 2`.
 
 Las tareas raiz de cadena tambien pueden cerrar como `blocked` cuando una precondicion externa impide completar un paso critico sin que exista una falla interna real del motor.
+
+Importante:
+
+- `done` no significa automaticamente `visible`
+- `accepted` y `delivered` no significan automaticamente exito percibido por el usuario
+- el claim final de exito user-facing debe pasar por el submodelo `delivery` y alcanzar al menos `visible`
 
 Tambien pueden quedar en `delegated` cuando la cadena ya avanzo hasta un paso worker manual-controlado y todavia espera un resultado registrado de ese worker.
 
@@ -160,6 +178,9 @@ La base operativa minima queda cubierta por:
 - `./scripts/task_show.sh <task_id>`
 - `./scripts/task_list.sh`
 - `./scripts/task_update.sh <task_id> <status>`
+- `./scripts/task_record_delivery_transition.sh <task_id> <state> <actor> <channel> <evidence>`
+- `./scripts/task_delivery_summary.sh <task_id>`
+- `./scripts/task_claim_user_facing_success.sh <task_id> <actor> <channel> <evidence> [claim]`
 - `./scripts/task_spawn_child.sh <parent_task_id> <type> <title>`
 - `./scripts/task_tree.sh <task_id>`
 - `./scripts/task_chain_plan.sh <chain_type> <title>`
