@@ -907,6 +907,33 @@ verify_worker_orchestration_stack() {
   record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "" "" "" "$cmd"
 }
 
+verify_system_readiness() {
+  local capability="system readiness"
+  local log_path="$LOG_DIR/system-readiness.log"
+  local cmd="bash ./scripts/verify_system_readiness.sh"
+  local exit_code status note
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && bash ./scripts/verify_system_readiness.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_SYSTEM_READINESS_OK ' "$log_path"; then
+    status="PASS"
+    note="system readiness verify reported the fast lane, browser stack, and worker stack all healthy"
+  elif [ "$exit_code" -eq 2 ] && rg -q '^VERIFY_SYSTEM_READINESS_BLOCKED ' "$log_path"; then
+    status="BLOCKED"
+    note="system readiness verify reported a coherent global block without collapsing blocked subsystems into a generic internal failure"
+  else
+    status="FAIL"
+    note="system readiness verify exposed an internal system-level failure"
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "" "" "" "$cmd"
+}
+
 verify_orchestration_basic() {
   local capability="orchestration basic"
   local log_path="$LOG_DIR/orchestration-basic.log"
@@ -1132,6 +1159,7 @@ run_selected_verification "worker-packet-roundtrip" verify_worker_packet_roundtr
 run_selected_verification "multi-worker-barrier-orchestration" verify_multi_worker_barrier_orchestration
 run_selected_verification "chain-execution-audit" verify_chain_execution_audit
 run_selected_verification "worker-orchestration-stack" verify_worker_orchestration_stack
+run_selected_verification "system-readiness" verify_system_readiness
 run_selected_verification "orchestration-basic" verify_orchestration_basic
 run_selected_verification "orchestration-v2" verify_orchestration_v2
 run_selected_verification "orchestration-v3" verify_orchestration_v3

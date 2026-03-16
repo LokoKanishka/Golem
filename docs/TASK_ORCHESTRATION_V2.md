@@ -152,6 +152,12 @@ That subsystem verify intentionally reuses the canonical deep verifies for:
 - multi-worker barrier orchestration
 - chain execution audit
 
+At the system level, that worker stack can now be consumed together with fast self-check and browser diagnosis through:
+
+```text
+./scripts/verify_system_readiness.sh
+```
+
 The controlled default plan is:
 
 1. local self-check

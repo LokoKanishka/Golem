@@ -11,6 +11,7 @@ The official verification layer intentionally separates:
 - fast operational self-checks
 - deep capability verifies
 - deep subsystem verifies
+- system readiness verifies
 
 `./scripts/task_run_self_check.sh` stays in the fast lane.
 
@@ -21,6 +22,12 @@ Multi-worker dependency-barrier orchestration now also belongs to that deep veri
 Execution-audit drift detection now belongs to that same deep verification lane too.
 
 The composed worker/orchestration/traceability subsystem verify belongs to the deep subsystem lane and reuses those capability verifies as its source of truth.
+
+The system readiness verify lives one level above that and aggregates:
+
+- the fast self-check lane
+- the browser subsystem lane
+- the worker/orchestration/traceability subsystem lane
 
 Every verification should prefer:
 
@@ -305,7 +312,28 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - writable `outbox/manual/`
   - local shell/python tooling required by the repo scripts
 
-### 17. Orchestration Basic
+### 17. System Readiness
+
+- name: `system readiness`
+- objective: provide one honest operational reading of the whole repo/system by aggregating fast self-check, browser stack, and worker orchestration stack
+- verification lane: `system readiness verify`
+- command(s):
+  - `./scripts/verify_system_readiness.sh`
+  - `./scripts/task_run_self_check.sh "System readiness / fast self-check"`
+  - `./scripts/verify_browser_stack.sh`
+  - `./scripts/verify_worker_orchestration_stack.sh`
+- success criterion: the verify exits `0`, prints `VERIFY_SYSTEM_READINESS_OK`, and the aggregated subsystems are all healthy
+- blocked criterion: use `BLOCKED` when there is no internal failure but one or more critical subsystems are externally blocked, for example browser stack blocked while worker stack remains healthy
+- failure criterion: the verify exits non-zero because a critical subsystem fails internally or the aggregated output is incoherent
+- path coverage: global-pass-path, global-blocked-path, and global-fail-path through delegated sub-verifies
+- environment dependencies:
+  - local shell/python tooling required by the repo scripts
+  - writable repo paths required by the delegated verifies
+
+This verify should not collapse a browser/environment block into a generic worker failure.
+It should preserve the operational reading that worker stack can be `PASS` while browser stack is `BLOCKED`.
+
+### 18. Orchestration Basic
 
 - name: `orchestration básica`
 - objective: verify the original root-plus-children chain still closes coherently
@@ -321,7 +349,7 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - local self-check
   - local comparison scripts
 
-### 18. Orchestration V2 Mixed Local+Worker
+### 19. Orchestration V2 Mixed Local+Worker
 
 - name: `orchestration v2 mixta local+worker`
 - objective: verify the mixed root chain with one real worker step and aggregated summary/artifact
@@ -337,7 +365,7 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - controlled worker run available
   - local comparison scripts
 
-### 19. Orchestration V3 Conditional
+### 20. Orchestration V3 Conditional
 
 - name: `orchestration v3 condicional`
 - objective: verify that the root can decide what to do after a real worker outcome and persist that decision honestly
@@ -394,6 +422,12 @@ For the official worker/orchestration/traceability subsystem verify alone, use:
 ./scripts/verify_capability_matrix.sh worker-orchestration-stack
 ```
 
+For the official system-wide readiness view alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh system-readiness
+```
+
 It should:
 
 - run the minimum real checks for the matrix
@@ -402,6 +436,7 @@ It should:
 - include `multi-worker barrier orchestration` as the official deep verify for barrier-aware multi-worker continuation
 - include `chain execution audit` as the official deep verify for coherent, incomplete, and drift-aware execution auditing against `effective_chain_plan`
 - include `worker orchestration stack` as the official deep subsystem verify for the whole worker/orchestration/traceability column
+- include `system readiness` as the official top-level operational view across fast self-check, browser stack, and worker stack
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`
 - print a readable summary table at the end

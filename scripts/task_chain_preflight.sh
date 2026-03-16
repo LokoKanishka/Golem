@@ -357,7 +357,7 @@ print(output_text)
 
 if write_artifact:
     artifact_rel = "outbox/manual/{ts}-{slug}-chain-plan-preflight.md".format(
-        ts=datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
+        ts=datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"),
         slug=slugify(title),
     )
     artifact_path = repo_root / artifact_rel

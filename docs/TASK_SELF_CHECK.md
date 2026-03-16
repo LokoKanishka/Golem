@@ -31,6 +31,12 @@ For the official deep verification sweep, use:
 
 and inspect the `worker packet roundtrip` capability there.
 
+For the higher-level operational view that aggregates this fast lane with browser and worker subsystem verifies, use:
+
+```text
+./scripts/verify_system_readiness.sh
+```
+
 ## Flow
 
 The runner performs these steps:

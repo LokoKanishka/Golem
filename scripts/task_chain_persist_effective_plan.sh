@@ -84,7 +84,7 @@ chain_type = as_string(task.get("chain_type"))
 title = as_string(task.get("title")) or root_task_id
 validated_at = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
 artifact_rel = "outbox/manual/{ts}-{slug}-effective-chain-plan.json".format(
-    ts=datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
+    ts=datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"),
     slug=slugify(title),
 )
 artifact_path = repo_root / artifact_rel
