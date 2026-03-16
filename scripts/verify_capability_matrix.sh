@@ -303,6 +303,14 @@ append_multi_worker_barrier_evidence() {
   done < <(extract_logged_worker_child_ids "$log_path")
 }
 
+append_chain_execution_audit_evidence() {
+  local log_path="$1"
+  local root_id
+
+  root_id="$(extract_roundtrip_root_id "$log_path" "root")"
+  append_chain_evidence "$log_path" "$root_id"
+}
+
 worker_roundtrip_status() {
   local log_path="$1"
   if rg -qi 'Permission denied|Read-only file system|No space left on device|Operation not permitted' "$log_path"; then
@@ -811,7 +819,7 @@ verify_multi_worker_barrier_orchestration() {
   exit_code="$?"
   set -e
 
-  append_multi_worker_barrier_evidence "$log_path"
+  append_chain_execution_audit_evidence "$log_path"
 
   if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_MULTI_WORKER_AWAIT_OK ' "$log_path" && \
      rg -q 'analysis-workers=waiting,architecture-ready=satisfied' "$log_path" && \
@@ -826,6 +834,43 @@ verify_multi_worker_barrier_orchestration() {
       note="deep verify could not complete because repo-local execution prerequisites were externally blocked"
     else
       note="deep verify exposed an internal failure in the multi-worker dependency barrier orchestration flow"
+    fi
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "" "" "" "$cmd"
+}
+
+verify_chain_execution_audit() {
+  local capability="chain execution audit"
+  local log_path="$LOG_DIR/chain-execution-audit.log"
+  local cmd="bash ./scripts/verify_chain_execution_audit.sh"
+  local exit_code status note
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && bash ./scripts/verify_chain_execution_audit.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  append_multi_worker_barrier_evidence "$log_path"
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_CHAIN_EXECUTION_AUDIT_OK ' "$log_path" && \
+     rg -q '^audit_status: WARN$' "$log_path" && \
+     rg -q '^audit_reason: execution_incomplete$' "$log_path" && \
+     rg -q '^audit_status: OK$' "$log_path" && \
+     rg -q '^audit_reason: execution_coherent$' "$log_path" && \
+     rg -q '^audit_status: FAIL$' "$log_path" && \
+     rg -q '^audit_reason: execution_drift$' "$log_path" && \
+     rg -q 'effective_plan_sha256 no coincide' "$log_path"; then
+    status="PASS"
+    note="deep verify proved incomplete, coherent, and drift-detection paths for execution audit against the frozen effective plan"
+  else
+    status="$(worker_roundtrip_status "$log_path")"
+    if [ "$status" = "BLOCKED" ]; then
+      note="deep verify could not complete because repo-local execution prerequisites were externally blocked"
+    else
+      note="deep verify exposed an internal failure in the chain execution audit flow"
     fi
   fi
 
@@ -1055,6 +1100,7 @@ run_selected_verification "delegation-decision" verify_delegation_decision
 run_selected_verification "direct-worker-flow" run_direct_worker_flow
 run_selected_verification "worker-packet-roundtrip" verify_worker_packet_roundtrip
 run_selected_verification "multi-worker-barrier-orchestration" verify_multi_worker_barrier_orchestration
+run_selected_verification "chain-execution-audit" verify_chain_execution_audit
 run_selected_verification "orchestration-basic" verify_orchestration_basic
 run_selected_verification "orchestration-v2" verify_orchestration_v2
 run_selected_verification "orchestration-v3" verify_orchestration_v3

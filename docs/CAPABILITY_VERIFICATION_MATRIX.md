@@ -17,6 +17,8 @@ Heavier end-to-end flows such as `worker packet roundtrip` belong to the deep ve
 
 Multi-worker dependency-barrier orchestration now also belongs to that deep verification lane.
 
+Execution-audit drift detection now belongs to that same deep verification lane too.
+
 Every verification should prefer:
 
 - exact command executed
@@ -262,7 +264,25 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - writable `outbox/manual/`
   - local shell/python tooling required by the repo scripts
 
-### 15. Orchestration Basic
+### 15. Chain Execution Audit
+
+- name: `chain execution audit`
+- objective: verify the official execution audit against `effective_chain_plan`, including coherent, incomplete, and drift-detection paths
+- verification lane: `deep verify`
+- command(s):
+  - `./scripts/verify_chain_execution_audit.sh`
+  - `./scripts/task_chain_audit_execution.sh <root_task_id>`
+  - `./scripts/task_chain_summary.sh <root_task_id>`
+- success criterion: the verify exits `0`, prints `VERIFY_CHAIN_EXECUTION_AUDIT_OK`, proves `WARN execution_incomplete`, proves `OK execution_coherent`, and proves `FAIL execution_drift` on a controlled temporary drift fixture
+- failure criterion: the verify exits non-zero or the auditor fails to distinguish incomplete, coherent, and drifted execution paths honestly
+- blocked criterion: use `BLOCKED` only when the verify cannot run because a real external repo-local prerequisite is unavailable, such as unwritable repo task/outbox paths
+- path coverage: incomplete-path, coherent-path, and drift-path
+- environment dependencies:
+  - writable `tasks/`
+  - writable `outbox/manual/`
+  - local shell/python tooling required by the repo scripts
+
+### 16. Orchestration Basic
 
 - name: `orchestration básica`
 - objective: verify the original root-plus-children chain still closes coherently
@@ -278,7 +298,7 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - local self-check
   - local comparison scripts
 
-### 16. Orchestration V2 Mixed Local+Worker
+### 17. Orchestration V2 Mixed Local+Worker
 
 - name: `orchestration v2 mixta local+worker`
 - objective: verify the mixed root chain with one real worker step and aggregated summary/artifact
@@ -294,7 +314,7 @@ Current browser-specific diagnosis should be refined with `./scripts/browser_rea
   - controlled worker run available
   - local comparison scripts
 
-### 17. Orchestration V3 Conditional
+### 18. Orchestration V3 Conditional
 
 - name: `orchestration v3 condicional`
 - objective: verify that the root can decide what to do after a real worker outcome and persist that decision honestly
@@ -339,12 +359,19 @@ For the official barrier-aware multi-worker capability alone, use:
 ./scripts/verify_capability_matrix.sh multi-worker-barrier-orchestration
 ```
 
+For the official execution-audit capability alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh chain-execution-audit
+```
+
 It should:
 
 - run the minimum real checks for the matrix
 - keep `./scripts/task_run_self_check.sh` as the fast lane and reserve deep end-to-end checks for matrix capabilities
 - include `worker packet roundtrip` as the official deep verify for the canonical manual-controlled worker roundtrip
 - include `multi-worker barrier orchestration` as the official deep verify for barrier-aware multi-worker continuation
+- include `chain execution audit` as the official deep verify for coherent, incomplete, and drift-aware execution auditing against `effective_chain_plan`
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`
 - print a readable summary table at the end

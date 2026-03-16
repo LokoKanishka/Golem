@@ -72,6 +72,7 @@ import sys
 task_path = pathlib.Path(sys.argv[1])
 task = json.loads(task_path.read_text(encoding="utf-8"))
 values = {
+    "TASK_ID": task.get("task_id", ""),
     "TASK_TYPE": task.get("type", ""),
     "EFFECTIVE_PLAN_PATH": task.get("effective_plan_path", ""),
 }
@@ -81,6 +82,7 @@ PY
 )"
 eval "$traceability_env"
 
+[ -n "${TASK_ID:-}" ] && root_task_id="$TASK_ID"
 [ "$TASK_TYPE" = "task-chain" ] || fatal "la tarea indicada no es type=task-chain"
 
 validation_output=""
