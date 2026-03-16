@@ -77,6 +77,11 @@ The browser subsystem verify now reuses that same source of truth and can be run
 - `./scripts/verify_browser_stack.sh` for diagnosis plus remediation attempt
 - `./scripts/verify_browser_stack.sh --diagnosis-only` for pure diagnosis without the managed-browser recovery attempt
 
+For the finer split between repo-side capability, missing attach path, and host/runtime blocking, use:
+
+- `./scripts/verify_browser_host_contract.sh`
+- `docs/BROWSER_HOST_CONTRACT.md`
+
 ## What is blocked by environment
 
 The main environment blocker is clear:
@@ -134,4 +139,5 @@ The right operational probes for this stage are:
 
 - `./scripts/browser_remediate.sh <capability> <mode>`
 - `./scripts/browser_ready_check.sh <capability> <mode>`
+- `./scripts/verify_browser_host_contract.sh`
 - `./scripts/verify_browser_stack.sh`

@@ -120,7 +120,7 @@ When readiness reports `BLOCKED`, the wrapper should exit with the blocked conve
   - browser relay available
   - at least one usable attached tab
 
-Current browser-specific diagnosis/remediation should be refined with `./scripts/browser_remediate.sh`, `./scripts/browser_ready_check.sh`, `./scripts/verify_browser_stack.sh`, and `docs/BROWSER_BLOCKERS_ANALYSIS.md`.
+Current browser-specific diagnosis/remediation should be refined with `./scripts/browser_remediate.sh`, `./scripts/browser_ready_check.sh`, `./scripts/verify_browser_host_contract.sh`, `./scripts/verify_browser_stack.sh`, `docs/BROWSER_BLOCKERS_ANALYSIS.md`, and `docs/BROWSER_HOST_CONTRACT.md`.
 
 The browser stack verify now supports:
 
