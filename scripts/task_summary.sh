@@ -51,6 +51,10 @@ delivery_transitions = delivery.get("transitions") or []
 delivery_claim_history = delivery.get("claim_history") or []
 delivery_state = delivery.get("current_state") or "(none)"
 delivery_ready = "yes" if delivery.get("user_facing_ready") else "no"
+visible_artifact_required = "yes" if delivery.get("visible_artifact_required") else "no"
+visible_artifact_ready = "yes" if delivery.get("visible_artifact_ready") else "no"
+visible_artifact_deliveries = delivery.get("visible_artifact_deliveries") or []
+last_visible_artifact_delivery = visible_artifact_deliveries[-1] if visible_artifact_deliveries else {}
 delivery_last_transition = delivery_transitions[-1] if delivery_transitions else {}
 delivery_last_claim = delivery_claim_history[-1] if delivery_claim_history else {}
 step_name = task.get("step_name") or ""
@@ -102,6 +106,13 @@ if worker_run:
         print(f"worker_extracted_summary: {extracted_summary}")
 print(f"delivery_state: {delivery_state}")
 print(f"user_facing_ready: {delivery_ready}")
+print(f"visible_artifact_required: {visible_artifact_required}")
+print(f"visible_artifact_ready: {visible_artifact_ready}")
+print(f"visible_artifact_deliveries: {len(visible_artifact_deliveries)}")
+if last_visible_artifact_delivery:
+    print(f"last_visible_artifact_target: {last_visible_artifact_delivery.get('delivery_target', '(none)')}")
+    print(f"last_visible_artifact_result: {last_visible_artifact_delivery.get('verification_result', '(none)')}")
+    print(f"last_visible_artifact_path: {last_visible_artifact_delivery.get('resolved_path', '(none)')}")
 print(f"delivery_transitions: {len(delivery_transitions)}")
 if delivery_last_transition:
     print(f"last_delivery_transition: {delivery_last_transition.get('state', '(none)')}")

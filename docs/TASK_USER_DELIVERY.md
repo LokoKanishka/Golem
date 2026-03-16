@@ -31,6 +31,9 @@ Each relevant task can persist:
 - `delivery.minimum_user_facing_success_state`
 - `delivery.current_state`
 - `delivery.user_facing_ready`
+- `delivery.visible_artifact_required`
+- `delivery.visible_artifact_ready`
+- `delivery.visible_artifact_deliveries`
 - `delivery.transitions`
 - `delivery.claim_history`
 
@@ -65,6 +68,21 @@ That means:
 - `delivered` is not enough
 - only `visible` or `verified_by_user` can pass the claim gate
 
+When the task depends on a user-visible file result, reaching `visible` also requires a separately verified visible artifact delivery.
+
+That visible artifact truth stores at least:
+
+- `delivery_target`
+- `resolved_path`
+- `verified_at`
+- `verification_result`
+- `verification.exists`
+- `verification.readable`
+- `verification.owner`
+- `verification.path_normalized`
+
+If the repo cannot verify the visible destination reliably, the artifact lane stays `BLOCKED` and the final user-facing claim must remain blocked too.
+
 ## Canonical Scripts
 
 Record a transition:
@@ -83,6 +101,18 @@ Guard a user-facing success claim:
 
 ```text
 ./scripts/task_claim_user_facing_success.sh <task_id> <actor> <channel> <evidence> [claim]
+```
+
+Resolve a canonical visible destination:
+
+```text
+./scripts/resolve_user_visible_destination.sh <desktop|downloads> [filename] [--json]
+```
+
+Materialize and verify a visible artifact delivery:
+
+```text
+./scripts/task_materialize_visible_artifact.sh <task_id> <artifact_path> <desktop|downloads> [filename] [--json]
 ```
 
 ## Transition Policy
@@ -106,9 +136,22 @@ The canonical verify is:
 ./scripts/verify_user_facing_delivery_truth.sh
 ```
 
+For visible artifact truth specifically, use:
+
+```text
+./scripts/verify_visible_artifact_delivery_truth.sh
+```
+
 It proves:
 
 - a partial path that stops at `accepted` and cannot be sold as user-facing success
 - a `visible` path with valid claim authorization
 - a `verified_by_user` path
 - an invalid drift path that is rejected
+
+The visible artifact verify proves:
+
+- a `desktop` path with verified visibility
+- a `downloads` path with verified visibility
+- a blocked unverifiable path that cannot be sold as success
+- a drift path where the reported visible destination does not match the materialized file

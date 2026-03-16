@@ -992,6 +992,38 @@ verify_user_facing_delivery_truth() {
   record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
 }
 
+verify_visible_artifact_delivery_truth() {
+  local capability="visible artifact delivery truth"
+  local log_path="$LOG_DIR/visible-artifact-delivery-truth.log"
+  local cmd="bash ./scripts/verify_visible_artifact_delivery_truth.sh"
+  local exit_code status note artifact_rel
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && bash ./scripts/verify_visible_artifact_delivery_truth.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  artifact_rel="$(awk '/^report_path: / {print $2}' "$log_path" | tail -n 1)"
+  if [ -z "$artifact_rel" ]; then
+    artifact_rel="$(awk '/^VERIFY_VISIBLE_ARTIFACT_DELIVERY_TRUTH_(OK|FAIL|BLOCKED) / {for (i = 1; i <= NF; i++) if ($i ~ /^report=/) {sub(/^report=/, "", $i); print $i}}' "$log_path" | tail -n 1)"
+  fi
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_VISIBLE_ARTIFACT_DELIVERY_TRUTH_OK ' "$log_path"; then
+    status="PASS"
+    note="visible artifact delivery truth verify proved canonical desktop/downloads resolution, post-delivery verification, and claim gating against unverified visibility"
+  elif [ "$exit_code" -eq 2 ] && rg -q '^VERIFY_VISIBLE_ARTIFACT_DELIVERY_TRUTH_BLOCKED ' "$log_path"; then
+    status="BLOCKED"
+    note="visible artifact delivery truth verify stayed honest when the current environment could not prove a canonical desktop or downloads destination"
+  else
+    status="FAIL"
+    note="visible artifact delivery truth verify exposed a gap in visible path resolution, verification, or drift detection"
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
+}
+
 verify_orchestration_basic() {
   local capability="orchestration basic"
   local log_path="$LOG_DIR/orchestration-basic.log"
@@ -1220,6 +1252,7 @@ run_selected_verification "worker-orchestration-stack" verify_worker_orchestrati
 run_selected_verification "system-readiness" verify_system_readiness
 run_selected_verification "live-smoke-profile" verify_live_smoke_profile
 run_selected_verification "user-facing-delivery-truth" verify_user_facing_delivery_truth
+run_selected_verification "visible-artifact-delivery-truth" verify_visible_artifact_delivery_truth
 run_selected_verification "orchestration-basic" verify_orchestration_basic
 run_selected_verification "orchestration-v2" verify_orchestration_v2
 run_selected_verification "orchestration-v3" verify_orchestration_v3

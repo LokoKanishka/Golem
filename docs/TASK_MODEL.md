@@ -91,10 +91,22 @@ Las tareas tambien pueden persistir un submodelo canónico de entrega user-facin
 - `delivery.minimum_user_facing_success_state`
 - `delivery.current_state`
 - `delivery.user_facing_ready`
+- `delivery.visible_artifact_required`
+- `delivery.visible_artifact_ready`
+- `delivery.visible_artifact_deliveries`
 - `delivery.transitions`
 - `delivery.claim_history`
 
 Ese bloque no reemplaza `status`. Sirve para separar la aceptacion tecnica de la entrega real percibida por el usuario.
+
+Cuando la tarea exige una entrega de artifact visible al usuario, `delivery.visible_artifact_deliveries` persiste la evidencia canónica de:
+
+- destino pedido
+- ruta resuelta
+- ruta normalizada
+- verificacion de existencia y lectura
+- owner observado
+- resultado final `PASS`, `BLOCKED` o `FAIL`
 
 El estado interno recomendado de `worker_run.state` en esta etapa es:
 

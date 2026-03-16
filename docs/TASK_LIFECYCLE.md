@@ -224,6 +224,26 @@ To guard a final user-facing success claim, use:
 
 That claim must not pass unless the task reached at least `visible`.
 
+When the delivery claim also depends on a visible file result, resolve and verify that path explicitly:
+
+```text
+./scripts/resolve_user_visible_destination.sh <desktop|downloads> [filename] [--json]
+./scripts/task_materialize_visible_artifact.sh <task_id> <artifact_path> <desktop|downloads> [filename] [--json]
+```
+
+That second lane persists canonical evidence for:
+
+- `delivery_target`
+- `resolved_path`
+- `verified_at`
+- `verification_result`
+- `exists`
+- `readable`
+- `owner`
+- `path_normalized`
+
+If the file cannot be verified on a user-visible destination after materialization, the result must stay `BLOCKED` or `FAIL`, and the final user-facing claim must remain blocked.
+
 ## Summary
 
 Short inspection is available through:

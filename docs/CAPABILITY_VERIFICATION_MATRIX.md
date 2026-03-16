@@ -33,6 +33,8 @@ The live smoke profile lives one step above readiness and captures a short real 
 
 User-facing delivery truth is a separate capability lane from both technical task closure and browser/worker readiness.
 
+Visible artifact delivery truth is the adjacent lane that proves a staged artifact really reached a verified user-visible destination such as `desktop` or `downloads`.
+
 Every verification should prefer:
 
 - exact command executed
@@ -433,6 +435,26 @@ It should preserve the operational reading that worker stack can be `PASS` while
   - writable repo-local `tasks/`
   - writable repo-local `outbox/manual/`
 
+### 23. Visible Artifact Delivery Truth
+
+- name: `visible artifact delivery truth`
+- objective: prove that a staged artifact only counts as user-visible after canonical destination resolution and post-delivery verification
+- verification lane: `visible artifact truth`
+- command(s):
+  - `./scripts/verify_visible_artifact_delivery_truth.sh`
+  - `./scripts/resolve_user_visible_destination.sh <desktop|downloads> [filename] [--json]`
+  - `./scripts/task_materialize_visible_artifact.sh <task_id> <artifact_path> <desktop|downloads> [filename] [--json]`
+  - `./scripts/task_delivery_summary.sh <task_id>`
+  - `./scripts/task_claim_user_facing_success.sh <task_id> <actor> <channel> <evidence> [claim]`
+- success criterion: the verify exits `0`, prints `VERIFY_VISIBLE_ARTIFACT_DELIVERY_TRUTH_OK`, and proves verified `desktop` plus `downloads` paths, an honest blocked unverifiable path, and explicit drift detection
+- blocked criterion: the verify exits `2`, prints `VERIFY_VISIBLE_ARTIFACT_DELIVERY_TRUTH_BLOCKED`, and reports that the current environment cannot prove a canonical desktop or downloads destination
+- failure criterion: the verify exits non-zero, allows an unverified visible artifact claim, or misses a reported-path drift
+- path coverage: verified desktop path, verified downloads path, blocked unverifiable path, drift mismatch path
+- environment dependencies:
+  - writable repo-local `tasks/`
+  - writable repo-local `outbox/manual/`
+  - at least one readable and writable visible `desktop` and `downloads` destination to prove the pass paths
+
 ## Final Classification Table
 
 | status | meaning |
@@ -491,6 +513,12 @@ For the official user-facing delivery truth capability alone, use:
 ./scripts/verify_capability_matrix.sh user-facing-delivery-truth
 ```
 
+For the official visible artifact delivery truth capability alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh visible-artifact-delivery-truth
+```
+
 It should:
 
 - run the minimum real checks for the matrix
@@ -502,6 +530,7 @@ It should:
 - include `system readiness` as the official top-level operational view across fast self-check, browser stack, and worker stack
 - include `live smoke profile` as the official short live demo-state of the current local stack
 - include `user-facing delivery truth` as the official guardrail against claiming user-visible success before `visible`
+- include `visible artifact delivery truth` as the official guardrail against claiming that a staged artifact is already on the user's desktop or downloads without post-delivery verification
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`
 - print a readable summary table at the end

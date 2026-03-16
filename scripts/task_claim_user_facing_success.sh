@@ -65,6 +65,9 @@ delivery.setdefault("protocol_version", "1.0")
 delivery.setdefault("minimum_user_facing_success_state", "visible")
 delivery.setdefault("current_state", "")
 delivery.setdefault("user_facing_ready", False)
+delivery.setdefault("visible_artifact_required", False)
+delivery.setdefault("visible_artifact_ready", False)
+delivery.setdefault("visible_artifact_deliveries", [])
 delivery.setdefault("transitions", [])
 delivery.setdefault("claim_history", [])
 
@@ -73,6 +76,13 @@ required_state = delivery.get("minimum_user_facing_success_state") or "visible"
 allowed = False
 if current_state in ordered_states and required_state in ordered_states:
     allowed = ordered_states.index(current_state) >= ordered_states.index(required_state)
+
+visible_artifact_required = bool(delivery.get("visible_artifact_required"))
+visible_artifact_ready = bool(delivery.get("visible_artifact_ready"))
+artifact_requirement_note = "not-required"
+if visible_artifact_required:
+    artifact_requirement_note = "verified" if visible_artifact_ready else "missing"
+    allowed = allowed and visible_artifact_ready
 
 now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
 claim_entry = {
@@ -83,6 +93,9 @@ claim_entry = {
     "evidence": evidence,
     "required_state": required_state,
     "current_state": current_state,
+    "visible_artifact_required": visible_artifact_required,
+    "visible_artifact_ready": visible_artifact_ready,
+    "artifact_requirement_note": artifact_requirement_note,
     "allowed": allowed,
 }
 delivery["claim_history"].append(claim_entry)
@@ -99,7 +112,8 @@ if allowed:
 
 print(
     "TASK_USER_FACING_CLAIM_BLOCKED "
-    f"{task.get('task_id', '')} current_state={current_state or '(none)'} required_state={required_state}"
+    f"{task.get('task_id', '')} current_state={current_state or '(none)'} required_state={required_state} "
+    f"artifact_requirement={artifact_requirement_note}"
 )
 raise SystemExit(2)
 PY

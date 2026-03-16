@@ -71,6 +71,16 @@ On success it appends an object to `artifacts` with:
 - `kind`
 - `created_at`
 
+That artifact path is internal durable staging evidence only.
+
+For a user-facing file claim such as "already on your desktop" or "already in downloads", the repo now requires a second lane:
+
+- resolve the canonical visible destination with `./scripts/resolve_user_visible_destination.sh`
+- materialize the staged artifact with `./scripts/task_materialize_visible_artifact.sh`
+- verify `exists`, `readable`, `owner`, and `path_normalized` after delivery
+
+Without that second verified lane, `outbox/manual/` does not count as a visible user-facing delivery.
+
 It also refreshes `updated_at` and appends a short note to `notes`.
 
 ## Final state rules
