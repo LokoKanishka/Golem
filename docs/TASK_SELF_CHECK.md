@@ -37,6 +37,12 @@ For the higher-level operational view that aggregates this fast lane with browse
 ./scripts/verify_system_readiness.sh
 ```
 
+For the short live demo-state that reuses this fast lane together with the real stack, worker stack, browser stack, and generated smoke evidence, use:
+
+```text
+./scripts/verify_live_smoke_profile.sh
+```
+
 ## Flow
 
 The runner performs these steps:

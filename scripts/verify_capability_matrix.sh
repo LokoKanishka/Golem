@@ -934,6 +934,35 @@ verify_system_readiness() {
   record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "" "" "" "$cmd"
 }
 
+verify_live_smoke_profile() {
+  local capability="live smoke profile"
+  local log_path="$LOG_DIR/live-smoke-profile.log"
+  local cmd="bash ./scripts/verify_live_smoke_profile.sh"
+  local exit_code status note artifact_rel
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && bash ./scripts/verify_live_smoke_profile.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  artifact_rel="$(awk '/^REPORT_PATH / {print $2}' "$log_path" | tail -n 1)"
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_LIVE_SMOKE_PROFILE_OK ' "$log_path"; then
+    status="PASS"
+    note="live smoke profile proved the current launcher-facing stack, fast self-check, worker stack, and live browser action as fully usable"
+  elif [ "$exit_code" -eq 2 ] && rg -q '^VERIFY_LIVE_SMOKE_PROFILE_BLOCKED ' "$log_path"; then
+    status="BLOCKED"
+    note="live smoke profile ran end-to-end, generated real evidence, and reported an honest partial system block without pretending the browser lane passed"
+  else
+    status="FAIL"
+    note="live smoke profile failed internally before producing a coherent demo-state report"
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
+}
+
 verify_orchestration_basic() {
   local capability="orchestration basic"
   local log_path="$LOG_DIR/orchestration-basic.log"
@@ -1160,6 +1189,7 @@ run_selected_verification "multi-worker-barrier-orchestration" verify_multi_work
 run_selected_verification "chain-execution-audit" verify_chain_execution_audit
 run_selected_verification "worker-orchestration-stack" verify_worker_orchestration_stack
 run_selected_verification "system-readiness" verify_system_readiness
+run_selected_verification "live-smoke-profile" verify_live_smoke_profile
 run_selected_verification "orchestration-basic" verify_orchestration_basic
 run_selected_verification "orchestration-v2" verify_orchestration_v2
 run_selected_verification "orchestration-v3" verify_orchestration_v3

@@ -29,6 +29,8 @@ The system readiness verify lives one level above that and aggregates:
 - the browser subsystem lane
 - the worker/orchestration/traceability subsystem lane
 
+The live smoke profile lives one step above readiness and captures a short real demo-state of the current local stack with generated evidence.
+
 Every verification should prefer:
 
 - exact command executed
@@ -390,6 +392,28 @@ It should preserve the operational reading that worker stack can be `PASS` while
   - controlled worker run available
   - local comparison scripts
 
+### 21. Live Smoke Profile
+
+- name: `live smoke profile`
+- objective: capture a short, repeatable, honest live demo-state of the current local Clawbot/OpenClaw stack
+- verification lane: `live smoke/demo`
+- command(s):
+  - `./scripts/verify_live_smoke_profile.sh`
+  - `./scripts/task_run_self_check.sh "Live smoke profile / fast self-check"`
+  - `./scripts/verify_worker_orchestration_stack.sh`
+  - `./scripts/verify_browser_stack.sh`
+  - `openclaw browser --browser-profile chrome snapshot`
+- success criterion: the smoke profile exits `0`, prints `VERIFY_LIVE_SMOKE_PROFILE_OK`, and emits a markdown report in `outbox/manual/`
+- blocked criterion: the smoke profile exits `2`, prints `VERIFY_LIVE_SMOKE_PROFILE_BLOCKED`, and still emits a markdown report that shows the live blocked lane honestly
+- failure criterion: the smoke profile exits non-zero without a coherent final smoke report or collapses a blocked live lane into an internal failure
+- path coverage: stack availability, fast self-check, worker/orchestration stack, live browser action, generated evidence
+- environment dependencies:
+  - local gateway/runtime availability
+  - dashboard/panel reachable from the host
+  - writable repo-local `tasks/`
+  - writable repo-local `handoffs/`
+  - writable repo-local `outbox/manual/`
+
 ## Final Classification Table
 
 | status | meaning |
@@ -436,6 +460,12 @@ For the official system-wide readiness view alone, use:
 ./scripts/verify_capability_matrix.sh system-readiness
 ```
 
+For the official live smoke/demo profile alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh live-smoke-profile
+```
+
 It should:
 
 - run the minimum real checks for the matrix
@@ -445,6 +475,7 @@ It should:
 - include `chain execution audit` as the official deep verify for coherent, incomplete, and drift-aware execution auditing against `effective_chain_plan`
 - include `worker orchestration stack` as the official deep subsystem verify for the whole worker/orchestration/traceability column
 - include `system readiness` as the official top-level operational view across fast self-check, browser stack, and worker stack
+- include `live smoke profile` as the official short live demo-state of the current local stack
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`
 - print a readable summary table at the end
