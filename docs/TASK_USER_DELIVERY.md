@@ -34,6 +34,7 @@ Each relevant task can persist:
 - `delivery.visible_artifact_required`
 - `delivery.visible_artifact_ready`
 - `delivery.visible_artifact_deliveries`
+- `delivery.whatsapp`
 - `delivery.transitions`
 - `delivery.claim_history`
 
@@ -83,6 +84,39 @@ That visible artifact truth stores at least:
 
 If the repo cannot verify the visible destination reliably, the artifact lane stays `BLOCKED` and the final user-facing claim must remain blocked too.
 
+When the channel itself matters, the repo can also persist a WhatsApp-specific truth lane under `delivery.whatsapp`.
+
+The minimum WhatsApp states are:
+
+1. `requested`
+2. `accepted_by_gateway`
+3. `accepted_by_provider`
+4. `delivered`
+5. `verified_by_user`
+
+That lane persists at least:
+
+- `channel`
+- `provider`
+- `to`
+- `message_id`
+- `run_id`
+- `timestamp`
+- `delivery_state`
+- `delivery_confidence`
+- `allowed_user_facing_claim`
+- `raw_result_excerpt`
+
+The generic final user-facing success claim must not pass for WhatsApp-required tasks unless the WhatsApp lane reached at least `delivered`.
+
+Conservative wording stays canonical:
+
+- `requested` -> `solicitado`
+- `accepted_by_gateway` -> `aceptado por gateway`
+- `accepted_by_provider` -> `aceptado por proveedor`
+- `delivered` -> `entregado`
+- `verified_by_user` -> `confirmado por usuario`
+
 ## Canonical Scripts
 
 Record a transition:
@@ -115,6 +149,18 @@ Materialize and verify a visible artifact delivery:
 ./scripts/task_materialize_visible_artifact.sh <task_id> <artifact_path> <desktop|downloads> [filename] [--json]
 ```
 
+Record a WhatsApp delivery truth transition:
+
+```text
+./scripts/task_record_whatsapp_delivery.sh <task_id> <state> <actor> <provider> <to> <message_id|-> <raw_result_excerpt> [--run-id <run_id>] [--channel <channel>] [--confidence <confidence>]
+```
+
+Claim a WhatsApp wording level explicitly:
+
+```text
+./scripts/task_claim_whatsapp_delivery.sh <task_id> <actor> <requested_claim_level> <evidence> [claim_text]
+```
+
 ## Transition Policy
 
 The first transition must be `submitted`.
@@ -142,6 +188,12 @@ For visible artifact truth specifically, use:
 ./scripts/verify_visible_artifact_delivery_truth.sh
 ```
 
+For WhatsApp delivery claim truth specifically, use:
+
+```text
+./scripts/verify_whatsapp_delivery_claim_truth.sh
+```
+
 It proves:
 
 - a partial path that stops at `accepted` and cannot be sold as user-facing success
@@ -155,3 +207,11 @@ The visible artifact verify proves:
 - a `downloads` path with verified visibility
 - a blocked unverifiable path that cannot be sold as success
 - a drift path where the reported visible destination does not match the materialized file
+
+The WhatsApp verify proves:
+
+- a gateway-accepted-only path that must not be sold as delivered
+- a delivered path with authorized `entregado` wording
+- a `verified_by_user` path
+- an ambiguous provider path that stays conservative
+- a drift path where `message_id` evidence becomes inconsistent

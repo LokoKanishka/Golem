@@ -244,6 +244,21 @@ That second lane persists canonical evidence for:
 
 If the file cannot be verified on a user-visible destination after materialization, the result must stay `BLOCKED` or `FAIL`, and the final user-facing claim must remain blocked.
 
+When the user-facing channel is WhatsApp, persist that lane separately too:
+
+```text
+./scripts/task_record_whatsapp_delivery.sh <task_id> <requested|accepted_by_gateway|accepted_by_provider|delivered|verified_by_user> <actor> <provider> <to> <message_id|-> <raw_result_excerpt> [--run-id <run_id>] [--channel <channel>] [--confidence <confidence>]
+./scripts/task_claim_whatsapp_delivery.sh <task_id> <actor> <requested_claim_level> <evidence> [claim_text]
+```
+
+That lane does not replace the generic `delivery_state`. It narrows the authorized wording for channel-specific claims.
+
+For WhatsApp-required tasks:
+
+- gateway acceptance is not the same as delivery
+- provider ambiguity must stay conservative
+- generic final success stays blocked until the WhatsApp lane reaches at least `delivered`
+
 ## Summary
 
 Short inspection is available through:

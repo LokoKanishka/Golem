@@ -35,6 +35,8 @@ User-facing delivery truth is a separate capability lane from both technical tas
 
 Visible artifact delivery truth is the adjacent lane that proves a staged artifact really reached a verified user-visible destination such as `desktop` or `downloads`.
 
+WhatsApp delivery claim truth is the channel-specific lane that prevents gateway acceptance from being sold as real delivery.
+
 Every verification should prefer:
 
 - exact command executed
@@ -455,6 +457,24 @@ It should preserve the operational reading that worker stack can be `PASS` while
   - writable repo-local `outbox/manual/`
   - at least one readable and writable visible `desktop` and `downloads` destination to prove the pass paths
 
+### 24. WhatsApp Delivery Claim Truth
+
+- name: `whatsapp delivery claim truth`
+- objective: prove that WhatsApp gateway/provider evidence degrades to the exact allowed wording instead of inflating technical acceptance into delivery
+- verification lane: `whatsapp delivery truth`
+- command(s):
+  - `./scripts/verify_whatsapp_delivery_claim_truth.sh`
+  - `./scripts/task_record_whatsapp_delivery.sh <task_id> <state> <actor> <provider> <to> <message_id|-> <raw_result_excerpt> [--run-id <run_id>] [--channel <channel>] [--confidence <confidence>]`
+  - `./scripts/task_claim_whatsapp_delivery.sh <task_id> <actor> <requested_claim_level> <evidence> [claim_text]`
+  - `./scripts/task_claim_user_facing_success.sh <task_id> <actor> <channel> <evidence> [claim]`
+  - `./scripts/task_delivery_summary.sh <task_id>`
+- success criterion: the verify exits `0`, prints `VERIFY_WHATSAPP_DELIVERY_CLAIM_TRUTH_OK`, and proves gateway-only, delivered, verified-by-user, ambiguous-provider, and drift paths
+- failure criterion: the verify exits non-zero, allows inflated WhatsApp wording, or misses `message_id` drift
+- path coverage: accepted-by-gateway-only path, delivered path, verified-by-user path, ambiguous provider path, drift mismatch path
+- environment dependencies:
+  - writable repo-local `tasks/`
+  - writable repo-local `outbox/manual/`
+
 ## Final Classification Table
 
 | status | meaning |
@@ -519,6 +539,12 @@ For the official visible artifact delivery truth capability alone, use:
 ./scripts/verify_capability_matrix.sh visible-artifact-delivery-truth
 ```
 
+For the official WhatsApp delivery claim truth capability alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh whatsapp-delivery-claim-truth
+```
+
 It should:
 
 - run the minimum real checks for the matrix
@@ -531,6 +557,7 @@ It should:
 - include `live smoke profile` as the official short live demo-state of the current local stack
 - include `user-facing delivery truth` as the official guardrail against claiming user-visible success before `visible`
 - include `visible artifact delivery truth` as the official guardrail against claiming that a staged artifact is already on the user's desktop or downloads without post-delivery verification
+- include `whatsapp delivery claim truth` as the official guardrail against claiming that a gateway-accepted WhatsApp message was really delivered
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`
 - print a readable summary table at the end

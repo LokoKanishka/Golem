@@ -94,6 +94,7 @@ Las tareas tambien pueden persistir un submodelo canónico de entrega user-facin
 - `delivery.visible_artifact_required`
 - `delivery.visible_artifact_ready`
 - `delivery.visible_artifact_deliveries`
+- `delivery.whatsapp`
 - `delivery.transitions`
 - `delivery.claim_history`
 
@@ -107,6 +108,15 @@ Cuando la tarea exige una entrega de artifact visible al usuario, `delivery.visi
 - verificacion de existencia y lectura
 - owner observado
 - resultado final `PASS`, `BLOCKED` o `FAIL`
+
+Cuando la tarea depende de verdad de canal por WhatsApp, `delivery.whatsapp` persiste la evidencia canónica de:
+
+- state actual del canal
+- confidence del delivery
+- claim user-facing permitido
+- `message_id` rastreado
+- provider y destinatario
+- intentos y claims auditables por task
 
 El estado interno recomendado de `worker_run.state` en esta etapa es:
 

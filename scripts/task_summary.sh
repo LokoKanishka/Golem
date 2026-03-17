@@ -55,6 +55,12 @@ visible_artifact_required = "yes" if delivery.get("visible_artifact_required") e
 visible_artifact_ready = "yes" if delivery.get("visible_artifact_ready") else "no"
 visible_artifact_deliveries = delivery.get("visible_artifact_deliveries") or []
 last_visible_artifact_delivery = visible_artifact_deliveries[-1] if visible_artifact_deliveries else {}
+whatsapp = delivery.get("whatsapp") or {}
+whatsapp_required = "yes" if whatsapp.get("required") else "no"
+whatsapp_state = whatsapp.get("current_state") or "(none)"
+whatsapp_confidence = whatsapp.get("delivery_confidence") or "(none)"
+whatsapp_allowed_claim = whatsapp.get("allowed_user_facing_claim") or "(none)"
+whatsapp_message_ids = whatsapp.get("message_ids") or []
 delivery_last_transition = delivery_transitions[-1] if delivery_transitions else {}
 delivery_last_claim = delivery_claim_history[-1] if delivery_claim_history else {}
 step_name = task.get("step_name") or ""
@@ -113,6 +119,13 @@ if last_visible_artifact_delivery:
     print(f"last_visible_artifact_target: {last_visible_artifact_delivery.get('delivery_target', '(none)')}")
     print(f"last_visible_artifact_result: {last_visible_artifact_delivery.get('verification_result', '(none)')}")
     print(f"last_visible_artifact_path: {last_visible_artifact_delivery.get('resolved_path', '(none)')}")
+print(f"whatsapp_delivery_required: {whatsapp_required}")
+print(f"whatsapp_delivery_state: {whatsapp_state}")
+print(f"whatsapp_delivery_confidence: {whatsapp_confidence}")
+print(f"whatsapp_message_ids: {len(whatsapp_message_ids)}")
+if whatsapp_message_ids:
+    print(f"whatsapp_message_id_list: {','.join(whatsapp_message_ids)}")
+print(f"whatsapp_allowed_user_facing_claim: {whatsapp_allowed_claim}")
 print(f"delivery_transitions: {len(delivery_transitions)}")
 if delivery_last_transition:
     print(f"last_delivery_transition: {delivery_last_transition.get('state', '(none)')}")
@@ -123,6 +136,8 @@ print(f"user_facing_claims: {len(delivery_claim_history)}")
 if delivery_last_claim:
     print("last_user_facing_claim_allowed: " + ("yes" if delivery_last_claim.get("allowed") else "no"))
     print(f"last_user_facing_claim_state: {delivery_last_claim.get('current_state', '(none)')}")
+    if "whatsapp_delivery_state" in delivery_last_claim:
+        print(f"last_user_facing_claim_whatsapp_state: {delivery_last_claim.get('whatsapp_delivery_state', '(none)')}")
 print(f"outputs: {len(task.get('outputs', []))}")
 print(f"artifacts: {len(task.get('artifacts', []))}")
 print(f"last_note: {last_note}")

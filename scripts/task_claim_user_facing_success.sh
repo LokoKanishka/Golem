@@ -68,6 +68,22 @@ delivery.setdefault("user_facing_ready", False)
 delivery.setdefault("visible_artifact_required", False)
 delivery.setdefault("visible_artifact_ready", False)
 delivery.setdefault("visible_artifact_deliveries", [])
+delivery.setdefault("whatsapp", {})
+whatsapp = delivery["whatsapp"]
+whatsapp.setdefault("protocol_version", "1.0")
+whatsapp.setdefault("required", False)
+whatsapp.setdefault("current_state", "")
+whatsapp.setdefault("delivery_confidence", "unknown")
+whatsapp.setdefault("allowed_claim_level", "")
+whatsapp.setdefault("allowed_user_facing_claim", "")
+whatsapp.setdefault("user_facing_ready", False)
+whatsapp.setdefault("tracked_message_id", "")
+whatsapp.setdefault("message_ids", [])
+whatsapp.setdefault("provider", "")
+whatsapp.setdefault("to", "")
+whatsapp.setdefault("run_id", "")
+whatsapp.setdefault("attempts", [])
+whatsapp.setdefault("claim_history", [])
 delivery.setdefault("transitions", [])
 delivery.setdefault("claim_history", [])
 
@@ -84,6 +100,15 @@ if visible_artifact_required:
     artifact_requirement_note = "verified" if visible_artifact_ready else "missing"
     allowed = allowed and visible_artifact_ready
 
+whatsapp_required = bool(whatsapp.get("required"))
+whatsapp_ready = bool(whatsapp.get("user_facing_ready"))
+whatsapp_state = whatsapp.get("current_state") or ""
+whatsapp_allowed_claim = whatsapp.get("allowed_user_facing_claim") or ""
+whatsapp_requirement_note = "not-required"
+if whatsapp_required:
+    whatsapp_requirement_note = "verified" if whatsapp_ready else "missing"
+    allowed = allowed and whatsapp_ready
+
 now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
 claim_entry = {
     "claim": claim,
@@ -96,6 +121,11 @@ claim_entry = {
     "visible_artifact_required": visible_artifact_required,
     "visible_artifact_ready": visible_artifact_ready,
     "artifact_requirement_note": artifact_requirement_note,
+    "whatsapp_required": whatsapp_required,
+    "whatsapp_delivery_state": whatsapp_state,
+    "whatsapp_allowed_user_facing_claim": whatsapp_allowed_claim,
+    "whatsapp_ready": whatsapp_ready,
+    "whatsapp_requirement_note": whatsapp_requirement_note,
     "allowed": allowed,
 }
 delivery["claim_history"].append(claim_entry)
@@ -113,7 +143,7 @@ if allowed:
 print(
     "TASK_USER_FACING_CLAIM_BLOCKED "
     f"{task.get('task_id', '')} current_state={current_state or '(none)'} required_state={required_state} "
-    f"artifact_requirement={artifact_requirement_note}"
+    f"artifact_requirement={artifact_requirement_note} whatsapp_requirement={whatsapp_requirement_note}"
 )
 raise SystemExit(2)
 PY
