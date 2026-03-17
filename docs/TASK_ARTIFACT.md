@@ -98,6 +98,12 @@ That lane keeps visual evidence honest by distinguishing `captured` from `verifi
 
 At the aggregate level, the user-facing readiness profile reuses that lane together with delivery, visible artifact, WhatsApp, and media truth instead of duplicating their logic.
 
+For a real product-facing journey that uses a generated artifact and then tries to continue into a channel-facing path, use:
+
+```text
+./scripts/verify_live_user_journey_smoke.sh
+```
+
 It also refreshes `updated_at` and appends a short note to `notes`.
 
 ## Final state rules

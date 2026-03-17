@@ -37,3 +37,16 @@ It emits:
 - `FAIL` means at least one lane failed internally or exposed drift/inconsistency
 
 The profile must not present the system as user-facing ready when any critical lane is `BLOCKED` or `FAIL`.
+
+## Next Operational Layer
+
+Once the canonical truths are passing, use the live journey smoke profile to see where real user experience still cuts:
+
+```text
+./scripts/verify_live_user_journey_smoke.sh
+```
+
+That profile reuses the same lanes but organizes them as two real journeys:
+
+- visible artifact to a verified user path
+- WhatsApp-oriented delivery with honest channel semantics

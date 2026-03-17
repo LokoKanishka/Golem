@@ -253,6 +253,12 @@ For the aggregate user-facing operational readout, use:
 ./scripts/verify_user_facing_readiness.sh
 ```
 
+For the real two-journey product smoke that sits above those truth lanes, use:
+
+```text
+./scripts/verify_live_user_journey_smoke.sh
+```
+
 It proves:
 
 - a partial path that stops at `accepted` and cannot be sold as user-facing success

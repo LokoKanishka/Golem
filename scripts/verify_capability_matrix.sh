@@ -1143,6 +1143,38 @@ verify_user_facing_readiness() {
   record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
 }
 
+verify_live_user_journey_smoke() {
+  local capability="live user journey smoke"
+  local log_path="$LOG_DIR/live-user-journey-smoke.log"
+  local cmd="bash ./scripts/verify_live_user_journey_smoke.sh"
+  local exit_code status note artifact_rel
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && bash ./scripts/verify_live_user_journey_smoke.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  artifact_rel="$(awk '/^report_path: / {print $2}' "$log_path" | tail -n 1)"
+  if [ -z "$artifact_rel" ]; then
+    artifact_rel="$(awk '/^VERIFY_LIVE_USER_JOURNEY_SMOKE_(OK|BLOCKED|FAIL) / {for (i = 1; i <= NF; i++) if ($i ~ /^report=/) {sub(/^report=/, "", $i); print $i}}' "$log_path" | tail -n 1)"
+  fi
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_LIVE_USER_JOURNEY_SMOKE_OK ' "$log_path"; then
+    status="PASS"
+    note="live user journey smoke proved that the current system can complete both canonical user journeys without inflating any claim"
+  elif [ "$exit_code" -eq 2 ] && rg -q '^VERIFY_LIVE_USER_JOURNEY_SMOKE_BLOCKED ' "$log_path"; then
+    status="BLOCKED"
+    note="live user journey smoke stayed honest: at least one real user journey remains blocked even though the canonical guardrails kept the semantics coherent"
+  else
+    status="FAIL"
+    note="live user journey smoke exposed an internal failure or semantic inconsistency in a real user journey"
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
+}
+
 verify_orchestration_basic() {
   local capability="orchestration basic"
   local log_path="$LOG_DIR/orchestration-basic.log"
@@ -1376,6 +1408,7 @@ run_selected_verification "whatsapp-delivery-claim-truth" verify_whatsapp_delive
 run_selected_verification "media-ingestion-truth" verify_media_ingestion_truth
 run_selected_verification "host-screenshot-truth" verify_host_screenshot_truth
 run_selected_verification "user-facing-readiness" verify_user_facing_readiness
+run_selected_verification "live-user-journey-smoke" verify_live_user_journey_smoke
 run_selected_verification "orchestration-basic" verify_orchestration_basic
 run_selected_verification "orchestration-v2" verify_orchestration_v2
 run_selected_verification "orchestration-v3" verify_orchestration_v3

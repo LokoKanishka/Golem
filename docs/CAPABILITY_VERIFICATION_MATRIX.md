@@ -43,6 +43,8 @@ Host screenshot truth is the visual-evidence lane that proves a host-side captur
 
 User-facing readiness is the top-level user-facing profile that aggregates those five canonical truths into one operational readout.
 
+Live user journey smoke is the next operational layer above that: it runs two real user journeys and reports exactly where the end-to-end experience still cuts.
+
 Every verification should prefer:
 
 - exact command executed
@@ -587,6 +589,12 @@ For the official user-facing readiness profile alone, use:
 ./scripts/verify_capability_matrix.sh user-facing-readiness
 ```
 
+For the official live user journey smoke capability alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh live-user-journey-smoke
+```
+
 It should:
 
 - run the minimum real checks for the matrix
@@ -603,6 +611,7 @@ It should:
 - include `media ingestion truth` as the official guardrail against claiming that an attachment is ready before its canonical material identity is verified
 - include `host screenshot truth` as the official guardrail against claiming visual confirmation before host-side screenshot evidence is materially verified
 - include `user-facing readiness` as the official aggregate readout across the five canonical user-facing truth lanes
+- include `live user journey smoke` as the official two-journey product-facing smoke that proves where the real user experience passes, blocks, or fails
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`
 - print a readable summary table at the end
