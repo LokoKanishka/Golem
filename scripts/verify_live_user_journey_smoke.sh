@@ -215,6 +215,7 @@ journey_b_whatsapp_delivery() {
   local task_id media_source media_register_output media_verify_output screenshot_capture_output screenshot_verify_output
   local whatsapp_claim_requested whatsapp_claim_delivered generic_claim_summary status cutoff evidence
   local send_path_output send_path_exit send_path_report send_path_marker
+  local wrapper_output wrapper_exit wrapper_status wrapper_report wrapper_state
 
   : >"$log_path"
   append_report "" "## Journey B" "" "Log: $log_path"
@@ -293,7 +294,37 @@ PY
 )"
   send_path_marker="$(printf '%s\n' "$send_path_output" | awk '/^VERIFY_WHATSAPP_LIVE_SEND_PATH_(OK|BLOCKED|FAIL) / {print $1}' | tail -n 1)"
 
-  run_cmd "$log_path" "Journey B / Record WhatsApp requested" "./scripts/task_record_whatsapp_delivery.sh $task_id requested live-user-journey smoke-repo-local +5491100000007 - 'journey B requested a WhatsApp send with the prepared artifact but has not reached any live gateway acceptance'"
+  run_cmd "$log_path" "Journey B / Canonical WhatsApp Wrapper" "./scripts/task_send_whatsapp_live.sh $task_id +5491100000007 --message 'Live user journey smoke / WhatsApp delivery' --media '$media_source' --dry-run --json"
+  wrapper_output="$LAST_OUTPUT"
+  wrapper_exit="$LAST_EXIT"
+  wrapper_status="$(python3 - "$wrapper_output" <<'PY'
+import json
+import sys
+try:
+    print(json.loads(sys.argv[1]).get("wrapper_status", ""))
+except Exception:
+    print("")
+PY
+)"
+  wrapper_state="$(python3 - "$wrapper_output" <<'PY'
+import json
+import sys
+try:
+    print(json.loads(sys.argv[1]).get("wrapper_state", ""))
+except Exception:
+    print("")
+PY
+)"
+  wrapper_report="$(python3 - "$wrapper_output" <<'PY'
+import json
+import sys
+try:
+    print(json.loads(sys.argv[1]).get("report_path", ""))
+except Exception:
+    print("")
+PY
+)"
+
   run_cmd "$log_path" "Journey B / Claim WhatsApp requested wording" "./scripts/task_claim_whatsapp_delivery.sh $task_id live-user-journey requested 'journey B degrades the WhatsApp wording to the exact requested-only evidence level'"
   whatsapp_claim_requested="$LAST_OUTPUT"
   run_cmd "$log_path" "Journey B / Claim WhatsApp delivered wording" "./scripts/task_claim_whatsapp_delivery.sh $task_id live-user-journey delivered 'journey B attempted a delivered wording without gateway/provider proof'"
@@ -302,13 +333,17 @@ PY
   generic_claim_summary="$LAST_OUTPUT"
 
   status="BLOCKED"
-  cutoff="no canonical repo-local live WhatsApp send path is currently proved"
-  evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; delivered_claim=blocked ; generic_claim=blocked ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report"
+  cutoff="canonical live send path exists, but this smoke intentionally stops at a safe dry-run before gateway acceptance"
+  evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; delivered_claim=blocked ; generic_claim=blocked ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; wrapper_report=$wrapper_report"
 
   if ! printf '%s\n' "$whatsapp_claim_requested" | rg -q '^TASK_WHATSAPP_CLAIM_ALLOWED '; then
     status="FAIL"
     cutoff="requested-level WhatsApp wording was not claimable conservatively"
     evidence="source=$media_source ; requested_claim_output=$(printf '%s' "$whatsapp_claim_requested" | tr '\n' ' ' | sed 's/[[:space:]]\\+/ /g')"
+  elif [ "$wrapper_exit" -eq 1 ] || [ "$wrapper_status" = "FAIL" ]; then
+    status="FAIL"
+    cutoff="the canonical WhatsApp wrapper detected an internal inconsistency or evidence drift"
+    evidence="source=$media_source ; wrapper_output=$(printf '%s' "$wrapper_output" | tr '\n' ' ' | sed 's/[[:space:]]\\+/ /g') ; wrapper_report=$wrapper_report"
   elif ! printf '%s\n' "$whatsapp_claim_delivered" | rg -q '^TASK_WHATSAPP_CLAIM_BLOCKED '; then
     status="FAIL"
     cutoff="delivered-level WhatsApp wording was not blocked despite missing delivery proof"
@@ -321,10 +356,14 @@ PY
     status="FAIL"
     cutoff="the canonical WhatsApp live send path verify failed internally"
     evidence="source=$media_source ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report"
+  elif [ "$wrapper_exit" -eq 2 ] || [ "$wrapper_status" = "BLOCKED" ]; then
+    status="BLOCKED"
+    cutoff="the canonical wrapper exists, but this smoke stayed blocked before any auditable gateway acceptance"
+    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; wrapper_report=$wrapper_report"
   elif [ "$send_path_exit" -eq 0 ] && [ "$send_path_marker" = "VERIFY_WHATSAPP_LIVE_SEND_PATH_OK" ]; then
     status="BLOCKED"
-    cutoff="a canonical live send path exists, but this smoke still stops before an actual outbound WhatsApp send"
-    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report"
+    cutoff="a canonical live send path exists, but this smoke still stops before provider delivery proof"
+    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; wrapper_report=$wrapper_report"
   fi
 
   if [ "$status" = "BLOCKED" ]; then

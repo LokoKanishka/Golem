@@ -13,6 +13,7 @@ PY
 )"
 REPORT_PATH="$OUTBOX_DIR/${TIMESTAMP}-whatsapp-live-send-path.md"
 TASK_ID=""
+WRAPPER_TASK_ID=""
 
 RESULT_NAMES=()
 RESULT_CLASSES=()
@@ -123,11 +124,11 @@ fi
 
 run_cmd "Move Verify Task To Running" "./scripts/task_update.sh $TASK_ID running"
 
-run_cmd "Repo Wrapper Search" "find scripts -maxdepth 1 -type f | sort | rg 'task_run_whatsapp.*send|task_run_.*whatsapp.*send|task_whatsapp_live_send|whatsapp_live_send_adapter|whatsapp_live_send_runner'"
+run_cmd "Repo Wrapper Search" "find scripts -maxdepth 1 -type f | sort | rg 'task_run_whatsapp.*send|task_run_.*whatsapp.*send|task_whatsapp_live_send|task_send_whatsapp_live|whatsapp_live_send_adapter|whatsapp_live_send_runner'"
 wrapper_output="$LAST_OUTPUT"
 wrapper_exit="$LAST_EXIT_CODE"
-if [ "$wrapper_exit" -eq 0 ] && [ -n "$wrapper_output" ]; then
-  append_result "repo wrapper path" "present_but_not_invocable" "repo-side WhatsApp send candidates exist, but this verify still needs to confirm task_id auditability and delivery.whatsapp integration"
+if [ "$wrapper_exit" -eq 0 ] && printf '%s\n' "$wrapper_output" | rg -q 'task_send_whatsapp_live\.sh'; then
+  append_result "repo wrapper path" "present_but_not_invocable" "repo-side WhatsApp send wrapper exists; the verify now needs to prove that it is task-bound and auditable"
 else
   append_result "repo wrapper path" "missing" "no repo-local wrapper script for live WhatsApp send exists under scripts/"
 fi
@@ -154,7 +155,7 @@ run_cmd "CLI Dry Run Probe" "openclaw message send --channel whatsapp --target +
 dry_run_output="$LAST_OUTPUT"
 dry_run_exit="$LAST_EXIT_CODE"
 if [ "$dry_run_exit" -eq 0 ] && printf '%s\n' "$dry_run_output" | rg -q '"channel": "whatsapp"' && printf '%s\n' "$dry_run_output" | rg -q '"dryRun": true'; then
-  append_result "openclaw message send dry-run" "invocable_but_not_auditable" "the host CLI can be invoked safely and returns machine-readable WhatsApp payload evidence, but the current repo does not bind it to task_id or persist delivery.whatsapp automatically"
+  append_result "openclaw message send dry-run" "present_but_not_invocable" "the host CLI can be invoked safely and returns machine-readable WhatsApp payload evidence for the wrapper to consume"
 else
   append_result "openclaw message send dry-run" "present_but_not_invocable" "the host CLI send surface exists but did not complete a safe dry-run probe coherently"
 fi
@@ -163,9 +164,54 @@ run_cmd "Channel Status Probe" "openclaw channels status"
 channels_output="$LAST_OUTPUT"
 channels_exit="$LAST_EXIT_CODE"
 if [ "$channels_exit" -eq 0 ] && printf '%s\n' "$channels_output" | rg -q 'WhatsApp' && printf '%s\n' "$channels_output" | rg -q 'connected'; then
-  append_result "whatsapp runtime channel" "auditable_but_not_canonical" "the host runtime shows WhatsApp connected, so the dominant gap is not a missing channel session but the lack of a canonical repo-local task-bound wrapper"
+  append_result "whatsapp runtime channel" "present_but_not_invocable" "the host runtime shows WhatsApp connected, so runtime channel presence is no longer the dominant blocker"
 else
   append_result "whatsapp runtime channel" "canonical_but_runtime_blocked" "the host send surface exists but the channel runtime is not ready enough to support a canonical live send path"
+fi
+
+if [ "$wrapper_exit" -eq 0 ] && printf '%s\n' "$wrapper_output" | rg -q 'task_send_whatsapp_live\.sh'; then
+  run_cmd "Create Wrapper Probe Task" "./scripts/task_new.sh verification-whatsapp-live-send-path 'Verify canonical WhatsApp live send wrapper dry-run path'"
+  WRAPPER_TASK_ID="$(extract_task_id "$LAST_OUTPUT")"
+else
+  WRAPPER_TASK_ID=""
+fi
+
+wrapper_probe_output=""
+wrapper_probe_exit="1"
+wrapper_probe_summary=""
+wrapper_probe_task_summary=""
+wrapper_probe_claim=""
+if [ -n "$WRAPPER_TASK_ID" ]; then
+  run_cmd "Wrapper Dry Run Probe" "./scripts/task_send_whatsapp_live.sh $WRAPPER_TASK_ID +5491100000000 --message 'GOLEM-209 canonical path probe' --dry-run --json"
+  wrapper_probe_output="$LAST_OUTPUT"
+  wrapper_probe_exit="$LAST_EXIT_CODE"
+  run_cmd "Wrapper Probe Delivery Summary" "./scripts/task_delivery_summary.sh $WRAPPER_TASK_ID"
+  wrapper_probe_summary="$LAST_OUTPUT"
+  run_cmd "Wrapper Probe Task Summary" "./scripts/task_summary.sh $WRAPPER_TASK_ID"
+  wrapper_probe_task_summary="$LAST_OUTPUT"
+  run_cmd "Wrapper Probe Requested Claim" "./scripts/task_claim_whatsapp_delivery.sh $WRAPPER_TASK_ID verify-whatsapp-live-send-path requested 'wrapper probe degrades wording to requested after a dry-run'"
+  wrapper_probe_claim="$LAST_OUTPUT"
+  if [ "$wrapper_probe_exit" -eq 0 ] && \
+     printf '%s\n' "$wrapper_probe_output" | rg -q '"wrapper_status": "DRY_RUN"' && \
+     printf '%s\n' "$wrapper_probe_summary" | rg -q '^whatsapp_delivery_state: requested$' && \
+     printf '%s\n' "$wrapper_probe_summary" | rg -q '^whatsapp_attempt_count: 1$' && \
+     printf '%s\n' "$wrapper_probe_task_summary" | rg -q '^outputs: [1-9][0-9]*$' && \
+     printf '%s\n' "$wrapper_probe_task_summary" | rg -q '^artifacts: [1-9][0-9]*$' && \
+     printf '%s\n' "$wrapper_probe_claim" | rg -q '^TASK_WHATSAPP_CLAIM_ALLOWED '; then
+    RESULT_CLASSES[0]="canonical_and_usable"
+    RESULT_NOTES[0]="the repo now exposes a task-bound WhatsApp live send wrapper and the dry-run path persists requested-level evidence auditable by task_id"
+    append_result "task-bound wrapper dry-run" "canonical_and_usable" "wrapper dry-run completed safely, persisted delivery.whatsapp=requested, and kept the claim level conservative"
+    RESULT_CLASSES[1]="canonical_and_usable"
+    RESULT_NOTES[1]="delivery.whatsapp truth is now fed by the canonical wrapper instead of staying as a disconnected truth-only lane"
+    RESULT_CLASSES[2]="canonical_and_usable"
+    RESULT_NOTES[2]="the host CLI help exposes the exact send surface now consumed by the canonical wrapper"
+    RESULT_CLASSES[3]="canonical_and_usable"
+    RESULT_NOTES[3]="the host CLI dry-run returns machine-readable evidence that the canonical wrapper can bind to task_id"
+    RESULT_CLASSES[4]="canonical_and_usable"
+    RESULT_NOTES[4]="the host runtime channel is connected enough for the canonical wrapper to run its dry-run path coherently"
+  else
+    append_result "task-bound wrapper dry-run" "canonical_but_runtime_blocked" "the wrapper exists, but the verify could not prove a coherent task-bound dry-run path"
+  fi
 fi
 
 pass_like=0
@@ -176,10 +222,16 @@ overall_status="BLOCKED"
 overall_note="no canonical repo-local WhatsApp live send path is currently exposed: the host CLI send surface exists, but the repo still lacks a task-bound canonical wrapper"
 dominant_blocker="repo_canonical_whatsapp_live_send_wrapper_missing"
 
-if [ "$wrapper_exit" -eq 0 ] && [ -n "$wrapper_output" ] && [ "$dry_run_exit" -eq 0 ]; then
+if [ "$wrapper_probe_exit" -eq 0 ] && \
+   printf '%s\n' "$wrapper_probe_output" | rg -q '"wrapper_status": "DRY_RUN"' && \
+   printf '%s\n' "$wrapper_probe_summary" | rg -q '^whatsapp_delivery_state: requested$'; then
   overall_status="PASS"
-  overall_note="a canonical repo-local WhatsApp live send wrapper exists and the host CLI send surface is invocable with machine-readable evidence"
+  overall_note="a canonical repo-local WhatsApp live send wrapper now exists and its dry-run path is task-bound, auditable, and semantically conservative"
   dominant_blocker="none"
+elif [ "$wrapper_exit" -eq 0 ] && printf '%s\n' "$wrapper_output" | rg -q 'task_send_whatsapp_live\.sh'; then
+  overall_status="BLOCKED"
+  overall_note="the canonical wrapper exists, but the verify could not prove its task-bound dry-run path coherently in the current environment"
+  dominant_blocker="canonical_wrapper_probe_incomplete"
 fi
 
 if [ "$cli_help_exit" -ne 0 ] || [ "$channels_exit" -ne 0 ]; then

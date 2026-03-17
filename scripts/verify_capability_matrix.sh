@@ -1087,6 +1087,35 @@ verify_whatsapp_live_send_path() {
   record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "$task_id" "$final_task_status" "$cmd"
 }
 
+verify_whatsapp_live_send_wrapper_truth() {
+  local capability="whatsapp live send wrapper truth"
+  local log_path="$LOG_DIR/whatsapp-live-send-wrapper-truth.log"
+  local cmd="bash ./scripts/verify_whatsapp_live_send_wrapper_truth.sh"
+  local exit_code status note artifact_rel
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && bash ./scripts/verify_whatsapp_live_send_wrapper_truth.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  artifact_rel="$(awk '/^report_path: / {print $2}' "$log_path" | tail -n 1)"
+  if [ -z "$artifact_rel" ]; then
+    artifact_rel="$(awk '/^VERIFY_WHATSAPP_LIVE_SEND_WRAPPER_TRUTH_(OK|FAIL) / {for (i = 1; i <= NF; i++) if ($i ~ /^report=/) {sub(/^report=/, "", $i); print $i}}' "$log_path" | tail -n 1)"
+  fi
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_WHATSAPP_LIVE_SEND_WRAPPER_TRUTH_OK ' "$log_path"; then
+    status="PASS"
+    note="whatsapp live send wrapper truth verify proved that the canonical task-bound wrapper persists conservative gateway evidence, blocks inflated claims, detects drift, and reclassifies the live journey smoke coherently"
+  else
+    status="FAIL"
+    note="whatsapp live send wrapper truth verify exposed a gap in the canonical task-bound wrapper, its evidence persistence, or its journey recheck hook"
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
+}
+
 verify_media_ingestion_truth() {
   local capability="media ingestion truth"
   local log_path="$LOG_DIR/media-ingestion-truth.log"
@@ -1440,6 +1469,7 @@ run_selected_verification "user-facing-delivery-truth" verify_user_facing_delive
 run_selected_verification "visible-artifact-delivery-truth" verify_visible_artifact_delivery_truth
 run_selected_verification "whatsapp-delivery-claim-truth" verify_whatsapp_delivery_claim_truth
 run_selected_verification "whatsapp-live-send-path" verify_whatsapp_live_send_path
+run_selected_verification "whatsapp-live-send-wrapper-truth" verify_whatsapp_live_send_wrapper_truth
 run_selected_verification "media-ingestion-truth" verify_media_ingestion_truth
 run_selected_verification "host-screenshot-truth" verify_host_screenshot_truth
 run_selected_verification "user-facing-readiness" verify_user_facing_readiness

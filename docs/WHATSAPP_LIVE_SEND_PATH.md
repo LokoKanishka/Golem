@@ -34,6 +34,8 @@ This verify uses the following candidate classes:
 
 If the host exposes `openclaw message send` but the repo still lacks a task-bound wrapper, the result stays `BLOCKED`.
 
+If the repo exposes `./scripts/task_send_whatsapp_live.sh` and that wrapper can prove a task-bound dry-run with persisted evidence, the result can move to `PASS` even if later delivery still depends on stronger downstream proof.
+
 That means:
 
 - the send surface exists
@@ -46,6 +48,12 @@ Use:
 
 ```text
 ./scripts/verify_whatsapp_live_send_path.sh
+```
+
+To verify the stronger task-bound wrapper behavior itself, use:
+
+```text
+./scripts/verify_whatsapp_live_send_wrapper_truth.sh
 ```
 
 The result is:

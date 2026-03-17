@@ -185,6 +185,12 @@ Claim a WhatsApp wording level explicitly:
 ./scripts/task_claim_whatsapp_delivery.sh <task_id> <actor> <requested_claim_level> <evidence> [claim_text]
 ```
 
+Invoke the canonical task-bound WhatsApp live send wrapper:
+
+```text
+./scripts/task_send_whatsapp_live.sh <task_id> <to> [--message <text>] [--media <path>] [--actor <actor>] [--evidence <text>] [--dry-run] [--json]
+```
+
 Register and verify canonical media:
 
 ```text
@@ -239,6 +245,12 @@ For the separate question of whether the repo really exposes a canonical live se
 
 ```text
 ./scripts/verify_whatsapp_live_send_path.sh
+```
+
+To verify the canonical task-bound wrapper itself, use:
+
+```text
+./scripts/verify_whatsapp_live_send_wrapper_truth.sh
 ```
 
 For media ingestion truth specifically, use:

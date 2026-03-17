@@ -41,6 +41,14 @@ Journey B now delegates the send-path question to:
 
 If that verify cannot prove a canonical repo-local live send path, the journey must stay `BLOCKED`. It must not be inflated into `PASS`.
 
+When the send-path verify passes, Journey B uses:
+
+```text
+./scripts/task_send_whatsapp_live.sh
+```
+
+The official smoke still stops at a safe dry-run unless stronger downstream delivery proof is available. That keeps the journey honest: wrapper existence is not the same thing as delivered WhatsApp truth.
+
 ## Aggregation Policy
 
 - `PASS` means both real journeys completed coherently
