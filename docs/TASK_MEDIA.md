@@ -67,6 +67,8 @@ This ticket does not add remote URLs, downloads, or provider/runtime ingestion.
 
 Host screenshots now have their own dedicated `screenshot` lane. If a verified screenshot later needs to act as downstream media, it should still be registered into `media` explicitly instead of assuming implicit readiness.
 
+The top-level user-facing readiness profile consumes `media` as one of its five canonical truth sources without redefining media semantics.
+
 ## Canonical Scripts
 
 Register media into the task model:

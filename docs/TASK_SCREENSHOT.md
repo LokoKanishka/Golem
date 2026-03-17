@@ -139,3 +139,5 @@ It proves:
 - drift detection after capture
 - claim blocked before verification
 - claim allowed after verification
+
+At the aggregate level, `./scripts/verify_user_facing_readiness.sh` reuses this lane together with delivery, visible artifact, WhatsApp, and media truth to produce one honest user-facing operational readout.

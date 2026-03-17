@@ -96,6 +96,8 @@ If the artifact itself is a host-side screenshot, the repo also supports a fourt
 
 That lane keeps visual evidence honest by distinguishing `captured` from `verified`.
 
+At the aggregate level, the user-facing readiness profile reuses that lane together with delivery, visible artifact, WhatsApp, and media truth instead of duplicating their logic.
+
 It also refreshes `updated_at` and appends a short note to `notes`.
 
 ## Final state rules

@@ -247,6 +247,12 @@ For host screenshot truth specifically, use:
 ./scripts/verify_host_screenshot_truth.sh
 ```
 
+For the aggregate user-facing operational readout, use:
+
+```text
+./scripts/verify_user_facing_readiness.sh
+```
+
 It proves:
 
 - a partial path that stops at `accepted` and cannot be sold as user-facing success

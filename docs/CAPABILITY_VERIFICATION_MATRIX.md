@@ -41,6 +41,8 @@ Media ingestion truth is the attachment-specific lane that proves which exact fi
 
 Host screenshot truth is the visual-evidence lane that proves a host-side capture exists materially and was later verified before it can back a visual claim.
 
+User-facing readiness is the top-level user-facing profile that aggregates those five canonical truths into one operational readout.
+
 Every verification should prefer:
 
 - exact command executed
@@ -573,6 +575,18 @@ For the official media ingestion truth capability alone, use:
 ./scripts/verify_capability_matrix.sh media-ingestion-truth
 ```
 
+For the official host screenshot truth capability alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh host-screenshot-truth
+```
+
+For the official user-facing readiness profile alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh user-facing-readiness
+```
+
 It should:
 
 - run the minimum real checks for the matrix
@@ -587,6 +601,8 @@ It should:
 - include `visible artifact delivery truth` as the official guardrail against claiming that a staged artifact is already on the user's desktop or downloads without post-delivery verification
 - include `whatsapp delivery claim truth` as the official guardrail against claiming that a gateway-accepted WhatsApp message was really delivered
 - include `media ingestion truth` as the official guardrail against claiming that an attachment is ready before its canonical material identity is verified
+- include `host screenshot truth` as the official guardrail against claiming visual confirmation before host-side screenshot evidence is materially verified
+- include `user-facing readiness` as the official aggregate readout across the five canonical user-facing truth lanes
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`
 - print a readable summary table at the end

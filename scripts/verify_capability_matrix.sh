@@ -1111,6 +1111,38 @@ verify_host_screenshot_truth() {
   record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
 }
 
+verify_user_facing_readiness() {
+  local capability="user-facing readiness"
+  local log_path="$LOG_DIR/user-facing-readiness.log"
+  local cmd="bash ./scripts/verify_user_facing_readiness.sh"
+  local exit_code status note artifact_rel
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && bash ./scripts/verify_user_facing_readiness.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  artifact_rel="$(awk '/^report_path: / {print $2}' "$log_path" | tail -n 1)"
+  if [ -z "$artifact_rel" ]; then
+    artifact_rel="$(awk '/^VERIFY_USER_FACING_READINESS_(OK|BLOCKED|FAIL) / {for (i = 1; i <= NF; i++) if ($i ~ /^report=/) {sub(/^report=/, "", $i); print $i}}' "$log_path" | tail -n 1)"
+  fi
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_USER_FACING_READINESS_OK ' "$log_path"; then
+    status="PASS"
+    note="user-facing readiness verify aggregated the five canonical user-facing truths and proved they all passed coherently"
+  elif [ "$exit_code" -eq 2 ] && rg -q '^VERIFY_USER_FACING_READINESS_BLOCKED ' "$log_path"; then
+    status="BLOCKED"
+    note="user-facing readiness verify stayed honest: no internal failure, but at least one canonical user-facing lane remains blocked"
+  else
+    status="FAIL"
+    note="user-facing readiness verify exposed an internal failure or inconsistency in one of the canonical user-facing lanes"
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
+}
+
 verify_orchestration_basic() {
   local capability="orchestration basic"
   local log_path="$LOG_DIR/orchestration-basic.log"
@@ -1343,6 +1375,7 @@ run_selected_verification "visible-artifact-delivery-truth" verify_visible_artif
 run_selected_verification "whatsapp-delivery-claim-truth" verify_whatsapp_delivery_claim_truth
 run_selected_verification "media-ingestion-truth" verify_media_ingestion_truth
 run_selected_verification "host-screenshot-truth" verify_host_screenshot_truth
+run_selected_verification "user-facing-readiness" verify_user_facing_readiness
 run_selected_verification "orchestration-basic" verify_orchestration_basic
 run_selected_verification "orchestration-v2" verify_orchestration_v2
 run_selected_verification "orchestration-v3" verify_orchestration_v3

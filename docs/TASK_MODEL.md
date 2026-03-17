@@ -117,6 +117,8 @@ Las tareas tambien pueden persistir un submodelo canónico de screenshot host-si
 
 Ese bloque separa la simple captura host-side de la verdad visual verificada.
 
+La lectura operativa agregada de esas lanes user-facing vive por fuera del task individual y se obtiene con `./scripts/verify_user_facing_readiness.sh`.
+
 Cuando la tarea exige una entrega de artifact visible al usuario, `delivery.visible_artifact_deliveries` persiste la evidencia canónica de:
 
 - destino pedido

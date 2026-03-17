@@ -8,6 +8,8 @@ User-facing delivery truth is now tracked separately from the technical lifecycl
 
 Host screenshot truth is also tracked separately from the technical lifecycle. See `docs/TASK_SCREENSHOT.md`.
 
+The user-facing readiness profile sits one level above those specialized lanes and summarizes whether the current repo-local user-facing contract is really ready. See `docs/USER_FACING_READINESS.md`.
+
 ## Basic lifecycle
 
 The minimal task flow is:
