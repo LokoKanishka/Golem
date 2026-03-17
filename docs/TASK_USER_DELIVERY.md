@@ -37,6 +37,7 @@ Each relevant task can persist:
 - `delivery.whatsapp`
 - `delivery.transitions`
 - `delivery.claim_history`
+- `media`
 
 Each transition stores at least:
 
@@ -117,6 +118,17 @@ Conservative wording stays canonical:
 - `delivered` -> `entregado`
 - `verified_by_user` -> `confirmado por usuario`
 
+When the task also depends on a file or attachment, the repo can persist a separate `media` lane outside `delivery`.
+
+That lane proves:
+
+- which exact file was ingested
+- from which source kind it came
+- which canonical path, sha256, size, mime, and owner were observed
+- whether that material identity still verifies as ready for downstream delivery use
+
+If `media.required = true`, the generic final user-facing success claim must remain blocked until `media.current_state = verified`.
+
 ## Canonical Scripts
 
 Record a transition:
@@ -161,6 +173,14 @@ Claim a WhatsApp wording level explicitly:
 ./scripts/task_claim_whatsapp_delivery.sh <task_id> <actor> <requested_claim_level> <evidence> [claim_text]
 ```
 
+Register and verify canonical media:
+
+```text
+./scripts/task_register_media_ingestion.sh <task_id> <task-artifact|visible-artifact|local-path> <source_ref> <actor> <evidence> [--json]
+./scripts/task_verify_media_ready.sh <task_id> <item_id|latest> <actor> <evidence> [--json]
+./scripts/task_media_summary.sh <task_id>
+```
+
 ## Transition Policy
 
 The first transition must be `submitted`.
@@ -194,6 +214,12 @@ For WhatsApp delivery claim truth specifically, use:
 ./scripts/verify_whatsapp_delivery_claim_truth.sh
 ```
 
+For media ingestion truth specifically, use:
+
+```text
+./scripts/verify_media_ingestion_truth.sh
+```
+
 It proves:
 
 - a partial path that stops at `accepted` and cannot be sold as user-facing success
@@ -215,3 +241,12 @@ The WhatsApp verify proves:
 - a `verified_by_user` path
 - an ambiguous provider path that stays conservative
 - a drift path where `message_id` evidence becomes inconsistent
+
+The media ingestion verify proves:
+
+- internal task artifact ingestion with canonical identity
+- visible artifact ingestion after GOLEM-202 verification
+- explicit local path ingestion
+- missing-path blocking
+- directory rejection
+- drift detection through canonical sha256 and size

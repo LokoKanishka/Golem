@@ -259,6 +259,22 @@ For WhatsApp-required tasks:
 - provider ambiguity must stay conservative
 - generic final success stays blocked until the WhatsApp lane reaches at least `delivered`
 
+When the task also depends on canonical media identity, persist that lane separately too:
+
+```text
+./scripts/task_register_media_ingestion.sh <task_id> <task-artifact|visible-artifact|local-path> <source_ref> <actor> <evidence> [--json]
+./scripts/task_verify_media_ready.sh <task_id> <item_id|latest> <actor> <evidence> [--json]
+./scripts/task_media_summary.sh <task_id>
+```
+
+That lane does not replace task `artifacts`. It proves whether a later delivery step is still referring to the exact same file material identity.
+
+For media-required tasks:
+
+- registration alone is not enough
+- the final user-facing claim stays blocked until the media lane reaches `verified`
+- missing paths, unreadable files, directories, and identity drift must remain visible as `blocked` or `failed`
+
 ## Summary
 
 Short inspection is available through:

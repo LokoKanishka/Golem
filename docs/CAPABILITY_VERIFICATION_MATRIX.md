@@ -37,6 +37,8 @@ Visible artifact delivery truth is the adjacent lane that proves a staged artifa
 
 WhatsApp delivery claim truth is the channel-specific lane that prevents gateway acceptance from being sold as real delivery.
 
+Media ingestion truth is the attachment-specific lane that proves which exact file identity was ingested before later delivery steps rely on it.
+
 Every verification should prefer:
 
 - exact command executed
@@ -475,6 +477,24 @@ It should preserve the operational reading that worker stack can be `PASS` while
   - writable repo-local `tasks/`
   - writable repo-local `outbox/manual/`
 
+### 25. Media Ingestion Truth
+
+- name: `media ingestion truth`
+- objective: prove that files are ingested into tasks with a canonical material identity before being treated as downstream-ready media
+- verification lane: `media ingestion truth`
+- command(s):
+  - `./scripts/verify_media_ingestion_truth.sh`
+  - `./scripts/task_register_media_ingestion.sh <task_id> <task-artifact|visible-artifact|local-path> <source_ref> <actor> <evidence> [--json]`
+  - `./scripts/task_verify_media_ready.sh <task_id> <item_id|latest> <actor> <evidence> [--json]`
+  - `./scripts/task_media_summary.sh <task_id>`
+  - `./scripts/task_claim_user_facing_success.sh <task_id> <actor> <channel> <evidence> [claim]`
+- success criterion: the verify exits `0`, prints `VERIFY_MEDIA_INGESTION_TRUTH_OK`, and proves internal-artifact, visible-artifact, and local-path media ingestion plus missing-path, drift, and directory rejection paths
+- failure criterion: the verify exits non-zero, treats unreadable or drifted media as ready, or allows a media-required final claim before verification
+- path coverage: internal artifact path, visible artifact path, local path, missing path, drift mismatch, directory mismatch
+- environment dependencies:
+  - writable repo-local `tasks/`
+  - writable repo-local `outbox/manual/`
+
 ## Final Classification Table
 
 | status | meaning |
@@ -545,6 +565,12 @@ For the official WhatsApp delivery claim truth capability alone, use:
 ./scripts/verify_capability_matrix.sh whatsapp-delivery-claim-truth
 ```
 
+For the official media ingestion truth capability alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh media-ingestion-truth
+```
+
 It should:
 
 - run the minimum real checks for the matrix
@@ -558,6 +584,7 @@ It should:
 - include `user-facing delivery truth` as the official guardrail against claiming user-visible success before `visible`
 - include `visible artifact delivery truth` as the official guardrail against claiming that a staged artifact is already on the user's desktop or downloads without post-delivery verification
 - include `whatsapp delivery claim truth` as the official guardrail against claiming that a gateway-accepted WhatsApp message was really delivered
+- include `media ingestion truth` as the official guardrail against claiming that an attachment is ready before its canonical material identity is verified
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`
 - print a readable summary table at the end

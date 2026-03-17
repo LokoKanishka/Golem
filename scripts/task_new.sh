@@ -127,6 +127,17 @@ task = {
         "transitions": [],
         "claim_history": [],
     },
+    "media": {
+        "protocol_version": "1.0",
+        "required": False,
+        "current_state": "none",
+        "ready": False,
+        "allowed_for_delivery": False,
+        "items": [],
+        "events": [],
+        "last_event_at": "",
+        "last_event_reason": "",
+    },
 }
 
 json.dump(task, sys.stdout, indent=2, ensure_ascii=True)

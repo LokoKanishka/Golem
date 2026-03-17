@@ -1053,6 +1053,35 @@ verify_whatsapp_delivery_claim_truth() {
   record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
 }
 
+verify_media_ingestion_truth() {
+  local capability="media ingestion truth"
+  local log_path="$LOG_DIR/media-ingestion-truth.log"
+  local cmd="bash ./scripts/verify_media_ingestion_truth.sh"
+  local exit_code status note artifact_rel
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && bash ./scripts/verify_media_ingestion_truth.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  artifact_rel="$(awk '/^report_path: / {print $2}' "$log_path" | tail -n 1)"
+  if [ -z "$artifact_rel" ]; then
+    artifact_rel="$(awk '/^VERIFY_MEDIA_INGESTION_TRUTH_(OK|FAIL) / {for (i = 1; i <= NF; i++) if ($i ~ /^report=/) {sub(/^report=/, "", $i); print $i}}' "$log_path" | tail -n 1)"
+  fi
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_MEDIA_INGESTION_TRUTH_OK ' "$log_path"; then
+    status="PASS"
+    note="media ingestion truth verify proved canonical identity capture for internal, visible, and local media paths plus explicit blocking and drift detection"
+  else
+    status="FAIL"
+    note="media ingestion truth verify exposed a gap in canonical media identity capture, readiness gating, or drift detection"
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
+}
+
 verify_orchestration_basic() {
   local capability="orchestration basic"
   local log_path="$LOG_DIR/orchestration-basic.log"
@@ -1283,6 +1312,7 @@ run_selected_verification "live-smoke-profile" verify_live_smoke_profile
 run_selected_verification "user-facing-delivery-truth" verify_user_facing_delivery_truth
 run_selected_verification "visible-artifact-delivery-truth" verify_visible_artifact_delivery_truth
 run_selected_verification "whatsapp-delivery-claim-truth" verify_whatsapp_delivery_claim_truth
+run_selected_verification "media-ingestion-truth" verify_media_ingestion_truth
 run_selected_verification "orchestration-basic" verify_orchestration_basic
 run_selected_verification "orchestration-v2" verify_orchestration_v2
 run_selected_verification "orchestration-v3" verify_orchestration_v3

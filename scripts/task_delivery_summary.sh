@@ -41,6 +41,9 @@ visible_artifact_deliveries = delivery.get("visible_artifact_deliveries") or []
 whatsapp = delivery.get("whatsapp") or {}
 whatsapp_attempts = whatsapp.get("attempts") or []
 whatsapp_claims = whatsapp.get("claim_history") or []
+media = task.get("media") or {}
+media_items = media.get("items") or []
+media_events = media.get("events") or []
 current_state = delivery.get("current_state") or "(none)"
 
 print(f"task_id: {task.get('task_id', '')}")
@@ -59,6 +62,9 @@ print("whatsapp_delivery_confidence: " + str(whatsapp.get("delivery_confidence")
 print("whatsapp_allowed_user_facing_claim: " + str(whatsapp.get("allowed_user_facing_claim") or "(none)"))
 message_ids = whatsapp.get("message_ids") or []
 print("whatsapp_message_ids: " + (",".join(message_ids) if message_ids else "(none)"))
+print("media_required: " + ("yes" if media.get("required") else "no"))
+print("media_state: " + str(media.get("current_state") or "none"))
+print("media_ready: " + ("yes" if media.get("ready") else "no"))
 print(f"transition_count: {len(transitions)}")
 if transitions:
     last = transitions[-1]
@@ -79,6 +85,14 @@ if claims:
     print(
         "last_user_facing_claim_visible_artifact_ready: "
         + ("yes" if last_claim.get("visible_artifact_ready") else "no")
+    )
+    print(
+        "last_user_facing_claim_media_required: "
+        + ("yes" if last_claim.get("media_required") else "no")
+    )
+    print(
+        "last_user_facing_claim_media_ready: "
+        + ("yes" if last_claim.get("media_ready") else "no")
     )
 
 print("delivery_transition | timestamp | actor | channel | evidence")
@@ -115,6 +129,28 @@ if whatsapp_attempts:
             f"{attempt.get('delivery_confidence', '')} | {attempt.get('provider', '')} | {attempt.get('to', '')} | "
             f"{attempt.get('message_id', '')} | {attempt.get('run_id', '')} | {attempt.get('allowed_user_facing_claim', '')} | "
             f"{attempt.get('raw_result_excerpt', '')}"
+        )
+
+print(f"media_item_count: {len(media_items)}")
+if media_items:
+    print(
+        "media_item | state | source_kind | normalized_path | size_bytes | mime_type | sha256 | owner | exists | readable | collected_at"
+    )
+    for item in media_items:
+        print(
+            f"{item.get('item_id', '')} | {item.get('current_state', '')} | {item.get('source_kind', '')} | "
+            f"{item.get('normalized_path', '')} | {item.get('size_bytes', '')} | {item.get('mime_type', '')} | "
+            f"{item.get('sha256', '')} | {item.get('owner', '')} | {item.get('exists', '')} | "
+            f"{item.get('readable', '')} | {item.get('collected_at', '')}"
+        )
+
+print(f"media_event_count: {len(media_events)}")
+if media_events:
+    print("media_event | timestamp | actor | action | reason | item_id | evidence")
+    for event in media_events:
+        print(
+            f"{event.get('action', '')} | {event.get('timestamp', '')} | {event.get('actor', '')} | "
+            f"{event.get('action', '')} | {event.get('reason', '')} | {event.get('item_id', '')} | {event.get('evidence', '')}"
         )
 
 if claims:

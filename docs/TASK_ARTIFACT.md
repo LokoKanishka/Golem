@@ -81,6 +81,13 @@ For a user-facing file claim such as "already on your desktop" or "already in do
 
 Without that second verified lane, `outbox/manual/` does not count as a visible user-facing delivery.
 
+If the artifact will later be used as a channel attachment or other downstream media, the repo now also supports a third lane:
+
+- register canonical media identity with `./scripts/task_register_media_ingestion.sh`
+- verify the stored material identity with `./scripts/task_verify_media_ready.sh`
+
+That third lane persists `sha256`, `size`, `mime`, `owner`, and the canonical normalized path so the task can later prove which exact file was ingested.
+
 It also refreshes `updated_at` and appends a short note to `notes`.
 
 ## Final state rules

@@ -86,6 +86,16 @@ whatsapp.setdefault("attempts", [])
 whatsapp.setdefault("claim_history", [])
 delivery.setdefault("transitions", [])
 delivery.setdefault("claim_history", [])
+media = task.setdefault("media", {})
+media.setdefault("protocol_version", "1.0")
+media.setdefault("required", False)
+media.setdefault("current_state", "none")
+media.setdefault("ready", False)
+media.setdefault("allowed_for_delivery", False)
+media.setdefault("items", [])
+media.setdefault("events", [])
+media.setdefault("last_event_at", "")
+media.setdefault("last_event_reason", "")
 
 current_state = delivery.get("current_state") or ""
 required_state = delivery.get("minimum_user_facing_success_state") or "visible"
@@ -109,6 +119,14 @@ if whatsapp_required:
     whatsapp_requirement_note = "verified" if whatsapp_ready else "missing"
     allowed = allowed and whatsapp_ready
 
+media_required = bool(media.get("required"))
+media_ready = bool(media.get("ready"))
+media_state = media.get("current_state") or "none"
+media_requirement_note = "not-required"
+if media_required:
+    media_requirement_note = "verified" if media_ready else "missing"
+    allowed = allowed and media_ready
+
 now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
 claim_entry = {
     "claim": claim,
@@ -126,6 +144,10 @@ claim_entry = {
     "whatsapp_allowed_user_facing_claim": whatsapp_allowed_claim,
     "whatsapp_ready": whatsapp_ready,
     "whatsapp_requirement_note": whatsapp_requirement_note,
+    "media_required": media_required,
+    "media_state": media_state,
+    "media_ready": media_ready,
+    "media_requirement_note": media_requirement_note,
     "allowed": allowed,
 }
 delivery["claim_history"].append(claim_entry)
@@ -143,7 +165,8 @@ if allowed:
 print(
     "TASK_USER_FACING_CLAIM_BLOCKED "
     f"{task.get('task_id', '')} current_state={current_state or '(none)'} required_state={required_state} "
-    f"artifact_requirement={artifact_requirement_note} whatsapp_requirement={whatsapp_requirement_note}"
+    f"artifact_requirement={artifact_requirement_note} whatsapp_requirement={whatsapp_requirement_note} "
+    f"media_requirement={media_requirement_note}"
 )
 raise SystemExit(2)
 PY

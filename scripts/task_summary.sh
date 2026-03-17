@@ -67,6 +67,12 @@ step_name = task.get("step_name") or ""
 step_order = task.get("step_order")
 critical = task.get("critical")
 execution_mode = task.get("execution_mode") or ""
+media = task.get("media") or {}
+media_state = media.get("current_state") or "none"
+media_required = "yes" if media.get("required") else "no"
+media_ready = "yes" if media.get("ready") else "no"
+media_items = media.get("items") or []
+last_media_item = media_items[-1] if media_items else {}
 
 print(f"task_id: {task.get('task_id', task_path.stem)}")
 print(f"type: {task.get('type', '?')}")
@@ -126,6 +132,14 @@ print(f"whatsapp_message_ids: {len(whatsapp_message_ids)}")
 if whatsapp_message_ids:
     print(f"whatsapp_message_id_list: {','.join(whatsapp_message_ids)}")
 print(f"whatsapp_allowed_user_facing_claim: {whatsapp_allowed_claim}")
+print(f"media_required: {media_required}")
+print(f"media_state: {media_state}")
+print(f"media_ready: {media_ready}")
+print(f"media_items: {len(media_items)}")
+if last_media_item:
+    print(f"last_media_source_kind: {last_media_item.get('source_kind', '(none)')}")
+    print(f"last_media_path: {last_media_item.get('normalized_path', '(none)')}")
+    print(f"last_media_sha256: {last_media_item.get('sha256', '(none)')}")
 print(f"delivery_transitions: {len(delivery_transitions)}")
 if delivery_last_transition:
     print(f"last_delivery_transition: {delivery_last_transition.get('state', '(none)')}")
@@ -138,6 +152,8 @@ if delivery_last_claim:
     print(f"last_user_facing_claim_state: {delivery_last_claim.get('current_state', '(none)')}")
     if "whatsapp_delivery_state" in delivery_last_claim:
         print(f"last_user_facing_claim_whatsapp_state: {delivery_last_claim.get('whatsapp_delivery_state', '(none)')}")
+    if "media_state" in delivery_last_claim:
+        print(f"last_user_facing_claim_media_state: {delivery_last_claim.get('media_state', '(none)')}")
 print(f"outputs: {len(task.get('outputs', []))}")
 print(f"artifacts: {len(task.get('artifacts', []))}")
 print(f"last_note: {last_note}")

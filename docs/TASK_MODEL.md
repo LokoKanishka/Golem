@@ -47,6 +47,7 @@ Campo opcional cuando aplica:
 
 - `handoff`
 - `delivery`
+- `media`
 - `step_name`
 - `step_order`
 - `critical`
@@ -117,6 +118,18 @@ Cuando la tarea depende de verdad de canal por WhatsApp, `delivery.whatsapp` per
 - `message_id` rastreado
 - provider y destinatario
 - intentos y claims auditables por task
+
+Las tareas también pueden persistir un submodelo canónico de media en:
+
+- `media.protocol_version`
+- `media.required`
+- `media.current_state`
+- `media.ready`
+- `media.allowed_for_delivery`
+- `media.items`
+- `media.events`
+
+Ese bloque deja identidad material auditable para archivos y adjuntos antes de usarlos en un canal posterior.
 
 El estado interno recomendado de `worker_run.state` en esta etapa es:
 
