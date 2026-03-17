@@ -235,6 +235,12 @@ For WhatsApp delivery claim truth specifically, use:
 ./scripts/verify_whatsapp_delivery_claim_truth.sh
 ```
 
+For the separate question of whether the repo really exposes a canonical live send path for WhatsApp, use:
+
+```text
+./scripts/verify_whatsapp_live_send_path.sh
+```
+
 For media ingestion truth specifically, use:
 
 ```text

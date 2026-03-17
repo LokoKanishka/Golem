@@ -37,6 +37,8 @@ Visible artifact delivery truth is the adjacent lane that proves a staged artifa
 
 WhatsApp delivery claim truth is the channel-specific lane that prevents gateway acceptance from being sold as real delivery.
 
+WhatsApp live send path is the adjacent operational lane that proves whether the repo actually exposes a canonical task-bound live send path or still depends on a non-canonical external surface.
+
 Media ingestion truth is the attachment-specific lane that proves which exact file identity was ingested before later delivery steps rely on it.
 
 Host screenshot truth is the visual-evidence lane that proves a host-side capture exists materially and was later verified before it can back a visual claim.
@@ -483,7 +485,26 @@ It should preserve the operational reading that worker stack can be `PASS` while
   - writable repo-local `tasks/`
   - writable repo-local `outbox/manual/`
 
-### 25. Media Ingestion Truth
+### 25. WhatsApp Live Send Path
+
+- name: `whatsapp live send path`
+- objective: prove whether a canonical repo-local WhatsApp live send path exists or whether the repo still depends on a non-canonical external CLI surface
+- verification lane: `whatsapp live send path`
+- command(s):
+  - `./scripts/verify_whatsapp_live_send_path.sh`
+  - `openclaw message send --help`
+  - `openclaw message send --channel whatsapp --target +5491100000000 --message "GOLEM-208 dry run probe" --dry-run --json`
+  - `openclaw channels status`
+- success criterion: the verify exits `0`, prints `VERIFY_WHATSAPP_LIVE_SEND_PATH_OK`, and proves a canonical task-bound repo entrypoint
+- blocked criterion: the verify exits `2`, prints `VERIFY_WHATSAPP_LIVE_SEND_PATH_BLOCKED`, and proves that the host send surface exists but the repo still lacks a canonical wrapper or runtime threshold
+- failure criterion: the verify exits non-zero without coherent classification or exposes internal inconsistency in the candidate analysis
+- path coverage: missing-wrapper path, invocable-but-not-auditable CLI path, auditable-but-not-sender truth-lane path, runtime-status path
+- environment dependencies:
+  - local `openclaw` CLI available
+  - readable channel/runtime status
+  - writable local task store
+
+### 26. Media Ingestion Truth
 
 - name: `media ingestion truth`
 - objective: prove that files are ingested into tasks with a canonical material identity before being treated as downstream-ready media
@@ -571,6 +592,12 @@ For the official WhatsApp delivery claim truth capability alone, use:
 ./scripts/verify_capability_matrix.sh whatsapp-delivery-claim-truth
 ```
 
+For the official WhatsApp live send path capability alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh whatsapp-live-send-path
+```
+
 For the official media ingestion truth capability alone, use:
 
 ```text
@@ -608,6 +635,7 @@ It should:
 - include `user-facing delivery truth` as the official guardrail against claiming user-visible success before `visible`
 - include `visible artifact delivery truth` as the official guardrail against claiming that a staged artifact is already on the user's desktop or downloads without post-delivery verification
 - include `whatsapp delivery claim truth` as the official guardrail against claiming that a gateway-accepted WhatsApp message was really delivered
+- include `whatsapp live send path` as the official proof of whether the repo really exposes a canonical task-bound WhatsApp send path or still depends on a non-canonical host CLI surface
 - include `media ingestion truth` as the official guardrail against claiming that an attachment is ready before its canonical material identity is verified
 - include `host screenshot truth` as the official guardrail against claiming visual confirmation before host-side screenshot evidence is materially verified
 - include `user-facing readiness` as the official aggregate readout across the five canonical user-facing truth lanes

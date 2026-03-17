@@ -33,7 +33,13 @@ Journey A reuses the visible-artifact lane and proves whether a real artifact be
 
 Journey B reuses the delivery, WhatsApp, and media lanes and proves exactly where a channel-facing file journey stops.
 
-If the repo cannot prove an actual live WhatsApp send path without leaving the repo-local safety envelope, the journey must stay `BLOCKED`. It must not be inflated into `PASS`.
+Journey B now delegates the send-path question to:
+
+```text
+./scripts/verify_whatsapp_live_send_path.sh
+```
+
+If that verify cannot prove a canonical repo-local live send path, the journey must stay `BLOCKED`. It must not be inflated into `PASS`.
 
 ## Aggregation Policy
 

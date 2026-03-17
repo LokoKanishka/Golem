@@ -214,7 +214,7 @@ journey_b_whatsapp_delivery() {
   local log_path="$LOG_DIR/journey-b-whatsapp-delivery.log"
   local task_id media_source media_register_output media_verify_output screenshot_capture_output screenshot_verify_output
   local whatsapp_claim_requested whatsapp_claim_delivered generic_claim_summary status cutoff evidence
-  local send_candidates candidate_listing
+  local send_path_output send_path_exit send_path_report send_path_marker
 
   : >"$log_path"
   append_report "" "## Journey B" "" "Log: $log_path"
@@ -275,6 +275,24 @@ journey_b_whatsapp_delivery() {
     return 0
   fi
 
+  run_cmd "$log_path" "Journey B / Verify WhatsApp Live Send Path" "bash ./scripts/verify_whatsapp_live_send_path.sh"
+  send_path_output="$LAST_OUTPUT"
+  send_path_exit="$LAST_EXIT"
+  send_path_report="$(python3 - "$send_path_output" <<'PY'
+import re
+import sys
+
+text = sys.argv[1]
+match = re.search(r'^report_path: (\S+)$', text, re.MULTILINE)
+if match:
+    print(match.group(1))
+    raise SystemExit(0)
+match = re.search(r'^VERIFY_WHATSAPP_LIVE_SEND_PATH_(?:OK|BLOCKED|FAIL)\b.*\breport=(\S+)', text, re.MULTILINE)
+print(match.group(1) if match else "")
+PY
+)"
+  send_path_marker="$(printf '%s\n' "$send_path_output" | awk '/^VERIFY_WHATSAPP_LIVE_SEND_PATH_(OK|BLOCKED|FAIL) / {print $1}' | tail -n 1)"
+
   run_cmd "$log_path" "Journey B / Record WhatsApp requested" "./scripts/task_record_whatsapp_delivery.sh $task_id requested live-user-journey smoke-repo-local +5491100000007 - 'journey B requested a WhatsApp send with the prepared artifact but has not reached any live gateway acceptance'"
   run_cmd "$log_path" "Journey B / Claim WhatsApp requested wording" "./scripts/task_claim_whatsapp_delivery.sh $task_id live-user-journey requested 'journey B degrades the WhatsApp wording to the exact requested-only evidence level'"
   whatsapp_claim_requested="$LAST_OUTPUT"
@@ -283,15 +301,9 @@ journey_b_whatsapp_delivery() {
   run_cmd "$log_path" "Journey B / Claim Generic Final Success" "./scripts/task_claim_user_facing_success.sh $task_id live-user-journey smoke 'journey B attempted a generic final success without verified WhatsApp delivery' 'final success claim'"
   generic_claim_summary="$LAST_OUTPUT"
 
-  candidate_listing="$(find "$REPO_ROOT/scripts" -maxdepth 1 -type f \( -name '*whatsapp*send*.sh' -o -name '*send*whatsapp*.sh' \) | sort || true)"
-  send_candidates="no"
-  if [ -n "$candidate_listing" ]; then
-    send_candidates="yes"
-  fi
-
   status="BLOCKED"
-  cutoff="no canonical repo-local live WhatsApp send path is available without touching external runtime"
-  evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; delivered_claim=blocked ; generic_claim=blocked ; send_path_candidates=$send_candidates"
+  cutoff="no canonical repo-local live WhatsApp send path is currently proved"
+  evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; delivered_claim=blocked ; generic_claim=blocked ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report"
 
   if ! printf '%s\n' "$whatsapp_claim_requested" | rg -q '^TASK_WHATSAPP_CLAIM_ALLOWED '; then
     status="FAIL"
@@ -305,6 +317,14 @@ journey_b_whatsapp_delivery() {
     status="FAIL"
     cutoff="generic final success was not blocked despite missing WhatsApp delivery proof"
     evidence="source=$media_source ; generic_claim_output=$(printf '%s' "$generic_claim_summary" | tr '\n' ' ' | sed 's/[[:space:]]\\+/ /g')"
+  elif [ "$send_path_exit" -eq 1 ] || [ "$send_path_marker" = "VERIFY_WHATSAPP_LIVE_SEND_PATH_FAIL" ]; then
+    status="FAIL"
+    cutoff="the canonical WhatsApp live send path verify failed internally"
+    evidence="source=$media_source ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report"
+  elif [ "$send_path_exit" -eq 0 ] && [ "$send_path_marker" = "VERIFY_WHATSAPP_LIVE_SEND_PATH_OK" ]; then
+    status="BLOCKED"
+    cutoff="a canonical live send path exists, but this smoke still stops before an actual outbound WhatsApp send"
+    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report"
   fi
 
   if [ "$status" = "BLOCKED" ]; then

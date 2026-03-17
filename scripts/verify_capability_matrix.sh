@@ -1053,6 +1053,40 @@ verify_whatsapp_delivery_claim_truth() {
   record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
 }
 
+verify_whatsapp_live_send_path() {
+  local capability="whatsapp live send path"
+  local log_path="$LOG_DIR/whatsapp-live-send-path.log"
+  local cmd="bash ./scripts/verify_whatsapp_live_send_path.sh"
+  local exit_code status note artifact_rel task_id final_task_status
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && bash ./scripts/verify_whatsapp_live_send_path.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  artifact_rel="$(awk '/^report_path: / {print $2}' "$log_path" | tail -n 1)"
+  if [ -z "$artifact_rel" ]; then
+    artifact_rel="$(awk '/^VERIFY_WHATSAPP_LIVE_SEND_PATH_(OK|BLOCKED|FAIL) / {for (i = 1; i <= NF; i++) if ($i ~ /^report=/) {sub(/^report=/, "", $i); print $i}}' "$log_path" | tail -n 1)"
+  fi
+  task_id="$(awk '/^task_id: / {print $2}' "$log_path" | tail -n 1)"
+  final_task_status="$([ -n "$task_id" ] && task_field "$task_id" status || printf '')"
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_WHATSAPP_LIVE_SEND_PATH_OK ' "$log_path"; then
+    status="PASS"
+    note="whatsapp live send path verify proved that the repo already exposes a canonical task-bound live send path"
+  elif [ "$exit_code" -eq 2 ] && rg -q '^VERIFY_WHATSAPP_LIVE_SEND_PATH_BLOCKED ' "$log_path"; then
+    status="BLOCKED"
+    note="whatsapp live send path verify stayed honest: the host CLI send surface exists, but the repo still lacks a canonical task-bound wrapper or runtime threshold"
+  else
+    status="FAIL"
+    note="whatsapp live send path verify exposed an internal inconsistency in candidate classification or send-path probing"
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "$task_id" "$final_task_status" "$cmd"
+}
+
 verify_media_ingestion_truth() {
   local capability="media ingestion truth"
   local log_path="$LOG_DIR/media-ingestion-truth.log"
@@ -1405,6 +1439,7 @@ run_selected_verification "live-smoke-profile" verify_live_smoke_profile
 run_selected_verification "user-facing-delivery-truth" verify_user_facing_delivery_truth
 run_selected_verification "visible-artifact-delivery-truth" verify_visible_artifact_delivery_truth
 run_selected_verification "whatsapp-delivery-claim-truth" verify_whatsapp_delivery_claim_truth
+run_selected_verification "whatsapp-live-send-path" verify_whatsapp_live_send_path
 run_selected_verification "media-ingestion-truth" verify_media_ingestion_truth
 run_selected_verification "host-screenshot-truth" verify_host_screenshot_truth
 run_selected_verification "user-facing-readiness" verify_user_facing_readiness
