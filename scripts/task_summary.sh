@@ -73,6 +73,12 @@ media_required = "yes" if media.get("required") else "no"
 media_ready = "yes" if media.get("ready") else "no"
 media_items = media.get("items") or []
 last_media_item = media_items[-1] if media_items else {}
+screenshot = task.get("screenshot") or {}
+screenshot_state = screenshot.get("current_state") or "none"
+screenshot_required = "yes" if screenshot.get("required") else "no"
+screenshot_ready = "yes" if screenshot.get("ready_for_claim") else "no"
+screenshot_items = screenshot.get("items") or []
+last_screenshot_item = screenshot_items[-1] if screenshot_items else {}
 
 print(f"task_id: {task.get('task_id', task_path.stem)}")
 print(f"type: {task.get('type', '?')}")
@@ -140,6 +146,14 @@ if last_media_item:
     print(f"last_media_source_kind: {last_media_item.get('source_kind', '(none)')}")
     print(f"last_media_path: {last_media_item.get('normalized_path', '(none)')}")
     print(f"last_media_sha256: {last_media_item.get('sha256', '(none)')}")
+print(f"screenshot_required: {screenshot_required}")
+print(f"screenshot_state: {screenshot_state}")
+print(f"screenshot_ready_for_claim: {screenshot_ready}")
+print(f"screenshot_items: {len(screenshot_items)}")
+if last_screenshot_item:
+    print(f"last_screenshot_target_kind: {last_screenshot_item.get('target_kind', '(none)')}")
+    print(f"last_screenshot_path: {last_screenshot_item.get('normalized_path', '(none)')}")
+    print(f"last_screenshot_sha256: {last_screenshot_item.get('sha256', '(none)')}")
 print(f"delivery_transitions: {len(delivery_transitions)}")
 if delivery_last_transition:
     print(f"last_delivery_transition: {delivery_last_transition.get('state', '(none)')}")
@@ -154,6 +168,8 @@ if delivery_last_claim:
         print(f"last_user_facing_claim_whatsapp_state: {delivery_last_claim.get('whatsapp_delivery_state', '(none)')}")
     if "media_state" in delivery_last_claim:
         print(f"last_user_facing_claim_media_state: {delivery_last_claim.get('media_state', '(none)')}")
+    if "screenshot_state" in delivery_last_claim:
+        print(f"last_user_facing_claim_screenshot_state: {delivery_last_claim.get('screenshot_state', '(none)')}")
 print(f"outputs: {len(task.get('outputs', []))}")
 print(f"artifacts: {len(task.get('artifacts', []))}")
 print(f"last_note: {last_note}")

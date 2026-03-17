@@ -48,6 +48,7 @@ Campo opcional cuando aplica:
 - `handoff`
 - `delivery`
 - `media`
+- `screenshot`
 - `step_name`
 - `step_order`
 - `critical`
@@ -100,6 +101,21 @@ Las tareas tambien pueden persistir un submodelo canónico de entrega user-facin
 - `delivery.claim_history`
 
 Ese bloque no reemplaza `status`. Sirve para separar la aceptacion tecnica de la entrega real percibida por el usuario.
+
+Las tareas tambien pueden persistir un submodelo canónico de screenshot host-side en:
+
+- `screenshot.protocol_version`
+- `screenshot.required`
+- `screenshot.current_state`
+- `screenshot.ready_for_claim`
+- `screenshot.items`
+- `screenshot.events`
+- `screenshot.last_transition_at`
+- `screenshot.last_verified_at`
+- `screenshot.block_reason`
+- `screenshot.fail_reason`
+
+Ese bloque separa la simple captura host-side de la verdad visual verificada.
 
 Cuando la tarea exige una entrega de artifact visible al usuario, `delivery.visible_artifact_deliveries` persiste la evidencia canónica de:
 

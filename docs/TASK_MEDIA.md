@@ -65,6 +65,8 @@ The current repo-local capability supports:
 
 This ticket does not add remote URLs, downloads, or provider/runtime ingestion.
 
+Host screenshots now have their own dedicated `screenshot` lane. If a verified screenshot later needs to act as downstream media, it should still be registered into `media` explicitly instead of assuming implicit readiness.
+
 ## Canonical Scripts
 
 Register media into the task model:

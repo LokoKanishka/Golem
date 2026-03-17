@@ -1082,6 +1082,35 @@ verify_media_ingestion_truth() {
   record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
 }
 
+verify_host_screenshot_truth() {
+  local capability="host screenshot truth"
+  local log_path="$LOG_DIR/host-screenshot-truth.log"
+  local cmd="bash ./scripts/verify_host_screenshot_truth.sh"
+  local exit_code status note artifact_rel
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && bash ./scripts/verify_host_screenshot_truth.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  artifact_rel="$(awk '/^report_path: / {print $2}' "$log_path" | tail -n 1)"
+  if [ -z "$artifact_rel" ]; then
+    artifact_rel="$(awk '/^VERIFY_HOST_SCREENSHOT_TRUTH_(OK|FAIL) / {for (i = 1; i <= NF; i++) if ($i ~ /^report=/) {sub(/^report=/, "", $i); print $i}}' "$log_path" | tail -n 1)"
+  fi
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_HOST_SCREENSHOT_TRUTH_OK ' "$log_path"; then
+    status="PASS"
+    note="host screenshot truth verify proved captured-versus-verified semantics, honest blocking, and screenshot drift detection"
+  else
+    status="FAIL"
+    note="host screenshot truth verify exposed a gap in canonical host-side visual evidence handling"
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
+}
+
 verify_orchestration_basic() {
   local capability="orchestration basic"
   local log_path="$LOG_DIR/orchestration-basic.log"
@@ -1313,6 +1342,7 @@ run_selected_verification "user-facing-delivery-truth" verify_user_facing_delive
 run_selected_verification "visible-artifact-delivery-truth" verify_visible_artifact_delivery_truth
 run_selected_verification "whatsapp-delivery-claim-truth" verify_whatsapp_delivery_claim_truth
 run_selected_verification "media-ingestion-truth" verify_media_ingestion_truth
+run_selected_verification "host-screenshot-truth" verify_host_screenshot_truth
 run_selected_verification "orchestration-basic" verify_orchestration_basic
 run_selected_verification "orchestration-v2" verify_orchestration_v2
 run_selected_verification "orchestration-v3" verify_orchestration_v3

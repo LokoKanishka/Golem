@@ -138,6 +138,18 @@ task = {
         "last_event_at": "",
         "last_event_reason": "",
     },
+    "screenshot": {
+        "protocol_version": "1.0",
+        "required": False,
+        "current_state": "none",
+        "ready_for_claim": False,
+        "items": [],
+        "events": [],
+        "last_transition_at": "",
+        "last_verified_at": "",
+        "block_reason": "",
+        "fail_reason": "",
+    },
 }
 
 json.dump(task, sys.stdout, indent=2, ensure_ascii=True)

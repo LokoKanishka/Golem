@@ -39,6 +39,8 @@ WhatsApp delivery claim truth is the channel-specific lane that prevents gateway
 
 Media ingestion truth is the attachment-specific lane that proves which exact file identity was ingested before later delivery steps rely on it.
 
+Host screenshot truth is the visual-evidence lane that proves a host-side capture exists materially and was later verified before it can back a visual claim.
+
 Every verification should prefer:
 
 - exact command executed

@@ -38,6 +38,7 @@ Each relevant task can persist:
 - `delivery.transitions`
 - `delivery.claim_history`
 - `media`
+- `screenshot`
 
 Each transition stores at least:
 
@@ -129,6 +130,17 @@ That lane proves:
 
 If `media.required = true`, the generic final user-facing success claim must remain blocked until `media.current_state = verified`.
 
+When the task depends on host-side visual proof, the repo can also persist a separate `screenshot` lane outside `delivery`.
+
+That lane proves:
+
+- which screenshot target was requested
+- which canonical path was captured
+- which sha256, size, mime, and owner were observed
+- whether the screenshot stayed only `captured` or became `verified`
+
+If `screenshot.required = true`, the generic final user-facing success claim must remain blocked until `screenshot.current_state = verified`.
+
 ## Canonical Scripts
 
 Record a transition:
@@ -181,6 +193,15 @@ Register and verify canonical media:
 ./scripts/task_media_summary.sh <task_id>
 ```
 
+Capture and verify canonical host screenshots:
+
+```text
+./scripts/resolve_host_screenshot_destination.sh <task_id> <target_kind> [output_hint] [--json]
+./scripts/task_capture_host_screenshot.sh <task_id> <target_kind> <target_ref|-> <actor> <evidence> [output_hint] [--json]
+./scripts/task_verify_host_screenshot.sh <task_id> <item_id|latest> <actor> <evidence> [--json]
+./scripts/task_screenshot_summary.sh <task_id>
+```
+
 ## Transition Policy
 
 The first transition must be `submitted`.
@@ -220,6 +241,12 @@ For media ingestion truth specifically, use:
 ./scripts/verify_media_ingestion_truth.sh
 ```
 
+For host screenshot truth specifically, use:
+
+```text
+./scripts/verify_host_screenshot_truth.sh
+```
+
 It proves:
 
 - a partial path that stops at `accepted` and cannot be sold as user-facing success
@@ -250,3 +277,11 @@ The media ingestion verify proves:
 - missing-path blocking
 - directory rejection
 - drift detection through canonical sha256 and size
+
+The host screenshot verify proves:
+
+- valid host-side screenshot capture
+- blocked classification when the target cannot be captured
+- drift detection after capture
+- claim blocked before verification
+- claim allowed after verification

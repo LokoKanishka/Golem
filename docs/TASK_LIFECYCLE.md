@@ -6,6 +6,8 @@ Markdown file outputs should also follow the minimum conventions in `docs/OUTPUT
 
 User-facing delivery truth is now tracked separately from the technical lifecycle. See `docs/TASK_USER_DELIVERY.md`.
 
+Host screenshot truth is also tracked separately from the technical lifecycle. See `docs/TASK_SCREENSHOT.md`.
+
 ## Basic lifecycle
 
 The minimal task flow is:
@@ -241,6 +243,17 @@ That second lane persists canonical evidence for:
 - `readable`
 - `owner`
 - `path_normalized`
+
+When the claim depends on host-side visual evidence, use the screenshot lane explicitly:
+
+```text
+./scripts/resolve_host_screenshot_destination.sh <task_id> <target_kind> [output_hint] [--json]
+./scripts/task_capture_host_screenshot.sh <task_id> <target_kind> <target_ref|-> <actor> <evidence> [output_hint] [--json]
+./scripts/task_verify_host_screenshot.sh <task_id> <item_id|latest> <actor> <evidence> [--json]
+./scripts/task_screenshot_summary.sh <task_id>
+```
+
+That lane keeps `captured` separate from `verified` and blocks visual claims until the screenshot identity is verified.
 
 If the file cannot be verified on a user-visible destination after materialization, the result must stay `BLOCKED` or `FAIL`, and the final user-facing claim must remain blocked.
 

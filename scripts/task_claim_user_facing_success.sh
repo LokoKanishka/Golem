@@ -96,6 +96,17 @@ media.setdefault("items", [])
 media.setdefault("events", [])
 media.setdefault("last_event_at", "")
 media.setdefault("last_event_reason", "")
+screenshot = task.setdefault("screenshot", {})
+screenshot.setdefault("protocol_version", "1.0")
+screenshot.setdefault("required", False)
+screenshot.setdefault("current_state", "none")
+screenshot.setdefault("ready_for_claim", False)
+screenshot.setdefault("items", [])
+screenshot.setdefault("events", [])
+screenshot.setdefault("last_transition_at", "")
+screenshot.setdefault("last_verified_at", "")
+screenshot.setdefault("block_reason", "")
+screenshot.setdefault("fail_reason", "")
 
 current_state = delivery.get("current_state") or ""
 required_state = delivery.get("minimum_user_facing_success_state") or "visible"
@@ -127,6 +138,14 @@ if media_required:
     media_requirement_note = "verified" if media_ready else "missing"
     allowed = allowed and media_ready
 
+screenshot_required = bool(screenshot.get("required"))
+screenshot_ready = bool(screenshot.get("ready_for_claim"))
+screenshot_state = screenshot.get("current_state") or "none"
+screenshot_requirement_note = "not-required"
+if screenshot_required:
+    screenshot_requirement_note = "verified" if screenshot_ready else "missing"
+    allowed = allowed and screenshot_ready
+
 now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
 claim_entry = {
     "claim": claim,
@@ -148,6 +167,10 @@ claim_entry = {
     "media_state": media_state,
     "media_ready": media_ready,
     "media_requirement_note": media_requirement_note,
+    "screenshot_required": screenshot_required,
+    "screenshot_state": screenshot_state,
+    "screenshot_ready": screenshot_ready,
+    "screenshot_requirement_note": screenshot_requirement_note,
     "allowed": allowed,
 }
 delivery["claim_history"].append(claim_entry)
@@ -166,7 +189,7 @@ print(
     "TASK_USER_FACING_CLAIM_BLOCKED "
     f"{task.get('task_id', '')} current_state={current_state or '(none)'} required_state={required_state} "
     f"artifact_requirement={artifact_requirement_note} whatsapp_requirement={whatsapp_requirement_note} "
-    f"media_requirement={media_requirement_note}"
+    f"media_requirement={media_requirement_note} screenshot_requirement={screenshot_requirement_note}"
 )
 raise SystemExit(2)
 PY

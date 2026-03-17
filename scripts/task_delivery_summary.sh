@@ -44,6 +44,9 @@ whatsapp_claims = whatsapp.get("claim_history") or []
 media = task.get("media") or {}
 media_items = media.get("items") or []
 media_events = media.get("events") or []
+screenshot = task.get("screenshot") or {}
+screenshot_items = screenshot.get("items") or []
+screenshot_events = screenshot.get("events") or []
 current_state = delivery.get("current_state") or "(none)"
 
 print(f"task_id: {task.get('task_id', '')}")
@@ -65,6 +68,9 @@ print("whatsapp_message_ids: " + (",".join(message_ids) if message_ids else "(no
 print("media_required: " + ("yes" if media.get("required") else "no"))
 print("media_state: " + str(media.get("current_state") or "none"))
 print("media_ready: " + ("yes" if media.get("ready") else "no"))
+print("screenshot_required: " + ("yes" if screenshot.get("required") else "no"))
+print("screenshot_state: " + str(screenshot.get("current_state") or "none"))
+print("screenshot_ready_for_claim: " + ("yes" if screenshot.get("ready_for_claim") else "no"))
 print(f"transition_count: {len(transitions)}")
 if transitions:
     last = transitions[-1]
@@ -93,6 +99,14 @@ if claims:
     print(
         "last_user_facing_claim_media_ready: "
         + ("yes" if last_claim.get("media_ready") else "no")
+    )
+    print(
+        "last_user_facing_claim_screenshot_required: "
+        + ("yes" if last_claim.get("screenshot_required") else "no")
+    )
+    print(
+        "last_user_facing_claim_screenshot_ready: "
+        + ("yes" if last_claim.get("screenshot_ready") else "no")
     )
 
 print("delivery_transition | timestamp | actor | channel | evidence")
@@ -153,10 +167,34 @@ if media_events:
             f"{event.get('action', '')} | {event.get('reason', '')} | {event.get('item_id', '')} | {event.get('evidence', '')}"
         )
 
+print(f"screenshot_item_count: {len(screenshot_items)}")
+if screenshot_items:
+    print(
+        "screenshot_item | state | target_kind | target_ref | normalized_path | size_bytes | mime_type | sha256 | owner | exists | readable | captured_at | verified_at"
+    )
+    for item in screenshot_items:
+        print(
+            f"{item.get('item_id', '')} | {item.get('state', '')} | {item.get('target_kind', '')} | "
+            f"{item.get('target_ref', '')} | {item.get('normalized_path', '')} | {item.get('size_bytes', '')} | "
+            f"{item.get('mime_type', '')} | {item.get('sha256', '')} | {item.get('owner', '')} | "
+            f"{item.get('exists', '')} | {item.get('readable', '')} | {item.get('captured_at', '')} | "
+            f"{item.get('verified_at', '')}"
+        )
+
+print(f"screenshot_event_count: {len(screenshot_events)}")
+if screenshot_events:
+    print("screenshot_event | timestamp | actor | action | reason | item_id | evidence")
+    for event in screenshot_events:
+        print(
+            f"{event.get('action', '')} | {event.get('timestamp', '')} | {event.get('actor', '')} | "
+            f"{event.get('action', '')} | {event.get('reason', '')} | {event.get('item_id', '')} | {event.get('evidence', '')}"
+        )
+
 if claims:
     print(
         "user_facing_claim | allowed | timestamp | actor | channel | current_state | required_state | "
-        "visible_artifact_required | visible_artifact_ready | evidence"
+        "visible_artifact_required | visible_artifact_ready | media_required | media_ready | "
+        "screenshot_required | screenshot_ready | evidence"
     )
     for claim in claims:
         print(
@@ -165,7 +203,11 @@ if claims:
             + f" | {claim.get('timestamp', '')} | {claim.get('actor', '')} | {claim.get('channel', '')} | "
             f"{claim.get('current_state', '')} | {claim.get('required_state', '')} | "
             f"{'yes' if claim.get('visible_artifact_required') else 'no'} | "
-            f"{'yes' if claim.get('visible_artifact_ready') else 'no'} | {claim.get('evidence', '')}"
+            f"{'yes' if claim.get('visible_artifact_ready') else 'no'} | "
+            f"{'yes' if claim.get('media_required') else 'no'} | "
+            f"{'yes' if claim.get('media_ready') else 'no'} | "
+            f"{'yes' if claim.get('screenshot_required') else 'no'} | "
+            f"{'yes' if claim.get('screenshot_ready') else 'no'} | {claim.get('evidence', '')}"
         )
 
 print(f"whatsapp_claim_count: {len(whatsapp_claims)}")

@@ -88,6 +88,14 @@ If the artifact will later be used as a channel attachment or other downstream m
 
 That third lane persists `sha256`, `size`, `mime`, `owner`, and the canonical normalized path so the task can later prove which exact file was ingested.
 
+If the artifact itself is a host-side screenshot, the repo also supports a fourth lane:
+
+- resolve the canonical screenshot destination with `./scripts/resolve_host_screenshot_destination.sh`
+- capture it with `./scripts/task_capture_host_screenshot.sh`
+- verify the material screenshot identity with `./scripts/task_verify_host_screenshot.sh`
+
+That lane keeps visual evidence honest by distinguishing `captured` from `verified`.
+
 It also refreshes `updated_at` and appends a short note to `notes`.
 
 ## Final state rules
