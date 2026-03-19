@@ -62,6 +62,9 @@ print(
 print("whatsapp_delivery_required: " + ("yes" if whatsapp.get("required") else "no"))
 print("whatsapp_delivery_state: " + str(whatsapp.get("current_state") or "(none)"))
 print("whatsapp_delivery_confidence: " + str(whatsapp.get("delivery_confidence") or "(none)"))
+print("whatsapp_provider_delivery_status: " + str(whatsapp.get("provider_delivery_status") or "(none)"))
+print("whatsapp_provider_delivery_reason: " + str(whatsapp.get("provider_delivery_reason") or "(none)"))
+print("whatsapp_provider_delivery_proof_at: " + str(whatsapp.get("provider_delivery_proof_at") or "(none)"))
 print("whatsapp_allowed_user_facing_claim: " + str(whatsapp.get("allowed_user_facing_claim") or "(none)"))
 message_ids = whatsapp.get("message_ids") or []
 print("whatsapp_message_ids: " + (",".join(message_ids) if message_ids else "(none)"))
@@ -135,13 +138,14 @@ if visible_artifact_deliveries:
 print(f"whatsapp_attempt_count: {len(whatsapp_attempts)}")
 if whatsapp_attempts:
     print(
-        "whatsapp_attempt | timestamp | state | confidence | provider | to | message_id | run_id | allowed_claim | raw_result_excerpt"
+        "whatsapp_attempt | timestamp | state | confidence | provider | to | message_id | run_id | provider_status | provider_reason | allowed_claim | raw_result_excerpt"
     )
     for attempt in whatsapp_attempts:
         print(
             f"{attempt.get('channel', '')} | {attempt.get('timestamp', '')} | {attempt.get('delivery_state', '')} | "
             f"{attempt.get('delivery_confidence', '')} | {attempt.get('provider', '')} | {attempt.get('to', '')} | "
-            f"{attempt.get('message_id', '')} | {attempt.get('run_id', '')} | {attempt.get('allowed_user_facing_claim', '')} | "
+            f"{attempt.get('message_id', '')} | {attempt.get('run_id', '')} | {attempt.get('provider_status', '')} | "
+            f"{attempt.get('provider_reason', '')} | {attempt.get('allowed_user_facing_claim', '')} | "
             f"{attempt.get('raw_result_excerpt', '')}"
         )
 
@@ -214,7 +218,7 @@ print(f"whatsapp_claim_count: {len(whatsapp_claims)}")
 if whatsapp_claims:
     print(
         "whatsapp_claim | allowed | timestamp | actor | requested_claim_level | requested_claim_text | "
-        "current_state | allowed_claim_level | allowed_user_facing_claim | message_id | evidence"
+        "current_state | allowed_claim_level | provider_delivery_status | allowed_user_facing_claim | message_id | evidence"
     )
     for claim in whatsapp_claims:
         print(
@@ -223,6 +227,6 @@ if whatsapp_claims:
             + f" | {claim.get('timestamp', '')} | {claim.get('actor', '')} | "
             f"{claim.get('requested_claim_level', '')} | {claim.get('requested_claim_text', '')} | "
             f"{claim.get('current_state', '')} | {claim.get('allowed_claim_level', '')} | "
-            f"{claim.get('allowed_user_facing_claim', '')} | {claim.get('message_id', '')} | {claim.get('evidence', '')}"
+            f"{claim.get('provider_delivery_status', '')} | {claim.get('allowed_user_facing_claim', '')} | {claim.get('message_id', '')} | {claim.get('evidence', '')}"
         )
 PY

@@ -1053,6 +1053,35 @@ verify_whatsapp_delivery_claim_truth() {
   record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
 }
 
+verify_whatsapp_provider_delivery_truth() {
+  local capability="whatsapp provider delivery truth"
+  local log_path="$LOG_DIR/whatsapp-provider-delivery-truth.log"
+  local cmd="bash ./scripts/verify_whatsapp_provider_delivery_truth.sh"
+  local exit_code status note artifact_rel
+
+  : >"$log_path"
+  log_command "$log_path" "$cmd"
+  set +e
+  (cd "$REPO_ROOT" && bash ./scripts/verify_whatsapp_provider_delivery_truth.sh) >>"$log_path" 2>&1
+  exit_code="$?"
+  set -e
+
+  artifact_rel="$(awk '/^report_path: / {print $2}' "$log_path" | tail -n 1)"
+  if [ -z "$artifact_rel" ]; then
+    artifact_rel="$(awk '/^VERIFY_WHATSAPP_PROVIDER_DELIVERY_TRUTH_(OK|FAIL) / {for (i = 1; i <= NF; i++) if ($i ~ /^report=/) {sub(/^report=/, "", $i); print $i}}' "$log_path" | tail -n 1)"
+  fi
+
+  if [ "$exit_code" -eq 0 ] && rg -q '^VERIFY_WHATSAPP_PROVIDER_DELIVERY_TRUTH_OK ' "$log_path"; then
+    status="PASS"
+    note="whatsapp provider delivery truth verify proved that gateway-only, ambiguous provider evidence, delivered proof, user confirmation, and drift all map to conservative task-bound states"
+  else
+    status="FAIL"
+    note="whatsapp provider delivery truth verify exposed a gap in provider-proof persistence, claim gating, or drift detection"
+  fi
+
+  record_result "$capability" "$status" "$note" "$exit_code" "$log_path" "$artifact_rel" "" "" "$cmd"
+}
+
 verify_whatsapp_live_send_path() {
   local capability="whatsapp live send path"
   local log_path="$LOG_DIR/whatsapp-live-send-path.log"
@@ -1468,6 +1497,7 @@ run_selected_verification "live-smoke-profile" verify_live_smoke_profile
 run_selected_verification "user-facing-delivery-truth" verify_user_facing_delivery_truth
 run_selected_verification "visible-artifact-delivery-truth" verify_visible_artifact_delivery_truth
 run_selected_verification "whatsapp-delivery-claim-truth" verify_whatsapp_delivery_claim_truth
+run_selected_verification "whatsapp-provider-delivery-truth" verify_whatsapp_provider_delivery_truth
 run_selected_verification "whatsapp-live-send-path" verify_whatsapp_live_send_path
 run_selected_verification "whatsapp-live-send-wrapper-truth" verify_whatsapp_live_send_wrapper_truth
 run_selected_verification "media-ingestion-truth" verify_media_ingestion_truth

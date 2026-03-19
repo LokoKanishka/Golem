@@ -132,6 +132,7 @@ Cuando la tarea depende de verdad de canal por WhatsApp, `delivery.whatsapp` per
 
 - state actual del canal
 - confidence del delivery
+- status y razon de provider proof
 - claim user-facing permitido
 - `message_id` rastreado
 - provider y destinatario

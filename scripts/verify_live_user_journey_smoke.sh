@@ -216,6 +216,7 @@ journey_b_whatsapp_delivery() {
   local whatsapp_claim_requested whatsapp_claim_delivered generic_claim_summary status cutoff evidence
   local send_path_output send_path_exit send_path_report send_path_marker
   local wrapper_output wrapper_exit wrapper_status wrapper_report wrapper_state
+  local provider_delivery_status provider_delivery_reason
 
   : >"$log_path"
   append_report "" "## Journey B" "" "Log: $log_path"
@@ -332,9 +333,12 @@ PY
   run_cmd "$log_path" "Journey B / Claim Generic Final Success" "./scripts/task_claim_user_facing_success.sh $task_id live-user-journey smoke 'journey B attempted a generic final success without verified WhatsApp delivery' 'final success claim'"
   generic_claim_summary="$LAST_OUTPUT"
 
+  provider_delivery_status="$(task_field "$task_id" delivery.whatsapp.provider_delivery_status)"
+  provider_delivery_reason="$(task_field "$task_id" delivery.whatsapp.provider_delivery_reason)"
+
   status="BLOCKED"
-  cutoff="canonical live send path exists, but this smoke intentionally stops at a safe dry-run before gateway acceptance"
-  evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; delivered_claim=blocked ; generic_claim=blocked ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; wrapper_report=$wrapper_report"
+  cutoff="canonical live send path exists, but this smoke intentionally stops before provider delivery proof because the safe dry-run returns no live provider evidence"
+  evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; delivered_claim=blocked ; generic_claim=blocked ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; wrapper_report=$wrapper_report"
 
   if ! printf '%s\n' "$whatsapp_claim_requested" | rg -q '^TASK_WHATSAPP_CLAIM_ALLOWED '; then
     status="FAIL"
@@ -358,12 +362,12 @@ PY
     evidence="source=$media_source ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report"
   elif [ "$wrapper_exit" -eq 2 ] || [ "$wrapper_status" = "BLOCKED" ]; then
     status="BLOCKED"
-    cutoff="the canonical wrapper exists, but this smoke stayed blocked before any auditable gateway acceptance"
-    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; wrapper_report=$wrapper_report"
+    cutoff="the canonical wrapper exists, but this smoke stayed blocked before any auditable gateway or provider delivery evidence"
+    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; wrapper_report=$wrapper_report"
   elif [ "$send_path_exit" -eq 0 ] && [ "$send_path_marker" = "VERIFY_WHATSAPP_LIVE_SEND_PATH_OK" ]; then
     status="BLOCKED"
-    cutoff="a canonical live send path exists, but this smoke still stops before provider delivery proof"
-    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; wrapper_report=$wrapper_report"
+    cutoff="a canonical live send path exists, but this smoke still stops because provider delivery proof is missing or unavailable"
+    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; wrapper_report=$wrapper_report"
   fi
 
   if [ "$status" = "BLOCKED" ]; then

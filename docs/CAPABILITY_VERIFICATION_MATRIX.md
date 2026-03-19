@@ -37,13 +37,15 @@ Visible artifact delivery truth is the adjacent lane that proves a staged artifa
 
 WhatsApp delivery claim truth is the channel-specific lane that prevents gateway acceptance from being sold as real delivery.
 
+WhatsApp provider delivery truth is the adjacent channel-proof lane that separates ambiguous provider signals from real provider delivery proof.
+
 WhatsApp live send path is the adjacent operational lane that proves whether the repo actually exposes a canonical task-bound live send path or still depends on a non-canonical external surface.
 
 Media ingestion truth is the attachment-specific lane that proves which exact file identity was ingested before later delivery steps rely on it.
 
 Host screenshot truth is the visual-evidence lane that proves a host-side capture exists materially and was later verified before it can back a visual claim.
 
-User-facing readiness is the top-level user-facing profile that aggregates those five canonical truths into one operational readout.
+User-facing readiness is the top-level user-facing profile that aggregates those six canonical truths into one operational readout.
 
 Live user journey smoke is the next operational layer above that: it runs two real user journeys and reports exactly where the end-to-end experience still cuts.
 
@@ -485,7 +487,26 @@ It should preserve the operational reading that worker stack can be `PASS` while
   - writable repo-local `tasks/`
   - writable repo-local `outbox/manual/`
 
-### 25. WhatsApp Live Send Path
+### 25. WhatsApp Provider Delivery Truth
+
+- name: `whatsapp provider delivery truth`
+- objective: prove that provider evidence is persisted task-bound, that ambiguous provider signals stay below `delivered`, and that only strong proof or user confirmation can raise the WhatsApp lane beyond gateway acceptance
+- verification lane: `whatsapp provider delivery truth`
+- command(s):
+  - `./scripts/verify_whatsapp_provider_delivery_truth.sh`
+  - `./scripts/task_record_whatsapp_delivery.sh <task_id> <state> <actor> <provider> <to> <message_id|-> <raw_result_excerpt> [--run-id <run_id>] [--channel <channel>] [--confidence <confidence>] [--evidence-kind <kind>] [--provider-status <status>] [--provider-reason <reason>] [--normalized-evidence-json <json>]`
+  - `./scripts/task_record_whatsapp_provider_delivery.sh <task_id> <actor> <provider> <to> <message_id> <ambiguous|delivered|verified_by_user> <raw_result_excerpt> [--run-id <run_id>] [--channel <channel>] [--confidence <confidence>] [--provider-status <status>] [--reason <reason>] [--normalized-evidence-json <json>]`
+  - `./scripts/task_claim_whatsapp_delivery.sh <task_id> <actor> <requested_claim_level> <evidence> [claim_text]`
+  - `./scripts/task_claim_user_facing_success.sh <task_id> <actor> <channel> <evidence> [claim]`
+  - `./scripts/task_delivery_summary.sh <task_id>`
+- success criterion: the verify exits `0`, prints `VERIFY_WHATSAPP_PROVIDER_DELIVERY_TRUTH_OK`, and proves gateway-only, ambiguous provider, delivered proof, explicit user confirmation, and drift detection paths
+- failure criterion: the verify exits non-zero, allows ambiguous provider evidence to inflate to `delivered`, or misses incompatible `message_id`/provider evidence drift
+- path coverage: gateway-only path, provider-unproved path, delivered-proof path, user-confirmed path, drift mismatch path
+- environment dependencies:
+  - writable repo-local `tasks/`
+  - writable repo-local `outbox/manual/`
+
+### 26. WhatsApp Live Send Path
 
 - name: `whatsapp live send path`
 - objective: prove whether a canonical repo-local WhatsApp live send path exists or whether the repo still depends on a non-canonical external CLI surface
@@ -505,7 +526,7 @@ It should preserve the operational reading that worker stack can be `PASS` while
   - readable channel/runtime status
   - writable local task store
 
-### 26. WhatsApp Live Send Wrapper Truth
+### 27. WhatsApp Live Send Wrapper Truth
 
 - name: `whatsapp live send wrapper truth`
 - objective: prove that the canonical repo-local WhatsApp wrapper is task-bound, persists evidence, updates `delivery.whatsapp` conservatively, and reclassifies the live user journey smoke coherently
@@ -525,7 +546,7 @@ It should preserve the operational reading that worker stack can be `PASS` while
   - writable repo-local `tasks/`
   - writable repo-local `outbox/manual/`
 
-### 27. Media Ingestion Truth
+### 28. Media Ingestion Truth
 
 - name: `media ingestion truth`
 - objective: prove that files are ingested into tasks with a canonical material identity before being treated as downstream-ready media
@@ -613,6 +634,12 @@ For the official WhatsApp delivery claim truth capability alone, use:
 ./scripts/verify_capability_matrix.sh whatsapp-delivery-claim-truth
 ```
 
+For the official WhatsApp provider delivery truth capability alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh whatsapp-provider-delivery-truth
+```
+
 For the official WhatsApp live send path capability alone, use:
 
 ```text
@@ -662,11 +689,12 @@ It should:
 - include `user-facing delivery truth` as the official guardrail against claiming user-visible success before `visible`
 - include `visible artifact delivery truth` as the official guardrail against claiming that a staged artifact is already on the user's desktop or downloads without post-delivery verification
 - include `whatsapp delivery claim truth` as the official guardrail against claiming that a gateway-accepted WhatsApp message was really delivered
+- include `whatsapp provider delivery truth` as the official guardrail against treating ambiguous provider evidence as delivered when the provider still has not proved real delivery
 - include `whatsapp live send path` as the official proof of whether the repo really exposes a canonical task-bound WhatsApp send path or still depends on a non-canonical host CLI surface
 - include `whatsapp live send wrapper truth` as the official proof that the canonical wrapper actually binds live send attempts to `task_id`, persists evidence, and reclassifies Journey B coherently
 - include `media ingestion truth` as the official guardrail against claiming that an attachment is ready before its canonical material identity is verified
 - include `host screenshot truth` as the official guardrail against claiming visual confirmation before host-side screenshot evidence is materially verified
-- include `user-facing readiness` as the official aggregate readout across the five canonical user-facing truth lanes
+- include `user-facing readiness` as the official aggregate readout across the six canonical user-facing truth lanes
 - include `live user journey smoke` as the official two-journey product-facing smoke that proves where the real user experience passes, blocks, or fails
 - keep per-capability evidence logs
 - write one markdown report under `outbox/manual/`

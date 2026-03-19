@@ -92,9 +92,13 @@ The minimum WhatsApp states are:
 
 1. `requested`
 2. `accepted_by_gateway`
-3. `accepted_by_provider`
+3. `provider_delivery_unproved`
 4. `delivered`
 5. `verified_by_user`
+
+Legacy compatibility note:
+
+- `accepted_by_provider` remains accepted as an input alias, but canonical persistence now stores `provider_delivery_unproved`
 
 That lane persists at least:
 
@@ -106,6 +110,8 @@ That lane persists at least:
 - `timestamp`
 - `delivery_state`
 - `delivery_confidence`
+- `provider_delivery_status`
+- `provider_delivery_reason`
 - `allowed_user_facing_claim`
 - `raw_result_excerpt`
 
@@ -115,7 +121,7 @@ Conservative wording stays canonical:
 
 - `requested` -> `solicitado`
 - `accepted_by_gateway` -> `aceptado por gateway`
-- `accepted_by_provider` -> `aceptado por proveedor`
+- `provider_delivery_unproved` -> `sin prueba concluyente del proveedor`
 - `delivered` -> `entregado`
 - `verified_by_user` -> `confirmado por usuario`
 
@@ -176,7 +182,8 @@ Materialize and verify a visible artifact delivery:
 Record a WhatsApp delivery truth transition:
 
 ```text
-./scripts/task_record_whatsapp_delivery.sh <task_id> <state> <actor> <provider> <to> <message_id|-> <raw_result_excerpt> [--run-id <run_id>] [--channel <channel>] [--confidence <confidence>]
+./scripts/task_record_whatsapp_delivery.sh <task_id> <state> <actor> <provider> <to> <message_id|-> <raw_result_excerpt> [--run-id <run_id>] [--channel <channel>] [--confidence <confidence>] [--evidence-kind <kind>] [--provider-status <status>] [--provider-reason <reason>] [--normalized-evidence-json <json>]
+./scripts/task_record_whatsapp_provider_delivery.sh <task_id> <actor> <provider> <to> <message_id> <ambiguous|delivered|verified_by_user> <raw_result_excerpt> [--run-id <run_id>] [--channel <channel>] [--confidence <confidence>] [--provider-status <status>] [--reason <reason>] [--normalized-evidence-json <json>]
 ```
 
 Claim a WhatsApp wording level explicitly:

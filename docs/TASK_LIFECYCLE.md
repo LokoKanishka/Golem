@@ -262,7 +262,8 @@ If the file cannot be verified on a user-visible destination after materializati
 When the user-facing channel is WhatsApp, persist that lane separately too:
 
 ```text
-./scripts/task_record_whatsapp_delivery.sh <task_id> <requested|accepted_by_gateway|accepted_by_provider|delivered|verified_by_user> <actor> <provider> <to> <message_id|-> <raw_result_excerpt> [--run-id <run_id>] [--channel <channel>] [--confidence <confidence>]
+./scripts/task_record_whatsapp_delivery.sh <task_id> <requested|accepted_by_gateway|provider_delivery_unproved|delivered|verified_by_user> <actor> <provider> <to> <message_id|-> <raw_result_excerpt> [--run-id <run_id>] [--channel <channel>] [--confidence <confidence>] [--evidence-kind <kind>] [--provider-status <status>] [--provider-reason <reason>] [--normalized-evidence-json <json>]
+./scripts/task_record_whatsapp_provider_delivery.sh <task_id> <actor> <provider> <to> <message_id> <ambiguous|delivered|verified_by_user> <raw_result_excerpt> [--run-id <run_id>] [--channel <channel>] [--confidence <confidence>] [--provider-status <status>] [--reason <reason>] [--normalized-evidence-json <json>]
 ./scripts/task_claim_whatsapp_delivery.sh <task_id> <actor> <requested_claim_level> <evidence> [claim_text]
 ```
 

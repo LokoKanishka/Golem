@@ -51,27 +51,32 @@ actor, requested_claim_level, evidence, claim_text = sys.argv[3:7]
 ordered_states = [
     "requested",
     "accepted_by_gateway",
-    "accepted_by_provider",
+    "provider_delivery_unproved",
     "delivered",
     "verified_by_user",
 ]
 allowed_claims = {
     "requested": "solicitado",
     "accepted_by_gateway": "aceptado por gateway",
-    "accepted_by_provider": "aceptado por proveedor",
+    "provider_delivery_unproved": "sin prueba concluyente del proveedor",
     "delivered": "entregado",
     "verified_by_user": "confirmado por usuario",
 }
+state_aliases = {
+    "accepted_by_provider": "provider_delivery_unproved",
+}
 
-if requested_claim_level not in ordered_states:
+canonical_requested_claim_level = state_aliases.get(requested_claim_level, requested_claim_level)
+
+if canonical_requested_claim_level not in ordered_states:
     raise SystemExit(
-        "ERROR: requested_claim_level invalido. Usar uno de: requested, accepted_by_gateway, accepted_by_provider, delivered, verified_by_user"
+        "ERROR: requested_claim_level invalido. Usar uno de: requested, accepted_by_gateway, provider_delivery_unproved, delivered, verified_by_user"
     )
 
-canonical_claim_text = allowed_claims[requested_claim_level]
+canonical_claim_text = allowed_claims[canonical_requested_claim_level]
 if claim_text and claim_text != canonical_claim_text:
     raise SystemExit(
-        f"ERROR: claim_text invalido para {requested_claim_level}; usar exactamente '{canonical_claim_text}' o dejarlo vacio"
+        f"ERROR: claim_text invalido para {canonical_requested_claim_level}; usar exactamente '{canonical_claim_text}' o dejarlo vacio"
     )
 
 task = json.loads(task_path.read_text(encoding="utf-8"))
@@ -90,28 +95,35 @@ whatsapp.setdefault("message_ids", [])
 whatsapp.setdefault("provider", "")
 whatsapp.setdefault("to", "")
 whatsapp.setdefault("run_id", "")
+whatsapp.setdefault("provider_delivery_status", "")
+whatsapp.setdefault("provider_delivery_reason", "")
+whatsapp.setdefault("provider_delivery_proof_at", "")
+whatsapp.setdefault("last_provider_evidence_at", "")
 whatsapp.setdefault("attempts", [])
 whatsapp.setdefault("claim_history", [])
 
-current_state = whatsapp.get("current_state") or ""
-allowed_claim_level = whatsapp.get("allowed_claim_level") or ""
+current_state = state_aliases.get(whatsapp.get("current_state") or "", whatsapp.get("current_state") or "")
+allowed_claim_level = state_aliases.get(whatsapp.get("allowed_claim_level") or "", whatsapp.get("allowed_claim_level") or "")
 allowed_user_facing_claim = whatsapp.get("allowed_user_facing_claim") or ""
 allowed = False
-if current_state in ordered_states and requested_claim_level in ordered_states:
-    allowed = ordered_states.index(requested_claim_level) <= ordered_states.index(current_state)
+if current_state in ordered_states and canonical_requested_claim_level in ordered_states:
+    allowed = ordered_states.index(canonical_requested_claim_level) <= ordered_states.index(current_state)
 
 now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
 claim_entry = {
     "channel": "whatsapp",
     "timestamp": now,
     "actor": actor,
-    "requested_claim_level": requested_claim_level,
+    "requested_claim_level": canonical_requested_claim_level,
+    "requested_claim_level_input": requested_claim_level,
     "requested_claim_text": canonical_claim_text,
     "current_state": current_state,
     "allowed_claim_level": allowed_claim_level,
     "allowed_user_facing_claim": allowed_user_facing_claim,
     "delivery_confidence": whatsapp.get("delivery_confidence") or "",
     "message_id": whatsapp.get("tracked_message_id") or "",
+    "provider_delivery_status": whatsapp.get("provider_delivery_status") or "",
+    "provider_delivery_reason": whatsapp.get("provider_delivery_reason") or "",
     "evidence": evidence,
     "allowed": allowed,
 }
@@ -125,14 +137,14 @@ tmp_path.write_text(json.dumps(task, indent=2, ensure_ascii=True) + "\n", encodi
 if allowed:
     print(
         "TASK_WHATSAPP_CLAIM_ALLOWED "
-        f"{task.get('task_id', '')} current_state={current_state} requested_claim_level={requested_claim_level}"
+        f"{task.get('task_id', '')} current_state={current_state} requested_claim_level={canonical_requested_claim_level}"
     )
     raise SystemExit(0)
 
 print(
     "TASK_WHATSAPP_CLAIM_BLOCKED "
     f"{task.get('task_id', '')} current_state={current_state or '(none)'} "
-    f"requested_claim_level={requested_claim_level} allowed_claim_level={allowed_claim_level or '(none)'}"
+    f"requested_claim_level={canonical_requested_claim_level} allowed_claim_level={allowed_claim_level or '(none)'}"
 )
 raise SystemExit(2)
 PY

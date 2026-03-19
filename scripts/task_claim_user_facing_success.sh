@@ -82,6 +82,10 @@ whatsapp.setdefault("message_ids", [])
 whatsapp.setdefault("provider", "")
 whatsapp.setdefault("to", "")
 whatsapp.setdefault("run_id", "")
+whatsapp.setdefault("provider_delivery_status", "")
+whatsapp.setdefault("provider_delivery_reason", "")
+whatsapp.setdefault("provider_delivery_proof_at", "")
+whatsapp.setdefault("last_provider_evidence_at", "")
 whatsapp.setdefault("attempts", [])
 whatsapp.setdefault("claim_history", [])
 delivery.setdefault("transitions", [])
@@ -161,6 +165,8 @@ claim_entry = {
     "whatsapp_required": whatsapp_required,
     "whatsapp_delivery_state": whatsapp_state,
     "whatsapp_allowed_user_facing_claim": whatsapp_allowed_claim,
+    "whatsapp_provider_delivery_status": whatsapp.get("provider_delivery_status") or "",
+    "whatsapp_provider_delivery_reason": whatsapp.get("provider_delivery_reason") or "",
     "whatsapp_ready": whatsapp_ready,
     "whatsapp_requirement_note": whatsapp_requirement_note,
     "media_required": media_required,

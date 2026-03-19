@@ -61,6 +61,9 @@ whatsapp_state = whatsapp.get("current_state") or "(none)"
 whatsapp_confidence = whatsapp.get("delivery_confidence") or "(none)"
 whatsapp_allowed_claim = whatsapp.get("allowed_user_facing_claim") or "(none)"
 whatsapp_message_ids = whatsapp.get("message_ids") or []
+whatsapp_provider_delivery_status = whatsapp.get("provider_delivery_status") or "(none)"
+whatsapp_provider_delivery_reason = whatsapp.get("provider_delivery_reason") or "(none)"
+whatsapp_provider_delivery_proof_at = whatsapp.get("provider_delivery_proof_at") or "(none)"
 delivery_last_transition = delivery_transitions[-1] if delivery_transitions else {}
 delivery_last_claim = delivery_claim_history[-1] if delivery_claim_history else {}
 step_name = task.get("step_name") or ""
@@ -134,6 +137,9 @@ if last_visible_artifact_delivery:
 print(f"whatsapp_delivery_required: {whatsapp_required}")
 print(f"whatsapp_delivery_state: {whatsapp_state}")
 print(f"whatsapp_delivery_confidence: {whatsapp_confidence}")
+print(f"whatsapp_provider_delivery_status: {whatsapp_provider_delivery_status}")
+print(f"whatsapp_provider_delivery_reason: {whatsapp_provider_delivery_reason}")
+print(f"whatsapp_provider_delivery_proof_at: {whatsapp_provider_delivery_proof_at}")
 print(f"whatsapp_message_ids: {len(whatsapp_message_ids)}")
 if whatsapp_message_ids:
     print(f"whatsapp_message_id_list: {','.join(whatsapp_message_ids)}")

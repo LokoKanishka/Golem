@@ -17,7 +17,7 @@ A WhatsApp live send path counts as canonical only when all of the following are
 - the attempt is auditable by `task_id`
 - the result can persist into `delivery.whatsapp`
 - machine-readable evidence such as `message_id`, provider result, and confidence can be stored
-- wording remains honest across `requested`, `accepted_by_gateway`, `accepted_by_provider`, `delivered`, and `verified_by_user`
+- wording remains honest across `requested`, `accepted_by_gateway`, `provider_delivery_unproved`, `delivered`, and `verified_by_user`
 
 ## Candidate Classes
 

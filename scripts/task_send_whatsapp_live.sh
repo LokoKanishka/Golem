@@ -202,7 +202,10 @@ if [ -z "$current_whatsapp_state" ]; then
     "$to" \
     - \
     "$(sanitize_excerpt "$evidence")" \
-    --run-id "whatsapp-live-send-requested" >/dev/null
+    --run-id "whatsapp-live-send-requested" \
+    --evidence-kind send_request \
+    --provider-status send_requested \
+    --provider-reason "the wrapper registered the outbound intent before any gateway or provider proof" >/dev/null
 fi
 
 run_id="$(
@@ -401,7 +404,10 @@ elif [ -n "$parsed_message_id" ]; then
     "$parsed_message_id" \
     "$raw_excerpt" \
     --run-id "$run_id" \
-    --channel "$parsed_channel" >/dev/null
+    --channel "$parsed_channel" \
+    --evidence-kind gateway_acceptance \
+    --provider-status gateway_accepted \
+    --provider-reason "the gateway accepted the message but the provider has not yet proved delivery" >/dev/null
   wrapper_state="accepted_by_gateway"
   wrapper_status="ACCEPTED_BY_GATEWAY"
   wrapper_exit_code="0"
@@ -511,6 +517,8 @@ print(json.dumps({
     "wrapper_status": wrapper_status,
     "delivery_whatsapp_state": (((task.get("delivery") or {}).get("whatsapp") or {}).get("current_state") or ""),
     "allowed_user_facing_claim": (((task.get("delivery") or {}).get("whatsapp") or {}).get("allowed_user_facing_claim") or ""),
+    "provider_delivery_status": (((task.get("delivery") or {}).get("whatsapp") or {}).get("provider_delivery_status") or ""),
+    "provider_delivery_reason": (((task.get("delivery") or {}).get("whatsapp") or {}).get("provider_delivery_reason") or ""),
     "raw_result_excerpt": raw_excerpt,
     "note": final_note,
     "command": command_display,
