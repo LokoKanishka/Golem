@@ -47,6 +47,12 @@ When the send-path verify passes, Journey B uses:
 ./scripts/task_send_whatsapp_live.sh
 ```
 
+Journey B now also delegates the final provider-proof question to:
+
+```text
+./scripts/verify_whatsapp_live_provider_canary.sh
+```
+
 The official smoke still stops at a safe dry-run unless stronger downstream delivery proof is available. That keeps the journey honest: wrapper existence is not the same thing as delivered WhatsApp truth.
 
 When the dry-run path leaves WhatsApp without provider proof, Journey B must stay `BLOCKED` specifically because provider delivery proof is missing or unavailable. It must not regress to a wrapper-missing diagnosis.

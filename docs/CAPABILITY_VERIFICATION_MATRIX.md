@@ -41,6 +41,8 @@ WhatsApp provider delivery truth is the adjacent channel-proof lane that separat
 
 WhatsApp live send path is the adjacent operational lane that proves whether the repo actually exposes a canonical task-bound live send path or still depends on a non-canonical external surface.
 
+WhatsApp live provider canary is the adjacent operational lane that proves whether a controlled real send can obtain strong provider proof without inflating ambiguous live evidence.
+
 Media ingestion truth is the attachment-specific lane that proves which exact file identity was ingested before later delivery steps rely on it.
 
 Host screenshot truth is the visual-evidence lane that proves a host-side capture exists materially and was later verified before it can back a visual claim.
@@ -546,7 +548,29 @@ It should preserve the operational reading that worker stack can be `PASS` while
   - writable repo-local `tasks/`
   - writable repo-local `outbox/manual/`
 
-### 28. Media Ingestion Truth
+### 28. WhatsApp Live Provider Canary
+
+- name: `whatsapp live provider canary`
+- objective: prove whether a controlled live WhatsApp send can use a canonical safe target and persist strong provider proof in the task-bound lane
+- verification lane: `whatsapp live provider canary`
+- command(s):
+  - `./scripts/verify_whatsapp_live_provider_canary.sh`
+  - `./scripts/resolve_whatsapp_canary_target.sh [--json]`
+  - `./scripts/task_send_whatsapp_live.sh <task_id> <to> [--message <text>] [--media <path>] [--actor <actor>] [--evidence <text>] [--dry-run] [--json]`
+  - `./scripts/task_record_whatsapp_provider_delivery.sh <task_id> <actor> <provider> <to> <message_id> <ambiguous|delivered|verified_by_user> <raw_result_excerpt> [--run-id <run_id>] [--channel <channel>] [--confidence <confidence>] [--provider-status <status>] [--reason <reason>] [--normalized-evidence-json <json>]`
+  - `./scripts/task_delivery_summary.sh <task_id>`
+- success criterion: the verify exits `0`, prints `VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_OK`, and proves a real live send plus strong provider proof that raises the canonical WhatsApp lane to `delivered` or higher
+- blocked criterion: the verify exits `2`, prints `VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_BLOCKED`, and proves that the safe target or provider proof is still unavailable even though the live canary path itself is canonical
+- failure criterion: the verify exits non-zero after exposing drift, contradictory live-send evidence, or corrupted task-bound persistence
+- path coverage: safe-target resolution path, real live send path, strong-proof pass path, honest blocked path
+- environment dependencies:
+  - local `openclaw` CLI available
+  - connected WhatsApp runtime
+  - safe canary target resolvable from env or runtime allowlist
+  - writable repo-local `tasks/`
+  - writable repo-local `outbox/manual/`
+
+### 29. Media Ingestion Truth
 
 - name: `media ingestion truth`
 - objective: prove that files are ingested into tasks with a canonical material identity before being treated as downstream-ready media
@@ -652,6 +676,12 @@ For the official WhatsApp live send wrapper truth capability alone, use:
 ./scripts/verify_capability_matrix.sh whatsapp-live-send-wrapper-truth
 ```
 
+For the official WhatsApp live provider canary capability alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh whatsapp-live-provider-canary
+```
+
 For the official media ingestion truth capability alone, use:
 
 ```text
@@ -692,6 +722,7 @@ It should:
 - include `whatsapp provider delivery truth` as the official guardrail against treating ambiguous provider evidence as delivered when the provider still has not proved real delivery
 - include `whatsapp live send path` as the official proof of whether the repo really exposes a canonical task-bound WhatsApp send path or still depends on a non-canonical host CLI surface
 - include `whatsapp live send wrapper truth` as the official proof that the canonical wrapper actually binds live send attempts to `task_id`, persists evidence, and reclassifies Journey B coherently
+- include `whatsapp live provider canary` as the official proof of whether the environment can execute a controlled real send and obtain strong provider delivery proof without inflating ambiguous live evidence
 - include `media ingestion truth` as the official guardrail against claiming that an attachment is ready before its canonical material identity is verified
 - include `host screenshot truth` as the official guardrail against claiming visual confirmation before host-side screenshot evidence is materially verified
 - include `user-facing readiness` as the official aggregate readout across the six canonical user-facing truth lanes

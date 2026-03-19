@@ -307,6 +307,8 @@ message_id_candidates = [
     payload.get("provider_message_id", ""),
     deep_get(payload, ["payload", "messageId"]),
     deep_get(payload, ["payload", "message_id"]),
+    deep_get(payload, ["payload", "result", "messageId"]),
+    deep_get(payload, ["payload", "result", "message_id"]),
     deep_get(payload, ["result", "messageId"]),
     deep_get(payload, ["data", "messageId"]),
 ]
@@ -361,6 +363,154 @@ print("yes" if json.loads(sys.argv[1]).get("dry_run") else "no")
 PY
 )"
 
+provider_proof_summary="$(python3 - "$parsed_json" <<'PY'
+import json
+import sys
+
+parsed_raw = sys.argv[1]
+payload = json.loads(parsed_raw) if parsed_raw else {}
+
+status_candidates = []
+bool_candidates = []
+proof_candidates = []
+
+def walk(value, path):
+    if isinstance(value, dict):
+        for key, child in value.items():
+            key_lower = str(key).lower()
+            child_path = path + [str(key)]
+            if key_lower in {
+                "status",
+                "state",
+                "deliverystatus",
+                "delivery_status",
+                "providerstatus",
+                "provider_status",
+                "receiptstatus",
+                "receipt_status",
+                "messagestatus",
+                "message_status",
+            } and isinstance(child, (str, int, float, bool)):
+                status_candidates.append({"path": child_path, "value": child})
+            if key_lower in {
+                "delivered",
+                "providerdelivered",
+                "provider_delivered",
+                "deliveryproved",
+                "delivery_proved",
+            } and isinstance(child, bool):
+                bool_candidates.append({"path": child_path, "value": child})
+            if key_lower in {"proofstrength", "proof_strength"} and isinstance(child, str):
+                proof_candidates.append({"path": child_path, "value": child})
+            walk(child, child_path)
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            walk(child, path + [str(index)])
+
+walk(payload, [])
+
+delivered_statuses = {
+    "delivered",
+    "delivery_confirmed",
+    "provider_delivered",
+    "read",
+    "read_by_recipient",
+    "confirmed",
+}
+ambiguous_statuses = {
+    "pending",
+    "queued",
+    "sent",
+    "submitted",
+    "accepted",
+    "accepted_by_provider",
+    "accepted_by_gateway",
+    "processing",
+    "enqueued",
+}
+strong_proof_values = {"strong", "confirmed"}
+
+signal = "none"
+provider_status = ""
+reason = "no explicit provider delivery evidence was found in the live send response"
+
+normalized = {
+    "status_candidates": status_candidates,
+    "boolean_candidates": bool_candidates,
+    "proof_strength_candidates": proof_candidates,
+}
+
+truthy_bool = next((item for item in bool_candidates if item.get("value") is True), None)
+falsy_bool = next((item for item in bool_candidates if item.get("value") is False), None)
+matching_delivered = None
+matching_ambiguous = None
+for candidate in status_candidates:
+    value = str(candidate.get("value", "")).strip().lower()
+    if value in delivered_statuses and matching_delivered is None:
+        matching_delivered = candidate
+    if value in ambiguous_statuses and matching_ambiguous is None:
+        matching_ambiguous = candidate
+
+strong_proof = next(
+    (
+        item for item in proof_candidates
+        if str(item.get("value", "")).strip().lower() in strong_proof_values
+    ),
+    None,
+)
+
+if truthy_bool or matching_delivered or strong_proof:
+    signal = "delivered"
+    if matching_delivered:
+        provider_status = str(matching_delivered.get("value", ""))
+    elif strong_proof:
+        provider_status = str(strong_proof.get("value", ""))
+    else:
+        provider_status = "delivered"
+    reason = "the live send response exposed explicit provider delivery proof"
+elif falsy_bool or matching_ambiguous or status_candidates or proof_candidates:
+    signal = "ambiguous"
+    if matching_ambiguous:
+        provider_status = str(matching_ambiguous.get("value", ""))
+    elif falsy_bool:
+        provider_status = "delivered=false"
+    else:
+        provider_status = "provider_delivery_unproved"
+    reason = "the live send response exposed provider-side evidence, but it did not prove delivery"
+
+print(json.dumps({
+    "signal": signal,
+    "provider_status": provider_status,
+    "reason": reason,
+    "normalized_evidence": normalized,
+}, ensure_ascii=True))
+PY
+)"
+provider_signal="$(python3 - "$provider_proof_summary" <<'PY'
+import json
+import sys
+print(json.loads(sys.argv[1]).get("signal", "none"))
+PY
+)"
+provider_signal_status="$(python3 - "$provider_proof_summary" <<'PY'
+import json
+import sys
+print(json.loads(sys.argv[1]).get("provider_status", ""))
+PY
+)"
+provider_signal_reason="$(python3 - "$provider_proof_summary" <<'PY'
+import json
+import sys
+print(json.loads(sys.argv[1]).get("reason", ""))
+PY
+)"
+provider_signal_normalized_json="$(python3 - "$provider_proof_summary" <<'PY'
+import json
+import sys
+print(json.dumps(json.loads(sys.argv[1]).get("normalized_evidence", {}), ensure_ascii=True))
+PY
+)"
+
 raw_excerpt="$(sanitize_excerpt "$surface_output")"
 wrapper_state="requested"
 wrapper_status="DRY_RUN"
@@ -408,10 +558,48 @@ elif [ -n "$parsed_message_id" ]; then
     --evidence-kind gateway_acceptance \
     --provider-status gateway_accepted \
     --provider-reason "the gateway accepted the message but the provider has not yet proved delivery" >/dev/null
-  wrapper_state="accepted_by_gateway"
-  wrapper_status="ACCEPTED_BY_GATEWAY"
-  wrapper_exit_code="0"
-  final_note="whatsapp live send wrapper captured gateway acceptance evidence and persisted message_id"
+  if [ "$provider_signal" = "delivered" ]; then
+    ./scripts/task_record_whatsapp_provider_delivery.sh \
+      "$task_id" \
+      "$actor" \
+      "$parsed_provider" \
+      "$parsed_to" \
+      "$parsed_message_id" \
+      delivered \
+      "$raw_excerpt" \
+      --run-id "$run_id" \
+      --channel "$parsed_channel" \
+      --provider-status "${provider_signal_status:-provider_delivered}" \
+      --reason "$provider_signal_reason" \
+      --normalized-evidence-json "$provider_signal_normalized_json" >/dev/null
+    wrapper_state="delivered"
+    wrapper_status="DELIVERED"
+    wrapper_exit_code="0"
+    final_note="whatsapp live send wrapper captured strong provider delivery proof and persisted delivered state"
+  elif [ "$provider_signal" = "ambiguous" ]; then
+    ./scripts/task_record_whatsapp_provider_delivery.sh \
+      "$task_id" \
+      "$actor" \
+      "$parsed_provider" \
+      "$parsed_to" \
+      "$parsed_message_id" \
+      ambiguous \
+      "$raw_excerpt" \
+      --run-id "$run_id" \
+      --channel "$parsed_channel" \
+      --provider-status "${provider_signal_status:-provider_delivery_unproved}" \
+      --reason "$provider_signal_reason" \
+      --normalized-evidence-json "$provider_signal_normalized_json" >/dev/null
+    wrapper_state="provider_delivery_unproved"
+    wrapper_status="PROVIDER_DELIVERY_UNPROVED"
+    wrapper_exit_code="0"
+    final_note="whatsapp live send wrapper captured provider-side evidence but it still did not prove delivery"
+  else
+    wrapper_state="accepted_by_gateway"
+    wrapper_status="ACCEPTED_BY_GATEWAY"
+    wrapper_exit_code="0"
+    final_note="whatsapp live send wrapper captured gateway acceptance evidence and persisted message_id"
+  fi
 else
   wrapper_state="requested"
   wrapper_status="BLOCKED"
@@ -419,15 +607,16 @@ else
   final_note="whatsapp live send surface responded but did not expose auditable gateway acceptance evidence"
 fi
 
-python3 - "$report_path" "$task_id" "$to" "$message_text" "$normalized_media_path" "$command_display" "$surface_mode" "$surface_exit" "$parsed_json" "$parsed_summary" "$run_id" "$wrapper_state" "$wrapper_status" "$final_note" "$raw_excerpt" "$drift_expected" "$drift_actual" <<'PY'
+python3 - "$report_path" "$task_id" "$to" "$message_text" "$normalized_media_path" "$command_display" "$surface_mode" "$surface_exit" "$parsed_json" "$parsed_summary" "$run_id" "$wrapper_state" "$wrapper_status" "$final_note" "$raw_excerpt" "$drift_expected" "$drift_actual" "$provider_proof_summary" <<'PY'
 import json
 import pathlib
 import sys
 
 report_path = pathlib.Path(sys.argv[1])
-task_id, to_value, message_text, media_path, command_display, surface_mode, surface_exit, parsed_raw, summary_raw, run_id, wrapper_state, wrapper_status, final_note, raw_excerpt, drift_expected, drift_actual = sys.argv[2:18]
+task_id, to_value, message_text, media_path, command_display, surface_mode, surface_exit, parsed_raw, summary_raw, run_id, wrapper_state, wrapper_status, final_note, raw_excerpt, drift_expected, drift_actual, provider_summary_raw = sys.argv[2:19]
 parsed = json.loads(parsed_raw) if parsed_raw else {}
 summary = json.loads(summary_raw)
+provider_summary = json.loads(provider_summary_raw)
 
 report_payload = {
     "task_id": task_id,
@@ -442,6 +631,7 @@ report_payload = {
     "run_id": run_id,
     "wrapper_state": wrapper_state,
     "wrapper_status": wrapper_status,
+    "provider_proof_summary": provider_summary,
     "note": final_note,
     "raw_result_excerpt": raw_excerpt,
     "message_id_drift": {
@@ -465,7 +655,7 @@ print(json.dumps({
 PY
 )" ./scripts/task_add_artifact.sh "$task_id" whatsapp-live-send-report "$report_rel" >/dev/null
 
-TASK_OUTPUT_EXTRA_JSON="$(python3 - "$parsed_json" "$parsed_summary" "$command_display" "$surface_mode" "$surface_exit" "$to" "$message_text" "$normalized_media_path" "$run_id" "$wrapper_state" "$raw_excerpt" <<'PY'
+TASK_OUTPUT_EXTRA_JSON="$(python3 - "$parsed_json" "$parsed_summary" "$command_display" "$surface_mode" "$surface_exit" "$to" "$message_text" "$normalized_media_path" "$run_id" "$wrapper_state" "$raw_excerpt" "$provider_proof_summary" <<'PY'
 import json
 import sys
 
@@ -481,6 +671,7 @@ payload = {
     "run_id": sys.argv[9],
     "wrapper_state": sys.argv[10],
     "raw_result_excerpt": sys.argv[11],
+    "provider_proof_summary": json.loads(sys.argv[12]),
     "report_path": "",
     "parsed_result": parsed,
     "parsed_summary": summary,

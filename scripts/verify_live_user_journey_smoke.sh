@@ -217,6 +217,7 @@ journey_b_whatsapp_delivery() {
   local send_path_output send_path_exit send_path_report send_path_marker
   local wrapper_output wrapper_exit wrapper_status wrapper_report wrapper_state
   local provider_delivery_status provider_delivery_reason
+  local canary_output canary_exit canary_report canary_marker
 
   : >"$log_path"
   append_report "" "## Journey B" "" "Log: $log_path"
@@ -295,6 +296,24 @@ PY
 )"
   send_path_marker="$(printf '%s\n' "$send_path_output" | awk '/^VERIFY_WHATSAPP_LIVE_SEND_PATH_(OK|BLOCKED|FAIL) / {print $1}' | tail -n 1)"
 
+  run_cmd "$log_path" "Journey B / Verify WhatsApp Live Provider Canary" "bash ./scripts/verify_whatsapp_live_provider_canary.sh"
+  canary_output="$LAST_OUTPUT"
+  canary_exit="$LAST_EXIT"
+  canary_report="$(python3 - "$canary_output" <<'PY'
+import re
+import sys
+
+text = sys.argv[1]
+match = re.search(r'^report_path: (\S+)$', text, re.MULTILINE)
+if match:
+    print(match.group(1))
+    raise SystemExit(0)
+match = re.search(r'^VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_(?:OK|BLOCKED|FAIL)\b.*\breport=(\S+)', text, re.MULTILINE)
+print(match.group(1) if match else "")
+PY
+)"
+  canary_marker="$(printf '%s\n' "$canary_output" | awk '/^VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_(OK|BLOCKED|FAIL) / {print $1}' | tail -n 1)"
+
   run_cmd "$log_path" "Journey B / Canonical WhatsApp Wrapper" "./scripts/task_send_whatsapp_live.sh $task_id +5491100000007 --message 'Live user journey smoke / WhatsApp delivery' --media '$media_source' --dry-run --json"
   wrapper_output="$LAST_OUTPUT"
   wrapper_exit="$LAST_EXIT"
@@ -337,8 +356,8 @@ PY
   provider_delivery_reason="$(task_field "$task_id" delivery.whatsapp.provider_delivery_reason)"
 
   status="BLOCKED"
-  cutoff="canonical live send path exists, but this smoke intentionally stops before provider delivery proof because the safe dry-run returns no live provider evidence"
-  evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; delivered_claim=blocked ; generic_claim=blocked ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; wrapper_report=$wrapper_report"
+  cutoff="canonical live send path exists, but the controlled live provider canary still did not prove delivered state"
+  evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; delivered_claim=blocked ; generic_claim=blocked ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; live_provider_canary_verify=$canary_marker ; live_provider_canary_report=$canary_report ; wrapper_report=$wrapper_report"
 
   if ! printf '%s\n' "$whatsapp_claim_requested" | rg -q '^TASK_WHATSAPP_CLAIM_ALLOWED '; then
     status="FAIL"
@@ -348,6 +367,14 @@ PY
     status="FAIL"
     cutoff="the canonical WhatsApp wrapper detected an internal inconsistency or evidence drift"
     evidence="source=$media_source ; wrapper_output=$(printf '%s' "$wrapper_output" | tr '\n' ' ' | sed 's/[[:space:]]\\+/ /g') ; wrapper_report=$wrapper_report"
+  elif [ "$canary_exit" -eq 1 ] || [ "$canary_marker" = "VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_FAIL" ]; then
+    status="FAIL"
+    cutoff="the controlled live provider canary failed internally or exposed an inconsistency"
+    evidence="source=$media_source ; live_provider_canary_verify=$canary_marker ; live_provider_canary_report=$canary_report"
+  elif [ "$canary_exit" -eq 0 ] && [ "$canary_marker" = "VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_OK" ]; then
+    status="PASS"
+    cutoff="the controlled live provider canary proved delivered WhatsApp truth and Journey B now clears the last provider-proof blocker"
+    evidence="source=$media_source ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; live_provider_canary_verify=$canary_marker ; live_provider_canary_report=$canary_report ; wrapper_report=$wrapper_report"
   elif ! printf '%s\n' "$whatsapp_claim_delivered" | rg -q '^TASK_WHATSAPP_CLAIM_BLOCKED '; then
     status="FAIL"
     cutoff="delivered-level WhatsApp wording was not blocked despite missing delivery proof"
@@ -363,14 +390,16 @@ PY
   elif [ "$wrapper_exit" -eq 2 ] || [ "$wrapper_status" = "BLOCKED" ]; then
     status="BLOCKED"
     cutoff="the canonical wrapper exists, but this smoke stayed blocked before any auditable gateway or provider delivery evidence"
-    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; wrapper_report=$wrapper_report"
-  elif [ "$send_path_exit" -eq 0 ] && [ "$send_path_marker" = "VERIFY_WHATSAPP_LIVE_SEND_PATH_OK" ]; then
+    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; live_provider_canary_verify=$canary_marker ; live_provider_canary_report=$canary_report ; wrapper_report=$wrapper_report"
+  elif [ "$canary_exit" -eq 2 ] && [ "$canary_marker" = "VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_BLOCKED" ]; then
     status="BLOCKED"
-    cutoff="a canonical live send path exists, but this smoke still stops because provider delivery proof is missing or unavailable"
-    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; wrapper_report=$wrapper_report"
+    cutoff="a canonical live send path exists, but the controlled live provider canary remained blocked because provider proof is still missing or unavailable"
+    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; live_provider_canary_verify=$canary_marker ; live_provider_canary_report=$canary_report ; wrapper_report=$wrapper_report"
   fi
 
-  if [ "$status" = "BLOCKED" ]; then
+  if [ "$status" = "PASS" ]; then
+    run_cmd "$log_path" "Journey B / Close Task" "./scripts/task_close.sh $task_id done 'live user journey WhatsApp path passed after the live provider canary proved delivery capability'"
+  elif [ "$status" = "BLOCKED" ]; then
     run_cmd "$log_path" "Journey B / Close Task" "./scripts/task_close.sh $task_id blocked 'live user journey WhatsApp path blocked before any live gateway/provider delivery proof'"
   else
     run_cmd "$log_path" "Journey B / Close Task" "./scripts/task_close.sh $task_id failed 'live user journey WhatsApp path failed semantically'"

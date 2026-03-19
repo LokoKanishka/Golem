@@ -196,6 +196,7 @@ Invoke the canonical task-bound WhatsApp live send wrapper:
 
 ```text
 ./scripts/task_send_whatsapp_live.sh <task_id> <to> [--message <text>] [--media <path>] [--actor <actor>] [--evidence <text>] [--dry-run] [--json]
+./scripts/resolve_whatsapp_canary_target.sh [--json]
 ```
 
 Register and verify canonical media:
