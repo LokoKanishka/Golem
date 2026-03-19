@@ -17,8 +17,65 @@ DESKTOP_TASK_ID=""
 DOWNLOADS_TASK_ID=""
 BLOCKED_TASK_ID=""
 DRIFT_TASK_ID=""
+VISIBLE_CLEANUP_PATHS=()
+CLEANUP_REMOVED_PATHS=()
+CLEANUP_SKIPPED_PATHS=()
+CLEANUP_ALREADY_RAN="0"
 
 mkdir -p "$OUTBOX_DIR"
+
+register_cleanup_path() {
+  local candidate="${1:-}"
+  if [ -z "$candidate" ]; then
+    return 0
+  fi
+
+  local normalized
+  normalized="$(python3 - "$candidate" <<'PY'
+import pathlib
+import sys
+
+print(pathlib.Path(sys.argv[1]).expanduser().resolve(strict=False))
+PY
+)"
+
+  local visible_root
+  for visible_root in "$HOME/Escritorio" "$HOME/Desktop" "$HOME/Descargas" "$HOME/Downloads"; do
+    if [ -d "$visible_root" ] && [[ "$normalized" == "$visible_root/"* ]]; then
+      local existing
+      for existing in "${VISIBLE_CLEANUP_PATHS[@]}"; do
+        if [ "$existing" = "$normalized" ]; then
+          return 0
+        fi
+      done
+      VISIBLE_CLEANUP_PATHS+=("$normalized")
+      return 0
+    fi
+  done
+}
+
+cleanup_visible_artifacts() {
+  if [ "$CLEANUP_ALREADY_RAN" = "1" ]; then
+    return 0
+  fi
+  CLEANUP_ALREADY_RAN="1"
+
+  local cleanup_path
+  for cleanup_path in "${VISIBLE_CLEANUP_PATHS[@]}"; do
+    local basename
+    basename="$(basename "$cleanup_path")"
+    if [[ "$basename" != "$TIMESTAMP-"* ]]; then
+      CLEANUP_SKIPPED_PATHS+=("$cleanup_path")
+      continue
+    fi
+    if [ -e "$cleanup_path" ]; then
+      rm -f "$cleanup_path"
+      CLEANUP_REMOVED_PATHS+=("$cleanup_path")
+    fi
+  done
+}
+
+trap cleanup_visible_artifacts EXIT
 
 run_cmd() {
   local label="$1"
@@ -100,6 +157,15 @@ print(path)
 PY
 }
 
+extract_resolved_path() {
+  python3 - "$1" <<'PY'
+import json
+import sys
+
+print(json.loads(sys.argv[1]).get("resolved_path", ""))
+PY
+}
+
 advance_task_to_visible() {
   local task_id="$1"
   local channel="$2"
@@ -129,6 +195,9 @@ printf 'generated_at: %s\n' "$(date -u --iso-8601=seconds)"
 printf 'repo: %s\n' "$REPO_ROOT"
 
 desktop_source_artifact="$(create_source_artifact desktop-source 'Visible artifact delivery truth / desktop')"
+desktop_resolution_json="$(./scripts/resolve_user_visible_destination.sh desktop "$(basename "$desktop_source_artifact")" --json 2>/dev/null || true)"
+desktop_visible_path="$(extract_resolved_path "$desktop_resolution_json" 2>/dev/null || true)"
+register_cleanup_path "$desktop_visible_path"
 run_cmd "Desktop Path / Create Task" "./scripts/task_new.sh verification-visible-artifact 'Verify visible artifact desktop path'"
 DESKTOP_TASK_ID="$(extract_task_id "$LAST_OUTPUT")"
 run_cmd "Desktop Path / Move Technical Lifecycle" "./scripts/task_update.sh $DESKTOP_TASK_ID running"
@@ -158,6 +227,9 @@ fi
 record_case_report "Desktop Pass Path" "$DESKTOP_TASK_ID" "$desktop_status" "$desktop_note" "$desktop_source_artifact" "$desktop_summary"
 
 downloads_source_artifact="$(create_source_artifact downloads-source 'Visible artifact delivery truth / downloads')"
+downloads_resolution_json="$(./scripts/resolve_user_visible_destination.sh downloads "$(basename "$downloads_source_artifact")" --json 2>/dev/null || true)"
+downloads_visible_path="$(extract_resolved_path "$downloads_resolution_json" 2>/dev/null || true)"
+register_cleanup_path "$downloads_visible_path"
 run_cmd "Downloads Path / Create Task" "./scripts/task_new.sh verification-visible-artifact 'Verify visible artifact downloads path'"
 DOWNLOADS_TASK_ID="$(extract_task_id "$LAST_OUTPUT")"
 run_cmd "Downloads Path / Move Technical Lifecycle" "./scripts/task_update.sh $DOWNLOADS_TASK_ID running"
@@ -187,6 +259,9 @@ fi
 record_case_report "Downloads Pass Path" "$DOWNLOADS_TASK_ID" "$downloads_status" "$downloads_note" "$downloads_source_artifact" "$downloads_summary"
 
 blocked_source_artifact="$(create_source_artifact blocked-source 'Visible artifact delivery truth / blocked')"
+blocked_resolution_json="$(./scripts/resolve_user_visible_destination.sh desktop "$(basename "$blocked_source_artifact")" --json 2>/dev/null || true)"
+blocked_visible_path="$(extract_resolved_path "$blocked_resolution_json" 2>/dev/null || true)"
+register_cleanup_path "$blocked_visible_path"
 run_cmd "Blocked Path / Create Task" "./scripts/task_new.sh verification-visible-artifact 'Verify visible artifact unverifiable path'"
 BLOCKED_TASK_ID="$(extract_task_id "$LAST_OUTPUT")"
 advance_task_to_visible "$BLOCKED_TASK_ID" "desktop" "Blocked Path"
@@ -233,8 +308,13 @@ advance_task_to_visible "$DRIFT_TASK_ID" "desktop" "Drift Path"
 if [ -n "$drift_dir" ]; then
   drift_actual_path="$drift_dir/${TIMESTAMP}-drift-actual.md"
   drift_reported_path="$drift_dir/${TIMESTAMP}-drift-reported.md"
+  register_cleanup_path "$drift_actual_path"
+  register_cleanup_path "$drift_reported_path"
   run_cmd "Drift Path / Materialize Visible Artifact" "GOLEM_VISIBLE_ARTIFACT_SIMULATE_DRIFT_ACTUAL_PATH='$drift_actual_path' GOLEM_VISIBLE_ARTIFACT_SIMULATE_DRIFT_REPORTED_PATH='$drift_reported_path' ./scripts/task_materialize_visible_artifact.sh $DRIFT_TASK_ID $drift_source_artifact desktop"
 else
+  drift_resolution_json="$(./scripts/resolve_user_visible_destination.sh desktop "$(basename "$drift_source_artifact")" --json 2>/dev/null || true)"
+  drift_visible_path="$(extract_resolved_path "$drift_resolution_json" 2>/dev/null || true)"
+  register_cleanup_path "$drift_visible_path"
   run_cmd "Drift Path / Materialize Visible Artifact" "./scripts/task_materialize_visible_artifact.sh $DRIFT_TASK_ID $drift_source_artifact desktop"
 fi
 drift_delivery_exit="$LAST_EXIT_CODE"
@@ -256,6 +336,24 @@ else
   drift_note="path drift or visible path inconsistency was not detected as expected"
 fi
 record_case_report "Drift Detection Path" "$DRIFT_TASK_ID" "$drift_status" "$drift_note" "$drift_source_artifact" "$drift_summary"
+
+cleanup_visible_artifacts
+
+append_report "" "## Safe Teardown"
+append_report "- registered_cleanup_paths: ${#VISIBLE_CLEANUP_PATHS[@]}"
+append_report "- removed_cleanup_paths: ${#CLEANUP_REMOVED_PATHS[@]}"
+if [ "${#CLEANUP_REMOVED_PATHS[@]}" -gt 0 ]; then
+  append_report "- removed_paths:"
+  for cleanup_path in "${CLEANUP_REMOVED_PATHS[@]}"; do
+    append_report "  - ${cleanup_path}"
+  done
+fi
+if [ "${#CLEANUP_SKIPPED_PATHS[@]}" -gt 0 ]; then
+  append_report "- skipped_paths:"
+  for cleanup_path in "${CLEANUP_SKIPPED_PATHS[@]}"; do
+    append_report "  - ${cleanup_path}"
+  done
+fi
 
 printf '\ncase | status | note | task_id\n'
 printf 'desktop visible path | %s | %s | %s\n' "$desktop_status" "$desktop_note" "$DESKTOP_TASK_ID"

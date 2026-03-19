@@ -19,8 +19,65 @@ LOCAL_TASK_ID=""
 MISSING_TASK_ID=""
 DRIFT_TASK_ID=""
 DIRECTORY_TASK_ID=""
+VISIBLE_CLEANUP_PATHS=()
+CLEANUP_REMOVED_PATHS=()
+CLEANUP_SKIPPED_PATHS=()
+CLEANUP_ALREADY_RAN="0"
 
 mkdir -p "$OUTBOX_DIR"
+
+register_cleanup_path() {
+  local candidate="${1:-}"
+  if [ -z "$candidate" ]; then
+    return 0
+  fi
+
+  local normalized
+  normalized="$(python3 - "$candidate" <<'PY'
+import pathlib
+import sys
+
+print(pathlib.Path(sys.argv[1]).expanduser().resolve(strict=False))
+PY
+)"
+
+  local visible_root
+  for visible_root in "$HOME/Escritorio" "$HOME/Desktop" "$HOME/Descargas" "$HOME/Downloads"; do
+    if [ -d "$visible_root" ] && [[ "$normalized" == "$visible_root/"* ]]; then
+      local existing
+      for existing in "${VISIBLE_CLEANUP_PATHS[@]}"; do
+        if [ "$existing" = "$normalized" ]; then
+          return 0
+        fi
+      done
+      VISIBLE_CLEANUP_PATHS+=("$normalized")
+      return 0
+    fi
+  done
+}
+
+cleanup_visible_artifacts() {
+  if [ "$CLEANUP_ALREADY_RAN" = "1" ]; then
+    return 0
+  fi
+  CLEANUP_ALREADY_RAN="1"
+
+  local cleanup_path
+  for cleanup_path in "${VISIBLE_CLEANUP_PATHS[@]}"; do
+    local basename
+    basename="$(basename "$cleanup_path")"
+    if [[ "$basename" != "$TIMESTAMP-"* ]]; then
+      CLEANUP_SKIPPED_PATHS+=("$cleanup_path")
+      continue
+    fi
+    if [ -e "$cleanup_path" ]; then
+      rm -f "$cleanup_path"
+      CLEANUP_REMOVED_PATHS+=("$cleanup_path")
+    fi
+  done
+}
+
+trap cleanup_visible_artifacts EXIT
 
 run_cmd() {
   local label="$1"
@@ -158,6 +215,19 @@ fi
 record_case_report "Internal Artifact Path" "$INTERNAL_TASK_ID" "$internal_status" "$internal_note" "$internal_summary"
 
 visible_source_artifact="$(create_media_file visible-artifact 'Media ingestion truth / visible artifact')"
+visible_resolution_json="$(./scripts/resolve_user_visible_destination.sh desktop "$(basename "$visible_source_artifact")" --json 2>/dev/null || true)"
+visible_expected_path="$(python3 - "$visible_resolution_json" <<'PY'
+import json
+import sys
+
+payload = sys.argv[1].strip()
+if not payload:
+    print("")
+else:
+    print(json.loads(payload).get("resolved_path", ""))
+PY
+)"
+register_cleanup_path "$visible_expected_path"
 run_cmd "Visible Artifact Path / Create Task" "./scripts/task_new.sh verification-media 'Verify visible artifact media ingestion'"
 VISIBLE_TASK_ID="$(extract_task_id "$LAST_OUTPUT")"
 run_cmd "Visible Artifact Path / Move Technical Lifecycle" "./scripts/task_update.sh $VISIBLE_TASK_ID running"
@@ -174,6 +244,7 @@ deliveries = ((task.get("delivery") or {}).get("visible_artifact_deliveries") or
 print(deliveries[-1].get("resolved_path", "") if deliveries else "")
 PY
 )"
+register_cleanup_path "$visible_materialized_path"
 run_cmd "Visible Artifact Path / Register Media" "./scripts/task_register_media_ingestion.sh $VISIBLE_TASK_ID visible-artifact '$visible_materialized_path' verify-media-ingestion 'registered verified visible artifact as media candidate'"
 visible_register_exit="$LAST_EXIT_CODE"
 run_cmd "Visible Artifact Path / Verify Media" "./scripts/task_verify_media_ready.sh $VISIBLE_TASK_ID latest verify-media-ingestion 'verified visible artifact material identity'"
@@ -271,6 +342,24 @@ else
   directory_note="directory ingestion did not fail explicitly as expected"
 fi
 record_case_report "Directory Path" "$DIRECTORY_TASK_ID" "$directory_status" "$directory_note" "$directory_summary"
+
+cleanup_visible_artifacts
+
+append_report "" "## Safe Teardown"
+append_report "- registered_cleanup_paths: ${#VISIBLE_CLEANUP_PATHS[@]}"
+append_report "- removed_cleanup_paths: ${#CLEANUP_REMOVED_PATHS[@]}"
+if [ "${#CLEANUP_REMOVED_PATHS[@]}" -gt 0 ]; then
+  append_report "- removed_paths:"
+  for cleanup_path in "${CLEANUP_REMOVED_PATHS[@]}"; do
+    append_report "  - ${cleanup_path}"
+  done
+fi
+if [ "${#CLEANUP_SKIPPED_PATHS[@]}" -gt 0 ]; then
+  append_report "- skipped_paths:"
+  for cleanup_path in "${CLEANUP_SKIPPED_PATHS[@]}"; do
+    append_report "  - ${cleanup_path}"
+  done
+fi
 
 printf '\ncase | status | note | task_id\n'
 printf 'internal artifact | %s | %s | %s\n' "$internal_status" "$internal_note" "$INTERNAL_TASK_ID"
