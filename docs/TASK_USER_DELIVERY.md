@@ -115,6 +115,14 @@ That lane persists at least:
 - `allowed_user_facing_claim`
 - `raw_result_excerpt`
 
+When a live send already has `message_id` but still lacks strong provider proof, the repo can now persist a separate task-bound reconciliation artifact/output through:
+
+```text
+./scripts/task_reconcile_whatsapp_provider_delivery.sh <task_id> [--json]
+```
+
+That wrapper does not inflate `accepted_by_gateway` by itself. It classifies the observable post-send surfaces conservatively and only raises the WhatsApp lane when strong provider proof is actually present.
+
 The generic final user-facing success claim must not pass for WhatsApp-required tasks unless the WhatsApp lane reached at least `delivered`.
 
 Conservative wording stays canonical:

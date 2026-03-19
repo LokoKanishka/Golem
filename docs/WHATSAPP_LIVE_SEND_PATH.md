@@ -56,6 +56,12 @@ To verify the stronger task-bound wrapper behavior itself, use:
 ./scripts/verify_whatsapp_live_send_wrapper_truth.sh
 ```
 
+To verify the downstream post-send provider-proof ceiling after a real gateway-accepted send, use:
+
+```text
+./scripts/verify_whatsapp_provider_post_send_reconciliation_truth.sh
+```
+
 The result is:
 
 - `PASS` when a canonical repo-local path exists and is usable

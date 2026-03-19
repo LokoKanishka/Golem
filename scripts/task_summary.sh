@@ -82,6 +82,15 @@ screenshot_required = "yes" if screenshot.get("required") else "no"
 screenshot_ready = "yes" if screenshot.get("ready_for_claim") else "no"
 screenshot_items = screenshot.get("items") or []
 last_screenshot_item = screenshot_items[-1] if screenshot_items else {}
+outputs = task.get("outputs", [])
+last_whatsapp_reconciliation_output = next(
+    (
+        output
+        for output in reversed(outputs)
+        if output.get("kind") == "whatsapp-provider-post-send-reconciliation"
+    ),
+    {},
+)
 
 print(f"task_id: {task.get('task_id', task_path.stem)}")
 print(f"type: {task.get('type', '?')}")
@@ -177,6 +186,23 @@ if delivery_last_claim:
     if "screenshot_state" in delivery_last_claim:
         print(f"last_user_facing_claim_screenshot_state: {delivery_last_claim.get('screenshot_state', '(none)')}")
 print(f"outputs: {len(task.get('outputs', []))}")
+if last_whatsapp_reconciliation_output:
+    print(
+        "last_whatsapp_reconciliation_status: "
+        + str(last_whatsapp_reconciliation_output.get("reconciliation_status") or "(none)")
+    )
+    print(
+        "last_whatsapp_reconciliation_resolution: "
+        + str(last_whatsapp_reconciliation_output.get("resolution") or "(none)")
+    )
+    print(
+        "last_whatsapp_reconciliation_blocker: "
+        + str(last_whatsapp_reconciliation_output.get("dominant_blocker") or "(none)")
+    )
+    print(
+        "last_whatsapp_reconciliation_report: "
+        + str(last_whatsapp_reconciliation_output.get("report_path") or "(none)")
+    )
 print(f"artifacts: {len(task.get('artifacts', []))}")
 print(f"last_note: {last_note}")
 PY

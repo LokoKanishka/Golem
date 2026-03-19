@@ -570,7 +570,30 @@ It should preserve the operational reading that worker stack can be `PASS` while
   - writable repo-local `tasks/`
   - writable repo-local `outbox/manual/`
 
-### 29. Media Ingestion Truth
+### 29. WhatsApp Provider Post-Send Reconciliation Truth
+
+- name: `whatsapp provider post-send reconciliation truth`
+- objective: prove whether a gateway-accepted live WhatsApp send can be reconciled later through a canonical repo-local lane into strong provider proof, or whether the observable ceiling is still missing/ambiguous
+- verification lane: `whatsapp provider post-send reconciliation truth`
+- command(s):
+  - `./scripts/verify_whatsapp_provider_post_send_reconciliation_truth.sh`
+  - `./scripts/task_reconcile_whatsapp_provider_delivery.sh <task_id> [--actor <actor>] [--message-id <message_id>] [--to <target>] [--provider <provider>] [--run-id <run_id>] [--logs-lines <n>] [--json]`
+  - `./scripts/verify_whatsapp_live_provider_canary.sh`
+  - `openclaw channels capabilities --channel whatsapp --json`
+  - `openclaw message read --channel whatsapp --target <dest> --around <message_id> --json`
+  - `openclaw channels logs --channel whatsapp --json --lines <n>`
+- success criterion: the verify exits `0`, prints `VERIFY_WHATSAPP_PROVIDER_POST_SEND_RECONCILIATION_TRUTH_OK`, and proves that a real live send can be reconciled canonically to strong provider delivery proof
+- blocked criterion: the verify exits `2`, prints `VERIFY_WHATSAPP_PROVIDER_POST_SEND_RECONCILIATION_TRUTH_BLOCKED`, and proves the current observable ceiling honestly, for example because `message read` is unsupported and channel logs only expose outbound send evidence
+- failure criterion: the verify exits non-zero after exposing drift, contradictory task-bound evidence, or an incoherent handoff between the live canary and the reconciliation wrapper
+- path coverage: live send handoff path, task-bound reconciliation wrapper path, capabilities/read/logs surface classification path, strong-proof pass path, honest blocked ceiling path
+- environment dependencies:
+  - local `openclaw` CLI available
+  - connected WhatsApp runtime
+  - safe canary target resolvable from env or runtime allowlist
+  - writable repo-local `tasks/`
+  - writable repo-local `outbox/manual/`
+
+### 30. Media Ingestion Truth
 
 - name: `media ingestion truth`
 - objective: prove that files are ingested into tasks with a canonical material identity before being treated as downstream-ready media
@@ -682,6 +705,12 @@ For the official WhatsApp live provider canary capability alone, use:
 ./scripts/verify_capability_matrix.sh whatsapp-live-provider-canary
 ```
 
+For the official WhatsApp provider post-send reconciliation truth capability alone, use:
+
+```text
+./scripts/verify_capability_matrix.sh whatsapp-provider-post-send-reconciliation-truth
+```
+
 For the official media ingestion truth capability alone, use:
 
 ```text
@@ -723,6 +752,7 @@ It should:
 - include `whatsapp live send path` as the official proof of whether the repo really exposes a canonical task-bound WhatsApp send path or still depends on a non-canonical host CLI surface
 - include `whatsapp live send wrapper truth` as the official proof that the canonical wrapper actually binds live send attempts to `task_id`, persists evidence, and reclassifies Journey B coherently
 - include `whatsapp live provider canary` as the official proof of whether the environment can execute a controlled real send and obtain strong provider delivery proof without inflating ambiguous live evidence
+- include `whatsapp provider post-send reconciliation truth` as the official proof of whether the current runtime exposes any repo-local post-send surface strong enough to reconcile a gateway-accepted WhatsApp send into provider delivery proof
 - include `media ingestion truth` as the official guardrail against claiming that an attachment is ready before its canonical material identity is verified
 - include `host screenshot truth` as the official guardrail against claiming visual confirmation before host-side screenshot evidence is materially verified
 - include `user-facing readiness` as the official aggregate readout across the six canonical user-facing truth lanes

@@ -217,7 +217,7 @@ journey_b_whatsapp_delivery() {
   local send_path_output send_path_exit send_path_report send_path_marker
   local wrapper_output wrapper_exit wrapper_status wrapper_report wrapper_state
   local provider_delivery_status provider_delivery_reason
-  local canary_output canary_exit canary_report canary_marker
+  local reconciliation_output reconciliation_exit reconciliation_report reconciliation_marker
 
   : >"$log_path"
   append_report "" "## Journey B" "" "Log: $log_path"
@@ -296,23 +296,23 @@ PY
 )"
   send_path_marker="$(printf '%s\n' "$send_path_output" | awk '/^VERIFY_WHATSAPP_LIVE_SEND_PATH_(OK|BLOCKED|FAIL) / {print $1}' | tail -n 1)"
 
-  run_cmd "$log_path" "Journey B / Verify WhatsApp Live Provider Canary" "bash ./scripts/verify_whatsapp_live_provider_canary.sh"
-  canary_output="$LAST_OUTPUT"
-  canary_exit="$LAST_EXIT"
-  canary_report="$(python3 - "$canary_output" <<'PY'
+  run_cmd "$log_path" "Journey B / Verify WhatsApp Provider Post-Send Reconciliation Truth" "bash ./scripts/verify_whatsapp_provider_post_send_reconciliation_truth.sh"
+  reconciliation_output="$LAST_OUTPUT"
+  reconciliation_exit="$LAST_EXIT"
+  reconciliation_report="$(printf '%s\n' "$reconciliation_output" | awk '/^report_path: / {print $2}' | tail -n 1)"
+  if [ -z "$reconciliation_report" ]; then
+    reconciliation_report="$(python3 - "$reconciliation_output" <<'PY'
 import re
 import sys
 
 text = sys.argv[1]
-match = re.search(r'^report_path: (\S+)$', text, re.MULTILINE)
-if match:
-    print(match.group(1))
-    raise SystemExit(0)
-match = re.search(r'^VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_(?:OK|BLOCKED|FAIL)\b.*\breport=(\S+)', text, re.MULTILINE)
-print(match.group(1) if match else "")
+matches = re.findall(r'^VERIFY_WHATSAPP_PROVIDER_POST_SEND_RECONCILIATION_TRUTH_(?:OK|BLOCKED|FAIL)\b.*\breport=(\S+)', text, re.MULTILINE)
+print(matches[-1] if matches else "")
 PY
 )"
-  canary_marker="$(printf '%s\n' "$canary_output" | awk '/^VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_(OK|BLOCKED|FAIL) / {print $1}' | tail -n 1)"
+  fi
+  reconciliation_marker="$(printf '%s\n' "$reconciliation_output" | awk '/^VERIFY_WHATSAPP_PROVIDER_POST_SEND_RECONCILIATION_TRUTH_(OK|BLOCKED|FAIL) / {print $1}' | tail -n 1)"
+  reconciliation_blocker="$(printf '%s\n' "$reconciliation_output" | awk '/^dominant_blocker: / {print $2}' | tail -n 1)"
 
   run_cmd "$log_path" "Journey B / Canonical WhatsApp Wrapper" "./scripts/task_send_whatsapp_live.sh $task_id +5491100000007 --message 'Live user journey smoke / WhatsApp delivery' --media '$media_source' --dry-run --json"
   wrapper_output="$LAST_OUTPUT"
@@ -356,8 +356,8 @@ PY
   provider_delivery_reason="$(task_field "$task_id" delivery.whatsapp.provider_delivery_reason)"
 
   status="BLOCKED"
-  cutoff="canonical live send path exists, but the controlled live provider canary still did not prove delivered state"
-  evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; delivered_claim=blocked ; generic_claim=blocked ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; live_provider_canary_verify=$canary_marker ; live_provider_canary_report=$canary_report ; wrapper_report=$wrapper_report"
+  cutoff="canonical live send path exists, but the post-send reconciliation truth still did not prove delivered state"
+  evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; delivered_claim=blocked ; generic_claim=blocked ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; provider_post_send_reconciliation_verify=$reconciliation_marker ; provider_post_send_reconciliation_blocker=${reconciliation_blocker:-"(none)"} ; provider_post_send_reconciliation_report=$reconciliation_report ; wrapper_report=$wrapper_report"
 
   if ! printf '%s\n' "$whatsapp_claim_requested" | rg -q '^TASK_WHATSAPP_CLAIM_ALLOWED '; then
     status="FAIL"
@@ -367,14 +367,14 @@ PY
     status="FAIL"
     cutoff="the canonical WhatsApp wrapper detected an internal inconsistency or evidence drift"
     evidence="source=$media_source ; wrapper_output=$(printf '%s' "$wrapper_output" | tr '\n' ' ' | sed 's/[[:space:]]\\+/ /g') ; wrapper_report=$wrapper_report"
-  elif [ "$canary_exit" -eq 1 ] || [ "$canary_marker" = "VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_FAIL" ]; then
+  elif [ "$reconciliation_exit" -eq 1 ] || [ "$reconciliation_marker" = "VERIFY_WHATSAPP_PROVIDER_POST_SEND_RECONCILIATION_TRUTH_FAIL" ]; then
     status="FAIL"
-    cutoff="the controlled live provider canary failed internally or exposed an inconsistency"
-    evidence="source=$media_source ; live_provider_canary_verify=$canary_marker ; live_provider_canary_report=$canary_report"
-  elif [ "$canary_exit" -eq 0 ] && [ "$canary_marker" = "VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_OK" ]; then
+    cutoff="the canonical post-send reconciliation verify failed internally or exposed an inconsistency"
+    evidence="source=$media_source ; provider_post_send_reconciliation_verify=$reconciliation_marker ; provider_post_send_reconciliation_blocker=${reconciliation_blocker:-"(none)"} ; provider_post_send_reconciliation_report=$reconciliation_report"
+  elif [ "$reconciliation_exit" -eq 0 ] && [ "$reconciliation_marker" = "VERIFY_WHATSAPP_PROVIDER_POST_SEND_RECONCILIATION_TRUTH_OK" ]; then
     status="PASS"
-    cutoff="the controlled live provider canary proved delivered WhatsApp truth and Journey B now clears the last provider-proof blocker"
-    evidence="source=$media_source ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; live_provider_canary_verify=$canary_marker ; live_provider_canary_report=$canary_report ; wrapper_report=$wrapper_report"
+    cutoff="the canonical post-send reconciliation verify proved delivered WhatsApp truth and Journey B now clears the last provider-proof blocker"
+    evidence="source=$media_source ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; provider_post_send_reconciliation_verify=$reconciliation_marker ; provider_post_send_reconciliation_blocker=${reconciliation_blocker:-"(none)"} ; provider_post_send_reconciliation_report=$reconciliation_report ; wrapper_report=$wrapper_report"
   elif ! printf '%s\n' "$whatsapp_claim_delivered" | rg -q '^TASK_WHATSAPP_CLAIM_BLOCKED '; then
     status="FAIL"
     cutoff="delivered-level WhatsApp wording was not blocked despite missing delivery proof"
@@ -390,15 +390,15 @@ PY
   elif [ "$wrapper_exit" -eq 2 ] || [ "$wrapper_status" = "BLOCKED" ]; then
     status="BLOCKED"
     cutoff="the canonical wrapper exists, but this smoke stayed blocked before any auditable gateway or provider delivery evidence"
-    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; live_provider_canary_verify=$canary_marker ; live_provider_canary_report=$canary_report ; wrapper_report=$wrapper_report"
-  elif [ "$canary_exit" -eq 2 ] && [ "$canary_marker" = "VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_BLOCKED" ]; then
+    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; provider_post_send_reconciliation_verify=$reconciliation_marker ; provider_post_send_reconciliation_blocker=${reconciliation_blocker:-"(none)"} ; provider_post_send_reconciliation_report=$reconciliation_report ; wrapper_report=$wrapper_report"
+  elif [ "$reconciliation_exit" -eq 2 ] && [ "$reconciliation_marker" = "VERIFY_WHATSAPP_PROVIDER_POST_SEND_RECONCILIATION_TRUTH_BLOCKED" ]; then
     status="BLOCKED"
-    cutoff="a canonical live send path exists, but the controlled live provider canary remained blocked because provider proof is still missing or unavailable"
-    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; live_provider_canary_verify=$canary_marker ; live_provider_canary_report=$canary_report ; wrapper_report=$wrapper_report"
+    cutoff="a canonical live send path exists, but the post-send reconciliation truth verify remained blocked because provider proof is still missing or unavailable"
+    evidence="source=$media_source ; whatsapp_state=$(task_field "$task_id" delivery.whatsapp.current_state) ; provider_delivery_status=$provider_delivery_status ; provider_delivery_reason=$provider_delivery_reason ; allowed_claim=$(task_field "$task_id" delivery.whatsapp.allowed_user_facing_claim) ; wrapper_state=$wrapper_state ; wrapper_status=$wrapper_status ; live_send_path_verify=$send_path_marker ; live_send_path_report=$send_path_report ; provider_post_send_reconciliation_verify=$reconciliation_marker ; provider_post_send_reconciliation_blocker=${reconciliation_blocker:-"(none)"} ; provider_post_send_reconciliation_report=$reconciliation_report ; wrapper_report=$wrapper_report"
   fi
 
   if [ "$status" = "PASS" ]; then
-    run_cmd "$log_path" "Journey B / Close Task" "./scripts/task_close.sh $task_id done 'live user journey WhatsApp path passed after the live provider canary proved delivery capability'"
+    run_cmd "$log_path" "Journey B / Close Task" "./scripts/task_close.sh $task_id done 'live user journey WhatsApp path passed after canonical post-send reconciliation proved delivery capability'"
   elif [ "$status" = "BLOCKED" ]; then
     run_cmd "$log_path" "Journey B / Close Task" "./scripts/task_close.sh $task_id blocked 'live user journey WhatsApp path blocked before any live gateway/provider delivery proof'"
   else

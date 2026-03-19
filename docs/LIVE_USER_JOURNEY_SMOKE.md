@@ -50,12 +50,12 @@ When the send-path verify passes, Journey B uses:
 Journey B now also delegates the final provider-proof question to:
 
 ```text
-./scripts/verify_whatsapp_live_provider_canary.sh
+./scripts/verify_whatsapp_provider_post_send_reconciliation_truth.sh
 ```
 
-The official smoke still stops at a safe dry-run unless stronger downstream delivery proof is available. That keeps the journey honest: wrapper existence is not the same thing as delivered WhatsApp truth.
+That verify reuses the live canary plus the canonical post-send reconciliation wrapper instead of assuming that gateway acceptance is the end of the story.
 
-When the dry-run path leaves WhatsApp without provider proof, Journey B must stay `BLOCKED` specifically because provider delivery proof is missing or unavailable. It must not regress to a wrapper-missing diagnosis.
+When the post-send reconciliation truth verify stays below strong provider proof, Journey B must stay `BLOCKED` specifically because provider delivery proof is missing or unavailable. It must not regress to a wrapper-missing diagnosis.
 
 ## Aggregation Policy
 

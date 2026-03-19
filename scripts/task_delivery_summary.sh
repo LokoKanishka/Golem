@@ -41,6 +41,15 @@ visible_artifact_deliveries = delivery.get("visible_artifact_deliveries") or []
 whatsapp = delivery.get("whatsapp") or {}
 whatsapp_attempts = whatsapp.get("attempts") or []
 whatsapp_claims = whatsapp.get("claim_history") or []
+outputs = task.get("outputs") or []
+whatsapp_reconciliation_outputs = [
+    output
+    for output in outputs
+    if output.get("kind") == "whatsapp-provider-post-send-reconciliation"
+]
+last_whatsapp_reconciliation = (
+    whatsapp_reconciliation_outputs[-1] if whatsapp_reconciliation_outputs else {}
+)
 media = task.get("media") or {}
 media_items = media.get("items") or []
 media_events = media.get("events") or []
@@ -68,6 +77,24 @@ print("whatsapp_provider_delivery_proof_at: " + str(whatsapp.get("provider_deliv
 print("whatsapp_allowed_user_facing_claim: " + str(whatsapp.get("allowed_user_facing_claim") or "(none)"))
 message_ids = whatsapp.get("message_ids") or []
 print("whatsapp_message_ids: " + (",".join(message_ids) if message_ids else "(none)"))
+print(f"whatsapp_reconciliation_count: {len(whatsapp_reconciliation_outputs)}")
+if last_whatsapp_reconciliation:
+    print(
+        "whatsapp_reconciliation_status: "
+        + str(last_whatsapp_reconciliation.get("reconciliation_status") or "(none)")
+    )
+    print(
+        "whatsapp_reconciliation_resolution: "
+        + str(last_whatsapp_reconciliation.get("resolution") or "(none)")
+    )
+    print(
+        "whatsapp_reconciliation_blocker: "
+        + str(last_whatsapp_reconciliation.get("dominant_blocker") or "(none)")
+    )
+    print(
+        "whatsapp_reconciliation_report: "
+        + str(last_whatsapp_reconciliation.get("report_path") or "(none)")
+    )
 print("media_required: " + ("yes" if media.get("required") else "no"))
 print("media_state: " + str(media.get("current_state") or "none"))
 print("media_ready: " + ("yes" if media.get("ready") else "no"))
