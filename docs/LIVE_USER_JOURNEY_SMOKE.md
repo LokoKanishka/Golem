@@ -53,7 +53,13 @@ Journey B now also delegates the final provider-proof question to:
 ./scripts/verify_whatsapp_provider_post_send_reconciliation_truth.sh
 ```
 
-That verify reuses the live canary plus the canonical post-send reconciliation wrapper instead of assuming that gateway acceptance is the end of the story.
+That verify reuses the live canary plus the canonical post-send reconciliation wrapper, which now queries:
+
+```text
+openclaw message status --channel whatsapp --id <message_id> --json
+```
+
+instead of treating ambiguous logs as the primary source of truth.
 
 When the post-send reconciliation truth verify stays below strong provider proof, Journey B must stay `BLOCKED` specifically because provider delivery proof is missing or unavailable. It must not regress to a wrapper-missing diagnosis.
 

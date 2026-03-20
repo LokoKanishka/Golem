@@ -577,15 +577,16 @@ It should preserve the operational reading that worker stack can be `PASS` while
 - verification lane: `whatsapp provider post-send reconciliation truth`
 - command(s):
   - `./scripts/verify_whatsapp_provider_post_send_reconciliation_truth.sh`
+  - `./scripts/verify_whatsapp_status_temporal_evolution.sh`
   - `./scripts/task_reconcile_whatsapp_provider_delivery.sh <task_id> [--actor <actor>] [--message-id <message_id>] [--to <target>] [--provider <provider>] [--run-id <run_id>] [--logs-lines <n>] [--json]`
   - `./scripts/verify_whatsapp_live_provider_canary.sh`
   - `openclaw channels capabilities --channel whatsapp --json`
-  - `openclaw message read --channel whatsapp --target <dest> --around <message_id> --json`
+  - `openclaw message status --channel whatsapp --id <message_id> --json`
   - `openclaw channels logs --channel whatsapp --json --lines <n>`
 - success criterion: the verify exits `0`, prints `VERIFY_WHATSAPP_PROVIDER_POST_SEND_RECONCILIATION_TRUTH_OK`, and proves that a real live send can be reconciled canonically to strong provider delivery proof
-- blocked criterion: the verify exits `2`, prints `VERIFY_WHATSAPP_PROVIDER_POST_SEND_RECONCILIATION_TRUTH_BLOCKED`, and proves the current observable ceiling honestly, for example because `message read` is unsupported and channel logs only expose outbound send evidence
+- blocked criterion: the verify exits `2`, prints `VERIFY_WHATSAPP_PROVIDER_POST_SEND_RECONCILIATION_TRUTH_BLOCKED`, and proves the current observable ceiling honestly, for example because canonical `message status` only returns `sent` or `server_ack`, or does not find the tracked `message_id`
 - failure criterion: the verify exits non-zero after exposing drift, contradictory task-bound evidence, or an incoherent handoff between the live canary and the reconciliation wrapper
-- path coverage: live send handoff path, task-bound reconciliation wrapper path, capabilities/read/logs surface classification path, strong-proof pass path, honest blocked ceiling path
+- path coverage: live send handoff path, task-bound reconciliation wrapper path, capabilities/status/logs surface classification path, strong-proof pass path, honest blocked ceiling path
 - environment dependencies:
   - local `openclaw` CLI available
   - connected WhatsApp runtime

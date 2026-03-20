@@ -237,7 +237,10 @@ print(json.dumps({
     "resolution": "none",
     "dominant_blocker": "whatsapp_message_id_missing_for_reconciliation",
     "capabilities_surface": "unavailable",
-    "message_read_surface": "unavailable",
+    "message_status_surface": "unavailable",
+    "message_status_found": "unknown",
+    "message_status_current": "",
+    "message_status_strongest": "",
     "logs_surface": "unavailable",
     "report_path": sys.argv[5],
 }, ensure_ascii=True))
@@ -270,7 +273,10 @@ print(json.dumps({
     "resolution": "already_final",
     "dominant_blocker": "none",
     "capabilities_surface": "not_checked",
-    "message_read_surface": "not_checked",
+    "message_status_surface": "not_checked",
+    "message_status_found": "unknown",
+    "message_status_current": "",
+    "message_status_strongest": "",
     "logs_surface": "not_checked",
     "report_path": sys.argv[8],
 }, ensure_ascii=True))
@@ -288,54 +294,60 @@ PY
 fi
 
 cap_output_file="$(mktemp)"
-read_output_file="$(mktemp)"
+status_output_file="$(mktemp)"
 logs_output_file="$(mktemp)"
-trap 'rm -f "$cap_output_file" "$read_output_file" "$logs_output_file"' EXIT
+trap 'rm -f "$cap_output_file" "$status_output_file" "$logs_output_file"' EXIT
 
 cap_exit="$(run_capture "$cap_output_file" openclaw channels capabilities --channel whatsapp --json)"
-read_exit=""
-if [ -n "$to" ]; then
-  read_exit="$(run_capture "$read_output_file" openclaw message read --channel whatsapp --target "$to" --around "$message_id" --json)"
-else
-  printf 'no tracked target was available for message read\n' >"$read_output_file"
-  read_exit="2"
-fi
+status_exit="$(run_capture "$status_output_file" openclaw message status --channel whatsapp --id "$message_id" --json)"
 logs_exit="$(run_capture "$logs_output_file" openclaw channels logs --channel whatsapp --json --lines "$logs_lines")"
 
 cap_json="$(extract_first_json_from_file "$cap_output_file")"
-read_json="$(extract_first_json_from_file "$read_output_file")"
+status_json="$(extract_first_json_from_file "$status_output_file")"
 logs_json="$(extract_first_json_from_file "$logs_output_file")"
 
-analysis_json="$(python3 - "$message_id" "$to" "$cap_exit" "$cap_json" "$read_exit" "$read_json" "$logs_exit" "$logs_json" "$read_output_file" "$logs_output_file" <<'PY'
+analysis_json="$(python3 - "$message_id" "$cap_exit" "$cap_json" "$status_exit" "$status_json" "$logs_exit" "$logs_json" "$status_output_file" "$logs_output_file" <<'PY'
 import json
 import pathlib
 import re
 import sys
 
 message_id = sys.argv[1]
-target = sys.argv[2]
-cap_exit = int(sys.argv[3]) if sys.argv[3] else 1
-cap_json_raw = sys.argv[4]
-read_exit = int(sys.argv[5]) if sys.argv[5] else 1
-read_json_raw = sys.argv[6]
-logs_exit = int(sys.argv[7]) if sys.argv[7] else 1
-logs_json_raw = sys.argv[8]
-read_output_text = pathlib.Path(sys.argv[9]).read_text(encoding="utf-8", errors="replace")
-logs_output_text = pathlib.Path(sys.argv[10]).read_text(encoding="utf-8", errors="replace")
+cap_exit = int(sys.argv[2]) if sys.argv[2] else 1
+cap_json_raw = sys.argv[3]
+status_exit = int(sys.argv[4]) if sys.argv[4] else 1
+status_json_raw = sys.argv[5]
+logs_exit = int(sys.argv[6]) if sys.argv[6] else 1
+logs_json_raw = sys.argv[7]
+status_output_text = pathlib.Path(sys.argv[8]).read_text(encoding="utf-8", errors="replace")
+logs_output_text = pathlib.Path(sys.argv[9]).read_text(encoding="utf-8", errors="replace")
 
 cap_payload = json.loads(cap_json_raw) if cap_json_raw else {}
-read_payload = json.loads(read_json_raw) if read_json_raw else {}
+status_payload = json.loads(status_json_raw) if status_json_raw else {}
 logs_payload = json.loads(logs_json_raw) if logs_json_raw else {}
+
+def normalize_status(value):
+    if value is None:
+        return ""
+    text = str(value).strip().lower().replace("-", "_").replace(" ", "_")
+    aliases = {
+        "delivery_ack": "delivered",
+        "read_by_recipient": "read",
+        "provider_delivered": "delivered",
+    }
+    return aliases.get(text, text)
 
 result = {
     "capabilities_surface": "unavailable",
     "capabilities_note": "the runtime did not return machine-readable channel capabilities",
-    "message_read_surface": "unavailable",
-    "message_read_note": "the runtime did not expose a readable WhatsApp message read surface",
-    "message_read_signal": "none",
-    "message_read_status": "",
-    "message_read_reason": "",
-    "message_read_match_excerpt": "",
+    "message_status_surface": "unavailable",
+    "message_status_note": "the runtime did not return a machine-readable WhatsApp message status payload",
+    "message_status_signal": "none",
+    "message_status_found": "unknown",
+    "message_status_current": "",
+    "message_status_strongest": "",
+    "message_status_reason": "",
+    "message_status_match_excerpt": "",
     "logs_surface": "unavailable",
     "logs_note": "the runtime did not expose readable WhatsApp channel logs",
     "logs_signal": "none",
@@ -344,7 +356,7 @@ result = {
     "logs_match_excerpt": "",
 }
 
-recon_actions = {"read", "status", "receipt", "receipts", "history", "lookup", "get", "events"}
+recon_actions = {"status", "lookup", "receipt", "receipts", "history", "get", "events"}
 channels = cap_payload.get("channels") or []
 if cap_exit == 0 and channels:
     actions = []
@@ -358,74 +370,54 @@ if cap_exit == 0 and channels:
             result["capabilities_note"] = f"channel capabilities advertise WhatsApp reconciliation-oriented actions: {','.join(actions)}"
         else:
             result["capabilities_surface"] = "present_but_non_canonical"
-            result["capabilities_note"] = f"channel capabilities are readable but only advertise {','.join(actions)}, with no message status/receipt action"
+            result["capabilities_note"] = f"channel capabilities are readable but only advertise {','.join(actions)}, with no status/lookup action"
     else:
         result["capabilities_surface"] = "ambiguous"
         result["capabilities_note"] = "channel capabilities returned no WhatsApp action list"
 
-read_text_lower = read_output_text.lower()
-if not target:
-    result["message_read_surface"] = "unavailable"
-    result["message_read_note"] = "the task has no tracked target for a message read probe"
-elif read_exit != 0 and "not supported" in read_text_lower:
-    result["message_read_surface"] = "unavailable"
-    result["message_read_note"] = "openclaw message read is not supported for WhatsApp in the current runtime"
-elif read_exit == 0 and read_payload:
-    result["message_read_surface"] = "ambiguous"
-    result["message_read_note"] = "the runtime returned a machine-readable message read payload, but no strong provider proof was matched yet"
+status_text_lower = status_output_text.lower()
+if status_exit == 0 and status_payload:
+    found_raw = status_payload.get("found")
+    current = normalize_status(status_payload.get("currentStatus") or status_payload.get("current_status"))
+    strongest = normalize_status(
+        status_payload.get("strongestStatus") or status_payload.get("strongest_status")
+    )
+    result["message_status_surface"] = "canonical_usable"
+    result["message_status_found"] = "true" if found_raw is True else "false" if found_raw is False else "unknown"
+    result["message_status_current"] = current
+    result["message_status_strongest"] = strongest
+    result["message_status_match_excerpt"] = json.dumps(status_payload, ensure_ascii=True)[:240]
+    if found_raw is False:
+        result["message_status_note"] = "the canonical WhatsApp message status surface is available but did not find the tracked message_id"
+        result["message_status_reason"] = "the canonical status surface returned found=false for the tracked message_id"
+    elif found_raw is True:
+        result["message_status_note"] = "the canonical WhatsApp message status surface returned a persisted status entry for the tracked message_id"
+        strong_statuses = {"delivered", "read", "played"}
+        ambiguous_statuses = {"sent", "server_ack"}
+        decisive = strongest or current
+        if decisive in strong_statuses:
+            result["message_status_signal"] = "delivered"
+            result["message_status_reason"] = f"the canonical status surface returned strongestStatus={decisive}"
+        elif decisive in ambiguous_statuses:
+            result["message_status_surface"] = "ambiguous"
+            result["message_status_signal"] = "ambiguous"
+            result["message_status_reason"] = f"the canonical status surface returned strongestStatus={decisive}, which is still below delivered/read"
+        else:
+            result["message_status_surface"] = "ambiguous"
+            result["message_status_reason"] = "the canonical status surface returned the tracked message_id, but without a decisive post-send status"
+    else:
+        result["message_status_surface"] = "ambiguous"
+        result["message_status_note"] = "the canonical WhatsApp message status surface returned a payload without a clear found flag"
+        result["message_status_reason"] = "the canonical status payload did not classify cleanly"
+elif status_exit != 0 and "message status lookup is only supported for channel whatsapp" in status_text_lower:
+    result["message_status_surface"] = "unavailable"
+    result["message_status_note"] = "the runtime rejected WhatsApp message status lookup"
+elif status_exit != 0:
+    result["message_status_surface"] = "unavailable"
+    result["message_status_note"] = "the runtime did not complete the canonical WhatsApp message status lookup cleanly"
 else:
-    result["message_read_surface"] = "ambiguous"
-    result["message_read_note"] = "the runtime returned a non-standard WhatsApp read result that does not classify cleanly"
-
-matched_records = []
-
-def walk(value, path):
-    if isinstance(value, dict):
-        record_id = value.get("messageId") or value.get("message_id") or value.get("id") or value.get("providerMessageId")
-        if record_id and str(record_id) == message_id:
-            matched_records.append({"path": path, "record": value})
-        for key, child in value.items():
-            walk(child, path + [str(key)])
-    elif isinstance(value, list):
-        for index, child in enumerate(value):
-            walk(child, path + [str(index)])
-
-walk(read_payload, [])
-
-strong_delivered = {"delivered", "read", "read_by_recipient", "provider_delivered", "delivery_confirmed"}
-strong_failed = {"failed", "error", "undeliverable", "bounced", "provider_failed"}
-ambiguous = {"pending", "queued", "sent", "submitted", "accepted", "accepted_by_gateway", "processing"}
-
-for item in matched_records:
-    record = item["record"]
-    for key in ("status", "state", "deliveryStatus", "delivery_status", "providerStatus", "provider_status", "ack"):
-        if key not in record:
-            continue
-        value = str(record.get(key, "")).strip().lower()
-        excerpt = json.dumps(record, ensure_ascii=True)[:240]
-        if value in strong_delivered:
-            result["message_read_surface"] = "canonical_usable"
-            result["message_read_signal"] = "delivered"
-            result["message_read_status"] = value
-            result["message_read_reason"] = "the WhatsApp read payload matched the tracked message_id with an explicit delivered/read status"
-            result["message_read_match_excerpt"] = excerpt
-            break
-        if value in strong_failed:
-            result["message_read_surface"] = "canonical_usable"
-            result["message_read_signal"] = "failed"
-            result["message_read_status"] = value
-            result["message_read_reason"] = "the WhatsApp read payload matched the tracked message_id with an explicit failed status"
-            result["message_read_match_excerpt"] = excerpt
-            break
-        if value in ambiguous:
-            result["message_read_surface"] = "ambiguous"
-            result["message_read_signal"] = "ambiguous"
-            result["message_read_status"] = value
-            result["message_read_reason"] = "the WhatsApp read payload matched the tracked message_id but only exposed an ambiguous provider status"
-            result["message_read_match_excerpt"] = excerpt
-            break
-    if result["message_read_signal"] != "none":
-        break
+    result["message_status_surface"] = "ambiguous"
+    result["message_status_note"] = "the runtime returned a non-standard WhatsApp status result that does not classify cleanly"
 
 log_lines = logs_payload.get("lines") or []
 matched_lines = []
@@ -446,24 +438,24 @@ for line in matched_lines:
     line_lower = line.lower()
     excerpt = re.sub(r"\s+", " ", line).strip()[:240]
     if re.search(r"\b(delivered|read|receipt|delivery confirmed)\b", line_lower):
-        result["logs_surface"] = "canonical_usable"
+        result["logs_surface"] = "supporting_only"
         result["logs_signal"] = "delivered"
         result["logs_status"] = "provider_delivery_proved"
-        result["logs_reason"] = "channel logs matched the tracked message_id with explicit delivered/read wording"
+        result["logs_reason"] = "channel logs matched the tracked message_id with explicit delivered/read wording, but logs are no longer the primary reconciliation surface"
         result["logs_match_excerpt"] = excerpt
         break
     if re.search(r"\b(failed|error|undeliverable|bounced)\b", line_lower):
-        result["logs_surface"] = "canonical_usable"
+        result["logs_surface"] = "supporting_only"
         result["logs_signal"] = "failed"
         result["logs_status"] = "provider_failed"
         result["logs_reason"] = "channel logs matched the tracked message_id with explicit failure wording"
         result["logs_match_excerpt"] = excerpt
         break
-    if re.search(r"\b(sent message|sending message|queued|pending|accepted)\b", line_lower):
+    if re.search(r"\b(sent message|sending message|queued|pending|accepted|server_ack)\b", line_lower):
         result["logs_surface"] = "ambiguous"
-        result["logs_signal"] = "gateway_only"
-        result["logs_status"] = "gateway_accepted"
-        result["logs_reason"] = "channel logs only proved the outbound send/ack for the tracked message_id"
+        result["logs_signal"] = "ambiguous"
+        result["logs_status"] = "provider_delivery_unproved"
+        result["logs_reason"] = "channel logs only proved outbound send or an intermediate ack for the tracked message_id"
         result["logs_match_excerpt"] = excerpt
 
 print(json.dumps(result, ensure_ascii=True))
@@ -472,12 +464,14 @@ PY
 
 capabilities_surface="$(json_field "$analysis_json" capabilities_surface)"
 capabilities_note="$(json_field "$analysis_json" capabilities_note)"
-message_read_surface="$(json_field "$analysis_json" message_read_surface)"
-message_read_note="$(json_field "$analysis_json" message_read_note)"
-message_read_signal="$(json_field "$analysis_json" message_read_signal)"
-message_read_status="$(json_field "$analysis_json" message_read_status)"
-message_read_reason="$(json_field "$analysis_json" message_read_reason)"
-message_read_match_excerpt="$(json_field "$analysis_json" message_read_match_excerpt)"
+message_status_surface="$(json_field "$analysis_json" message_status_surface)"
+message_status_note="$(json_field "$analysis_json" message_status_note)"
+message_status_signal="$(json_field "$analysis_json" message_status_signal)"
+message_status_found="$(json_field "$analysis_json" message_status_found)"
+message_status_current="$(json_field "$analysis_json" message_status_current)"
+message_status_strongest="$(json_field "$analysis_json" message_status_strongest)"
+message_status_reason="$(json_field "$analysis_json" message_status_reason)"
+message_status_match_excerpt="$(json_field "$analysis_json" message_status_match_excerpt)"
 logs_surface="$(json_field "$analysis_json" logs_surface)"
 logs_note="$(json_field "$analysis_json" logs_note)"
 logs_signal="$(json_field "$analysis_json" logs_signal)"
@@ -487,13 +481,13 @@ logs_match_excerpt="$(json_field "$analysis_json" logs_match_excerpt)"
 
 reconciliation_status="BLOCKED"
 resolution="none"
-dominant_blocker="whatsapp_post_send_provider_proof_surface_missing"
-result_note="the runtime still exposes no strong provider-proof reconciliation surface after gateway acceptance"
+dominant_blocker="whatsapp_canonical_status_surface_missing"
+result_note="the canonical WhatsApp status surface did not yet expose strong provider proof after gateway acceptance"
 
 provider_delivery_status_after="$provider_delivery_status_before"
 provider_delivery_reason_after="$provider_delivery_reason_before"
 
-if [ "$message_read_signal" = "delivered" ]; then
+if [ "$message_status_signal" = "delivered" ]; then
   ./scripts/task_record_whatsapp_provider_delivery.sh \
     "$task_id" \
     "$actor" \
@@ -501,33 +495,16 @@ if [ "$message_read_signal" = "delivered" ]; then
     "$to" \
     "$message_id" \
     delivered \
-    "$(sanitize_excerpt "${message_read_match_excerpt:-$message_read_reason}")" \
+    "$(sanitize_excerpt "${message_status_match_excerpt:-$message_status_reason}")" \
     --run-id "$run_id" \
-    --provider-status "${message_read_status:-provider_delivered}" \
-    --reason "${message_read_reason:-the runtime exposed post-send provider delivery proof through message read}" \
-    --normalized-evidence-json "{\"surface\":\"message_read\",\"message_id\":\"$message_id\",\"status\":\"${message_read_status:-provider_delivered}\"}" >/dev/null
+    --provider-status "${message_status_strongest:-provider_delivered}" \
+    --reason "${message_status_reason:-the runtime exposed strong provider delivery proof through the canonical message status surface}" \
+    --normalized-evidence-json "{\"surface\":\"message_status\",\"message_id\":\"$message_id\",\"found\":\"${message_status_found}\",\"current_status\":\"${message_status_current}\",\"strongest_status\":\"${message_status_strongest}\"}" >/dev/null
   reconciliation_status="PASS"
   resolution="delivered"
   dominant_blocker="none"
-  result_note="the runtime exposed strong provider delivery proof through the WhatsApp message read surface"
-elif [ "$logs_signal" = "delivered" ]; then
-  ./scripts/task_record_whatsapp_provider_delivery.sh \
-    "$task_id" \
-    "$actor" \
-    "$provider" \
-    "$to" \
-    "$message_id" \
-    delivered \
-    "$(sanitize_excerpt "${logs_match_excerpt:-$logs_reason}")" \
-    --run-id "$run_id" \
-    --provider-status "${logs_status:-provider_delivered}" \
-    --reason "${logs_reason:-the runtime exposed post-send provider delivery proof through channel logs}" \
-    --normalized-evidence-json "{\"surface\":\"channel_logs\",\"message_id\":\"$message_id\",\"status\":\"${logs_status:-provider_delivered}\"}" >/dev/null
-  reconciliation_status="PASS"
-  resolution="delivered"
-  dominant_blocker="none"
-  result_note="the runtime exposed strong provider delivery proof through the WhatsApp channel logs"
-elif [ "$message_read_signal" = "ambiguous" ]; then
+  result_note="the canonical WhatsApp message status surface exposed strong provider proof for the tracked message_id"
+elif [ "$message_status_signal" = "ambiguous" ]; then
   if [ "$task_state" = "accepted_by_gateway" ]; then
     ./scripts/task_record_whatsapp_provider_delivery.sh \
       "$task_id" \
@@ -536,15 +513,23 @@ elif [ "$message_read_signal" = "ambiguous" ]; then
       "$to" \
       "$message_id" \
       ambiguous \
-      "$(sanitize_excerpt "${message_read_match_excerpt:-$message_read_reason}")" \
+      "$(sanitize_excerpt "${message_status_match_excerpt:-$message_status_reason}")" \
       --run-id "$run_id" \
-      --provider-status "${message_read_status:-provider_delivery_unproved}" \
-      --reason "${message_read_reason:-the runtime exposed only ambiguous provider evidence through message read}" \
-      --normalized-evidence-json "{\"surface\":\"message_read\",\"message_id\":\"$message_id\",\"status\":\"${message_read_status:-provider_delivery_unproved}\"}" >/dev/null
+      --provider-status "${message_status_strongest:-provider_delivery_unproved}" \
+      --reason "${message_status_reason:-the canonical message status surface only exposed an intermediate provider status}" \
+      --normalized-evidence-json "{\"surface\":\"message_status\",\"message_id\":\"$message_id\",\"found\":\"${message_status_found}\",\"current_status\":\"${message_status_current}\",\"strongest_status\":\"${message_status_strongest}\"}" >/dev/null
     task_state="provider_delivery_unproved"
   fi
-  dominant_blocker="whatsapp_post_send_provider_proof_ambiguous"
-  result_note="the runtime exposed a post-send surface, but it stayed ambiguous and could not prove delivery"
+  if [ "$message_status_strongest" = "server_ack" ] || [ "$message_status_current" = "server_ack" ]; then
+    dominant_blocker="whatsapp_canonical_status_only_server_ack"
+    result_note="the canonical WhatsApp status surface returned only server_ack, which is still below delivered/read"
+  else
+    dominant_blocker="whatsapp_canonical_status_only_sent"
+    result_note="the canonical WhatsApp status surface returned only sent-level evidence, which is still below delivered/read"
+  fi
+elif [ "$message_status_surface" = "canonical_usable" ] && [ "$message_status_found" = "false" ]; then
+  dominant_blocker="whatsapp_canonical_status_message_id_not_found"
+  result_note="the canonical WhatsApp status surface is available but did not find the tracked message_id"
 fi
 
 provider_delivery_status_after="$(task_field "$task_id" delivery.whatsapp.provider_delivery_status)"
@@ -566,13 +551,16 @@ append_report \
   "## Surface Classification" \
   "- capabilities_surface: ${capabilities_surface}" \
   "- capabilities_note: ${capabilities_note}" \
-  "- message_read_surface: ${message_read_surface}" \
-  "- message_read_note: ${message_read_note}" \
+  "- message_status_surface: ${message_status_surface}" \
+  "- message_status_note: ${message_status_note}" \
+  "- message_status_found: ${message_status_found}" \
+  "- message_status_current: ${message_status_current:-'(none)'}" \
+  "- message_status_strongest: ${message_status_strongest:-'(none)'}" \
   "- logs_surface: ${logs_surface}" \
   "- logs_note: ${logs_note}"
 
-if [ -n "$message_read_match_excerpt" ]; then
-  append_report "- message_read_match_excerpt: ${message_read_match_excerpt}"
+if [ -n "$message_status_match_excerpt" ]; then
+  append_report "- message_status_match_excerpt: ${message_status_match_excerpt}"
 fi
 if [ -n "$logs_match_excerpt" ]; then
   append_report "- logs_match_excerpt: ${logs_match_excerpt}"
@@ -589,10 +577,10 @@ append_report \
   "- note: ${result_note}" \
   "- sampled_commands:" \
   "  - openclaw channels capabilities --channel whatsapp --json" \
-  "  - openclaw message read --channel whatsapp --target ${to:-'(missing-target)'} --around ${message_id} --json" \
+  "  - openclaw message status --channel whatsapp --id ${message_id} --json" \
   "  - openclaw channels logs --channel whatsapp --json --lines ${logs_lines}"
 
-summary_json="$(python3 - "$task_id" "$message_id" "$to" "$provider" "$task_state_after" "$provider_delivery_status_after" "$provider_delivery_reason_after" "$reconciliation_status" "$resolution" "$dominant_blocker" "$capabilities_surface" "$message_read_surface" "$logs_surface" "$REPORT_PATH" <<'PY'
+summary_json="$(python3 - "$task_id" "$message_id" "$to" "$provider" "$task_state_after" "$provider_delivery_status_after" "$provider_delivery_reason_after" "$reconciliation_status" "$resolution" "$dominant_blocker" "$capabilities_surface" "$message_status_surface" "$message_status_found" "$message_status_current" "$message_status_strongest" "$logs_surface" "$REPORT_PATH" <<'PY'
 import json
 import sys
 print(json.dumps({
@@ -607,9 +595,12 @@ print(json.dumps({
     "resolution": sys.argv[9],
     "dominant_blocker": sys.argv[10],
     "capabilities_surface": sys.argv[11],
-    "message_read_surface": sys.argv[12],
-    "logs_surface": sys.argv[13],
-    "report_path": sys.argv[14],
+    "message_status_surface": sys.argv[12],
+    "message_status_found": sys.argv[13],
+    "message_status_current": sys.argv[14],
+    "message_status_strongest": sys.argv[15],
+    "logs_surface": sys.argv[16],
+    "report_path": sys.argv[17],
 }, ensure_ascii=True))
 PY
 )"
@@ -618,7 +609,7 @@ PY
 TASK_OUTPUT_EXTRA_JSON="$summary_json" ./scripts/task_add_output.sh "$task_id" whatsapp-provider-post-send-reconciliation "$([ "$reconciliation_status" = "PASS" ] && printf '0' || printf '2')" "$result_note" >/dev/null
 
 trap - EXIT
-rm -f "$cap_output_file" "$read_output_file" "$logs_output_file"
+rm -f "$cap_output_file" "$status_output_file" "$logs_output_file"
 
 if [ "$output_json" = "1" ]; then
   printf '%s\n' "$summary_json"

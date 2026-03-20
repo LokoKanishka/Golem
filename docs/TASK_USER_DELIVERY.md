@@ -121,7 +121,21 @@ When a live send already has `message_id` but still lacks strong provider proof,
 ./scripts/task_reconcile_whatsapp_provider_delivery.sh <task_id> [--json]
 ```
 
-That wrapper does not inflate `accepted_by_gateway` by itself. It classifies the observable post-send surfaces conservatively and only raises the WhatsApp lane when strong provider proof is actually present.
+That wrapper now prioritizes the canonical OpenClaw status surface by `message_id`:
+
+```text
+openclaw message status --channel whatsapp --id <message_id> --json
+```
+
+It does not inflate `accepted_by_gateway` by itself. It classifies `sent` and `server_ack` conservatively, and only raises the WhatsApp lane when strong provider proof is actually present.
+
+When the remaining question is temporal rather than structural, the repo also exposes:
+
+```text
+./scripts/verify_whatsapp_status_temporal_evolution.sh
+```
+
+That verify measures whether the canonical status surface actually evolves over time for a real outbound `message_id`, or stays stuck at `sent/server_ack`.
 
 The generic final user-facing success claim must not pass for WhatsApp-required tasks unless the WhatsApp lane reached at least `delivered`.
 

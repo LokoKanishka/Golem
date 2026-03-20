@@ -210,11 +210,38 @@ except Exception:
     print("")
 PY
 )"
-message_read_surface="$(python3 - "$reconcile_output" <<'PY'
+message_status_surface="$(python3 - "$reconcile_output" <<'PY'
 import json
 import sys
 try:
-    print(json.loads(sys.argv[1]).get("message_read_surface", ""))
+    print(json.loads(sys.argv[1]).get("message_status_surface", ""))
+except Exception:
+    print("")
+PY
+)"
+message_status_found="$(python3 - "$reconcile_output" <<'PY'
+import json
+import sys
+try:
+    print(json.loads(sys.argv[1]).get("message_status_found", ""))
+except Exception:
+    print("")
+PY
+)"
+message_status_current="$(python3 - "$reconcile_output" <<'PY'
+import json
+import sys
+try:
+    print(json.loads(sys.argv[1]).get("message_status_current", ""))
+except Exception:
+    print("")
+PY
+)"
+message_status_strongest="$(python3 - "$reconcile_output" <<'PY'
+import json
+import sys
+try:
+    print(json.loads(sys.argv[1]).get("message_status_strongest", ""))
 except Exception:
     print("")
 PY
@@ -261,7 +288,7 @@ elif [ "$resolution" = "delivered" ] && { [ "$whatsapp_state" = "delivered" ] ||
 elif [ "$reconcile_exit" -eq 2 ] && [ "$reconciliation_status" = "BLOCKED" ]; then
   if printf '%s\n' "$delivered_claim_output" | rg -q '^TASK_WHATSAPP_CLAIM_BLOCKED ' && printf '%s\n' "$generic_claim_output" | rg -q '^TASK_USER_FACING_CLAIM_BLOCKED '; then
     final_status="BLOCKED"
-    final_note="the canonical post-send reconciliation lane proved the current observable ceiling honestly: WhatsApp read is unsupported and logs only expose outbound send evidence"
+    final_note="the canonical post-send reconciliation lane proved the current observable ceiling honestly: message status stayed at sent/server_ack, or the tracked message_id was still not found"
   else
     final_status="FAIL"
     final_note="post-send reconciliation stayed below delivered, but one of the claim gates inflated the outcome"
@@ -284,7 +311,10 @@ append_report \
   "- resolution: ${resolution}" \
   "- dominant_blocker: ${dominant_blocker}" \
   "- capabilities_surface: ${capabilities_surface}" \
-  "- message_read_surface: ${message_read_surface}" \
+  "- message_status_surface: ${message_status_surface}" \
+  "- message_status_found: ${message_status_found}" \
+  "- message_status_current: ${message_status_current:-'(none)'}" \
+  "- message_status_strongest: ${message_status_strongest:-'(none)'}" \
   "- logs_surface: ${logs_surface}" \
   "- reconcile_report: ${reconcile_report}" \
   "- whatsapp_state: ${whatsapp_state}" \
@@ -295,7 +325,7 @@ append_report \
   "$delivery_summary" \
   '```'
 
-summary_json="$(python3 - "$source_task_id" "$source_message_id" "$reconciliation_status" "$resolution" "$dominant_blocker" "$capabilities_surface" "$message_read_surface" "$logs_surface" "$whatsapp_state" "$provider_delivery_status" "$provider_delivery_reason" "$canary_marker" "$canary_report" "$reconcile_report" "$REPORT_PATH" <<'PY'
+summary_json="$(python3 - "$source_task_id" "$source_message_id" "$reconciliation_status" "$resolution" "$dominant_blocker" "$capabilities_surface" "$message_status_surface" "$message_status_found" "$message_status_current" "$message_status_strongest" "$logs_surface" "$whatsapp_state" "$provider_delivery_status" "$provider_delivery_reason" "$canary_marker" "$canary_report" "$reconcile_report" "$REPORT_PATH" <<'PY'
 import json
 import sys
 print(json.dumps({
@@ -305,15 +335,18 @@ print(json.dumps({
     "resolution": sys.argv[4],
     "dominant_blocker": sys.argv[5],
     "capabilities_surface": sys.argv[6],
-    "message_read_surface": sys.argv[7],
-    "logs_surface": sys.argv[8],
-    "whatsapp_state": sys.argv[9],
-    "provider_delivery_status": sys.argv[10],
-    "provider_delivery_reason": sys.argv[11],
-    "canary_marker": sys.argv[12],
-    "canary_report": sys.argv[13],
-    "reconcile_report": sys.argv[14],
-    "report_path": sys.argv[15],
+    "message_status_surface": sys.argv[7],
+    "message_status_found": sys.argv[8],
+    "message_status_current": sys.argv[9],
+    "message_status_strongest": sys.argv[10],
+    "logs_surface": sys.argv[11],
+    "whatsapp_state": sys.argv[12],
+    "provider_delivery_status": sys.argv[13],
+    "provider_delivery_reason": sys.argv[14],
+    "canary_marker": sys.argv[15],
+    "canary_report": sys.argv[16],
+    "reconcile_report": sys.argv[17],
+    "report_path": sys.argv[18],
 }, ensure_ascii=True))
 PY
 )"
@@ -326,7 +359,10 @@ printf 'reconciliation_status: %s\n' "$reconciliation_status"
 printf 'resolution: %s\n' "$resolution"
 printf 'dominant_blocker: %s\n' "$dominant_blocker"
 printf 'capabilities_surface: %s\n' "$capabilities_surface"
-printf 'message_read_surface: %s\n' "$message_read_surface"
+printf 'message_status_surface: %s\n' "$message_status_surface"
+printf 'message_status_found: %s\n' "$message_status_found"
+printf 'message_status_current: %s\n' "${message_status_current:-(none)}"
+printf 'message_status_strongest: %s\n' "${message_status_strongest:-(none)}"
 printf 'logs_surface: %s\n' "$logs_surface"
 printf 'whatsapp_state: %s\n' "$whatsapp_state"
 printf 'provider_delivery_status: %s\n' "$provider_delivery_status"
