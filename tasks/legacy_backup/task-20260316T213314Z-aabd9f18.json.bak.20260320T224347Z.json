@@ -1,0 +1,792 @@
+{
+  "task_id": "task-20260316T213314Z-aabd9f18",
+  "type": "task-chain",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "blocked",
+  "created_at": "2026-03-16T21:33:14+00:00",
+  "updated_at": "2026-03-16T21:33:24+00:00",
+  "title": "Worker packet roundtrip blocked path",
+  "objective": "Execute a mixed local-worker chain that delegates the worker step, prepares the handoff, waits for a manual-controlled worker result, and resumes one local closing step after that result exists.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-plan-traceability",
+      "captured_at": "2026-03-16T21:33:14+00:00",
+      "exit_code": 0,
+      "content": "persisted effective chain plan and preflight artifacts for this root",
+      "effective_plan_path": "outbox/manual/20260316T213314736728Z-worker-packet-roundtrip-blocked-path-effective-chain-plan.json",
+      "effective_plan_sha256": "1f2ec2bcbd038d5a345886aa83e750bf6babc2b3886088ae374f70aa80d72fb3",
+      "preflight_artifact_path": "outbox/manual/20260316T213314810858Z-20260316t213314736728z-worker-packet-roundtrip-blocked-path-effective-chain-plan-chain-plan-preflight.md",
+      "preflight_sha256": "bf8c91ca109122f82e0185d71fb061ff2ea24a6d9f4d8c6423aa3595140b165b",
+      "plan_version": "2.4"
+    },
+    {
+      "kind": "chain-plan",
+      "captured_at": "2026-03-16T21:33:14+00:00",
+      "exit_code": 0,
+      "content": "planned 3-step mixed local-worker chain with one awaited worker barrier and one local resume step",
+      "chain_type": "repo-analysis-worker-manual",
+      "plan_version": "2.4",
+      "step_count": 3,
+      "local_step_count": 2,
+      "worker_step_count": 1,
+      "critical_step_count": 2,
+      "await_worker_result_step_count": 1,
+      "dependency_group_count": 1,
+      "plan_traceability_persisted": true
+    },
+    {
+      "kind": "chain-start",
+      "captured_at": "2026-03-16T21:33:14+00:00",
+      "exit_code": 0,
+      "content": "chain v2 started for repo-analysis-worker-manual",
+      "chain_type": "repo-analysis-worker-manual"
+    },
+    {
+      "kind": "chain-step-local",
+      "captured_at": "2026-03-16T21:33:22+00:00",
+      "exit_code": 0,
+      "content": "local-self-check exit_code=0",
+      "chain_type": "repo-analysis-worker-manual",
+      "step_name": "local-self-check",
+      "child_task_id": "task-20260316T213315Z-f57d7ac3",
+      "execution_mode": "local",
+      "critical": true
+    },
+    {
+      "kind": "chain-step-worker",
+      "captured_at": "2026-03-16T21:33:22+00:00",
+      "exit_code": 0,
+      "content": "delegated-repo-analysis delegated awaiting manual-controlled worker result",
+      "chain_type": "repo-analysis-worker-manual",
+      "step_name": "delegated-repo-analysis",
+      "child_task_id": "task-20260316T213322Z-267a82b8",
+      "execution_mode": "worker",
+      "critical": true
+    },
+    {
+      "kind": "chain-results-collected",
+      "captured_at": "2026-03-16T21:33:22+00:00",
+      "exit_code": 0,
+      "content": "chain_status=awaiting_worker_result steps_completed=1/3 steps_blocked=0 worker_steps_done=0 worker_steps_blocked=0 worker_steps_failed=0 steps_delegated=1 steps_running=0 worker_steps_delegated=1 worker_steps_running=0 delegated_steps_count=1 local_steps_count=2",
+      "chain_type": "repo-analysis-worker-manual",
+      "chain_status": "awaiting_worker_result",
+      "step_count": 3,
+      "steps_completed": 1,
+      "steps_failed": 0,
+      "steps_blocked": 0,
+      "steps_delegated": 1,
+      "steps_running": 0,
+      "steps_pending": 1,
+      "children_delegated": 1,
+      "children_running": 0,
+      "local_steps_count": 2,
+      "delegated_steps_count": 1,
+      "worker_steps_done": 0,
+      "worker_steps_blocked": 0,
+      "worker_steps_delegated": 1,
+      "worker_steps_running": 0,
+      "worker_steps_failed": 0,
+      "worker_result_summaries": [
+        "worker handoff packet exported at handoffs/task-20260316T213322Z-267a82b8.packet.json"
+      ],
+      "aggregated_artifact_paths": [
+        "handoffs/task-20260316T213322Z-267a82b8.md",
+        "handoffs/task-20260316T213322Z-267a82b8.codex.md",
+        "handoffs/task-20260316T213322Z-267a82b8.packet.json"
+      ]
+    },
+    {
+      "kind": "chain-summary",
+      "captured_at": "2026-03-16T21:33:22+00:00",
+      "exit_code": 0,
+      "content": "chain_status=awaiting_worker_result step_count=3 steps_completed=1 steps_failed=0 steps_blocked=0 steps_delegated=1 steps_running=0 steps_skipped=0 dependency_barriers_waiting=1 dependency_barriers_failed=0 dependency_barriers_blocked=0 worker_steps_done=0 worker_steps_blocked=0 worker_steps_delegated=1 worker_steps_running=0 worker_steps_failed=0 awaiting_worker_result_steps=1 resolved_worker_result_steps=0 next_step_selected=(none) headline=Chain delegated and waiting: 1/3 step(s) completed, 1 delegated, 0 running, awaiting 1 worker result(s) before the chain can continue. Waiting dependency barriers: delegated-repo-analysis. final_artifact_path=outbox/manual/20260316T213322Z-repo-analysis-worker-manual-chain-final.md",
+      "chain_type": "repo-analysis-worker-manual",
+      "chain_status": "awaiting_worker_result",
+      "child_task_ids": [
+        "task-20260316T213315Z-f57d7ac3",
+        "task-20260316T213322Z-267a82b8"
+      ],
+      "child_count": 2,
+      "children_done": 1,
+      "children_failed": 0,
+      "children_blocked": 0,
+      "children_delegated": 1,
+      "children_running": 0,
+      "children_with_warnings": 1,
+      "artifact_paths": [
+        "handoffs/task-20260316T213322Z-267a82b8.md",
+        "handoffs/task-20260316T213322Z-267a82b8.codex.md",
+        "handoffs/task-20260316T213322Z-267a82b8.packet.json"
+      ],
+      "aggregated_artifact_paths": [
+        "handoffs/task-20260316T213322Z-267a82b8.md",
+        "handoffs/task-20260316T213322Z-267a82b8.codex.md",
+        "handoffs/task-20260316T213322Z-267a82b8.packet.json"
+      ],
+      "step_count": 3,
+      "steps_completed": 1,
+      "steps_failed": 0,
+      "steps_blocked": 0,
+      "steps_delegated": 1,
+      "steps_running": 0,
+      "steps_skipped": 0,
+      "steps_pending": 1,
+      "local_steps_count": 2,
+      "delegated_steps_count": 1,
+      "worker_steps_done": 0,
+      "worker_steps_blocked": 0,
+      "worker_steps_failed": 0,
+      "worker_steps_delegated": 1,
+      "worker_steps_running": 0,
+      "awaiting_worker_child_ids": [
+        "task-20260316T213322Z-267a82b8"
+      ],
+      "awaiting_worker_step_names": [
+        "delegated-repo-analysis"
+      ],
+      "awaiting_worker_result_steps": 1,
+      "resolved_worker_child_ids": [],
+      "resolved_worker_step_names": [],
+      "resolved_worker_result_steps": 0,
+      "worker_result_summaries": [
+        "worker handoff packet exported at handoffs/task-20260316T213322Z-267a82b8.packet.json"
+      ],
+      "worker_outcomes": [
+        {
+          "step_name": "delegated-repo-analysis",
+          "step_order": 2,
+          "child_task_id": "task-20260316T213322Z-267a82b8",
+          "child_status": "delegated",
+          "status": "delegated",
+          "worker_state": "",
+          "worker_result_status": "",
+          "summary": "worker handoff packet exported at handoffs/task-20260316T213322Z-267a82b8.packet.json",
+          "result_artifact_path": "",
+          "result_source_files": [],
+          "artifact_paths": [
+            "handoffs/task-20260316T213322Z-267a82b8.md",
+            "handoffs/task-20260316T213322Z-267a82b8.codex.md",
+            "handoffs/task-20260316T213322Z-267a82b8.packet.json"
+          ],
+          "warning": false
+        }
+      ],
+      "decision_reason": "",
+      "decision_source_step": "",
+      "decision_source_worker_result_status": "",
+      "next_step_selected": "",
+      "skipped_steps": [],
+      "conditional_outcomes": [],
+      "headline": "Chain delegated and waiting: 1/3 step(s) completed, 1 delegated, 0 running, awaiting 1 worker result(s) before the chain can continue. Waiting dependency barriers: delegated-repo-analysis.",
+      "final_artifact_path": "outbox/manual/20260316T213322Z-repo-analysis-worker-manual-chain-final.md"
+    },
+    {
+      "kind": "chain-resume-worker",
+      "captured_at": "2026-03-16T21:33:23+00:00",
+      "exit_code": 2,
+      "content": "delegated-repo-analysis resumed from worker child status=blocked worker_result_status=blocked",
+      "step_name": "delegated-repo-analysis",
+      "child_task_id": "task-20260316T213322Z-267a82b8",
+      "execution_mode": "worker",
+      "critical": true
+    },
+    {
+      "kind": "chain-step-local",
+      "captured_at": "2026-03-16T21:33:23+00:00",
+      "exit_code": 0,
+      "content": "step skipped because dependency barrier delegated-repo-analysis is blocked: blocked dependency steps: delegated-repo-analysis",
+      "step_name": "local-compare-orchestration-docs",
+      "execution_mode": "local",
+      "critical": false
+    },
+    {
+      "kind": "chain-results-collected",
+      "captured_at": "2026-03-16T21:33:24+00:00",
+      "exit_code": 0,
+      "content": "chain_status=blocked steps_completed=1/3 steps_blocked=1 worker_steps_done=0 worker_steps_blocked=1 worker_steps_failed=0 steps_delegated=0 steps_running=0 worker_steps_delegated=0 worker_steps_running=0 delegated_steps_count=1 local_steps_count=2",
+      "chain_type": "repo-analysis-worker-manual",
+      "chain_status": "blocked",
+      "step_count": 3,
+      "steps_completed": 1,
+      "steps_failed": 0,
+      "steps_blocked": 1,
+      "steps_delegated": 0,
+      "steps_running": 0,
+      "steps_pending": 0,
+      "children_delegated": 0,
+      "children_running": 0,
+      "local_steps_count": 2,
+      "delegated_steps_count": 1,
+      "worker_steps_done": 0,
+      "worker_steps_blocked": 1,
+      "worker_steps_delegated": 0,
+      "worker_steps_running": 0,
+      "worker_steps_failed": 0,
+      "worker_result_summaries": [
+        "Verify roundtrip blocked path imported result and kept the root blocked"
+      ],
+      "aggregated_artifact_paths": [
+        "handoffs/task-20260316T213322Z-267a82b8.md",
+        "handoffs/task-20260316T213322Z-267a82b8.codex.md",
+        "handoffs/task-20260316T213322Z-267a82b8.packet.json",
+        "outbox/manual/blocked-task-20260316T213322Z-267a82b8.worker-result.json"
+      ]
+    },
+    {
+      "kind": "chain-summary",
+      "captured_at": "2026-03-16T21:33:24+00:00",
+      "exit_code": 0,
+      "content": "chain_status=blocked step_count=3 steps_completed=1 steps_failed=0 steps_blocked=1 steps_delegated=0 steps_running=0 steps_skipped=1 dependency_barriers_waiting=0 dependency_barriers_failed=0 dependency_barriers_blocked=1 worker_steps_done=0 worker_steps_blocked=1 worker_steps_delegated=0 worker_steps_running=0 worker_steps_failed=0 awaiting_worker_result_steps=0 resolved_worker_result_steps=1 next_step_selected=(none) headline=Chain blocked: 1/3 step(s) completed, 1 blocked, 1 skipped, and one or more critical steps could not start or continue. final_artifact_path=outbox/manual/20260316T213324Z-repo-analysis-worker-manual-chain-final.md",
+      "chain_type": "repo-analysis-worker-manual",
+      "chain_status": "blocked",
+      "child_task_ids": [
+        "task-20260316T213315Z-f57d7ac3",
+        "task-20260316T213322Z-267a82b8"
+      ],
+      "child_count": 2,
+      "children_done": 1,
+      "children_failed": 0,
+      "children_blocked": 1,
+      "children_delegated": 0,
+      "children_running": 0,
+      "children_with_warnings": 1,
+      "artifact_paths": [
+        "handoffs/task-20260316T213322Z-267a82b8.md",
+        "handoffs/task-20260316T213322Z-267a82b8.codex.md",
+        "handoffs/task-20260316T213322Z-267a82b8.packet.json",
+        "outbox/manual/blocked-task-20260316T213322Z-267a82b8.worker-result.json"
+      ],
+      "aggregated_artifact_paths": [
+        "handoffs/task-20260316T213322Z-267a82b8.md",
+        "handoffs/task-20260316T213322Z-267a82b8.codex.md",
+        "handoffs/task-20260316T213322Z-267a82b8.packet.json",
+        "outbox/manual/blocked-task-20260316T213322Z-267a82b8.worker-result.json"
+      ],
+      "step_count": 3,
+      "steps_completed": 1,
+      "steps_failed": 0,
+      "steps_blocked": 1,
+      "steps_delegated": 0,
+      "steps_running": 0,
+      "steps_skipped": 1,
+      "steps_pending": 0,
+      "local_steps_count": 2,
+      "delegated_steps_count": 1,
+      "worker_steps_done": 0,
+      "worker_steps_blocked": 1,
+      "worker_steps_failed": 0,
+      "worker_steps_delegated": 0,
+      "worker_steps_running": 0,
+      "awaiting_worker_child_ids": [],
+      "awaiting_worker_step_names": [],
+      "awaiting_worker_result_steps": 0,
+      "resolved_worker_child_ids": [
+        "task-20260316T213322Z-267a82b8"
+      ],
+      "resolved_worker_step_names": [
+        "delegated-repo-analysis"
+      ],
+      "resolved_worker_result_steps": 1,
+      "worker_result_summaries": [
+        "Verify roundtrip blocked path imported result and kept the root blocked"
+      ],
+      "worker_outcomes": [
+        {
+          "step_name": "delegated-repo-analysis",
+          "step_order": 2,
+          "child_task_id": "task-20260316T213322Z-267a82b8",
+          "child_status": "blocked",
+          "status": "blocked",
+          "worker_state": "",
+          "worker_result_status": "blocked",
+          "summary": "Verify roundtrip blocked path imported result and kept the root blocked",
+          "result_artifact_path": "",
+          "result_source_files": [],
+          "artifact_paths": [
+            "handoffs/task-20260316T213322Z-267a82b8.md",
+            "handoffs/task-20260316T213322Z-267a82b8.codex.md",
+            "handoffs/task-20260316T213322Z-267a82b8.packet.json",
+            "outbox/manual/blocked-task-20260316T213322Z-267a82b8.worker-result.json"
+          ],
+          "warning": false
+        }
+      ],
+      "decision_reason": "",
+      "decision_source_step": "",
+      "decision_source_worker_result_status": "",
+      "next_step_selected": "",
+      "skipped_steps": [
+        "local-compare-orchestration-docs"
+      ],
+      "conditional_outcomes": [
+        {
+          "step_name": "local-compare-orchestration-docs",
+          "step_order": 3,
+          "condition_source_step": "",
+          "expected_worker_result_status": "",
+          "selected": false,
+          "status": "skipped",
+          "child_task_id": "",
+          "decision_source_step": "",
+          "decision_reason": "",
+          "summary": "step skipped because dependency barrier delegated-repo-analysis is blocked: blocked dependency steps: delegated-repo-analysis"
+        }
+      ],
+      "headline": "Chain blocked: 1/3 step(s) completed, 1 blocked, 1 skipped, and one or more critical steps could not start or continue.",
+      "final_artifact_path": "outbox/manual/20260316T213324Z-repo-analysis-worker-manual-chain-final.md"
+    },
+    {
+      "kind": "chain-settlement",
+      "captured_at": "2026-03-16T21:33:24+00:00",
+      "exit_code": 2,
+      "content": "awaitable workers reconciled for root=task-20260316T213314Z-aabd9f18; resume_exit=2",
+      "input_task_id": "task-20260316T213322Z-267a82b8",
+      "input_kind": "child",
+      "worker_child_task_id": "task-20260316T213322Z-267a82b8",
+      "worker_result_status": "blocked",
+      "recorded_worker_result_now": false,
+      "root_status": "blocked",
+      "root_chain_status": "blocked",
+      "ready_worker_child_ids": [
+        "task-20260316T213322Z-267a82b8"
+      ],
+      "pending_worker_child_ids": [],
+      "dependency_barrier_states": [
+        "delegated-repo-analysis=blocked"
+      ],
+      "settlement_exit_code": 2
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260316T213314736728Z-worker-packet-roundtrip-blocked-path-effective-chain-plan.json",
+      "kind": "effective-chain-plan",
+      "created_at": "2026-03-16T21:33:14+00:00",
+      "sha256": "1f2ec2bcbd038d5a345886aa83e750bf6babc2b3886088ae374f70aa80d72fb3",
+      "plan_version": "2.4"
+    },
+    {
+      "path": "outbox/manual/20260316T213314810858Z-20260316t213314736728z-worker-packet-roundtrip-blocked-path-effective-chain-plan-chain-plan-preflight.md",
+      "kind": "chain-plan-preflight",
+      "created_at": "2026-03-16T21:33:14+00:00",
+      "sha256": "bf8c91ca109122f82e0185d71fb061ff2ea24a6d9f4d8c6423aa3595140b165b",
+      "plan_version": "2.4"
+    },
+    {
+      "path": "outbox/manual/20260316T213322Z-repo-analysis-worker-manual-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-16T21:33:22+00:00"
+    },
+    {
+      "path": "outbox/manual/20260316T213324Z-repo-analysis-worker-manual-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-16T21:33:24+00:00"
+    }
+  ],
+  "notes": [
+    "chain plan v2 created at 2026-03-16T21:33:14+00:00",
+    "effective chain plan persisted at 2026-03-16T21:33:14+00:00 and preflight artifact frozen at 2026-03-16T21:33:14+00:00",
+    "Chain delegated and waiting: 1/3 step(s) completed, 1 delegated, 0 running, awaiting 1 worker result(s) before the chain can continue. Waiting dependency barriers: delegated-repo-analysis.",
+    "Chain blocked: 1/3 step(s) completed, 1 blocked, 1 skipped, and one or more critical steps could not start or continue."
+  ],
+  "chain_type": "repo-analysis-worker-manual",
+  "chain_status": "blocked",
+  "chain_plan": {
+    "plan_kind": "chain_plan",
+    "plan_version": "2.4",
+    "version": "2.4",
+    "planned_at": "2026-03-16T21:33:14+00:00",
+    "mixes_execution_modes": true,
+    "manual_worker_controlled": true,
+    "dependency_group_count": 1,
+    "dependency_groups": [
+      {
+        "group_name": "delegated-repo-analysis",
+        "group_type": "await_group",
+        "satisfaction_policy": "all_done",
+        "continue_on_blocked": false,
+        "continue_on_failed": false,
+        "status": "blocked",
+        "reason": "blocked dependency steps: delegated-repo-analysis",
+        "step_names": [
+          "delegated-repo-analysis"
+        ],
+        "step_states": [
+          {
+            "step_name": "delegated-repo-analysis",
+            "status": "blocked"
+          }
+        ],
+        "done_step_names": [],
+        "waiting_step_names": [],
+        "failed_step_names": [],
+        "blocked_step_names": [
+          "delegated-repo-analysis"
+        ],
+        "skipped_step_names": [],
+        "used_by_step_names": [
+          "local-compare-orchestration-docs"
+        ]
+      }
+    ],
+    "local_step_count": 2,
+    "worker_step_count": 1,
+    "critical_step_count": 2,
+    "await_worker_result_step_count": 1,
+    "step_count": 3,
+    "steps": [
+      {
+        "step_name": "local-self-check",
+        "step_order": 1,
+        "task_type": "self-check",
+        "execution_mode": "local",
+        "critical": true,
+        "title": "Worker packet roundtrip blocked path / local self-check",
+        "objective": "Validate the local Golem environment before any delegation.",
+        "depends_on_step_names": [],
+        "join_group": "",
+        "await_group": "",
+        "await_worker_result": false,
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "done",
+        "child_task_id": "task-20260316T213315Z-f57d7ac3",
+        "child_status": "done",
+        "warning": true,
+        "summary": "SELF-CHECK GOLEM gateway: OK — gateway activo, runtime running, rpc ok whatsapp: OK — whatsapp conectado browser_relay: OK — browser relay chrome running tabs: WARN — relay activo pero 0 tabs adjuntas estado_general:...",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_summary": "",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": [],
+        "join_group_status": "",
+        "join_group_reason": "",
+        "await_group_status": "",
+        "await_group_reason": ""
+      },
+      {
+        "step_name": "delegated-repo-analysis",
+        "step_order": 2,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "title": "Worker packet roundtrip blocked path / delegated repo analysis",
+        "objective": "Prepare a real delegated repo-analysis worker step with durable handoff and ticket, then wait for manual-controlled worker execution and result closure.",
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "join_group": "",
+        "await_group": "delegated-repo-analysis",
+        "await_worker_result": true,
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "blocked",
+        "child_task_id": "task-20260316T213322Z-267a82b8",
+        "child_status": "blocked",
+        "warning": false,
+        "summary": "Verify roundtrip blocked path imported result and kept the root blocked",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [
+          "handoffs/task-20260316T213322Z-267a82b8.md",
+          "handoffs/task-20260316T213322Z-267a82b8.codex.md",
+          "handoffs/task-20260316T213322Z-267a82b8.packet.json",
+          "outbox/manual/blocked-task-20260316T213322Z-267a82b8.worker-result.json"
+        ],
+        "worker_state": "",
+        "worker_result_status": "blocked",
+        "worker_result_summary": "Verify roundtrip blocked path imported result and kept the root blocked",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": [],
+        "join_group_status": "",
+        "join_group_reason": "",
+        "await_group_status": "blocked",
+        "await_group_reason": "blocked dependency steps: delegated-repo-analysis"
+      },
+      {
+        "step_name": "local-compare-orchestration-docs",
+        "step_order": 3,
+        "task_type": "compare-files",
+        "execution_mode": "local",
+        "critical": false,
+        "title": "Worker packet roundtrip blocked path / local orchestration docs comparison",
+        "objective": "Produce one local artifact after the manual-controlled worker result is registered so the chain can resume and close with mixed evidence.",
+        "depends_on_step_names": [
+          "delegated-repo-analysis"
+        ],
+        "join_group": "delegated-repo-analysis",
+        "await_group": "",
+        "await_worker_result": false,
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "skipped",
+        "child_task_id": "",
+        "child_status": "",
+        "warning": false,
+        "summary": "step skipped because dependency barrier delegated-repo-analysis is blocked: blocked dependency steps: delegated-repo-analysis",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_summary": "",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": [],
+        "join_group_status": "blocked",
+        "join_group_reason": "blocked dependency steps: delegated-repo-analysis",
+        "await_group_status": "",
+        "await_group_reason": ""
+      }
+    ],
+    "last_finalized_at": "2026-03-16T21:33:24+00:00"
+  },
+  "effective_chain_plan": {
+    "plan_kind": "chain_plan",
+    "plan_version": "2.4",
+    "version": "2.4",
+    "planned_at": "2026-03-16T21:33:14+00:00",
+    "mixes_execution_modes": true,
+    "manual_worker_controlled": true,
+    "dependency_group_count": 1,
+    "dependency_groups": [
+      {
+        "group_name": "delegated-repo-analysis",
+        "group_type": "await_group",
+        "step_names": [
+          "delegated-repo-analysis"
+        ],
+        "satisfaction_policy": "all_done",
+        "continue_on_blocked": false,
+        "continue_on_failed": false,
+        "used_by_step_names": [
+          "local-compare-orchestration-docs"
+        ]
+      }
+    ],
+    "local_step_count": 2,
+    "worker_step_count": 1,
+    "critical_step_count": 2,
+    "await_worker_result_step_count": 1,
+    "step_count": 3,
+    "steps": [
+      {
+        "step_name": "local-self-check",
+        "step_order": 1,
+        "task_type": "self-check",
+        "execution_mode": "local",
+        "critical": true,
+        "title": "Worker packet roundtrip blocked path / local self-check",
+        "objective": "Validate the local Golem environment before any delegation.",
+        "depends_on_step_names": [],
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": false
+      },
+      {
+        "step_name": "delegated-repo-analysis",
+        "step_order": 2,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "title": "Worker packet roundtrip blocked path / delegated repo analysis",
+        "objective": "Prepare a real delegated repo-analysis worker step with durable handoff and ticket, then wait for manual-controlled worker execution and result closure.",
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "await_group": "delegated-repo-analysis",
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": true
+      },
+      {
+        "step_name": "local-compare-orchestration-docs",
+        "step_order": 3,
+        "task_type": "compare-files",
+        "execution_mode": "local",
+        "critical": false,
+        "title": "Worker packet roundtrip blocked path / local orchestration docs comparison",
+        "objective": "Produce one local artifact after the manual-controlled worker result is registered so the chain can resume and close with mixed evidence.",
+        "depends_on_step_names": [
+          "delegated-repo-analysis"
+        ],
+        "join_group": "delegated-repo-analysis",
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": false
+      }
+    ],
+    "effective_plan_for_task_id": "task-20260316T213314Z-aabd9f18",
+    "effective_plan_for_chain_type": "repo-analysis-worker-manual",
+    "effective_plan_source_task_path": "tasks/task-20260316T213314Z-aabd9f18.json",
+    "effective_plan_created_at": "2026-03-16T21:33:14+00:00"
+  },
+  "effective_plan_path": "outbox/manual/20260316T213314736728Z-worker-packet-roundtrip-blocked-path-effective-chain-plan.json",
+  "effective_plan_sha256": "1f2ec2bcbd038d5a345886aa83e750bf6babc2b3886088ae374f70aa80d72fb3",
+  "preflight_artifact_path": "outbox/manual/20260316T213314810858Z-20260316t213314736728z-worker-packet-roundtrip-blocked-path-effective-chain-plan-chain-plan-preflight.md",
+  "preflight_sha256": "bf8c91ca109122f82e0185d71fb061ff2ea24a6d9f4d8c6423aa3595140b165b",
+  "validated_plan_version": "2.4",
+  "validated_at": "2026-03-16T21:33:14+00:00",
+  "preflighted_at": "2026-03-16T21:33:14+00:00",
+  "chain_summary": {
+    "child_task_ids": [
+      "task-20260316T213315Z-f57d7ac3",
+      "task-20260316T213322Z-267a82b8"
+    ],
+    "child_count": 2,
+    "children_done": 1,
+    "children_failed": 0,
+    "children_blocked": 1,
+    "children_delegated": 0,
+    "children_running": 0,
+    "children_with_warnings": 1,
+    "failed_child_ids": [],
+    "blocked_child_ids": [
+      "task-20260316T213322Z-267a82b8"
+    ],
+    "warning_child_ids": [
+      "task-20260316T213315Z-f57d7ac3"
+    ],
+    "artifact_paths": [
+      "handoffs/task-20260316T213322Z-267a82b8.md",
+      "handoffs/task-20260316T213322Z-267a82b8.codex.md",
+      "handoffs/task-20260316T213322Z-267a82b8.packet.json",
+      "outbox/manual/blocked-task-20260316T213322Z-267a82b8.worker-result.json"
+    ],
+    "aggregated_artifact_paths": [
+      "handoffs/task-20260316T213322Z-267a82b8.md",
+      "handoffs/task-20260316T213322Z-267a82b8.codex.md",
+      "handoffs/task-20260316T213322Z-267a82b8.packet.json",
+      "outbox/manual/blocked-task-20260316T213322Z-267a82b8.worker-result.json"
+    ],
+    "step_count": 3,
+    "steps_completed": 1,
+    "steps_failed": 0,
+    "steps_blocked": 1,
+    "steps_delegated": 0,
+    "steps_running": 0,
+    "steps_skipped": 1,
+    "steps_pending": 0,
+    "critical_step_count": 2,
+    "critical_steps_failed": 0,
+    "critical_steps_blocked": 1,
+    "critical_steps_skipped": 0,
+    "critical_steps_pending": 0,
+    "local_step_count": 2,
+    "worker_step_count": 1,
+    "local_steps_count": 2,
+    "delegated_steps_count": 1,
+    "dependency_group_count": 1,
+    "dependency_barriers": [
+      {
+        "group_name": "delegated-repo-analysis",
+        "group_type": "await_group",
+        "satisfaction_policy": "all_done",
+        "continue_on_blocked": false,
+        "continue_on_failed": false,
+        "status": "blocked",
+        "reason": "blocked dependency steps: delegated-repo-analysis",
+        "step_names": [
+          "delegated-repo-analysis"
+        ],
+        "step_states": [
+          {
+            "step_name": "delegated-repo-analysis",
+            "status": "blocked"
+          }
+        ],
+        "done_step_names": [],
+        "waiting_step_names": [],
+        "failed_step_names": [],
+        "blocked_step_names": [
+          "delegated-repo-analysis"
+        ],
+        "skipped_step_names": [],
+        "used_by_step_names": [
+          "local-compare-orchestration-docs"
+        ]
+      }
+    ],
+    "dependency_barriers_satisfied": 0,
+    "dependency_barriers_waiting": 0,
+    "dependency_barriers_failed": 0,
+    "dependency_barriers_blocked": 1,
+    "waiting_dependency_barrier_names": [],
+    "failed_dependency_barrier_names": [],
+    "blocked_dependency_barrier_names": [
+      "delegated-repo-analysis"
+    ],
+    "worker_steps_done": 0,
+    "worker_steps_blocked": 1,
+    "worker_steps_failed": 0,
+    "worker_steps_delegated": 0,
+    "worker_steps_running": 0,
+    "worker_child_ids": [
+      "task-20260316T213322Z-267a82b8"
+    ],
+    "awaiting_worker_child_ids": [],
+    "awaiting_worker_step_names": [],
+    "awaiting_worker_result_steps": 0,
+    "resolved_worker_child_ids": [
+      "task-20260316T213322Z-267a82b8"
+    ],
+    "resolved_worker_step_names": [
+      "delegated-repo-analysis"
+    ],
+    "resolved_worker_result_steps": 1,
+    "worker_result_summaries": [
+      "Verify roundtrip blocked path imported result and kept the root blocked"
+    ],
+    "worker_outcomes": [
+      {
+        "step_name": "delegated-repo-analysis",
+        "step_order": 2,
+        "child_task_id": "task-20260316T213322Z-267a82b8",
+        "child_status": "blocked",
+        "status": "blocked",
+        "worker_state": "",
+        "worker_result_status": "blocked",
+        "summary": "Verify roundtrip blocked path imported result and kept the root blocked",
+        "result_artifact_path": "",
+        "result_source_files": [],
+        "artifact_paths": [
+          "handoffs/task-20260316T213322Z-267a82b8.md",
+          "handoffs/task-20260316T213322Z-267a82b8.codex.md",
+          "handoffs/task-20260316T213322Z-267a82b8.packet.json",
+          "outbox/manual/blocked-task-20260316T213322Z-267a82b8.worker-result.json"
+        ],
+        "warning": false
+      }
+    ],
+    "decision_reason": "",
+    "decision_source_step": "",
+    "decision_source_worker_result_status": "",
+    "next_step_selected": "",
+    "skipped_steps": [
+      "local-compare-orchestration-docs"
+    ],
+    "conditional_outcomes": [
+      {
+        "step_name": "local-compare-orchestration-docs",
+        "step_order": 3,
+        "condition_source_step": "",
+        "expected_worker_result_status": "",
+        "selected": false,
+        "status": "skipped",
+        "child_task_id": "",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "summary": "step skipped because dependency barrier delegated-repo-analysis is blocked: blocked dependency steps: delegated-repo-analysis"
+      }
+    ],
+    "headline": "Chain blocked: 1/3 step(s) completed, 1 blocked, 1 skipped, and one or more critical steps could not start or continue.",
+    "final_artifact_path": "outbox/manual/20260316T213324Z-repo-analysis-worker-manual-chain-final.md",
+    "last_collected_at": "2026-03-16T21:33:24+00:00"
+  }
+}

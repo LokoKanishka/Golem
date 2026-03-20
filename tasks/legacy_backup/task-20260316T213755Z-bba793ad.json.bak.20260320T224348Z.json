@@ -1,0 +1,43 @@
+{
+  "task_id": "task-20260316T213755Z-bba793ad",
+  "type": "compare-files",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260316T213746Z-7a233d9d",
+  "depends_on": [
+    "task-20260316T213753Z-6c5f91e4"
+  ],
+  "status": "done",
+  "created_at": "2026-03-16T21:37:55+00:00",
+  "updated_at": "2026-03-16T21:37:56+00:00",
+  "title": "Worker packet roundtrip success path / local orchestration docs comparison",
+  "objective": "Produce one local artifact after the manual-controlled worker result is registered so the chain can resume and close with mixed evidence.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "comparison-files",
+      "captured_at": "2026-03-16T21:37:56+00:00",
+      "exit_code": 0,
+      "content": "COMPARISON_OK outbox/manual/20260316T213756Z_chain-v2-local-compare-orchestration-docs-task-20260316T213746Z-7a233d9d.md",
+      "command": "./scripts/browser_compare.sh files chain-v2-local-compare-orchestration-docs-task-20260316T213746Z-7a233d9d docs/TASK_ORCHESTRATION.md docs/TASK_ORCHESTRATION_V2.md",
+      "mode": "files",
+      "slug": "chain-v2-local-compare-orchestration-docs-task-20260316T213746Z-7a233d9d",
+      "input_a": "docs/TASK_ORCHESTRATION.md",
+      "input_b": "docs/TASK_ORCHESTRATION_V2.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260316T213756Z_chain-v2-local-compare-orchestration-docs-task-20260316T213746Z-7a233d9d.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-16T21:37:56+00:00"
+    }
+  ],
+  "notes": [
+    "comparison generation completed and task closed"
+  ],
+  "step_name": "local-compare-orchestration-docs",
+  "step_order": 3,
+  "critical": false,
+  "execution_mode": "local"
+}

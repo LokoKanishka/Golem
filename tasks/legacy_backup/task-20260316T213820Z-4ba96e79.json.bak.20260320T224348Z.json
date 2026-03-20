@@ -1,0 +1,44 @@
+{
+  "task_id": "task-20260316T213820Z-4ba96e79",
+  "type": "compare-files",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260316T213807Z-e8d28cfc",
+  "depends_on": [
+    "task-20260316T213815Z-d95b6580",
+    "task-20260316T213815Z-b310a965"
+  ],
+  "status": "done",
+  "created_at": "2026-03-16T21:38:20+00:00",
+  "updated_at": "2026-03-16T21:38:20+00:00",
+  "title": "Multi worker await partial+success path / local multi-worker docs comparison",
+  "objective": "Produce one local artifact only after both manual-controlled worker results are done so the root closes with mixed evidence from multiple awaited workers.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "comparison-files",
+      "captured_at": "2026-03-16T21:38:20+00:00",
+      "exit_code": 0,
+      "content": "COMPARISON_OK outbox/manual/20260316T213820Z_chain-v2-local-compare-multi-worker-docs-task-20260316T213807Z-e8d28cfc.md",
+      "command": "./scripts/browser_compare.sh files chain-v2-local-compare-multi-worker-docs-task-20260316T213807Z-e8d28cfc docs/TASK_ORCHESTRATION.md docs/TASK_ORCHESTRATION_V2.md",
+      "mode": "files",
+      "slug": "chain-v2-local-compare-multi-worker-docs-task-20260316T213807Z-e8d28cfc",
+      "input_a": "docs/TASK_ORCHESTRATION.md",
+      "input_b": "docs/TASK_ORCHESTRATION_V2.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260316T213820Z_chain-v2-local-compare-multi-worker-docs-task-20260316T213807Z-e8d28cfc.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-16T21:38:20+00:00"
+    }
+  ],
+  "notes": [
+    "comparison generation completed and task closed"
+  ],
+  "step_name": "local-compare-multi-worker-docs",
+  "step_order": 5,
+  "critical": false,
+  "execution_mode": "local"
+}

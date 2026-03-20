@@ -1,0 +1,43 @@
+{
+  "task_id": "task-20260316T203130Z-06135f09",
+  "type": "compare-files",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260316T203120Z-7cc231e2",
+  "depends_on": [
+    "task-20260316T203128Z-b7856b8d"
+  ],
+  "status": "done",
+  "created_at": "2026-03-16T20:31:30+00:00",
+  "updated_at": "2026-03-16T20:31:30+00:00",
+  "title": "Multi worker await partial+success path / local architecture summary",
+  "objective": "Produce one local artifact as soon as the architecture worker is done so the chain proves that one dependency barrier can open while another still waits.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "comparison-files",
+      "captured_at": "2026-03-16T20:31:30+00:00",
+      "exit_code": 0,
+      "content": "COMPARISON_OK outbox/manual/20260316T203130Z_chain-v2-local-summarize-architecture-task-20260316T203120Z-7cc231e2.md",
+      "command": "./scripts/browser_compare.sh files chain-v2-local-summarize-architecture-task-20260316T203120Z-7cc231e2 docs/TASK_ORCHESTRATION.md docs/TASK_ORCHESTRATION_V2.md",
+      "mode": "files",
+      "slug": "chain-v2-local-summarize-architecture-task-20260316T203120Z-7cc231e2",
+      "input_a": "docs/TASK_ORCHESTRATION.md",
+      "input_b": "docs/TASK_ORCHESTRATION_V2.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260316T203130Z_chain-v2-local-summarize-architecture-task-20260316T203120Z-7cc231e2.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-16T20:31:30+00:00"
+    }
+  ],
+  "notes": [
+    "comparison generation completed and task closed"
+  ],
+  "step_name": "local-summarize-architecture",
+  "step_order": 4,
+  "critical": false,
+  "execution_mode": "local"
+}
