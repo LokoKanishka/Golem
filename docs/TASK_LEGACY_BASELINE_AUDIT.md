@@ -2,7 +2,7 @@
 
 ## Timestamp
 
-- generated_at_utc: `2026-03-20T19:27:05Z`
+- generated_at_utc: `2026-03-20T19:27:45Z`
 
 ## Scope
 
@@ -14,10 +14,10 @@
 
 - canonical: 0
 - legacy: 1395
-- corrupt: 4
+- corrupt: 0
 - invalid: 0
 
-`SCAN_SUMMARY total=1399 canonical=0 legacy=1395 corrupt=4 invalid=0`
+`SCAN_SUMMARY total=1395 canonical=0 legacy=1395 corrupt=0 invalid=0`
 
 ### Legacy
 
@@ -1419,10 +1419,7 @@
 
 ### Corrupt
 
-- `TASK_SCAN_CORRUPT /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232352Z-a2d37bec.json Expecting value: line 1 column 1 (char 0)`
-- `TASK_SCAN_CORRUPT /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232353Z-7f966d0d.json Expecting value: line 1 column 1 (char 0)`
-- `TASK_SCAN_CORRUPT /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232354Z-10fcc75b.json Expecting value: line 1 column 1 (char 0)`
-- `TASK_SCAN_CORRUPT /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232354Z-bbb6664f.json Expecting value: line 1 column 1 (char 0)`
+- none
 
 ### Invalid
 
@@ -1453,10 +1450,10 @@
 
 - canonical: 0
 - legacy: 1395
-- corrupt: 4
+- corrupt: 0
 - invalid: 0
 
-`SCAN_SUMMARY total=1399 canonical=0 legacy=1395 corrupt=4 invalid=0`
+`SCAN_SUMMARY total=1395 canonical=0 legacy=1395 corrupt=0 invalid=0`
 
 ## Reading
 

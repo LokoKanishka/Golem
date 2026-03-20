@@ -1,1 +1,4 @@
-MISSING|tasks/task-verify-empty-corrupt-a.json||missing-path|not-moved
+QUARANTINED|/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232352Z-a2d37bec.json|0|empty-corrupt-json|tasks/quarantine/corrupt_empty/task-20260316T232352Z-a2d37bec.json
+QUARANTINED|/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232353Z-7f966d0d.json|0|empty-corrupt-json|tasks/quarantine/corrupt_empty/task-20260316T232353Z-7f966d0d.json
+QUARANTINED|/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232354Z-10fcc75b.json|0|empty-corrupt-json|tasks/quarantine/corrupt_empty/task-20260316T232354Z-10fcc75b.json
+QUARANTINED|/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232354Z-bbb6664f.json|0|empty-corrupt-json|tasks/quarantine/corrupt_empty/task-20260316T232354Z-bbb6664f.json

@@ -726,14 +726,10 @@ TASK_SCAN_LEGACY task-20260316T222123Z-3ba8e211 /home/lucy-ubuntu/Escritorio/gol
 TASK_SCAN_LEGACY task-20260316T222123Z-53cab31d /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222123Z-53cab31d.json
 TASK_SCAN_LEGACY task-20260316T222123Z-7ea8d246 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222123Z-7ea8d246.json
 TASK_SCAN_LEGACY task-20260316T222123Z-c4c087ca /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222123Z-c4c087ca.json
-TASK_SCAN_CORRUPT /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232352Z-a2d37bec.json Expecting value: line 1 column 1 (char 0)
 TASK_SCAN_LEGACY task-20260316T232352Z-a6515a2a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232352Z-a6515a2a.json
 TASK_SCAN_LEGACY task-20260316T232353Z-1c16b919 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232353Z-1c16b919.json
-TASK_SCAN_CORRUPT /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232353Z-7f966d0d.json Expecting value: line 1 column 1 (char 0)
 TASK_SCAN_LEGACY task-20260316T232353Z-c342e8c1 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232353Z-c342e8c1.json
 TASK_SCAN_LEGACY task-20260316T232353Z-de3a5f0b /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232353Z-de3a5f0b.json
-TASK_SCAN_CORRUPT /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232354Z-10fcc75b.json Expecting value: line 1 column 1 (char 0)
-TASK_SCAN_CORRUPT /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232354Z-bbb6664f.json Expecting value: line 1 column 1 (char 0)
 TASK_SCAN_LEGACY task-20260316T232435Z-03533494 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232435Z-03533494.json
 TASK_SCAN_LEGACY task-20260316T232435Z-15578a64 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232435Z-15578a64.json
 TASK_SCAN_LEGACY task-20260316T232435Z-2dd79f84 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232435Z-2dd79f84.json
@@ -1397,4 +1393,4 @@ TASK_SCAN_LEGACY task-20260320T004502Z-b8b47720 /home/lucy-ubuntu/Escritorio/gol
 TASK_SCAN_LEGACY task-20260320T004636Z-5d48b885 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004636Z-5d48b885.json
 TASK_SCAN_LEGACY task-20260320T004636Z-66229532 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004636Z-66229532.json
 TASK_SCAN_LEGACY task-20260320T004636Z-c5e6e27a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004636Z-c5e6e27a.json
-SCAN_SUMMARY total=1399 canonical=0 legacy=1395 corrupt=4 invalid=0
+SCAN_SUMMARY total=1395 canonical=0 legacy=1395 corrupt=0 invalid=0
