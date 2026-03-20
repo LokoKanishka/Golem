@@ -1,0 +1,687 @@
+{
+  "task_id": "task-20260315T203834Z-4b3ac10c",
+  "type": "task-chain",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "blocked",
+  "created_at": "2026-03-15T20:38:34+00:00",
+  "updated_at": "2026-03-15T20:38:44+00:00",
+  "title": "Multi worker await blocked path",
+  "objective": "Execute a mixed local-worker chain that delegates multiple manual-controlled worker steps, waits for their worker results independently, and resumes one local closing step only when all its worker dependencies are done.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-plan",
+      "captured_at": "2026-03-15T20:38:34+00:00",
+      "exit_code": 0,
+      "content": "planned 4-step mixed local-worker chain with two awaited manual worker steps and one local resume step",
+      "chain_type": "repo-analysis-worker-manual-multi",
+      "plan_version": "2.3",
+      "step_count": 4,
+      "local_step_count": 2,
+      "worker_step_count": 2,
+      "critical_step_count": 3,
+      "await_worker_result_step_count": 2
+    },
+    {
+      "kind": "chain-start",
+      "captured_at": "2026-03-15T20:38:34+00:00",
+      "exit_code": 0,
+      "content": "chain v2 started for repo-analysis-worker-manual-multi",
+      "chain_type": "repo-analysis-worker-manual-multi"
+    },
+    {
+      "kind": "chain-step-local",
+      "captured_at": "2026-03-15T20:38:41+00:00",
+      "exit_code": 0,
+      "content": "local-self-check exit_code=0",
+      "chain_type": "repo-analysis-worker-manual-multi",
+      "step_name": "local-self-check",
+      "child_task_id": "task-20260315T203834Z-173d4e4d",
+      "execution_mode": "local",
+      "critical": true
+    },
+    {
+      "kind": "chain-step-worker",
+      "captured_at": "2026-03-15T20:38:42+00:00",
+      "exit_code": 0,
+      "content": "delegated-repo-analysis-architecture delegated awaiting manual-controlled worker result",
+      "chain_type": "repo-analysis-worker-manual-multi",
+      "step_name": "delegated-repo-analysis-architecture",
+      "child_task_id": "task-20260315T203841Z-8eac35b9",
+      "execution_mode": "worker",
+      "critical": true
+    },
+    {
+      "kind": "chain-step-worker",
+      "captured_at": "2026-03-15T20:38:42+00:00",
+      "exit_code": 0,
+      "content": "delegated-repo-analysis-verification delegated awaiting manual-controlled worker result",
+      "chain_type": "repo-analysis-worker-manual-multi",
+      "step_name": "delegated-repo-analysis-verification",
+      "child_task_id": "task-20260315T203842Z-5a3ef71c",
+      "execution_mode": "worker",
+      "critical": true
+    },
+    {
+      "kind": "chain-results-collected",
+      "captured_at": "2026-03-15T20:38:42+00:00",
+      "exit_code": 0,
+      "content": "chain_status=awaiting_worker_result steps_completed=1/4 steps_blocked=0 worker_steps_done=0 worker_steps_blocked=0 worker_steps_failed=0 steps_delegated=2 steps_running=0 worker_steps_delegated=2 worker_steps_running=0 delegated_steps_count=2 local_steps_count=2",
+      "chain_type": "repo-analysis-worker-manual-multi",
+      "chain_status": "awaiting_worker_result",
+      "step_count": 4,
+      "steps_completed": 1,
+      "steps_failed": 0,
+      "steps_blocked": 0,
+      "steps_delegated": 2,
+      "steps_running": 0,
+      "steps_pending": 1,
+      "children_delegated": 2,
+      "children_running": 0,
+      "local_steps_count": 2,
+      "delegated_steps_count": 2,
+      "worker_steps_done": 0,
+      "worker_steps_blocked": 0,
+      "worker_steps_delegated": 2,
+      "worker_steps_running": 0,
+      "worker_steps_failed": 0,
+      "worker_result_summaries": [
+        "worker handoff packet exported at handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+        "worker handoff packet exported at handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+      ],
+      "aggregated_artifact_paths": [
+        "handoffs/task-20260315T203841Z-8eac35b9.md",
+        "handoffs/task-20260315T203841Z-8eac35b9.codex.md",
+        "handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+        "handoffs/task-20260315T203842Z-5a3ef71c.md",
+        "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+        "handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+      ]
+    },
+    {
+      "kind": "chain-summary",
+      "captured_at": "2026-03-15T20:38:43+00:00",
+      "exit_code": 0,
+      "content": "chain_status=awaiting_worker_result step_count=4 steps_completed=1 steps_failed=0 steps_blocked=0 steps_delegated=2 steps_running=0 steps_skipped=0 worker_steps_done=0 worker_steps_blocked=0 worker_steps_delegated=2 worker_steps_running=0 worker_steps_failed=0 awaiting_worker_result_steps=2 resolved_worker_result_steps=0 next_step_selected=(none) headline=Chain delegated and waiting: 1/4 step(s) completed, 2 delegated, 0 running, awaiting 2 worker result(s) before the chain can continue. final_artifact_path=outbox/manual/20260315T203842Z-repo-analysis-worker-manual-multi-chain-final.md",
+      "chain_type": "repo-analysis-worker-manual-multi",
+      "chain_status": "awaiting_worker_result",
+      "child_task_ids": [
+        "task-20260315T203834Z-173d4e4d",
+        "task-20260315T203841Z-8eac35b9",
+        "task-20260315T203842Z-5a3ef71c"
+      ],
+      "child_count": 3,
+      "children_done": 1,
+      "children_failed": 0,
+      "children_blocked": 0,
+      "children_delegated": 2,
+      "children_running": 0,
+      "children_with_warnings": 1,
+      "artifact_paths": [
+        "handoffs/task-20260315T203841Z-8eac35b9.md",
+        "handoffs/task-20260315T203841Z-8eac35b9.codex.md",
+        "handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+        "handoffs/task-20260315T203842Z-5a3ef71c.md",
+        "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+        "handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+      ],
+      "aggregated_artifact_paths": [
+        "handoffs/task-20260315T203841Z-8eac35b9.md",
+        "handoffs/task-20260315T203841Z-8eac35b9.codex.md",
+        "handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+        "handoffs/task-20260315T203842Z-5a3ef71c.md",
+        "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+        "handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+      ],
+      "step_count": 4,
+      "steps_completed": 1,
+      "steps_failed": 0,
+      "steps_blocked": 0,
+      "steps_delegated": 2,
+      "steps_running": 0,
+      "steps_skipped": 0,
+      "steps_pending": 1,
+      "local_steps_count": 2,
+      "delegated_steps_count": 2,
+      "worker_steps_done": 0,
+      "worker_steps_blocked": 0,
+      "worker_steps_failed": 0,
+      "worker_steps_delegated": 2,
+      "worker_steps_running": 0,
+      "awaiting_worker_child_ids": [
+        "task-20260315T203841Z-8eac35b9",
+        "task-20260315T203842Z-5a3ef71c"
+      ],
+      "awaiting_worker_step_names": [
+        "delegated-repo-analysis-architecture",
+        "delegated-repo-analysis-verification"
+      ],
+      "awaiting_worker_result_steps": 2,
+      "resolved_worker_child_ids": [],
+      "resolved_worker_step_names": [],
+      "resolved_worker_result_steps": 0,
+      "worker_result_summaries": [
+        "worker handoff packet exported at handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+        "worker handoff packet exported at handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+      ],
+      "worker_outcomes": [
+        {
+          "step_name": "delegated-repo-analysis-architecture",
+          "step_order": 2,
+          "child_task_id": "task-20260315T203841Z-8eac35b9",
+          "child_status": "delegated",
+          "status": "delegated",
+          "worker_state": "",
+          "worker_result_status": "",
+          "summary": "worker handoff packet exported at handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+          "result_artifact_path": "",
+          "result_source_files": [],
+          "artifact_paths": [
+            "handoffs/task-20260315T203841Z-8eac35b9.md",
+            "handoffs/task-20260315T203841Z-8eac35b9.codex.md",
+            "handoffs/task-20260315T203841Z-8eac35b9.packet.json"
+          ],
+          "warning": false
+        },
+        {
+          "step_name": "delegated-repo-analysis-verification",
+          "step_order": 3,
+          "child_task_id": "task-20260315T203842Z-5a3ef71c",
+          "child_status": "delegated",
+          "status": "delegated",
+          "worker_state": "",
+          "worker_result_status": "",
+          "summary": "worker handoff packet exported at handoffs/task-20260315T203842Z-5a3ef71c.packet.json",
+          "result_artifact_path": "",
+          "result_source_files": [],
+          "artifact_paths": [
+            "handoffs/task-20260315T203842Z-5a3ef71c.md",
+            "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+            "handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+          ],
+          "warning": false
+        }
+      ],
+      "decision_reason": "",
+      "decision_source_step": "",
+      "decision_source_worker_result_status": "",
+      "next_step_selected": "",
+      "skipped_steps": [],
+      "conditional_outcomes": [],
+      "headline": "Chain delegated and waiting: 1/4 step(s) completed, 2 delegated, 0 running, awaiting 2 worker result(s) before the chain can continue.",
+      "final_artifact_path": "outbox/manual/20260315T203842Z-repo-analysis-worker-manual-multi-chain-final.md"
+    },
+    {
+      "kind": "chain-resume-worker",
+      "captured_at": "2026-03-15T20:38:43+00:00",
+      "exit_code": 2,
+      "content": "delegated-repo-analysis-architecture resumed from worker child status=blocked worker_result_status=blocked",
+      "step_name": "delegated-repo-analysis-architecture",
+      "child_task_id": "task-20260315T203841Z-8eac35b9",
+      "execution_mode": "worker",
+      "critical": true
+    },
+    {
+      "kind": "chain-results-collected",
+      "captured_at": "2026-03-15T20:38:43+00:00",
+      "exit_code": 0,
+      "content": "chain_status=blocked steps_completed=1/4 steps_blocked=1 worker_steps_done=0 worker_steps_blocked=1 worker_steps_failed=0 steps_delegated=1 steps_running=0 worker_steps_delegated=1 worker_steps_running=0 delegated_steps_count=2 local_steps_count=2",
+      "chain_type": "repo-analysis-worker-manual-multi",
+      "chain_status": "blocked",
+      "step_count": 4,
+      "steps_completed": 1,
+      "steps_failed": 0,
+      "steps_blocked": 1,
+      "steps_delegated": 1,
+      "steps_running": 0,
+      "steps_pending": 1,
+      "children_delegated": 1,
+      "children_running": 0,
+      "local_steps_count": 2,
+      "delegated_steps_count": 2,
+      "worker_steps_done": 0,
+      "worker_steps_blocked": 1,
+      "worker_steps_delegated": 1,
+      "worker_steps_running": 0,
+      "worker_steps_failed": 0,
+      "worker_result_summaries": [
+        "Critical worker blocked while another worker still waits",
+        "worker handoff packet exported at handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+      ],
+      "aggregated_artifact_paths": [
+        "handoffs/task-20260315T203841Z-8eac35b9.md",
+        "handoffs/task-20260315T203841Z-8eac35b9.codex.md",
+        "handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+        "outbox/manual/blocked-task-20260315T203841Z-8eac35b9.worker-result.json",
+        "handoffs/task-20260315T203842Z-5a3ef71c.md",
+        "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+        "handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+      ]
+    },
+    {
+      "kind": "chain-summary",
+      "captured_at": "2026-03-15T20:38:44+00:00",
+      "exit_code": 0,
+      "content": "chain_status=blocked step_count=4 steps_completed=1 steps_failed=0 steps_blocked=1 steps_delegated=1 steps_running=0 steps_skipped=0 worker_steps_done=0 worker_steps_blocked=1 worker_steps_delegated=1 worker_steps_running=0 worker_steps_failed=0 awaiting_worker_result_steps=1 resolved_worker_result_steps=1 next_step_selected=(none) headline=Chain blocked: 1/4 step(s) completed, 1 blocked, and one or more critical steps could not start or continue. final_artifact_path=outbox/manual/20260315T203843Z-repo-analysis-worker-manual-multi-chain-final.md",
+      "chain_type": "repo-analysis-worker-manual-multi",
+      "chain_status": "blocked",
+      "child_task_ids": [
+        "task-20260315T203834Z-173d4e4d",
+        "task-20260315T203841Z-8eac35b9",
+        "task-20260315T203842Z-5a3ef71c"
+      ],
+      "child_count": 3,
+      "children_done": 1,
+      "children_failed": 0,
+      "children_blocked": 1,
+      "children_delegated": 1,
+      "children_running": 0,
+      "children_with_warnings": 1,
+      "artifact_paths": [
+        "handoffs/task-20260315T203841Z-8eac35b9.md",
+        "handoffs/task-20260315T203841Z-8eac35b9.codex.md",
+        "handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+        "outbox/manual/blocked-task-20260315T203841Z-8eac35b9.worker-result.json",
+        "handoffs/task-20260315T203842Z-5a3ef71c.md",
+        "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+        "handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+      ],
+      "aggregated_artifact_paths": [
+        "handoffs/task-20260315T203841Z-8eac35b9.md",
+        "handoffs/task-20260315T203841Z-8eac35b9.codex.md",
+        "handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+        "outbox/manual/blocked-task-20260315T203841Z-8eac35b9.worker-result.json",
+        "handoffs/task-20260315T203842Z-5a3ef71c.md",
+        "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+        "handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+      ],
+      "step_count": 4,
+      "steps_completed": 1,
+      "steps_failed": 0,
+      "steps_blocked": 1,
+      "steps_delegated": 1,
+      "steps_running": 0,
+      "steps_skipped": 0,
+      "steps_pending": 1,
+      "local_steps_count": 2,
+      "delegated_steps_count": 2,
+      "worker_steps_done": 0,
+      "worker_steps_blocked": 1,
+      "worker_steps_failed": 0,
+      "worker_steps_delegated": 1,
+      "worker_steps_running": 0,
+      "awaiting_worker_child_ids": [
+        "task-20260315T203842Z-5a3ef71c"
+      ],
+      "awaiting_worker_step_names": [
+        "delegated-repo-analysis-verification"
+      ],
+      "awaiting_worker_result_steps": 1,
+      "resolved_worker_child_ids": [
+        "task-20260315T203841Z-8eac35b9"
+      ],
+      "resolved_worker_step_names": [
+        "delegated-repo-analysis-architecture"
+      ],
+      "resolved_worker_result_steps": 1,
+      "worker_result_summaries": [
+        "Critical worker blocked while another worker still waits",
+        "worker handoff packet exported at handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+      ],
+      "worker_outcomes": [
+        {
+          "step_name": "delegated-repo-analysis-architecture",
+          "step_order": 2,
+          "child_task_id": "task-20260315T203841Z-8eac35b9",
+          "child_status": "blocked",
+          "status": "blocked",
+          "worker_state": "",
+          "worker_result_status": "blocked",
+          "summary": "Critical worker blocked while another worker still waits",
+          "result_artifact_path": "",
+          "result_source_files": [],
+          "artifact_paths": [
+            "handoffs/task-20260315T203841Z-8eac35b9.md",
+            "handoffs/task-20260315T203841Z-8eac35b9.codex.md",
+            "handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+            "outbox/manual/blocked-task-20260315T203841Z-8eac35b9.worker-result.json"
+          ],
+          "warning": false
+        },
+        {
+          "step_name": "delegated-repo-analysis-verification",
+          "step_order": 3,
+          "child_task_id": "task-20260315T203842Z-5a3ef71c",
+          "child_status": "delegated",
+          "status": "delegated",
+          "worker_state": "",
+          "worker_result_status": "",
+          "summary": "worker handoff packet exported at handoffs/task-20260315T203842Z-5a3ef71c.packet.json",
+          "result_artifact_path": "",
+          "result_source_files": [],
+          "artifact_paths": [
+            "handoffs/task-20260315T203842Z-5a3ef71c.md",
+            "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+            "handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+          ],
+          "warning": false
+        }
+      ],
+      "decision_reason": "",
+      "decision_source_step": "",
+      "decision_source_worker_result_status": "",
+      "next_step_selected": "",
+      "skipped_steps": [],
+      "conditional_outcomes": [],
+      "headline": "Chain blocked: 1/4 step(s) completed, 1 blocked, and one or more critical steps could not start or continue.",
+      "final_artifact_path": "outbox/manual/20260315T203843Z-repo-analysis-worker-manual-multi-chain-final.md"
+    },
+    {
+      "kind": "chain-settlement",
+      "captured_at": "2026-03-15T20:38:44+00:00",
+      "exit_code": 2,
+      "content": "awaitable workers reconciled for root=task-20260315T203834Z-4b3ac10c; resume_exit=2",
+      "input_task_id": "task-20260315T203841Z-8eac35b9",
+      "input_kind": "child",
+      "worker_child_task_id": "task-20260315T203841Z-8eac35b9",
+      "worker_result_status": "blocked",
+      "recorded_worker_result_now": false,
+      "root_status": "blocked",
+      "root_chain_status": "blocked",
+      "ready_worker_child_ids": [
+        "task-20260315T203841Z-8eac35b9"
+      ],
+      "pending_worker_child_ids": [
+        "task-20260315T203842Z-5a3ef71c"
+      ],
+      "settlement_exit_code": 2
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T203842Z-repo-analysis-worker-manual-multi-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T20:38:43+00:00"
+    },
+    {
+      "path": "outbox/manual/20260315T203843Z-repo-analysis-worker-manual-multi-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T20:38:44+00:00"
+    }
+  ],
+  "notes": [
+    "chain plan v2 created at 2026-03-15T20:38:34+00:00",
+    "Chain delegated and waiting: 1/4 step(s) completed, 2 delegated, 0 running, awaiting 2 worker result(s) before the chain can continue.",
+    "Chain blocked: 1/4 step(s) completed, 1 blocked, and one or more critical steps could not start or continue."
+  ],
+  "chain_type": "repo-analysis-worker-manual-multi",
+  "chain_status": "blocked",
+  "chain_plan": {
+    "version": "2.3",
+    "planned_at": "2026-03-15T20:38:34+00:00",
+    "mixes_execution_modes": true,
+    "manual_worker_controlled": true,
+    "local_step_count": 2,
+    "worker_step_count": 2,
+    "critical_step_count": 3,
+    "await_worker_result_step_count": 2,
+    "step_count": 4,
+    "steps": [
+      {
+        "step_name": "local-self-check",
+        "step_order": 1,
+        "task_type": "self-check",
+        "execution_mode": "local",
+        "critical": true,
+        "title": "Multi worker await blocked path / local self-check",
+        "objective": "Validate the local Golem environment before any delegation.",
+        "depends_on_step_names": [],
+        "await_worker_result": false,
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "done",
+        "child_task_id": "task-20260315T203834Z-173d4e4d",
+        "child_status": "done",
+        "warning": true,
+        "summary": "SELF-CHECK GOLEM gateway: OK — gateway activo, runtime running, rpc ok whatsapp: OK — whatsapp conectado browser_relay: OK — browser relay chrome running tabs: WARN — relay activo pero 0 tabs adjuntas estado_general:...",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_summary": "",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": []
+      },
+      {
+        "step_name": "delegated-repo-analysis-architecture",
+        "step_order": 2,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "title": "Multi worker await blocked path / delegated repo analysis architecture",
+        "objective": "Analyze the repository architecture and describe the multi-worker manual orchestration structure, focusing on chain topology and dependency boundaries.",
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "await_worker_result": true,
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "blocked",
+        "child_task_id": "task-20260315T203841Z-8eac35b9",
+        "child_status": "blocked",
+        "warning": false,
+        "summary": "Critical worker blocked while another worker still waits",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [
+          "handoffs/task-20260315T203841Z-8eac35b9.md",
+          "handoffs/task-20260315T203841Z-8eac35b9.codex.md",
+          "handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+          "outbox/manual/blocked-task-20260315T203841Z-8eac35b9.worker-result.json"
+        ],
+        "worker_state": "",
+        "worker_result_status": "blocked",
+        "worker_result_summary": "Critical worker blocked while another worker still waits",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": []
+      },
+      {
+        "step_name": "delegated-repo-analysis-verification",
+        "step_order": 3,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "title": "Multi worker await blocked path / delegated repo analysis verification",
+        "objective": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation.",
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "await_worker_result": true,
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "delegated",
+        "child_task_id": "task-20260315T203842Z-5a3ef71c",
+        "child_status": "delegated",
+        "warning": false,
+        "summary": "worker handoff packet exported at handoffs/task-20260315T203842Z-5a3ef71c.packet.json",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [
+          "handoffs/task-20260315T203842Z-5a3ef71c.md",
+          "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+          "handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+        ],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_summary": "",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": []
+      },
+      {
+        "step_name": "local-compare-multi-worker-docs",
+        "step_order": 4,
+        "task_type": "compare-files",
+        "execution_mode": "local",
+        "critical": false,
+        "title": "Multi worker await blocked path / local multi-worker docs comparison",
+        "objective": "Produce one local artifact only after both manual-controlled worker results are done so the root closes with mixed evidence from multiple awaited workers.",
+        "depends_on_step_names": [
+          "delegated-repo-analysis-architecture",
+          "delegated-repo-analysis-verification"
+        ],
+        "await_worker_result": false,
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "planned",
+        "child_task_id": "",
+        "child_status": "",
+        "warning": false,
+        "summary": "",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_summary": "",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": []
+      }
+    ],
+    "last_finalized_at": "2026-03-15T20:38:43+00:00"
+  },
+  "chain_summary": {
+    "child_task_ids": [
+      "task-20260315T203834Z-173d4e4d",
+      "task-20260315T203841Z-8eac35b9",
+      "task-20260315T203842Z-5a3ef71c"
+    ],
+    "child_count": 3,
+    "children_done": 1,
+    "children_failed": 0,
+    "children_blocked": 1,
+    "children_delegated": 1,
+    "children_running": 0,
+    "children_with_warnings": 1,
+    "failed_child_ids": [],
+    "blocked_child_ids": [
+      "task-20260315T203841Z-8eac35b9"
+    ],
+    "warning_child_ids": [
+      "task-20260315T203834Z-173d4e4d"
+    ],
+    "artifact_paths": [
+      "handoffs/task-20260315T203841Z-8eac35b9.md",
+      "handoffs/task-20260315T203841Z-8eac35b9.codex.md",
+      "handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+      "outbox/manual/blocked-task-20260315T203841Z-8eac35b9.worker-result.json",
+      "handoffs/task-20260315T203842Z-5a3ef71c.md",
+      "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+      "handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+    ],
+    "aggregated_artifact_paths": [
+      "handoffs/task-20260315T203841Z-8eac35b9.md",
+      "handoffs/task-20260315T203841Z-8eac35b9.codex.md",
+      "handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+      "outbox/manual/blocked-task-20260315T203841Z-8eac35b9.worker-result.json",
+      "handoffs/task-20260315T203842Z-5a3ef71c.md",
+      "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+      "handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+    ],
+    "step_count": 4,
+    "steps_completed": 1,
+    "steps_failed": 0,
+    "steps_blocked": 1,
+    "steps_delegated": 1,
+    "steps_running": 0,
+    "steps_skipped": 0,
+    "steps_pending": 1,
+    "critical_step_count": 3,
+    "critical_steps_failed": 0,
+    "critical_steps_blocked": 1,
+    "critical_steps_skipped": 0,
+    "critical_steps_pending": 0,
+    "local_step_count": 2,
+    "worker_step_count": 2,
+    "local_steps_count": 2,
+    "delegated_steps_count": 2,
+    "worker_steps_done": 0,
+    "worker_steps_blocked": 1,
+    "worker_steps_failed": 0,
+    "worker_steps_delegated": 1,
+    "worker_steps_running": 0,
+    "worker_child_ids": [
+      "task-20260315T203841Z-8eac35b9",
+      "task-20260315T203842Z-5a3ef71c"
+    ],
+    "awaiting_worker_child_ids": [
+      "task-20260315T203842Z-5a3ef71c"
+    ],
+    "awaiting_worker_step_names": [
+      "delegated-repo-analysis-verification"
+    ],
+    "awaiting_worker_result_steps": 1,
+    "resolved_worker_child_ids": [
+      "task-20260315T203841Z-8eac35b9"
+    ],
+    "resolved_worker_step_names": [
+      "delegated-repo-analysis-architecture"
+    ],
+    "resolved_worker_result_steps": 1,
+    "worker_result_summaries": [
+      "Critical worker blocked while another worker still waits",
+      "worker handoff packet exported at handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+    ],
+    "worker_outcomes": [
+      {
+        "step_name": "delegated-repo-analysis-architecture",
+        "step_order": 2,
+        "child_task_id": "task-20260315T203841Z-8eac35b9",
+        "child_status": "blocked",
+        "status": "blocked",
+        "worker_state": "",
+        "worker_result_status": "blocked",
+        "summary": "Critical worker blocked while another worker still waits",
+        "result_artifact_path": "",
+        "result_source_files": [],
+        "artifact_paths": [
+          "handoffs/task-20260315T203841Z-8eac35b9.md",
+          "handoffs/task-20260315T203841Z-8eac35b9.codex.md",
+          "handoffs/task-20260315T203841Z-8eac35b9.packet.json",
+          "outbox/manual/blocked-task-20260315T203841Z-8eac35b9.worker-result.json"
+        ],
+        "warning": false
+      },
+      {
+        "step_name": "delegated-repo-analysis-verification",
+        "step_order": 3,
+        "child_task_id": "task-20260315T203842Z-5a3ef71c",
+        "child_status": "delegated",
+        "status": "delegated",
+        "worker_state": "",
+        "worker_result_status": "",
+        "summary": "worker handoff packet exported at handoffs/task-20260315T203842Z-5a3ef71c.packet.json",
+        "result_artifact_path": "",
+        "result_source_files": [],
+        "artifact_paths": [
+          "handoffs/task-20260315T203842Z-5a3ef71c.md",
+          "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+          "handoffs/task-20260315T203842Z-5a3ef71c.packet.json"
+        ],
+        "warning": false
+      }
+    ],
+    "decision_reason": "",
+    "decision_source_step": "",
+    "decision_source_worker_result_status": "",
+    "next_step_selected": "",
+    "skipped_steps": [],
+    "conditional_outcomes": [],
+    "headline": "Chain blocked: 1/4 step(s) completed, 1 blocked, and one or more critical steps could not start or continue.",
+    "final_artifact_path": "outbox/manual/20260315T203843Z-repo-analysis-worker-manual-multi-chain-final.md",
+    "last_collected_at": "2026-03-15T20:38:43+00:00"
+  }
+}

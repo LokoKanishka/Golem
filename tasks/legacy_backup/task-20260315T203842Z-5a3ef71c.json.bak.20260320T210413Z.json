@@ -1,0 +1,79 @@
+{
+  "task_id": "task-20260315T203842Z-5a3ef71c",
+  "type": "repo-analysis",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260315T203834Z-4b3ac10c",
+  "depends_on": [
+    "task-20260315T203834Z-173d4e4d"
+  ],
+  "status": "delegated",
+  "created_at": "2026-03-15T20:38:42+00:00",
+  "updated_at": "2026-03-15T20:38:42+00:00",
+  "title": "Multi worker await blocked path / delegated repo analysis verification",
+  "objective": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-context",
+      "captured_at": "2026-03-15T20:38:42+00:00",
+      "exit_code": 0,
+      "content": "Mixed local-worker chain child for delegated-repo-analysis-verification.",
+      "root_task_id": "task-20260315T203834Z-4b3ac10c",
+      "step_name": "delegated-repo-analysis-verification",
+      "requested_deliverable": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation."
+    },
+    {
+      "kind": "worker-handoff-packet",
+      "captured_at": "2026-03-15T20:38:42+00:00",
+      "exit_code": 0,
+      "content": "worker handoff packet exported at handoffs/task-20260315T203842Z-5a3ef71c.packet.json",
+      "packet_path": "handoffs/task-20260315T203842Z-5a3ef71c.packet.json",
+      "handoff_markdown_path": "handoffs/task-20260315T203842Z-5a3ef71c.md",
+      "codex_ticket_path": "handoffs/task-20260315T203842Z-5a3ef71c.codex.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260315T203842Z-5a3ef71c.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-15T20:38:42+00:00"
+    },
+    {
+      "path": "handoffs/task-20260315T203842Z-5a3ef71c.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-15T20:38:42+00:00"
+    },
+    {
+      "path": "handoffs/task-20260315T203842Z-5a3ef71c.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-15T20:38:42+00:00"
+    }
+  ],
+  "notes": [
+    "delegated to worker_future on 2026-03-15T20:38:42+00:00"
+  ],
+  "step_name": "delegated-repo-analysis-verification",
+  "step_order": 3,
+  "critical": true,
+  "execution_mode": "worker",
+  "handoff": {
+    "delegated_to": "worker_future",
+    "delegated_at": "2026-03-15T20:38:42+00:00",
+    "task_type": "repo-analysis",
+    "title": "Multi worker await blocked path / delegated repo analysis verification",
+    "objective": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation.",
+    "recommended_next_step": "delimitar alcance del repo y formato del informe esperado",
+    "required_fields_present": [
+      "task_id",
+      "type",
+      "title",
+      "objective",
+      "created_at"
+    ],
+    "missing_required_fields": [],
+    "policy_version": "1.0",
+    "rationale": "analisis multiarchivo con tiempo y estructura suficientes para worker futuro",
+    "source_status": "queued"
+  }
+}
