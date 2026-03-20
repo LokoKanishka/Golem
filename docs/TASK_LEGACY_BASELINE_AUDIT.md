@@ -2,7 +2,7 @@
 
 ## Timestamp
 
-- generated_at_utc: `2026-03-20T22:47:02Z`
+- generated_at_utc: `2026-03-20T22:57:08Z`
 
 ## Scope
 
@@ -12,115 +12,15 @@
 
 ## Active Tasks
 
-- canonical: 785
-- legacy: 610
+- canonical: 885
+- legacy: 510
 - corrupt: 0
 - invalid: 0
 
-`SCAN_SUMMARY total=1395 canonical=785 legacy=610 corrupt=0 invalid=0`
+`SCAN_SUMMARY total=1395 canonical=885 legacy=510 corrupt=0 invalid=0`
 
 ### Legacy
 
-- `TASK_SCAN_LEGACY task-20260317T002847Z-7c256f47 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002847Z-7c256f47.json`
-- `TASK_SCAN_LEGACY task-20260317T002847Z-802090a9 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002847Z-802090a9.json`
-- `TASK_SCAN_LEGACY task-20260317T002847Z-9171dbef /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002847Z-9171dbef.json`
-- `TASK_SCAN_LEGACY task-20260317T002847Z-9b6ebb68 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002847Z-9b6ebb68.json`
-- `TASK_SCAN_LEGACY task-20260317T002847Z-c71817de /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002847Z-c71817de.json`
-- `TASK_SCAN_LEGACY task-20260317T003030Z-7282b8b1 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003030Z-7282b8b1.json`
-- `TASK_SCAN_LEGACY task-20260317T003030Z-7ff424c8 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003030Z-7ff424c8.json`
-- `TASK_SCAN_LEGACY task-20260317T003030Z-b36270e8 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003030Z-b36270e8.json`
-- `TASK_SCAN_LEGACY task-20260317T003030Z-d092f6fd /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003030Z-d092f6fd.json`
-- `TASK_SCAN_LEGACY task-20260317T003030Z-d642dd7a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003030Z-d642dd7a.json`
-- `TASK_SCAN_LEGACY task-20260317T003031Z-0b0ac552 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003031Z-0b0ac552.json`
-- `TASK_SCAN_LEGACY task-20260317T003031Z-779357ac /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003031Z-779357ac.json`
-- `TASK_SCAN_LEGACY task-20260317T003031Z-82591009 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003031Z-82591009.json`
-- `TASK_SCAN_LEGACY task-20260317T003031Z-98087ba2 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003031Z-98087ba2.json`
-- `TASK_SCAN_LEGACY task-20260317T003031Z-bbdaa775 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003031Z-bbdaa775.json`
-- `TASK_SCAN_LEGACY task-20260317T003031Z-d040dcfd /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003031Z-d040dcfd.json`
-- `TASK_SCAN_LEGACY task-20260317T003031Z-e9d7bff3 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003031Z-e9d7bff3.json`
-- `TASK_SCAN_LEGACY task-20260317T003031Z-fd4d4fbf /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003031Z-fd4d4fbf.json`
-- `TASK_SCAN_LEGACY task-20260317T003032Z-0f47c3e8 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003032Z-0f47c3e8.json`
-- `TASK_SCAN_LEGACY task-20260317T003032Z-1f0e7d95 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003032Z-1f0e7d95.json`
-- `TASK_SCAN_LEGACY task-20260317T003032Z-63bdd7ff /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003032Z-63bdd7ff.json`
-- `TASK_SCAN_LEGACY task-20260317T003032Z-65ac70f0 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003032Z-65ac70f0.json`
-- `TASK_SCAN_LEGACY task-20260317T003032Z-73427b76 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003032Z-73427b76.json`
-- `TASK_SCAN_LEGACY task-20260317T003032Z-75dd3be7 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003032Z-75dd3be7.json`
-- `TASK_SCAN_LEGACY task-20260317T003032Z-82a8dda5 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003032Z-82a8dda5.json`
-- `TASK_SCAN_LEGACY task-20260317T003032Z-9010b86d /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003032Z-9010b86d.json`
-- `TASK_SCAN_LEGACY task-20260317T003032Z-93c11599 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003032Z-93c11599.json`
-- `TASK_SCAN_LEGACY task-20260317T003032Z-a300b0fd /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003032Z-a300b0fd.json`
-- `TASK_SCAN_LEGACY task-20260317T003033Z-0a17347d /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003033Z-0a17347d.json`
-- `TASK_SCAN_LEGACY task-20260317T003033Z-380f5837 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003033Z-380f5837.json`
-- `TASK_SCAN_LEGACY task-20260317T003033Z-80362dd9 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T003033Z-80362dd9.json`
-- `TASK_SCAN_LEGACY task-20260317T010936Z-2b2c3e21 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T010936Z-2b2c3e21.json`
-- `TASK_SCAN_LEGACY task-20260317T010937Z-457e1531 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T010937Z-457e1531.json`
-- `TASK_SCAN_LEGACY task-20260317T010937Z-540938cd /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T010937Z-540938cd.json`
-- `TASK_SCAN_LEGACY task-20260317T011023Z-24588488 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011023Z-24588488.json`
-- `TASK_SCAN_LEGACY task-20260317T011023Z-2d0eddef /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011023Z-2d0eddef.json`
-- `TASK_SCAN_LEGACY task-20260317T011023Z-3648684a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011023Z-3648684a.json`
-- `TASK_SCAN_LEGACY task-20260317T011023Z-4783da4b /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011023Z-4783da4b.json`
-- `TASK_SCAN_LEGACY task-20260317T011023Z-66f0877a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011023Z-66f0877a.json`
-- `TASK_SCAN_LEGACY task-20260317T011023Z-71aeeabd /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011023Z-71aeeabd.json`
-- `TASK_SCAN_LEGACY task-20260317T011023Z-a30a13ea /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011023Z-a30a13ea.json`
-- `TASK_SCAN_LEGACY task-20260317T011023Z-cd43ee94 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011023Z-cd43ee94.json`
-- `TASK_SCAN_LEGACY task-20260317T011024Z-020b9fd0 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011024Z-020b9fd0.json`
-- `TASK_SCAN_LEGACY task-20260317T011024Z-057d00d5 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011024Z-057d00d5.json`
-- `TASK_SCAN_LEGACY task-20260317T011024Z-52e39903 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011024Z-52e39903.json`
-- `TASK_SCAN_LEGACY task-20260317T011024Z-567d6c4c /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011024Z-567d6c4c.json`
-- `TASK_SCAN_LEGACY task-20260317T011024Z-5878cb78 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011024Z-5878cb78.json`
-- `TASK_SCAN_LEGACY task-20260317T011024Z-82a631a5 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011024Z-82a631a5.json`
-- `TASK_SCAN_LEGACY task-20260317T011024Z-877a2eb1 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011024Z-877a2eb1.json`
-- `TASK_SCAN_LEGACY task-20260317T011024Z-902fa717 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011024Z-902fa717.json`
-- `TASK_SCAN_LEGACY task-20260317T011024Z-9cde1e86 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011024Z-9cde1e86.json`
-- `TASK_SCAN_LEGACY task-20260317T011024Z-c1228768 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011024Z-c1228768.json`
-- `TASK_SCAN_LEGACY task-20260317T011024Z-dc404cfc /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011024Z-dc404cfc.json`
-- `TASK_SCAN_LEGACY task-20260317T011024Z-ebd164b7 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011024Z-ebd164b7.json`
-- `TASK_SCAN_LEGACY task-20260317T011025Z-2dfdca2c /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011025Z-2dfdca2c.json`
-- `TASK_SCAN_LEGACY task-20260317T011025Z-43e9bf89 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011025Z-43e9bf89.json`
-- `TASK_SCAN_LEGACY task-20260317T011025Z-5e47dd69 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011025Z-5e47dd69.json`
-- `TASK_SCAN_LEGACY task-20260317T011025Z-adacccb1 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011025Z-adacccb1.json`
-- `TASK_SCAN_LEGACY task-20260317T011025Z-bd1c5fba /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011025Z-bd1c5fba.json`
-- `TASK_SCAN_LEGACY task-20260317T011025Z-d730f348 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011025Z-d730f348.json`
-- `TASK_SCAN_LEGACY task-20260317T011501Z-1246be07 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011501Z-1246be07.json`
-- `TASK_SCAN_LEGACY task-20260317T011501Z-23688d7b /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011501Z-23688d7b.json`
-- `TASK_SCAN_LEGACY task-20260317T011501Z-57e9a1c8 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011501Z-57e9a1c8.json`
-- `TASK_SCAN_LEGACY task-20260317T011501Z-6cb436e1 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011501Z-6cb436e1.json`
-- `TASK_SCAN_LEGACY task-20260317T011501Z-74c4db7a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011501Z-74c4db7a.json`
-- `TASK_SCAN_LEGACY task-20260317T011501Z-79bfea88 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011501Z-79bfea88.json`
-- `TASK_SCAN_LEGACY task-20260317T011501Z-a30cabc8 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011501Z-a30cabc8.json`
-- `TASK_SCAN_LEGACY task-20260317T011501Z-be949f5a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011501Z-be949f5a.json`
-- `TASK_SCAN_LEGACY task-20260317T011501Z-cb5b672c /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011501Z-cb5b672c.json`
-- `TASK_SCAN_LEGACY task-20260317T011501Z-d5e9c277 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011501Z-d5e9c277.json`
-- `TASK_SCAN_LEGACY task-20260317T011501Z-e863c48d /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011501Z-e863c48d.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-0a3faa6f /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-0a3faa6f.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-3750d301 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-3750d301.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-78a54685 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-78a54685.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-7a82524a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-7a82524a.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-8d8f1b81 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-8d8f1b81.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-91c01a8c /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-91c01a8c.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-a59137c5 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-a59137c5.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-b262af7a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-b262af7a.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-b396d387 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-b396d387.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-b4ca2f49 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-b4ca2f49.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-c686b307 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-c686b307.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-c8d53c38 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-c8d53c38.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-e7370997 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-e7370997.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-ed0b7b51 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-ed0b7b51.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-f0cf6e6f /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-f0cf6e6f.json`
-- `TASK_SCAN_LEGACY task-20260317T011502Z-fd6d1c93 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011502Z-fd6d1c93.json`
-- `TASK_SCAN_LEGACY task-20260317T011503Z-1b68eae0 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011503Z-1b68eae0.json`
-- `TASK_SCAN_LEGACY task-20260317T011503Z-1f9f5611 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011503Z-1f9f5611.json`
-- `TASK_SCAN_LEGACY task-20260317T011503Z-298c1b65 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011503Z-298c1b65.json`
-- `TASK_SCAN_LEGACY task-20260317T011503Z-3d0c0d42 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011503Z-3d0c0d42.json`
-- `TASK_SCAN_LEGACY task-20260317T011503Z-4feddc3a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011503Z-4feddc3a.json`
-- `TASK_SCAN_LEGACY task-20260317T011503Z-5070b7f0 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011503Z-5070b7f0.json`
-- `TASK_SCAN_LEGACY task-20260317T011503Z-7f9c1c12 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011503Z-7f9c1c12.json`
-- `TASK_SCAN_LEGACY task-20260317T011503Z-8b54e9dc /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011503Z-8b54e9dc.json`
-- `TASK_SCAN_LEGACY task-20260317T011503Z-919f9e76 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011503Z-919f9e76.json`
-- `TASK_SCAN_LEGACY task-20260317T011503Z-e37031d3 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011503Z-e37031d3.json`
-- `TASK_SCAN_LEGACY task-20260317T011504Z-41fa623f /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011504Z-41fa623f.json`
-- `TASK_SCAN_LEGACY task-20260317T011504Z-b30c0b19 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011504Z-b30c0b19.json`
-- `TASK_SCAN_LEGACY task-20260317T011504Z-d90ebfcd /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011504Z-d90ebfcd.json`
 - `TASK_SCAN_LEGACY task-20260317T011504Z-f802191a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011504Z-f802191a.json`
 - `TASK_SCAN_LEGACY task-20260317T011505Z-049f7c62 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011505Z-049f7c62.json`
 - `TASK_SCAN_LEGACY task-20260317T011505Z-2b0f2677 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T011505Z-2b0f2677.json`
@@ -663,12 +563,12 @@
 
 ## Combined Totals
 
-- canonical: 785
-- legacy: 610
+- canonical: 885
+- legacy: 510
 - corrupt: 0
 - invalid: 0
 
-`SCAN_SUMMARY total=1395 canonical=785 legacy=610 corrupt=0 invalid=0`
+`SCAN_SUMMARY total=1395 canonical=885 legacy=510 corrupt=0 invalid=0`
 
 ## Reading
 

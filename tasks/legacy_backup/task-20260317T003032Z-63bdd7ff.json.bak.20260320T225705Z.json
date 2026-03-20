@@ -1,0 +1,128 @@
+{
+  "task_id": "task-20260317T003032Z-63bdd7ff",
+  "type": "verification-media",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "queued",
+  "created_at": "2026-03-17T00:30:32+00:00",
+  "updated_at": "2026-03-17T00:30:33+00:00",
+  "title": "Verify drifted media identity",
+  "objective": "Verify drifted media identity",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "media-ingestion",
+      "captured_at": "2026-03-17T00:30:32+00:00",
+      "exit_code": 0,
+      "content": "TASK_MEDIA_REGISTERED task-20260317T003032Z-63bdd7ff item_id=media-0001 state=registered",
+      "item_id": "media-0001",
+      "source_kind": "local-path",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260317T003030938090Z-drift-path.md",
+      "sha256": "dfaac8f31801d29725f21951d33f4a0a7d29601ef9ad01d4a8a34b3f7b2e7507",
+      "size_bytes": 168,
+      "mime_type": "text/markdown",
+      "media_state": "registered"
+    },
+    {
+      "kind": "media-readiness",
+      "captured_at": "2026-03-17T00:30:33+00:00",
+      "exit_code": 1,
+      "content": "TASK_MEDIA_READY_FAILED task-20260317T003032Z-63bdd7ff item_id=media-0001",
+      "item_id": "media-0001",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260317T003030938090Z-drift-path.md",
+      "sha256": "1bcbba3a0abb7f7370d391d64bb706c55b9a562c6e972c41ae2fafed38eb13b2",
+      "size_bytes": 211,
+      "mime_type": "text/markdown",
+      "media_state": "failed",
+      "reason": "registered media sha256 drifted from the canonical identity"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "media ingestion registered recorded for 20260317T003030938090Z-drift-path.md",
+    "media readiness failed recorded for 20260317T003030938090Z-drift-path.md"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "",
+    "user_facing_ready": false,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [],
+    "claim_history": []
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": true,
+    "current_state": "failed",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [
+      {
+        "item_id": "media-0001",
+        "source_kind": "local-path",
+        "source_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260317T003030938090Z-drift-path.md",
+        "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260317T003030938090Z-drift-path.md",
+        "basename": "20260317T003030938090Z-drift-path.md",
+        "extension": ".md",
+        "mime_type": "text/markdown",
+        "size_bytes": 211,
+        "sha256": "1bcbba3a0abb7f7370d391d64bb706c55b9a562c6e972c41ae2fafed38eb13b2",
+        "readable": true,
+        "exists": true,
+        "owner": "lucy-ubuntu",
+        "owner_reliable": true,
+        "is_directory": false,
+        "is_file": true,
+        "collected_at": "2026-03-17T00:30:32+00:00",
+        "verified_at": "2026-03-17T00:30:33+00:00",
+        "current_state": "failed",
+        "evidence": "registered local file before drifting its contents",
+        "actor": "verify-media-ingestion",
+        "verification_reason": "registered media sha256 drifted from the canonical identity",
+        "verification_evidence": "re-verified after the file contents drifted",
+        "verified_by": "verify-media-ingestion"
+      }
+    ],
+    "events": [
+      {
+        "timestamp": "2026-03-17T00:30:32+00:00",
+        "actor": "verify-media-ingestion",
+        "action": "register",
+        "reason": "media registered and awaiting readiness verification",
+        "item_id": "media-0001",
+        "evidence": "registered local file before drifting its contents"
+      },
+      {
+        "timestamp": "2026-03-17T00:30:33+00:00",
+        "actor": "verify-media-ingestion",
+        "action": "verify",
+        "reason": "registered media sha256 drifted from the canonical identity",
+        "item_id": "media-0001",
+        "evidence": "re-verified after the file contents drifted"
+      }
+    ],
+    "last_event_at": "2026-03-17T00:30:33+00:00",
+    "last_event_reason": "registered media sha256 drifted from the canonical identity"
+  }
+}
