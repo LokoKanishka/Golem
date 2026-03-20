@@ -1,0 +1,25 @@
+{
+  "task_id": "task-20260316T222123Z-3ba8e211",
+  "type": "verification-delivery",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "queued",
+  "created_at": "2026-03-16T22:21:23+00:00",
+  "updated_at": "2026-03-16T22:21:23+00:00",
+  "title": "Verify delivery drift path",
+  "objective": "Verify delivery drift path",
+  "inputs": [],
+  "outputs": [],
+  "artifacts": [],
+  "notes": [],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "",
+    "user_facing_ready": false,
+    "transitions": [],
+    "claim_history": []
+  }
+}

@@ -1,0 +1,200 @@
+TASK_VALID task-20260316T214223Z-9b2feef7 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214223Z-9b2feef7.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214230Z-f7165992 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214230Z-f7165992.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214232Z-14596700 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214232Z-14596700.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214233Z-738500b7 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214233Z-738500b7.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214234Z-831ea41d canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214234Z-831ea41d.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214241Z-2725e5ee canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214241Z-2725e5ee.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214244Z-437728f9 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214244Z-437728f9.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214244Z-56733b06 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214244Z-56733b06.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214251Z-488c6e19 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214251Z-488c6e19.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214252Z-e032af91 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214252Z-e032af91.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214254Z-7c7a3d53 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214254Z-7c7a3d53.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214256Z-8a9b58ad canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214256Z-8a9b58ad.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214258Z-74aa7bc2 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214258Z-74aa7bc2.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214258Z-e4156017 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214258Z-e4156017.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214306Z-02fccb6b canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214306Z-02fccb6b.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214306Z-05315a23 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214306Z-05315a23.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214308Z-7676920a canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214308Z-7676920a.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214311Z-2ea0c6da canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214311Z-2ea0c6da.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214312Z-c36e2494 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214312Z-c36e2494.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214319Z-ac60e9e9 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214319Z-ac60e9e9.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214320Z-e998a282 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214320Z-e998a282.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214322Z-f92100f7 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214322Z-f92100f7.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214323Z-af42cbee canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214323Z-af42cbee.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214408Z-1014be97 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214408Z-1014be97.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214453Z-f6263902 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214453Z-f6263902.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T214538Z-1086791f canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T214538Z-1086791f.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222041Z-0f7bf475 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222041Z-0f7bf475.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222041Z-27e8f3e4 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222041Z-27e8f3e4.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222041Z-7fb29c7e canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222041Z-7fb29c7e.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222041Z-d71c793c canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222041Z-d71c793c.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222042Z-12b595e8 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222042Z-12b595e8.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222042Z-87d7a37e canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222042Z-87d7a37e.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222042Z-e899c315 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222042Z-e899c315.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222042Z-e96eda0d canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222042Z-e96eda0d.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222100Z-c3315275 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222100Z-c3315275.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222122Z-ada2754a canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222122Z-ada2754a.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222122Z-af795c35 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222122Z-af795c35.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222122Z-b91748e1 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222122Z-b91748e1.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222122Z-fde53400 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222122Z-fde53400.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222123Z-3ba8e211 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222123Z-3ba8e211.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222123Z-53cab31d canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222123Z-53cab31d.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222123Z-7ea8d246 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222123Z-7ea8d246.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T222123Z-c4c087ca canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T222123Z-c4c087ca.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232352Z-a6515a2a canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232352Z-a6515a2a.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232353Z-1c16b919 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232353Z-1c16b919.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232353Z-c342e8c1 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232353Z-c342e8c1.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232353Z-de3a5f0b canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232353Z-de3a5f0b.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232435Z-03533494 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232435Z-03533494.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232435Z-15578a64 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232435Z-15578a64.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232435Z-2dd79f84 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232435Z-2dd79f84.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232435Z-a2f18cd5 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232435Z-a2f18cd5.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232435Z-fb8156c2 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232435Z-fb8156c2.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232436Z-d5ad661b canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232436Z-d5ad661b.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232436Z-ebef57f0 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232436Z-ebef57f0.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232436Z-f907e90d canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232436Z-f907e90d.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232445Z-912c88b4 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232445Z-912c88b4.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232446Z-21ea6c95 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232446Z-21ea6c95.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232446Z-c13c1d0f canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232446Z-c13c1d0f.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232447Z-0d0899e8 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232447Z-0d0899e8.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260316T232447Z-71c1d0aa canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232447Z-71c1d0aa.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000504Z-175101fd canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000504Z-175101fd.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000504Z-53d38f84 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000504Z-53d38f84.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000505Z-4bb3cab2 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000505Z-4bb3cab2.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000505Z-90db04d9 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000505Z-90db04d9.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000505Z-b510a239 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000505Z-b510a239.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000515Z-02cd3288 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000515Z-02cd3288.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000515Z-1389f0fc canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000515Z-1389f0fc.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000515Z-1a991c26 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000515Z-1a991c26.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000515Z-3dfce5cf canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000515Z-3dfce5cf.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000515Z-52cd850e canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000515Z-52cd850e.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000515Z-58f601eb canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000515Z-58f601eb.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000515Z-b414cd2a canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000515Z-b414cd2a.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000515Z-d11c2128 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000515Z-d11c2128.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000516Z-17274cbf canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000516Z-17274cbf.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000516Z-1aa796a1 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000516Z-1aa796a1.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000516Z-1e308c36 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000516Z-1e308c36.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000516Z-3a5341bb canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000516Z-3a5341bb.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000516Z-72610679 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000516Z-72610679.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T000517Z-fe4bf8f7 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T000517Z-fe4bf8f7.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002831Z-294ef66d canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002831Z-294ef66d.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002831Z-d6c81e48 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002831Z-d6c81e48.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002832Z-7b92f765 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002832Z-7b92f765.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002832Z-eb89efde canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002832Z-eb89efde.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002833Z-2a3456f2 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002833Z-2a3456f2.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002833Z-cd271f77 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002833Z-cd271f77.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002845Z-1cddb1f1 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002845Z-1cddb1f1.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002845Z-2fcf6686 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002845Z-2fcf6686.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002845Z-4ef06a9d canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002845Z-4ef06a9d.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002845Z-56918ba1 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002845Z-56918ba1.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002845Z-a67f0ce4 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002845Z-a67f0ce4.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002846Z-84362cf8 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002846Z-84362cf8.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002846Z-88f0eace canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002846Z-88f0eace.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002846Z-94a38139 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002846Z-94a38139.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002846Z-af7020a6 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002846Z-af7020a6.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002846Z-afa3a9f2 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002846Z-afa3a9f2.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002846Z-b53796eb canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002846Z-b53796eb.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002846Z-cd1b5dc0 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002846Z-cd1b5dc0.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002846Z-f50bf116 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002846Z-f50bf116.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002847Z-67e6bd61 canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002847Z-67e6bd61.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0
+TASK_VALID task-20260317T002847Z-7b7aa2ca canonical /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260317T002847Z-7b7aa2ca.json
+VALIDATE_SUMMARY total=1 valid=1 legacy=0 invalid=0

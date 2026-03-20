@@ -1,0 +1,71 @@
+{
+  "task_id": "task-20260316T222041Z-27e8f3e4",
+  "type": "verification-delivery",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "queued",
+  "created_at": "2026-03-16T22:20:41+00:00",
+  "updated_at": "2026-03-16T22:20:42+00:00",
+  "title": "Verify delivery visible path",
+  "objective": "Verify delivery visible path",
+  "inputs": [],
+  "outputs": [],
+  "artifacts": [],
+  "notes": [],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "visible",
+    "user_facing_ready": true,
+    "transitions": [
+      {
+        "state": "submitted",
+        "timestamp": "2026-03-16T22:20:41+00:00",
+        "actor": "verify-user-delivery",
+        "channel": "repo-internal",
+        "evidence": "task submitted to outbound delivery flow"
+      },
+      {
+        "state": "accepted",
+        "timestamp": "2026-03-16T22:20:41+00:00",
+        "actor": "verify-user-delivery",
+        "channel": "repo-internal",
+        "evidence": "technical acceptance recorded"
+      },
+      {
+        "state": "delivered",
+        "timestamp": "2026-03-16T22:20:42+00:00",
+        "actor": "verify-user-delivery",
+        "channel": "whatsapp",
+        "evidence": "message queued into the user-facing outbound lane"
+      },
+      {
+        "state": "visible",
+        "timestamp": "2026-03-16T22:20:42+00:00",
+        "actor": "verify-user-delivery",
+        "channel": "whatsapp",
+        "evidence": "delivery evidence confirms the user can already see the message"
+      }
+    ],
+    "claim_history": [
+      {
+        "claim": "final success claim",
+        "timestamp": "2026-03-16T22:20:42+00:00",
+        "actor": "verify-user-delivery",
+        "channel": "whatsapp",
+        "evidence": "final success claim after visible evidence exists",
+        "required_state": "visible",
+        "current_state": "visible",
+        "allowed": true
+      }
+    ],
+    "last_transition_at": "2026-03-16T22:20:42+00:00",
+    "last_transition_actor": "verify-user-delivery",
+    "last_transition_channel": "whatsapp",
+    "last_claim_at": "2026-03-16T22:20:42+00:00",
+    "last_claim_actor": "verify-user-delivery",
+    "last_claim_channel": "whatsapp"
+  }
+}
