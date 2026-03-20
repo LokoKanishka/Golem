@@ -1,0 +1,362 @@
+{
+  "task_id": "task-20260319T182947Z-42e00ace",
+  "type": "verification-whatsapp-live-provider-canary",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "blocked",
+  "created_at": "2026-03-19T18:29:47+00:00",
+  "updated_at": "2026-03-19T18:29:58+00:00",
+  "title": "Verify controlled live WhatsApp provider canary",
+  "objective": "Verify controlled live WhatsApp provider canary",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "whatsapp-live-send",
+      "captured_at": "2026-03-19T18:29:52+00:00",
+      "exit_code": 0,
+      "content": "whatsapp live send wrapper captured gateway acceptance evidence and persisted message_id",
+      "command": "openclaw message send --channel whatsapp --target '+156348867' --message 'GOLEM-211 live provider canary 20260319T182947057850Z' --json",
+      "surface_mode": "openclaw-message-send",
+      "surface_exit_code": 0,
+      "to": "+156348867",
+      "message": "GOLEM-211 live provider canary 20260319T182947057850Z",
+      "media_path": "",
+      "run_id": "run-20260319T182949Z-60c3b753",
+      "wrapper_state": "accepted_by_gateway",
+      "raw_result_excerpt": "│ ◇ Doctor warnings ────────────────────────────────────────────╮ │ │ │ - State dir migration skipped: target already exists │ │ (/home/lucy-ubuntu/.openclaw). Remove or merge manually. │ │ │ ├───────────────────────────────────────────────",
+      "provider_proof_summary": {
+        "signal": "none",
+        "provider_status": "",
+        "reason": "no explicit provider delivery evidence was found in the live send response",
+        "normalized_evidence": {
+          "status_candidates": [],
+          "boolean_candidates": [],
+          "proof_strength_candidates": []
+        }
+      },
+      "report_path": "outbox/manual/run-20260319T182949Z-60c3b753-whatsapp-live-send.json",
+      "parsed_result": {
+        "action": "send",
+        "channel": "whatsapp",
+        "dryRun": false,
+        "handledBy": "core",
+        "payload": {
+          "channel": "whatsapp",
+          "to": "+156348867",
+          "via": "gateway",
+          "mediaUrl": null,
+          "result": {
+            "runId": "47f7b196-cf66-4575-a410-d013b1c46779",
+            "messageId": "3EB0BDD591362228986C37",
+            "channel": "whatsapp",
+            "toJid": "156348867@s.whatsapp.net"
+          }
+        }
+      },
+      "parsed_summary": {
+        "message_id": "3EB0BDD591362228986C37",
+        "channel": "whatsapp",
+        "to": "+156348867",
+        "provider": "core",
+        "dry_run": false
+      },
+      "wrapper_status": "ACCEPTED_BY_GATEWAY",
+      "message_id_drift_expected": "",
+      "message_id_drift_actual": ""
+    },
+    {
+      "kind": "whatsapp-live-provider-canary",
+      "captured_at": "2026-03-19T18:29:52+00:00",
+      "exit_code": 2,
+      "content": "the live canary sent a real WhatsApp message, but only gateway or inconclusive provider evidence was available",
+      "canary_summary": {
+        "target_resolved": true,
+        "canary_target": "+156348867",
+        "target_source": "runtime-allowlist",
+        "wrapper_status": "ACCEPTED_BY_GATEWAY",
+        "wrapper_state": "accepted_by_gateway",
+        "whatsapp_state": "accepted_by_gateway",
+        "provider_delivery_status": "gateway_accepted",
+        "provider_delivery_reason": "the gateway accepted the message but the provider has not yet proved delivery",
+        "message_id": "3EB0BDD591362228986C37",
+        "wrapper_report": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/run-20260319T182949Z-60c3b753-whatsapp-live-send.json"
+      },
+      "report_path": "outbox/manual/20260319T182947057850Z-whatsapp-live-provider-canary.md"
+    },
+    {
+      "kind": "whatsapp-provider-post-send-reconciliation",
+      "captured_at": "2026-03-19T18:29:57+00:00",
+      "exit_code": 2,
+      "content": "the runtime still exposes no strong provider-proof reconciliation surface after gateway acceptance",
+      "task_id": "task-20260319T182947Z-42e00ace",
+      "message_id": "3EB0BDD591362228986C37",
+      "to": "+156348867",
+      "provider": "core",
+      "task_whatsapp_state": "accepted_by_gateway",
+      "provider_delivery_status": "gateway_accepted",
+      "provider_delivery_reason": "the gateway accepted the message but the provider has not yet proved delivery",
+      "reconciliation_status": "BLOCKED",
+      "resolution": "none",
+      "dominant_blocker": "whatsapp_post_send_provider_proof_surface_missing",
+      "capabilities_surface": "present_but_non_canonical",
+      "message_read_surface": "unavailable",
+      "logs_surface": "ambiguous",
+      "report_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/run-20260319T182952Z-a43da101-whatsapp-provider-post-send-reconciliation.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/run-20260319T182949Z-60c3b753-whatsapp-live-send.json",
+      "kind": "whatsapp-live-send-report",
+      "created_at": "2026-03-19T18:29:52+00:00",
+      "run_id": "run-20260319T182949Z-60c3b753",
+      "wrapper_status": "ACCEPTED_BY_GATEWAY",
+      "wrapper_state": "accepted_by_gateway"
+    },
+    {
+      "path": "outbox/manual/20260319T182947057850Z-whatsapp-live-provider-canary.md",
+      "kind": "whatsapp-live-provider-canary-report",
+      "created_at": "2026-03-19T18:29:52+00:00"
+    },
+    {
+      "path": "outbox/manual/run-20260319T182952Z-a43da101-whatsapp-provider-post-send-reconciliation.md",
+      "kind": "whatsapp-provider-post-send-reconciliation-report",
+      "created_at": "2026-03-19T18:29:57+00:00"
+    }
+  ],
+  "notes": [
+    "whatsapp delivery requested recorded for +156348867 with allowed claim 'solicitado'",
+    "whatsapp delivery accepted_by_gateway recorded for +156348867 with allowed claim 'aceptado por gateway'",
+    "the live canary sent a real WhatsApp message, but only gateway or inconclusive provider evidence was available"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "visible",
+    "user_facing_ready": true,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": true,
+      "current_state": "accepted_by_gateway",
+      "delivery_confidence": "medium",
+      "allowed_claim_level": "accepted_by_gateway",
+      "allowed_user_facing_claim": "aceptado por gateway",
+      "user_facing_ready": false,
+      "tracked_message_id": "3EB0BDD591362228986C37",
+      "message_ids": [
+        "3EB0BDD591362228986C37"
+      ],
+      "provider": "core",
+      "to": "+156348867",
+      "run_id": "run-20260319T182949Z-60c3b753",
+      "provider_delivery_status": "gateway_accepted",
+      "provider_delivery_reason": "the gateway accepted the message but the provider has not yet proved delivery",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "2026-03-19T18:29:52+00:00",
+      "attempts": [
+        {
+          "channel": "whatsapp",
+          "provider": "openclaw-message-send",
+          "to": "+156348867",
+          "message_id": "",
+          "run_id": "whatsapp-live-send-requested",
+          "timestamp": "2026-03-19T18:29:49+00:00",
+          "delivery_state": "requested",
+          "delivery_state_canonical": "requested",
+          "delivery_confidence": "low",
+          "allowed_claim_level": "requested",
+          "allowed_user_facing_claim": "solicitado",
+          "raw_result_excerpt": "controlled live provider canary send",
+          "provider_evidence_kind": "send_request",
+          "provider_status": "send_requested",
+          "provider_reason": "the wrapper registered the outbound intent before any gateway or provider proof",
+          "provider_evidence_normalized": {},
+          "delivery_proof_present": false,
+          "actor": "verify-whatsapp-live-provider-canary"
+        },
+        {
+          "channel": "whatsapp",
+          "provider": "core",
+          "to": "+156348867",
+          "message_id": "3EB0BDD591362228986C37",
+          "run_id": "run-20260319T182949Z-60c3b753",
+          "timestamp": "2026-03-19T18:29:52+00:00",
+          "delivery_state": "accepted_by_gateway",
+          "delivery_state_canonical": "accepted_by_gateway",
+          "delivery_confidence": "medium",
+          "allowed_claim_level": "accepted_by_gateway",
+          "allowed_user_facing_claim": "aceptado por gateway",
+          "raw_result_excerpt": "│ ◇ Doctor warnings ────────────────────────────────────────────╮ │ │ │ - State dir migration skipped: target already exists │ │ (/home/lucy-ubuntu/.openclaw). Remove or merge manually. │ │ │ ├───────────────────────────────────────────────",
+          "provider_evidence_kind": "gateway_acceptance",
+          "provider_status": "gateway_accepted",
+          "provider_reason": "the gateway accepted the message but the provider has not yet proved delivery",
+          "provider_evidence_normalized": {},
+          "delivery_proof_present": false,
+          "actor": "verify-whatsapp-live-provider-canary"
+        }
+      ],
+      "claim_history": [
+        {
+          "channel": "whatsapp",
+          "timestamp": "2026-03-19T18:29:52+00:00",
+          "actor": "verify-whatsapp-live-provider-canary",
+          "requested_claim_level": "delivered",
+          "requested_claim_level_input": "delivered",
+          "requested_claim_text": "entregado",
+          "current_state": "accepted_by_gateway",
+          "allowed_claim_level": "accepted_by_gateway",
+          "allowed_user_facing_claim": "aceptado por gateway",
+          "delivery_confidence": "medium",
+          "message_id": "3EB0BDD591362228986C37",
+          "provider_delivery_status": "gateway_accepted",
+          "provider_delivery_reason": "the gateway accepted the message but the provider has not yet proved delivery",
+          "evidence": "controlled live canary checks whether delivered wording is now honestly authorized",
+          "allowed": false
+        },
+        {
+          "channel": "whatsapp",
+          "timestamp": "2026-03-19T18:29:58+00:00",
+          "actor": "verify-whatsapp-provider-post-send-reconciliation",
+          "requested_claim_level": "delivered",
+          "requested_claim_level_input": "delivered",
+          "requested_claim_text": "entregado",
+          "current_state": "accepted_by_gateway",
+          "allowed_claim_level": "accepted_by_gateway",
+          "allowed_user_facing_claim": "aceptado por gateway",
+          "delivery_confidence": "medium",
+          "message_id": "3EB0BDD591362228986C37",
+          "provider_delivery_status": "gateway_accepted",
+          "provider_delivery_reason": "the gateway accepted the message but the provider has not yet proved delivery",
+          "evidence": "post-send reconciliation verifies whether delivered wording is now honestly authorized",
+          "allowed": false
+        }
+      ],
+      "last_attempt_at": "2026-03-19T18:29:52+00:00",
+      "last_actor": "verify-whatsapp-live-provider-canary",
+      "last_claim_at": "2026-03-19T18:29:58+00:00",
+      "last_claim_actor": "verify-whatsapp-provider-post-send-reconciliation"
+    },
+    "transitions": [
+      {
+        "state": "submitted",
+        "timestamp": "2026-03-19T18:29:48+00:00",
+        "actor": "verify-whatsapp-live-provider-canary",
+        "channel": "whatsapp",
+        "evidence": "controlled live WhatsApp canary requested a real outbound send"
+      },
+      {
+        "state": "accepted",
+        "timestamp": "2026-03-19T18:29:48+00:00",
+        "actor": "verify-whatsapp-live-provider-canary",
+        "channel": "whatsapp",
+        "evidence": "controlled live WhatsApp canary entered the outbound lane locally"
+      },
+      {
+        "state": "delivered",
+        "timestamp": "2026-03-19T18:29:48+00:00",
+        "actor": "verify-whatsapp-live-provider-canary",
+        "channel": "whatsapp",
+        "evidence": "generic delivery lane is ready while channel truth still depends on provider proof"
+      },
+      {
+        "state": "visible",
+        "timestamp": "2026-03-19T18:29:49+00:00",
+        "actor": "verify-whatsapp-live-provider-canary",
+        "channel": "whatsapp",
+        "evidence": "generic claim now depends on the canonical WhatsApp provider-proof lane"
+      }
+    ],
+    "claim_history": [
+      {
+        "claim": "final success claim",
+        "timestamp": "2026-03-19T18:29:52+00:00",
+        "actor": "verify-whatsapp-live-provider-canary",
+        "channel": "whatsapp",
+        "evidence": "controlled live canary checks whether generic final success is honestly authorized",
+        "required_state": "visible",
+        "current_state": "visible",
+        "visible_artifact_required": false,
+        "visible_artifact_ready": false,
+        "artifact_requirement_note": "not-required",
+        "whatsapp_required": true,
+        "whatsapp_delivery_state": "accepted_by_gateway",
+        "whatsapp_allowed_user_facing_claim": "aceptado por gateway",
+        "whatsapp_provider_delivery_status": "gateway_accepted",
+        "whatsapp_provider_delivery_reason": "the gateway accepted the message but the provider has not yet proved delivery",
+        "whatsapp_ready": false,
+        "whatsapp_requirement_note": "missing",
+        "media_required": false,
+        "media_state": "none",
+        "media_ready": false,
+        "media_requirement_note": "not-required",
+        "screenshot_required": false,
+        "screenshot_state": "none",
+        "screenshot_ready": false,
+        "screenshot_requirement_note": "not-required",
+        "allowed": false
+      },
+      {
+        "claim": "final success claim",
+        "timestamp": "2026-03-19T18:29:58+00:00",
+        "actor": "verify-whatsapp-provider-post-send-reconciliation",
+        "channel": "whatsapp",
+        "evidence": "post-send reconciliation verifies whether generic final success is now honestly authorized",
+        "required_state": "visible",
+        "current_state": "visible",
+        "visible_artifact_required": false,
+        "visible_artifact_ready": false,
+        "artifact_requirement_note": "not-required",
+        "whatsapp_required": true,
+        "whatsapp_delivery_state": "accepted_by_gateway",
+        "whatsapp_allowed_user_facing_claim": "aceptado por gateway",
+        "whatsapp_provider_delivery_status": "gateway_accepted",
+        "whatsapp_provider_delivery_reason": "the gateway accepted the message but the provider has not yet proved delivery",
+        "whatsapp_ready": false,
+        "whatsapp_requirement_note": "missing",
+        "media_required": false,
+        "media_state": "none",
+        "media_ready": false,
+        "media_requirement_note": "not-required",
+        "screenshot_required": false,
+        "screenshot_state": "none",
+        "screenshot_ready": false,
+        "screenshot_requirement_note": "not-required",
+        "allowed": false
+      }
+    ],
+    "last_transition_at": "2026-03-19T18:29:49+00:00",
+    "last_transition_actor": "verify-whatsapp-live-provider-canary",
+    "last_transition_channel": "whatsapp",
+    "last_claim_at": "2026-03-19T18:29:58+00:00",
+    "last_claim_actor": "verify-whatsapp-provider-post-send-reconciliation",
+    "last_claim_channel": "whatsapp"
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [],
+    "events": [],
+    "last_event_at": "",
+    "last_event_reason": ""
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  }
+}

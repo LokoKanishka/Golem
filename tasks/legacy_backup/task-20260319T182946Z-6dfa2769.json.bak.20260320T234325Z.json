@@ -1,0 +1,101 @@
+{
+  "task_id": "task-20260319T182946Z-6dfa2769",
+  "type": "verification-whatsapp-provider-post-send-reconciliation",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "blocked",
+  "created_at": "2026-03-19T18:29:46+00:00",
+  "updated_at": "2026-03-19T18:29:58+00:00",
+  "title": "Verify WhatsApp post-send provider reconciliation truth",
+  "objective": "Verify WhatsApp post-send provider reconciliation truth",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "whatsapp-provider-post-send-reconciliation-truth",
+      "captured_at": "2026-03-19T18:29:58+00:00",
+      "exit_code": 2,
+      "content": "the canonical post-send reconciliation lane proved the current observable ceiling honestly: WhatsApp read is unsupported and logs only expose outbound send evidence",
+      "source_task_id": "task-20260319T182947Z-42e00ace",
+      "source_message_id": "3EB0BDD591362228986C37",
+      "reconciliation_status": "BLOCKED",
+      "resolution": "none",
+      "dominant_blocker": "whatsapp_post_send_provider_proof_surface_missing",
+      "capabilities_surface": "present_but_non_canonical",
+      "message_read_surface": "unavailable",
+      "logs_surface": "ambiguous",
+      "whatsapp_state": "accepted_by_gateway",
+      "provider_delivery_status": "gateway_accepted",
+      "provider_delivery_reason": "the gateway accepted the message but the provider has not yet proved delivery",
+      "canary_marker": "VERIFY_WHATSAPP_LIVE_PROVIDER_CANARY_BLOCKED",
+      "canary_report": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T182947057850Z-whatsapp-live-provider-canary.md",
+      "reconcile_report": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/run-20260319T182952Z-a43da101-whatsapp-provider-post-send-reconciliation.md",
+      "report_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T182946950503Z-whatsapp-provider-post-send-reconciliation-truth.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260319T182946950503Z-whatsapp-provider-post-send-reconciliation-truth.md",
+      "kind": "whatsapp-provider-post-send-reconciliation-truth-report",
+      "created_at": "2026-03-19T18:29:58+00:00"
+    }
+  ],
+  "notes": [
+    "the canonical post-send reconciliation lane proved the current observable ceiling honestly: WhatsApp read is unsupported and logs only expose outbound send evidence"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "",
+    "user_facing_ready": false,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "provider_delivery_status": "",
+      "provider_delivery_reason": "",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [],
+    "claim_history": []
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [],
+    "events": [],
+    "last_event_at": "",
+    "last_event_reason": ""
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  }
+}
