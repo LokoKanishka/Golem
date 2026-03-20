@@ -1,0 +1,17 @@
+{
+  "task_id": "task-20260316T192712Z-c1236fbc",
+  "type": "read-snapshot",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "queued",
+  "created_at": "2026-03-16T19:27:12+00:00",
+  "updated_at": "2026-03-16T19:27:12+00:00",
+  "title": "Browser stack verification / reading",
+  "objective": "Browser stack verification / reading",
+  "inputs": [],
+  "outputs": [],
+  "artifacts": [],
+  "notes": []
+}

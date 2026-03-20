@@ -1,0 +1,34 @@
+{
+  "task_id": "task-20260316T004149Z-03de3315",
+  "type": "self-check",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260316T004149Z-ccf59111",
+  "depends_on": [
+    "task-20260316T004149Z-ccf59111"
+  ],
+  "status": "done",
+  "created_at": "2026-03-16T00:41:49+00:00",
+  "updated_at": "2026-03-16T00:41:56+00:00",
+  "title": "Multi worker await blocked path / local self-check",
+  "objective": "Validate the local Golem environment before a delegated worker run.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "self-check",
+      "captured_at": "2026-03-16T00:41:56+00:00",
+      "exit_code": 0,
+      "content": "SELF-CHECK GOLEM\ngateway: OK — gateway activo, runtime running, rpc ok\nwhatsapp: OK — whatsapp conectado\nbrowser_relay: OK — browser relay chrome running\ntabs: WARN — relay activo pero 0 tabs adjuntas\nestado_general: WARN\nsintesis: el sistema está mayormente operativo pero hay señales a revisar.",
+      "command": "./scripts/self_check.sh",
+      "estado_general": "WARN"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "self-check completed and task closed"
+  ],
+  "step_name": "local-self-check",
+  "step_order": 1,
+  "critical": true,
+  "execution_mode": "local"
+}
