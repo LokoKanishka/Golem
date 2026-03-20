@@ -1,0 +1,78 @@
+{
+  "task_id": "task-20260316T003112Z-29c463c5",
+  "type": "nav-tabs",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "blocked",
+  "created_at": "2026-03-16T00:31:12+00:00",
+  "updated_at": "2026-03-16T00:31:56+00:00",
+  "title": "Browser stack verification / navigation",
+  "objective": "Browser stack verification / navigation",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "nav-tabs",
+      "captured_at": "2026-03-16T00:31:56+00:00",
+      "exit_code": 2,
+      "content": "BROWSER_BLOCKED readiness_state=BLOCKED; chosen_profile=none; reason=chrome_without_tab_and_openclaw_recovery_failed; attempted_recovery=true; final_decision=block",
+      "command": "./scripts/browser_nav.sh tabs",
+      "mode": "tabs",
+      "profile": "",
+      "attempts": [],
+      "browser_readiness": {
+        "capability": "navigation",
+        "mode": "tabs",
+        "readiness_state": "BLOCKED",
+        "chosen_profile": "",
+        "reason": "chrome_without_tab_and_openclaw_recovery_failed",
+        "attempted_recovery": true,
+        "final_decision": "block",
+        "human_summary": "readiness_state=BLOCKED; chosen_profile=none; reason=chrome_without_tab_and_openclaw_recovery_failed; attempted_recovery=true; final_decision=block",
+        "checks": {
+          "gateway_status": {
+            "exit_code": 0,
+            "output": "│\n◇  Doctor warnings ────────────────────────────────────────────╮\n│                                                              │\n│  - State dir migration skipped: target already exists        │\n│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │\n│                                                              │\n├──────────────────────────────────────────────────────────────╯\nService: systemd (enabled)\nFile logs: /tmp/openclaw/openclaw-2026-03-15.log\nCommand: /usr/bin/node /home/lucy-ubuntu/.openclaw/lib/node_modules/openclaw/dist/entry.js gateway --port 18789\nService file: ~/.config/systemd/user/openclaw-gateway.service\nService env: OPENCLAW_GATEWAY_PORT=18789\n\nConfig (cli): ~/.openclaw/openclaw.json\nConfig (service): ~/.openclaw/openclaw.json\n\nGateway: bind=loopback (127.0.0.1), port=18789 (service args)\nProbe target: ws://127.0.0.1:18789\nDashboard: http://127.0.0.1:18789/\nProbe note: Loopback-only gateway; only local clients can connect.\n\nRuntime: running (pid 1968, state active, sub running, last exit 0, reason 0)\nRPC probe: ok\n\nListening: 127.0.0.1:18789\nOther gateway-like services detected (best effort):\n- clawdbot-gateway.service (user, unit: /home/lucy-ubuntu/.config/systemd/user/clawdbot-gateway.service)\n- clawdbot-node.service (user, unit: /home/lucy-ubuntu/.config/systemd/user/clawdbot-node.service)\n- fusion-total-direct-chat.service (user, unit: /home/lucy-ubuntu/.config/systemd/user/fusion-total-direct-chat.service)\n- openclaw-direct-chat.service (user, unit: /home/lucy-ubuntu/.config/systemd/user/openclaw-direct-chat.service)\nCleanup hint: systemctl --user disable --now openclaw-gateway.service\nCleanup hint: rm ~/.config/systemd/user/openclaw-gateway.service\n\nRecommendation: run a single gateway per machine for most setups. One gateway supports multiple agents (see docs: /gateway#multiple-gateways-same-host).\nIf you need multiple gateways (e.g., a rescue bot on the same host), isolate ports + config/state (see docs: /gateway#multiple-gateways-same-host).\n\nTroubles: run openclaw status\nTroubleshooting: https://docs.openclaw.ai/troubleshooting\n"
+          },
+          "browser_profiles": {
+            "exit_code": 0,
+            "output": "│\n◇  Doctor warnings ────────────────────────────────────────────╮\n│                                                              │\n│  - State dir migration skipped: target already exists        │\n│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │\n│                                                              │\n├──────────────────────────────────────────────────────────────╯\nopenclaw: stopped\n  port: 18800, color: #FF4500\nchrome: running (0 tabs) [default]\n  port: 18792, color: #00AA00\n"
+          },
+          "chrome_status": {
+            "exit_code": 0,
+            "output": "│\n◇  Doctor warnings ────────────────────────────────────────────╮\n│                                                              │\n│  - State dir migration skipped: target already exists        │\n│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │\n│                                                              │\n├──────────────────────────────────────────────────────────────╯\nprofile: chrome\nenabled: true\nrunning: false\ncdpPort: 18792\ncdpUrl: http://127.0.0.1:18792\nbrowser: unknown\ndetectedBrowser: chrome\ndetectedPath: /usr/bin/google-chrome-stable\nprofileColor: #00AA00\n"
+          },
+          "chrome_tabs": {
+            "exit_code": 0,
+            "output": "│\n◇  Doctor warnings ────────────────────────────────────────────╮\n│                                                              │\n│  - State dir migration skipped: target already exists        │\n│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │\n│                                                              │\n├──────────────────────────────────────────────────────────────╯\nNo tabs (browser closed or no targets).\n"
+          },
+          "openclaw_status": {
+            "exit_code": 0,
+            "output": "│\n◇  Doctor warnings ────────────────────────────────────────────╮\n│                                                              │\n│  - State dir migration skipped: target already exists        │\n│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │\n│                                                              │\n├──────────────────────────────────────────────────────────────╯\nprofile: openclaw\nenabled: true\nrunning: false\ncdpPort: 18800\ncdpUrl: http://127.0.0.1:18800\nbrowser: unknown\ndetectedBrowser: chrome\ndetectedPath: /usr/bin/google-chrome-stable\nprofileColor: #FF4500\n"
+          },
+          "openclaw_tabs": {
+            "exit_code": 0,
+            "output": "│\n◇  Doctor warnings ────────────────────────────────────────────╮\n│                                                              │\n│  - State dir migration skipped: target already exists        │\n│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │\n│                                                              │\n├──────────────────────────────────────────────────────────────╯\nNo tabs (browser closed or no targets).\n"
+          },
+          "openclaw_snapshot": {
+            "exit_code": 1,
+            "output": "│\n◇  Doctor warnings ────────────────────────────────────────────╮\n│                                                              │\n│  - State dir migration skipped: target already exists        │\n│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │\n│                                                              │\n├──────────────────────────────────────────────────────────────╯\nError: Error: Failed to start Chrome CDP on port 18800 for profile \"openclaw\".\n"
+          },
+          "openclaw_start": {
+            "exit_code": 1,
+            "output": "│\n◇  Doctor warnings ────────────────────────────────────────────╮\n│                                                              │\n│  - State dir migration skipped: target already exists        │\n│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │\n│                                                              │\n├──────────────────────────────────────────────────────────────╯\nError: gateway timeout after 15000ms\nGateway target: ws://127.0.0.1:18789\nSource: local loopback\nConfig: /home/lucy-ubuntu/.openclaw/openclaw.json\nBind: loopback\n"
+          },
+          "openclaw_snapshot_after_start": {
+            "exit_code": 1,
+            "output": ""
+          }
+        }
+      }
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "browser blocked before navigation execution"
+  ]
+}
