@@ -1,138 +1,123 @@
 # Operating Model: Golem
 
-## Purpose
+## Estado actual
 
-Define the operational model for the current stage of Golem without pretending that Codex is already integrated.
+Hoy Golem NO integra todavia a Codex como worker activo dentro del circuito.
 
-This document is doctrinal, not a claim of live runtime integration.
-
-## Estado actual real
-
-Hoy el flujo real es este:
+El sistema real actual es:
 
 - Diego opera por consola.
-- ChatGPT ayuda con arquitectura, orden y criterio.
-- OpenClaw ya existe y funciona como sistema vivo.
-- el panel del gateway es la superficie principal de control
-- WhatsApp existe como canal auxiliar, remoto y de lujo
-- Codex es un worker futuro posible, pero no componente activo del sistema actual
+- ChatGPT disena arquitectura, orden y bloques.
+- OpenClaw ya funciona como sistema vivo.
+- El panel del gateway es la consola principal.
+- WhatsApp es un canal auxiliar / remoto.
+- Codex es una pieza futura prevista, pero no un componente activo del nucleo hoy.
 
-El repo `golem` no despliega hoy el sistema vivo.
-El repo documenta, ordena y prepara el modelo para que el sistema pueda crecer sin rehacerse.
+## Principio central
+
+Golem no se disena como si Codex ya estuviera enchufado.
+
+Golem se disena para:
+- poder vivir sin Codex;
+- poder integrarlo despues sin rehacer el sistema;
+- tratar a Codex como worker privilegiado cuando llegue el momento.
 
 ## Nucleo actual
 
-El nucleo real de esta etapa es:
+### OpenClaw
+Cumple el rol de:
+- interfaz viva;
+- routing;
+- sesiones;
+- panel de control;
+- canal WhatsApp;
+- browser relay;
+- cuerpo operativo inicial del sistema.
 
-- OpenClaw como golem, cuerpo operativo y orquestador
-- panel del gateway como sesion canonica y superficie principal
-- consola local como forma principal de operacion
-- WhatsApp como canal secundario y remoto
-- browser relay y demas capacidades vivas ya existentes en OpenClaw
-- este repo como fuente doctrinal de arquitectura, contratos y limites
+### Panel del gateway
+Es la sesion canonica principal de control.
 
-## Nucleo futuro posible
+Ahi debe vivir:
+- la conversacion principal;
+- el seguimiento de tareas;
+- el estado operativo serio;
+- la trazabilidad humana del sistema.
 
-El nucleo futuro posible, todavia no integrado de verdad, podria agregar:
+### WhatsApp
+No es la sesion ontologica principal.
 
-- Codex como worker despertable para trabajo de repo, codigo o documentos
-- contratos de tarea mas formales entre panel, repo y worker
-- outbox estructurado por `task_id`
-- notificaciones y callbacks mas claros
-- puentes adicionales de escritorio o ACP si despues hacen falta
+Su funcion es:
+- control remoto;
+- alertas;
+- consultas rapidas;
+- uso de lujo cuando haga falta;
+- canal de entrega secundaria.
 
-La regla es que ese futuro debe enchufarse sobre el nucleo actual.
-No al reves.
+### Diego
+Es el operador efectivo real del sistema en esta etapa.
 
-## Jerarquia operativa
+### ChatGPT
+Cumple el rol de arquitecta conversacional:
+- ordena;
+- disena;
+- propone contratos;
+- estructura fases;
+- baja decisiones a bloques concretos.
 
-La jerarquia de esta etapa es:
+### Codex
+Todavia no esta integrado.
+Se lo piensa como:
+- posible worker futuro;
+- herramienta de ejecucion sobre repo;
+- componente importante pero no obligatorio en el arranque.
 
-1. panel del gateway = superficie principal y sesion canonica
-2. OpenClaw = golem/orquestador/cuerpo operativo
-3. consola local = modo principal de operacion humana
-4. WhatsApp = canal secundario, remoto y de lujo
-5. repo Golem = fuente doctrinal y contractual
-6. Codex = worker futuro integrable, no dependencia viva actual
+## Decision arquitectonica actual
 
-## Panel First
+La decision correcta en esta etapa es:
 
-Golem se diseña con criterio `panel first`.
-
-Eso implica:
-
-- la sesion principal vive en el panel del gateway
-- el contexto canonico debe poder leerse desde esa superficie
-- los resultados importantes deben poder volver a esa superficie
-- WhatsApp no debe volverse la verdad principal del sistema
-
-## WhatsApp como auxiliar
-
-WhatsApp en esta etapa significa:
-
-- control remoto
-- notificaciones
-- canal auxiliar cuando no se esta en la consola principal
-
-No significa:
-
-- chat ontologicamente principal
-- sesion canonica
-- lugar exclusivo donde viva el estado real de una tarea
-
-## OpenClaw como golem operativo
-
-En esta etapa OpenClaw ya cumple el rol de:
-
-- cuerpo operativo
-- capa de herramientas
-- orquestacion viva
-- punto real de contacto con el sistema actual
-
-Por eso el repo debe describir a OpenClaw como nucleo vivo actual, no como una promesa futura.
-
-## Codex como futuro integrable
-
-Codex se considera:
-
-- worker futuro posible
-- buen candidato para trabajo despertable y acotado
-- pieza que debe poder sumarse despues
-
-Codex no se considera hoy:
-
-- componente activo actual
-- verdad operacional del sistema
-- dependencia obligatoria para que Golem exista
+- conservar vivo lo que ya funciona;
+- gobernarlo desde el repo;
+- documentar antes de automatizar;
+- evitar acoplar el nucleo a una pieza todavia no integrada;
+- dejar preparado el sistema para incorporar workers despues.
 
 ## Regla de diseno
 
-Toda pieza nueva debe cumplir estas condiciones:
+Golem debe ser:
 
-- no romper la centralidad del panel
-- no convertir WhatsApp en la superficie principal
-- no asumir que Codex ya esta integrado
-- permitir una integracion futura de Codex sin rehacer el modelo
-- permitir apagar o reemplazar a Codex sin matar el sistema
+- panel-first;
+- OpenClaw-centered;
+- WhatsApp-auxiliary;
+- worker-ready;
+- repo-governed.
 
-## Prohibiciones de esta etapa
+## Implicacion practica
 
-En esta etapa no corresponde:
+Todavia no corresponde disenar la integracion viva con Codex como si ya existiera.
 
-- tocar `~/.openclaw`
-- cambiar `systemd`
-- mutar gateway, channels o browser relay vivos
-- describir a Codex como worker ya conectado
-- diseñar como si WhatsApp fuera la sesion principal
-- mover la verdad operacional fuera del panel del gateway
-- vender como integrada una capa que hoy solo es contractual o doctrinal
+Antes hay que fijar:
 
-## Regla de verdad
+1. modelo operativo;
+2. contrato de tareas general;
+3. verdad canonica de sesiones;
+4. politica de artefactos;
+5. limites entre interfaz, ejecucion y estado.
 
-La verdad de esta etapa se ordena asi:
+## Horizonte
 
-1. el sistema vivo actual corre en OpenClaw
-2. el panel del gateway es la sesion/superficie principal
-3. este repo documenta el modelo operativo y prepara el futuro
-4. WhatsApp refleja o auxilia, pero no manda
-5. Codex se diseña como integrable despues, no como realidad presente
+Mas adelante, si Codex entra de forma real, debera hacerlo como:
+
+- worker de primera clase;
+- despertable bajo demanda;
+- subordinado al modelo operativo de Golem;
+- conectado al sistema sin reemplazar la sesion canonica del panel.
+
+## Formula actual correcta
+
+Hoy la formula correcta es:
+
+- OpenClaw = cuerpo operativo actual
+- panel = consola principal
+- WhatsApp = remoto auxiliar
+- repo = fuente de verdad en construccion
+- Codex = worker futuro posible
