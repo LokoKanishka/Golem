@@ -1,0 +1,90 @@
+{
+  "task_id": "task-20260316T201420Z-456975f8",
+  "type": "repo-analysis",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260316T201411Z-08c0ed74",
+  "depends_on": [
+    "task-20260316T201412Z-7753b22e"
+  ],
+  "status": "done",
+  "created_at": "2026-03-16T20:14:20+00:00",
+  "updated_at": "2026-03-16T20:14:21+00:00",
+  "title": "Verify chain execution audit / delegated repo analysis verification",
+  "objective": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-context",
+      "captured_at": "2026-03-16T20:14:20+00:00",
+      "exit_code": 0,
+      "content": "Mixed local-worker chain child for delegated-repo-analysis-verification.",
+      "root_task_id": "task-20260316T201411Z-08c0ed74",
+      "step_name": "delegated-repo-analysis-verification",
+      "requested_deliverable": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation."
+    },
+    {
+      "kind": "worker-handoff-packet",
+      "captured_at": "2026-03-16T20:14:20+00:00",
+      "exit_code": 0,
+      "content": "worker handoff packet exported at handoffs/task-20260316T201420Z-456975f8.packet.json",
+      "packet_path": "handoffs/task-20260316T201420Z-456975f8.packet.json",
+      "handoff_markdown_path": "handoffs/task-20260316T201420Z-456975f8.md",
+      "codex_ticket_path": "handoffs/task-20260316T201420Z-456975f8.codex.md"
+    },
+    {
+      "kind": "worker-result",
+      "captured_at": "2026-03-16T20:14:21+00:00",
+      "exit_code": 0,
+      "content": "Audit verify worker result 2",
+      "status": "done",
+      "summary": "Audit verify worker result 2",
+      "source": "codex_manual",
+      "artifact_paths": []
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260316T201420Z-456975f8.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-16T20:14:20+00:00"
+    },
+    {
+      "path": "handoffs/task-20260316T201420Z-456975f8.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-16T20:14:20+00:00"
+    },
+    {
+      "path": "handoffs/task-20260316T201420Z-456975f8.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-16T20:14:20+00:00"
+    }
+  ],
+  "notes": [
+    "delegated to worker_future on 2026-03-16T20:14:20+00:00",
+    "worker result recorded from codex"
+  ],
+  "step_name": "delegated-repo-analysis-verification",
+  "step_order": 3,
+  "critical": true,
+  "execution_mode": "worker",
+  "handoff": {
+    "delegated_to": "worker_future",
+    "delegated_at": "2026-03-16T20:14:20+00:00",
+    "task_type": "repo-analysis",
+    "title": "Verify chain execution audit / delegated repo analysis verification",
+    "objective": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation.",
+    "recommended_next_step": "delimitar alcance del repo y formato del informe esperado",
+    "required_fields_present": [
+      "task_id",
+      "type",
+      "title",
+      "objective",
+      "created_at"
+    ],
+    "missing_required_fields": [],
+    "policy_version": "1.0",
+    "rationale": "analisis multiarchivo con tiempo y estructura suficientes para worker futuro",
+    "source_status": "queued"
+  }
+}
