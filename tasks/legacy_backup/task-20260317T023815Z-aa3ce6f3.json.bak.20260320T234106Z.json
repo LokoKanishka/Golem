@@ -1,0 +1,238 @@
+{
+  "task_id": "task-20260317T023815Z-aa3ce6f3",
+  "type": "verification-whatsapp-live-send-wrapper",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "queued",
+  "created_at": "2026-03-17T02:38:15+00:00",
+  "updated_at": "2026-03-17T02:38:15+00:00",
+  "title": "Verify WhatsApp wrapper gateway acceptance path",
+  "objective": "Verify WhatsApp wrapper gateway acceptance path",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "whatsapp-live-send",
+      "captured_at": "2026-03-17T02:38:15+00:00",
+      "exit_code": 0,
+      "content": "whatsapp live send wrapper captured gateway acceptance evidence and persisted message_id",
+      "command": "openclaw message send --channel whatsapp --target '+5491100000002' --message 'GOLEM-209 wrapper gateway path' --json",
+      "surface_mode": "fixture-json",
+      "surface_exit_code": 0,
+      "to": "+5491100000002",
+      "message": "GOLEM-209 wrapper gateway path",
+      "media_path": "",
+      "run_id": "run-20260317T023815Z-07042811",
+      "wrapper_state": "accepted_by_gateway",
+      "raw_result_excerpt": "{\"channel\":\"whatsapp\",\"to\":\"+5491100000002\",\"messageId\":\"wamid.wrapper.gateway.001\",\"handledBy\":\"gateway\"}",
+      "report_path": "outbox/manual/run-20260317T023815Z-07042811-whatsapp-live-send.json",
+      "parsed_result": {
+        "channel": "whatsapp",
+        "to": "+5491100000002",
+        "messageId": "wamid.wrapper.gateway.001",
+        "handledBy": "gateway"
+      },
+      "parsed_summary": {
+        "message_id": "wamid.wrapper.gateway.001",
+        "channel": "whatsapp",
+        "to": "+5491100000002",
+        "provider": "gateway",
+        "dry_run": false
+      },
+      "wrapper_status": "ACCEPTED_BY_GATEWAY",
+      "message_id_drift_expected": "",
+      "message_id_drift_actual": ""
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/run-20260317T023815Z-07042811-whatsapp-live-send.json",
+      "kind": "whatsapp-live-send-report",
+      "created_at": "2026-03-17T02:38:15+00:00",
+      "run_id": "run-20260317T023815Z-07042811",
+      "wrapper_status": "ACCEPTED_BY_GATEWAY",
+      "wrapper_state": "accepted_by_gateway"
+    }
+  ],
+  "notes": [
+    "whatsapp delivery requested recorded for +5491100000002 with allowed claim 'solicitado'",
+    "whatsapp delivery accepted_by_gateway recorded for +5491100000002 with allowed claim 'aceptado por gateway'"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "visible",
+    "user_facing_ready": true,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": true,
+      "current_state": "accepted_by_gateway",
+      "delivery_confidence": "medium",
+      "allowed_claim_level": "accepted_by_gateway",
+      "allowed_user_facing_claim": "aceptado por gateway",
+      "user_facing_ready": false,
+      "tracked_message_id": "wamid.wrapper.gateway.001",
+      "message_ids": [
+        "wamid.wrapper.gateway.001"
+      ],
+      "provider": "gateway",
+      "to": "+5491100000002",
+      "run_id": "run-20260317T023815Z-07042811",
+      "attempts": [
+        {
+          "channel": "whatsapp",
+          "provider": "openclaw-message-send",
+          "to": "+5491100000002",
+          "message_id": "",
+          "run_id": "whatsapp-live-send-requested",
+          "timestamp": "2026-03-17T02:38:15+00:00",
+          "delivery_state": "requested",
+          "delivery_confidence": "low",
+          "allowed_claim_level": "requested",
+          "allowed_user_facing_claim": "solicitado",
+          "raw_result_excerpt": "canonical task-bound whatsapp live send wrapper invoked",
+          "actor": "task-send-whatsapp-live"
+        },
+        {
+          "channel": "whatsapp",
+          "provider": "gateway",
+          "to": "+5491100000002",
+          "message_id": "wamid.wrapper.gateway.001",
+          "run_id": "run-20260317T023815Z-07042811",
+          "timestamp": "2026-03-17T02:38:15+00:00",
+          "delivery_state": "accepted_by_gateway",
+          "delivery_confidence": "medium",
+          "allowed_claim_level": "accepted_by_gateway",
+          "allowed_user_facing_claim": "aceptado por gateway",
+          "raw_result_excerpt": "{\"channel\":\"whatsapp\",\"to\":\"+5491100000002\",\"messageId\":\"wamid.wrapper.gateway.001\",\"handledBy\":\"gateway\"}",
+          "actor": "task-send-whatsapp-live"
+        }
+      ],
+      "claim_history": [
+        {
+          "channel": "whatsapp",
+          "timestamp": "2026-03-17T02:38:15+00:00",
+          "actor": "verify-whatsapp-live-send-wrapper",
+          "requested_claim_level": "delivered",
+          "requested_claim_text": "entregado",
+          "current_state": "accepted_by_gateway",
+          "allowed_claim_level": "accepted_by_gateway",
+          "allowed_user_facing_claim": "aceptado por gateway",
+          "delivery_confidence": "medium",
+          "message_id": "wamid.wrapper.gateway.001",
+          "evidence": "attempted delivered wording with gateway acceptance only",
+          "allowed": false
+        },
+        {
+          "channel": "whatsapp",
+          "timestamp": "2026-03-17T02:38:15+00:00",
+          "actor": "verify-whatsapp-live-send-wrapper",
+          "requested_claim_level": "accepted_by_gateway",
+          "requested_claim_text": "aceptado por gateway",
+          "current_state": "accepted_by_gateway",
+          "allowed_claim_level": "accepted_by_gateway",
+          "allowed_user_facing_claim": "aceptado por gateway",
+          "delivery_confidence": "medium",
+          "message_id": "wamid.wrapper.gateway.001",
+          "evidence": "claim kept at gateway acceptance wording",
+          "allowed": true
+        }
+      ],
+      "last_attempt_at": "2026-03-17T02:38:15+00:00",
+      "last_actor": "task-send-whatsapp-live",
+      "last_claim_at": "2026-03-17T02:38:15+00:00",
+      "last_claim_actor": "verify-whatsapp-live-send-wrapper"
+    },
+    "transitions": [
+      {
+        "state": "submitted",
+        "timestamp": "2026-03-17T02:38:15+00:00",
+        "actor": "verify-whatsapp-live-send-wrapper",
+        "channel": "whatsapp",
+        "evidence": "task entered the outbound user-facing lane"
+      },
+      {
+        "state": "accepted",
+        "timestamp": "2026-03-17T02:38:15+00:00",
+        "actor": "verify-whatsapp-live-send-wrapper",
+        "channel": "whatsapp",
+        "evidence": "technical acceptance happened before channel proof"
+      },
+      {
+        "state": "delivered",
+        "timestamp": "2026-03-17T02:38:15+00:00",
+        "actor": "verify-whatsapp-live-send-wrapper",
+        "channel": "whatsapp",
+        "evidence": "the repo prepared the outbound WhatsApp lane locally"
+      },
+      {
+        "state": "visible",
+        "timestamp": "2026-03-17T02:38:15+00:00",
+        "actor": "verify-whatsapp-live-send-wrapper",
+        "channel": "whatsapp",
+        "evidence": "the repo now requires channel truth before a final user-facing claim"
+      }
+    ],
+    "claim_history": [
+      {
+        "claim": "final success claim",
+        "timestamp": "2026-03-17T02:38:15+00:00",
+        "actor": "verify-whatsapp-live-send-wrapper",
+        "channel": "whatsapp",
+        "evidence": "attempted generic final success with gateway acceptance only",
+        "required_state": "visible",
+        "current_state": "visible",
+        "visible_artifact_required": false,
+        "visible_artifact_ready": false,
+        "artifact_requirement_note": "not-required",
+        "whatsapp_required": true,
+        "whatsapp_delivery_state": "accepted_by_gateway",
+        "whatsapp_allowed_user_facing_claim": "aceptado por gateway",
+        "whatsapp_ready": false,
+        "whatsapp_requirement_note": "missing",
+        "media_required": false,
+        "media_state": "none",
+        "media_ready": false,
+        "media_requirement_note": "not-required",
+        "screenshot_required": false,
+        "screenshot_state": "none",
+        "screenshot_ready": false,
+        "screenshot_requirement_note": "not-required",
+        "allowed": false
+      }
+    ],
+    "last_transition_at": "2026-03-17T02:38:15+00:00",
+    "last_transition_actor": "verify-whatsapp-live-send-wrapper",
+    "last_transition_channel": "whatsapp",
+    "last_claim_at": "2026-03-17T02:38:15+00:00",
+    "last_claim_actor": "verify-whatsapp-live-send-wrapper",
+    "last_claim_channel": "whatsapp"
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [],
+    "events": [],
+    "last_event_at": "",
+    "last_event_reason": ""
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  }
+}
