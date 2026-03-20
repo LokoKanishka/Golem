@@ -1,70 +1,155 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TASKS_DIR="$REPO_ROOT/tasks"
 
 usage() {
-  cat <<USAGE
-Uso:
-  ./scripts/task_close.sh <task_id> <status> [note]
-USAGE
-}
+  cat >&2 <<'USAGE'
+Usage:
+./scripts/task_close.sh <task-id|path> <done|failed|canceled> --note "closure note" [--actor <actor>] [--owner <owner>]
 
-fatal() {
-  printf 'ERROR: %s\n' "$*" >&2
+Compatibility:
+./scripts/task_close.sh <task-id> <status> [note]
+USAGE
   exit 1
 }
 
-task_id="${1:-}"
-status="${2:-}"
-note="${3:-}"
+[[ $# -ge 2 ]] || usage
 
-if [ -z "$task_id" ] || [ -z "$status" ]; then
-  usage
-  fatal "faltan task_id o status"
+INPUT="$1"
+CLOSE_STATUS="$2"
+shift 2
+
+NOTE=""
+ACTOR=""
+OWNER=""
+
+if [[ $# -gt 0 && "$1" != --* ]]; then
+  NOTE="$1"
+  shift
 fi
 
-case "$status" in
-  done|failed|blocked|delegated|cancelled) ;;
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --note)
+      [[ $# -ge 2 ]] || usage
+      NOTE="$2"
+      shift 2
+      ;;
+    --actor)
+      [[ $# -ge 2 ]] || usage
+      ACTOR="$2"
+      shift 2
+      ;;
+    --owner)
+      [[ $# -ge 2 ]] || usage
+      OWNER="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      usage
+      ;;
+  esac
+done
+
+case "$CLOSE_STATUS" in
+  done|failed|canceled|blocked|cancelled) ;;
   *)
-    fatal "status de cierre inválido: $status"
+    echo "Invalid terminal status: $CLOSE_STATUS" >&2
+    exit 2
     ;;
 esac
 
-task_path="$TASKS_DIR/${task_id}.json"
-if [ ! -f "$task_path" ]; then
-  fatal "no existe la tarea: $task_id"
+if [[ "$CLOSE_STATUS" == "cancelled" ]]; then
+  CLOSE_STATUS="canceled"
 fi
 
-tmp_path="$(mktemp "$TASKS_DIR/.task-close.XXXXXX.tmp")"
-trap 'rm -f "$tmp_path"' EXIT
+[[ -n "$NOTE" ]] || {
+  echo "Closure note is required." >&2
+  exit 2
+}
 
-python3 - "$task_path" "$status" "$note" > "$tmp_path" <<'PY'
-import datetime
+if [[ -f "$INPUT" ]]; then
+  TARGET="$INPUT"
+elif [[ -f "$TASKS_DIR/$INPUT.json" ]]; then
+  TARGET="$TASKS_DIR/$INPUT.json"
+elif [[ -f "$TASKS_DIR/$INPUT" ]]; then
+  TARGET="$TASKS_DIR/$INPUT"
+else
+  echo "Task not found: $INPUT" >&2
+  exit 2
+fi
+
+TMP_PATH="$(mktemp "$TASKS_DIR/.task-close.XXXXXX.tmp")"
+trap 'rm -f "$TMP_PATH"' EXIT
+
+TASK_TARGET="$TARGET" CLOSE_STATUS="$CLOSE_STATUS" NOTE="$NOTE" ACTOR="$ACTOR" OWNER="$OWNER" python3 - > "$TMP_PATH" <<'PY'
+import datetime as dt
 import json
+import os
 import pathlib
 import sys
 
-task_path = pathlib.Path(sys.argv[1])
-status = sys.argv[2]
-note = sys.argv[3]
+path = pathlib.Path(os.environ["TASK_TARGET"])
+close_status = os.environ["CLOSE_STATUS"]
+note = os.environ["NOTE"]
+actor_override = os.environ["ACTOR"]
+owner_override = os.environ["OWNER"]
 
-with task_path.open(encoding="utf-8") as fh:
-    task = json.load(fh)
+with path.open("r", encoding="utf-8") as fh:
+    data = json.load(fh)
 
-now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
-task["status"] = status
-task["updated_at"] = now
+current_status = data.get("status", "")
+if current_status in {"done", "failed", "canceled"}:
+    raise SystemExit(f"Task already closed with terminal status={current_status}.")
 
-if note:
-    task.setdefault("notes", []).append(note)
+if owner_override:
+    data["owner"] = owner_override
 
-json.dump(task, sys.stdout, indent=2, ensure_ascii=True)
+now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
+iso_now = now.isoformat().replace("+00:00", "Z")
+
+data["status"] = close_status
+data["updated_at"] = iso_now
+if close_status in {"done", "failed", "canceled"}:
+    data["closure_note"] = note
+
+if "task_id" in data or "notes" in data:
+    data.setdefault("notes", []).append(note)
+
+actor = actor_override or owner_override or data.get("owner") or "operator"
+data.setdefault("history", [])
+data["history"].append(
+    {
+        "at": iso_now,
+        "actor": actor,
+        "action": f"closed_{close_status}",
+        "note": note,
+    }
+)
+
+identifier = data.get("id") or data.get("task_id") or path.stem
+json.dump(data, sys.stdout, ensure_ascii=False, indent=2)
 sys.stdout.write("\n")
 PY
 
-mv "$tmp_path" "$task_path"
+mv "$TMP_PATH" "$TARGET"
 trap - EXIT
-printf 'TASK_CLOSED %s %s\n' "$task_id" "$status"
+IDENTIFIER="$(
+  TARGET="$TARGET" python3 - <<'PY'
+import json
+import os
+import pathlib
+
+path = pathlib.Path(os.environ["TARGET"])
+with path.open("r", encoding="utf-8") as fh:
+    data = json.load(fh)
+print(data.get("id") or data.get("task_id") or path.stem)
+print(data.get("status", ""))
+PY
+)"
+TASK_IDENTIFIER="$(printf '%s\n' "$IDENTIFIER" | sed -n '1p')"
+TASK_STATUS="$(printf '%s\n' "$IDENTIFIER" | sed -n '2p')"
+printf 'TASK_CLOSED %s %s\n' "$TASK_IDENTIFIER" "$TASK_STATUS"
