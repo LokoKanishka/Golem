@@ -1,0 +1,42 @@
+{
+  "task_id": "task-20260315T045423Z-1796db9f",
+  "type": "artifact-snapshot",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "failed",
+  "created_at": "2026-03-15T04:54:23+00:00",
+  "updated_at": "2026-03-15T04:54:26+00:00",
+  "title": "Browser stack verification / artifacts",
+  "objective": "Browser stack verification / artifacts",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "artifact-snapshot",
+      "captured_at": "2026-03-15T04:54:26+00:00",
+      "exit_code": 1,
+      "content": "[profile=chrome exit=1]\nERROR: no hay tabs adjuntas al perfil chrome\nAdjuntá una pestaña con OpenClaw Browser Relay (badge ON) y volvé a probar.\n\n\n[profile=openclaw exit=1]\nERROR: no hay tabs adjuntas al perfil openclaw\nAdjuntá una pestaña con OpenClaw Browser Relay (badge ON) y volvé a probar.",
+      "command": "./scripts/browser_artifact.sh snapshot browser-stack-verification",
+      "mode": "snapshot",
+      "slug": "browser-stack-verification",
+      "profile": "",
+      "attempts": [
+        {
+          "profile": "chrome",
+          "exit_code": 1,
+          "content": "ERROR: no hay tabs adjuntas al perfil chrome\nAdjuntá una pestaña con OpenClaw Browser Relay (badge ON) y volvé a probar.\n"
+        },
+        {
+          "profile": "openclaw",
+          "exit_code": 1,
+          "content": "ERROR: no hay tabs adjuntas al perfil openclaw\nAdjuntá una pestaña con OpenClaw Browser Relay (badge ON) y volvé a probar.\n"
+        }
+      ]
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "artifact generation failed"
+  ]
+}

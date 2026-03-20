@@ -1,0 +1,26 @@
+{
+  "task_id": "task-20260315T200641Z-811be76a",
+  "type": "verification-lifecycle",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "done",
+  "created_at": "2026-03-15T20:06:41+00:00",
+  "updated_at": "2026-03-15T20:06:41+00:00",
+  "title": "Capability verification / task lifecycle",
+  "objective": "Capability verification / task lifecycle",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "lifecycle-check",
+      "captured_at": "2026-03-15T20:06:41+00:00",
+      "exit_code": 0,
+      "content": "lifecycle output recorded"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "task lifecycle verification completed"
+  ]
+}

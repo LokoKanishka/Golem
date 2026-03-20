@@ -1,0 +1,293 @@
+{
+  "task_id": "task-20260315T063654Z-07c3dfc7",
+  "type": "task-chain",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "delegated",
+  "created_at": "2026-03-15T06:36:54+00:00",
+  "updated_at": "2026-03-15T06:37:03+00:00",
+  "title": "Mixed manual worker chain test",
+  "objective": "Execute a mixed local-worker chain that delegates the worker step, prepares the handoff, and leaves the root awaiting a manual-controlled worker result.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-plan",
+      "captured_at": "2026-03-15T06:36:54+00:00",
+      "exit_code": 0,
+      "content": "planned 2-step mixed local-worker chain with manual worker await",
+      "chain_type": "repo-analysis-worker-manual",
+      "plan_version": "2.1",
+      "step_count": 2,
+      "local_step_count": 1,
+      "worker_step_count": 1,
+      "critical_step_count": 2,
+      "await_worker_result_step_count": 1
+    },
+    {
+      "kind": "chain-start",
+      "captured_at": "2026-03-15T06:36:54+00:00",
+      "exit_code": 0,
+      "content": "chain v2 started for repo-analysis-worker-manual",
+      "chain_type": "repo-analysis-worker-manual"
+    },
+    {
+      "kind": "chain-step-local",
+      "captured_at": "2026-03-15T06:37:02+00:00",
+      "exit_code": 0,
+      "content": "local-self-check exit_code=0",
+      "chain_type": "repo-analysis-worker-manual",
+      "step_name": "local-self-check",
+      "child_task_id": "task-20260315T063654Z-7f0e6d65",
+      "execution_mode": "local",
+      "critical": true
+    },
+    {
+      "kind": "chain-step-worker",
+      "captured_at": "2026-03-15T06:37:02+00:00",
+      "exit_code": 0,
+      "content": "delegated-repo-analysis delegated awaiting manual-controlled worker result",
+      "chain_type": "repo-analysis-worker-manual",
+      "step_name": "delegated-repo-analysis",
+      "child_task_id": "task-20260315T063702Z-9e590e18",
+      "execution_mode": "worker",
+      "critical": true
+    },
+    {
+      "kind": "chain-results-collected",
+      "captured_at": "2026-03-15T06:37:02+00:00",
+      "exit_code": 0,
+      "content": "chain_status=awaiting_worker_result steps_completed=1/2 steps_blocked=0 worker_steps_done=0 worker_steps_blocked=0 worker_steps_failed=0 delegated_steps_count=1 local_steps_count=1",
+      "chain_type": "repo-analysis-worker-manual",
+      "chain_status": "awaiting_worker_result",
+      "step_count": 2,
+      "steps_completed": 1,
+      "steps_failed": 0,
+      "steps_blocked": 0,
+      "steps_pending": 0,
+      "local_steps_count": 1,
+      "delegated_steps_count": 1,
+      "worker_steps_done": 0,
+      "worker_steps_blocked": 0,
+      "worker_steps_failed": 0,
+      "worker_result_summaries": [
+        "Mixed local-worker chain child for repo-analysis step."
+      ],
+      "aggregated_artifact_paths": []
+    },
+    {
+      "kind": "chain-summary",
+      "captured_at": "2026-03-15T06:37:02+00:00",
+      "exit_code": 0,
+      "content": "chain_status=awaiting_worker_result step_count=2 steps_completed=1 steps_failed=0 steps_blocked=0 steps_skipped=0 worker_steps_done=0 worker_steps_blocked=0 worker_steps_failed=0 next_step_selected=(none) headline=Chain delegated and waiting: 1/2 step(s) completed, 1 delegated, 0 running, and a worker result is still required before the chain can continue. final_artifact_path=outbox/manual/20260315T063702Z-repo-analysis-worker-manual-chain-final.md",
+      "chain_type": "repo-analysis-worker-manual",
+      "chain_status": "awaiting_worker_result",
+      "child_task_ids": [
+        "task-20260315T063654Z-7f0e6d65",
+        "task-20260315T063702Z-9e590e18"
+      ],
+      "child_count": 2,
+      "children_done": 1,
+      "children_failed": 0,
+      "children_blocked": 0,
+      "children_delegated": 1,
+      "children_running": 0,
+      "children_with_warnings": 1,
+      "artifact_paths": [],
+      "aggregated_artifact_paths": [],
+      "step_count": 2,
+      "steps_completed": 1,
+      "steps_failed": 0,
+      "steps_blocked": 0,
+      "steps_delegated": 1,
+      "steps_running": 0,
+      "steps_skipped": 0,
+      "steps_pending": 0,
+      "local_steps_count": 1,
+      "delegated_steps_count": 1,
+      "worker_steps_done": 0,
+      "worker_steps_blocked": 0,
+      "worker_steps_failed": 0,
+      "worker_steps_delegated": 1,
+      "worker_steps_running": 0,
+      "worker_result_summaries": [
+        "Mixed local-worker chain child for repo-analysis step."
+      ],
+      "worker_outcomes": [
+        {
+          "step_name": "delegated-repo-analysis",
+          "step_order": 2,
+          "child_task_id": "task-20260315T063702Z-9e590e18",
+          "child_status": "delegated",
+          "status": "delegated",
+          "worker_state": "",
+          "worker_result_status": "",
+          "summary": "Mixed local-worker chain child for repo-analysis step.",
+          "result_artifact_path": "",
+          "result_source_files": [],
+          "artifact_paths": [],
+          "warning": false
+        }
+      ],
+      "decision_reason": "",
+      "decision_source_step": "",
+      "decision_source_worker_result_status": "",
+      "next_step_selected": "",
+      "skipped_steps": [],
+      "conditional_outcomes": [],
+      "headline": "Chain delegated and waiting: 1/2 step(s) completed, 1 delegated, 0 running, and a worker result is still required before the chain can continue.",
+      "final_artifact_path": "outbox/manual/20260315T063702Z-repo-analysis-worker-manual-chain-final.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T063702Z-repo-analysis-worker-manual-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T06:37:02+00:00"
+    }
+  ],
+  "notes": [
+    "chain plan v2 created at 2026-03-15T06:36:54+00:00",
+    "Chain delegated and waiting: 1/2 step(s) completed, 1 delegated, 0 running, and a worker result is still required before the chain can continue."
+  ],
+  "chain_type": "repo-analysis-worker-manual",
+  "chain_status": "awaiting_worker_result",
+  "chain_plan": {
+    "version": "2.1",
+    "planned_at": "2026-03-15T06:36:54+00:00",
+    "mixes_execution_modes": true,
+    "manual_worker_controlled": true,
+    "local_step_count": 1,
+    "worker_step_count": 1,
+    "critical_step_count": 2,
+    "await_worker_result_step_count": 1,
+    "step_count": 2,
+    "steps": [
+      {
+        "step_name": "local-self-check",
+        "step_order": 1,
+        "task_type": "self-check",
+        "execution_mode": "local",
+        "critical": true,
+        "depends_on_step_names": [],
+        "await_worker_result": false,
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "done",
+        "child_task_id": "task-20260315T063654Z-7f0e6d65",
+        "child_status": "done",
+        "warning": true,
+        "summary": "SELF-CHECK GOLEM gateway: OK — gateway activo, runtime running, rpc ok whatsapp: OK — whatsapp conectado browser_relay: OK — browser relay chrome running tabs: WARN — relay activo pero 0 tabs adjuntas estado_general:...",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_summary": "",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": []
+      },
+      {
+        "step_name": "delegated-repo-analysis",
+        "step_order": 2,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "await_worker_result": true,
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "delegated",
+        "child_task_id": "task-20260315T063702Z-9e590e18",
+        "child_status": "delegated",
+        "warning": false,
+        "summary": "Mixed local-worker chain child for repo-analysis step.",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_summary": "",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": []
+      }
+    ],
+    "last_finalized_at": "2026-03-15T06:37:02+00:00"
+  },
+  "chain_summary": {
+    "child_task_ids": [
+      "task-20260315T063654Z-7f0e6d65",
+      "task-20260315T063702Z-9e590e18"
+    ],
+    "child_count": 2,
+    "children_done": 1,
+    "children_failed": 0,
+    "children_blocked": 0,
+    "children_delegated": 1,
+    "children_running": 0,
+    "children_with_warnings": 1,
+    "failed_child_ids": [],
+    "blocked_child_ids": [],
+    "warning_child_ids": [
+      "task-20260315T063654Z-7f0e6d65"
+    ],
+    "artifact_paths": [],
+    "aggregated_artifact_paths": [],
+    "step_count": 2,
+    "steps_completed": 1,
+    "steps_failed": 0,
+    "steps_blocked": 0,
+    "steps_delegated": 1,
+    "steps_running": 0,
+    "steps_skipped": 0,
+    "steps_pending": 0,
+    "critical_step_count": 2,
+    "critical_steps_failed": 0,
+    "critical_steps_blocked": 0,
+    "critical_steps_skipped": 0,
+    "critical_steps_pending": 0,
+    "local_step_count": 1,
+    "worker_step_count": 1,
+    "local_steps_count": 1,
+    "delegated_steps_count": 1,
+    "worker_steps_done": 0,
+    "worker_steps_blocked": 0,
+    "worker_steps_failed": 0,
+    "worker_steps_delegated": 1,
+    "worker_steps_running": 0,
+    "worker_child_ids": [
+      "task-20260315T063702Z-9e590e18"
+    ],
+    "worker_result_summaries": [
+      "Mixed local-worker chain child for repo-analysis step."
+    ],
+    "worker_outcomes": [
+      {
+        "step_name": "delegated-repo-analysis",
+        "step_order": 2,
+        "child_task_id": "task-20260315T063702Z-9e590e18",
+        "child_status": "delegated",
+        "status": "delegated",
+        "worker_state": "",
+        "worker_result_status": "",
+        "summary": "Mixed local-worker chain child for repo-analysis step.",
+        "result_artifact_path": "",
+        "result_source_files": [],
+        "artifact_paths": [],
+        "warning": false
+      }
+    ],
+    "decision_reason": "",
+    "decision_source_step": "",
+    "decision_source_worker_result_status": "",
+    "next_step_selected": "",
+    "skipped_steps": [],
+    "conditional_outcomes": [],
+    "headline": "Chain delegated and waiting: 1/2 step(s) completed, 1 delegated, 0 running, and a worker result is still required before the chain can continue.",
+    "final_artifact_path": "outbox/manual/20260315T063702Z-repo-analysis-worker-manual-chain-final.md",
+    "last_collected_at": "2026-03-15T06:37:02+00:00"
+  }
+}

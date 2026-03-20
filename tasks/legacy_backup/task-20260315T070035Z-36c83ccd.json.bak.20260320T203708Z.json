@@ -1,0 +1,72 @@
+{
+  "task_id": "task-20260315T070035Z-36c83ccd",
+  "type": "repo-analysis",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260315T070028Z-9db1f7f2",
+  "depends_on": [
+    "task-20260315T070028Z-748e3f19"
+  ],
+  "status": "done",
+  "created_at": "2026-03-15T07:00:35+00:00",
+  "updated_at": "2026-03-15T07:00:55+00:00",
+  "title": "Settlement wrapper success test / delegated repo analysis",
+  "objective": "Analyze the repository and explain the mixed local-worker orchestration flow, covering chain plan richness, aggregated summary quality, and final artifact integrity.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-context",
+      "captured_at": "2026-03-15T07:00:36+00:00",
+      "exit_code": 0,
+      "content": "Mixed local-worker chain child for repo-analysis step.",
+      "root_task_id": "task-20260315T070028Z-9db1f7f2",
+      "requested_deliverable": "Explain the mixed local-worker chain and validate final artifact integrity."
+    },
+    {
+      "kind": "worker-result",
+      "captured_at": "2026-03-15T07:00:55+00:00",
+      "exit_code": 0,
+      "content": "Settlement wrapper recorded and resumed the chain",
+      "status": "done",
+      "summary": "Settlement wrapper recorded and resumed the chain",
+      "source": "codex_manual",
+      "artifact_paths": [
+        "outbox/manual/20260315T070047Z-task-20260315T070035Z-36c83ccd-settlement-result.md"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T070047Z-task-20260315T070035Z-36c83ccd-settlement-result.md",
+      "kind": "worker-result",
+      "created_at": "2026-03-15T07:00:55+00:00"
+    }
+  ],
+  "notes": [
+    "delegated to worker_future on 2026-03-15T07:00:36+00:00",
+    "worker result recorded from codex"
+  ],
+  "step_name": "delegated-repo-analysis",
+  "step_order": 2,
+  "critical": true,
+  "execution_mode": "worker",
+  "handoff": {
+    "delegated_to": "worker_future",
+    "delegated_at": "2026-03-15T07:00:36+00:00",
+    "task_type": "repo-analysis",
+    "title": "Settlement wrapper success test / delegated repo analysis",
+    "objective": "Analyze the repository and explain the mixed local-worker orchestration flow, covering chain plan richness, aggregated summary quality, and final artifact integrity.",
+    "recommended_next_step": "delimitar alcance del repo y formato del informe esperado",
+    "required_fields_present": [
+      "task_id",
+      "type",
+      "title",
+      "objective",
+      "created_at"
+    ],
+    "missing_required_fields": [],
+    "policy_version": "1.0",
+    "rationale": "analisis multiarchivo con tiempo y estructura suficientes para worker futuro",
+    "source_status": "queued"
+  }
+}

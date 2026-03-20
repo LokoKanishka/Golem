@@ -1,0 +1,53 @@
+{
+  "task_id": "task-20260315T063702Z-9e590e18",
+  "type": "repo-analysis",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260315T063654Z-07c3dfc7",
+  "depends_on": [
+    "task-20260315T063654Z-7f0e6d65"
+  ],
+  "status": "delegated",
+  "created_at": "2026-03-15T06:37:02+00:00",
+  "updated_at": "2026-03-15T06:37:02+00:00",
+  "title": "Mixed manual worker chain test / delegated repo analysis",
+  "objective": "Analyze the repository and explain the mixed local-worker orchestration flow, covering chain plan richness, aggregated summary quality, and final artifact integrity.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-context",
+      "captured_at": "2026-03-15T06:37:02+00:00",
+      "exit_code": 0,
+      "content": "Mixed local-worker chain child for repo-analysis step.",
+      "root_task_id": "task-20260315T063654Z-07c3dfc7",
+      "requested_deliverable": "Explain the mixed local-worker chain and validate final artifact integrity."
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "delegated to worker_future on 2026-03-15T06:37:02+00:00"
+  ],
+  "step_name": "delegated-repo-analysis",
+  "step_order": 2,
+  "critical": true,
+  "execution_mode": "worker",
+  "handoff": {
+    "delegated_to": "worker_future",
+    "delegated_at": "2026-03-15T06:37:02+00:00",
+    "task_type": "repo-analysis",
+    "title": "Mixed manual worker chain test / delegated repo analysis",
+    "objective": "Analyze the repository and explain the mixed local-worker orchestration flow, covering chain plan richness, aggregated summary quality, and final artifact integrity.",
+    "recommended_next_step": "delimitar alcance del repo y formato del informe esperado",
+    "required_fields_present": [
+      "task_id",
+      "type",
+      "title",
+      "objective",
+      "created_at"
+    ],
+    "missing_required_fields": [],
+    "policy_version": "1.0",
+    "rationale": "analisis multiarchivo con tiempo y estructura suficientes para worker futuro",
+    "source_status": "queued"
+  }
+}

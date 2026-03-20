@@ -1,0 +1,99 @@
+{
+  "task_id": "task-20260315T071954Z-ef7a7ab1",
+  "type": "repo-analysis",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260315T071944Z-c12685a5",
+  "depends_on": [
+    "task-20260315T071944Z-0f5266ef"
+  ],
+  "status": "done",
+  "created_at": "2026-03-15T07:19:54+00:00",
+  "updated_at": "2026-03-15T07:20:18+00:00",
+  "title": "Worker result packet import test / delegated repo analysis",
+  "objective": "Analyze the repository and explain the mixed local-worker orchestration flow, covering chain plan richness, aggregated summary quality, and final artifact integrity.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-context",
+      "captured_at": "2026-03-15T07:19:54+00:00",
+      "exit_code": 0,
+      "content": "Mixed local-worker chain child for repo-analysis step.",
+      "root_task_id": "task-20260315T071944Z-c12685a5",
+      "requested_deliverable": "Explain the mixed local-worker chain and validate final artifact integrity."
+    },
+    {
+      "kind": "worker-result",
+      "captured_at": "2026-03-15T07:20:18+00:00",
+      "exit_code": 0,
+      "content": "Imported packet result for delegated repo-analysis child.",
+      "status": "done",
+      "summary": "Imported packet result for delegated repo-analysis child.",
+      "source": "codex_manual",
+      "artifact_paths": [
+        "outbox/manual/20260315T072010Z-task-20260315T071954Z-ef7a7ab1-packet-result.md"
+      ],
+      "packet_kind": "worker_result_packet",
+      "packet_version": "1.0",
+      "packet_path": "outbox/manual/20260315T072010Z-task-20260315T071954Z-ef7a7ab1.worker-result.json",
+      "packet_sha256": "b2bbf534c17af7c476da67c4468fbe67a12e561193672fc10d217418dacadda1",
+      "generated_at": "2026-03-15T07:20:10Z",
+      "imported_via": "task_import_worker_result",
+      "worker_name": "codex",
+      "root_task_id": "task-20260315T071944Z-c12685a5",
+      "packet_notes": [
+        "Packet imported through the canonical worker result lane.",
+        "Use settlement immediately after import."
+      ],
+      "commit_info": {
+        "commit": "f2a0cec",
+        "branch": "main",
+        "remote": "origin"
+      },
+      "evidence": {
+        "result_artifact_path": "outbox/manual/20260315T072010Z-task-20260315T071954Z-ef7a7ab1-packet-result.md",
+        "proof": "packet reviewed before import"
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T072010Z-task-20260315T071954Z-ef7a7ab1-packet-result.md",
+      "kind": "worker-result",
+      "created_at": "2026-03-15T07:20:18+00:00"
+    },
+    {
+      "path": "outbox/manual/20260315T072010Z-task-20260315T071954Z-ef7a7ab1.worker-result.json",
+      "kind": "worker-result-packet",
+      "created_at": "2026-03-15T07:20:18+00:00"
+    }
+  ],
+  "notes": [
+    "delegated to worker_future on 2026-03-15T07:19:54+00:00",
+    "worker result recorded from codex",
+    "worker result imported from packet outbox/manual/20260315T072010Z-task-20260315T071954Z-ef7a7ab1.worker-result.json generated_at=2026-03-15T07:20:10Z sha256=b2bbf534c17af7c476da67c4468fbe67a12e561193672fc10d217418dacadda1"
+  ],
+  "step_name": "delegated-repo-analysis",
+  "step_order": 2,
+  "critical": true,
+  "execution_mode": "worker",
+  "handoff": {
+    "delegated_to": "worker_future",
+    "delegated_at": "2026-03-15T07:19:54+00:00",
+    "task_type": "repo-analysis",
+    "title": "Worker result packet import test / delegated repo analysis",
+    "objective": "Analyze the repository and explain the mixed local-worker orchestration flow, covering chain plan richness, aggregated summary quality, and final artifact integrity.",
+    "recommended_next_step": "delimitar alcance del repo y formato del informe esperado",
+    "required_fields_present": [
+      "task_id",
+      "type",
+      "title",
+      "objective",
+      "created_at"
+    ],
+    "missing_required_fields": [],
+    "policy_version": "1.0",
+    "rationale": "analisis multiarchivo con tiempo y estructura suficientes para worker futuro",
+    "source_status": "queued"
+  }
+}

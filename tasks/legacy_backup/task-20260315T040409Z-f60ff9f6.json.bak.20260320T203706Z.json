@@ -1,0 +1,43 @@
+{
+  "task_id": "task-20260315T040409Z-f60ff9f6",
+  "type": "compare-files",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260315T040023Z-28f9c2ec",
+  "depends_on": [
+    "task-20260315T040031Z-5ac6c16d"
+  ],
+  "status": "done",
+  "created_at": "2026-03-15T04:04:09+00:00",
+  "updated_at": "2026-03-15T04:04:09+00:00",
+  "title": "Capability verification / orchestration v3 success / local worker outcome review",
+  "objective": "Generate a local review artifact after a successful worker outcome to prove the conditional mixed chain.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "comparison-files",
+      "captured_at": "2026-03-15T04:04:09+00:00",
+      "exit_code": 0,
+      "content": "COMPARISON_OK outbox/manual/20260315T040409Z_chain-v3-review-task-20260315T040023Z-28f9c2ec.md",
+      "command": "./scripts/browser_compare.sh files chain-v3-review-task-20260315T040023Z-28f9c2ec docs/TASK_CHAIN_RESULTS.md docs/TASK_ORCHESTRATION_CONDITIONAL.md",
+      "mode": "files",
+      "slug": "chain-v3-review-task-20260315T040023Z-28f9c2ec",
+      "input_a": "docs/TASK_CHAIN_RESULTS.md",
+      "input_b": "docs/TASK_ORCHESTRATION_CONDITIONAL.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T040409Z_chain-v3-review-task-20260315T040023Z-28f9c2ec.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-15T04:04:09+00:00"
+    }
+  ],
+  "notes": [
+    "comparison generation completed and task closed"
+  ],
+  "step_name": "local-review-worker-outcome",
+  "step_order": 4,
+  "critical": false,
+  "execution_mode": "local"
+}

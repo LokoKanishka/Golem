@@ -1,0 +1,41 @@
+{
+  "task_id": "task-20260315T045419Z-d56c9764",
+  "type": "read-snapshot",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "failed",
+  "created_at": "2026-03-15T04:54:19+00:00",
+  "updated_at": "2026-03-15T04:54:22+00:00",
+  "title": "Browser stack verification / reading",
+  "objective": "Browser stack verification / reading",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "read-snapshot",
+      "captured_at": "2026-03-15T04:54:22+00:00",
+      "exit_code": 1,
+      "content": "[profile=chrome exit=1]\nERROR: no hay tabs adjuntas al perfil chrome\nAdjuntá una pestaña con OpenClaw Browser Relay (badge ON) y volvé a probar.\n\n\n[profile=openclaw exit=1]\nERROR: no hay tabs adjuntas al perfil openclaw\nAdjuntá una pestaña con OpenClaw Browser Relay (badge ON) y volvé a probar.",
+      "command": "./scripts/browser_read.sh snapshot",
+      "mode": "snapshot",
+      "profile": "",
+      "attempts": [
+        {
+          "profile": "chrome",
+          "exit_code": 1,
+          "content": "ERROR: no hay tabs adjuntas al perfil chrome\nAdjuntá una pestaña con OpenClaw Browser Relay (badge ON) y volvé a probar.\n"
+        },
+        {
+          "profile": "openclaw",
+          "exit_code": 1,
+          "content": "ERROR: no hay tabs adjuntas al perfil openclaw\nAdjuntá una pestaña con OpenClaw Browser Relay (badge ON) y volvé a probar.\n"
+        }
+      ]
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "reading failed"
+  ]
+}

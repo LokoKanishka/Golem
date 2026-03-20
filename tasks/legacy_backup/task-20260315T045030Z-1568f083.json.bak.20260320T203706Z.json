@@ -1,0 +1,41 @@
+{
+  "task_id": "task-20260315T045030Z-1568f083",
+  "type": "nav-tabs",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "failed",
+  "created_at": "2026-03-15T04:50:30+00:00",
+  "updated_at": "2026-03-15T04:50:33+00:00",
+  "title": "Browser stack raw nav test",
+  "objective": "Browser stack raw nav test",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "nav-tabs",
+      "captured_at": "2026-03-15T04:50:33+00:00",
+      "exit_code": 1,
+      "content": "[profile=chrome exit=0]\n│\n◇  Doctor warnings ────────────────────────────────────────────╮\n│                                                              │\n│  - State dir migration skipped: target already exists        │\n│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │\n│                                                              │\n├──────────────────────────────────────────────────────────────╯\nNo tabs (browser closed or no targets).\n\n\n[profile=openclaw exit=0]\n│\n◇  Doctor warnings ────────────────────────────────────────────╮\n│                                                              │\n│  - State dir migration skipped: target already exists        │\n│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │\n│                                                              │\n├──────────────────────────────────────────────────────────────╯\nNo tabs (browser closed or no targets).",
+      "command": "./scripts/browser_nav.sh tabs",
+      "mode": "tabs",
+      "profile": "",
+      "attempts": [
+        {
+          "profile": "chrome",
+          "exit_code": 0,
+          "content": "│\n◇  Doctor warnings ────────────────────────────────────────────╮\n│                                                              │\n│  - State dir migration skipped: target already exists        │\n│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │\n│                                                              │\n├──────────────────────────────────────────────────────────────╯\nNo tabs (browser closed or no targets).\n"
+        },
+        {
+          "profile": "openclaw",
+          "exit_code": 0,
+          "content": "│\n◇  Doctor warnings ────────────────────────────────────────────╮\n│                                                              │\n│  - State dir migration skipped: target already exists        │\n│    (/home/lucy-ubuntu/.openclaw). Remove or merge manually.  │\n│                                                              │\n├──────────────────────────────────────────────────────────────╯\nNo tabs (browser closed or no targets).\n"
+        }
+      ]
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "navigation failed"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "task_id": "task-20260315T200641Z-ff704c0b",
+  "type": "compare-files",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "done",
+  "created_at": "2026-03-15T20:06:41+00:00",
+  "updated_at": "2026-03-15T20:06:41+00:00",
+  "title": "Capability verification / compare files",
+  "objective": "Capability verification / compare files",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "comparison-files",
+      "captured_at": "2026-03-15T20:06:41+00:00",
+      "exit_code": 0,
+      "content": "COMPARISON_OK outbox/manual/20260315T200641Z_capability-matrix-compare.md",
+      "command": "./scripts/browser_compare.sh files capability-matrix-compare docs/TASK_MODEL.md docs/TASK_CHAIN_RESULTS.md",
+      "mode": "files",
+      "slug": "capability-matrix-compare",
+      "input_a": "docs/TASK_MODEL.md",
+      "input_b": "docs/TASK_CHAIN_RESULTS.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T200641Z_capability-matrix-compare.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-15T20:06:41+00:00"
+    }
+  ],
+  "notes": [
+    "comparison generation completed and task closed"
+  ]
+}
