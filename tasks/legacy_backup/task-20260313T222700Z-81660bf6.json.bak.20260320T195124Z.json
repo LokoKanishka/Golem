@@ -1,0 +1,43 @@
+{
+  "task_id": "task-20260313T222700Z-81660bf6",
+  "type": "task-chain",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "done",
+  "created_at": "2026-03-13T22:27:00+00:00",
+  "updated_at": "2026-03-13T22:27:08+00:00",
+  "title": "Chain integration test",
+  "objective": "Chain integration test",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-start",
+      "captured_at": "2026-03-13T22:27:00+00:00",
+      "exit_code": 0,
+      "content": "chain_type=self-check-compare root_task_id=task-20260313T222700Z-81660bf6",
+      "chain_type": "self-check-compare"
+    },
+    {
+      "kind": "chain-child-self-check",
+      "captured_at": "2026-03-13T22:27:07+00:00",
+      "exit_code": 0,
+      "content": "self-check child completed with exit_code=0",
+      "chain_type": "self-check-compare",
+      "child_task_id": "task-20260313T222700Z-9ea53dbb"
+    },
+    {
+      "kind": "chain-child-compare",
+      "captured_at": "2026-03-13T22:27:08+00:00",
+      "exit_code": 0,
+      "content": "compare child completed with exit_code=0",
+      "chain_type": "self-check-compare",
+      "child_task_id": "task-20260313T222708Z-a95f1f0a"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "chain self-check-compare completed"
+  ]
+}

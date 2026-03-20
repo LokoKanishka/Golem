@@ -1,56 +1,18 @@
 {
-  "task_id": "task-20260313T224025Z-25159adf",
-  "type": "task-chain",
-  "origin": "local",
-  "canonical_session": "",
-  "parent_task_id": "",
-  "depends_on": [],
-  "status": "failed",
-  "created_at": "2026-03-13T22:40:25+00:00",
-  "updated_at": "2026-03-13T22:40:33+00:00",
+  "id": "task-20260313T224025Z-25159adf",
   "title": "Chain aggregation failure test",
   "objective": "Chain aggregation failure test",
-  "inputs": [],
-  "outputs": [
+  "status": "failed",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-13T22:40:25+00:00",
+  "updated_at": "2026-03-20T19:51:24Z",
+  "acceptance_criteria": [],
+  "evidence": [
     {
-      "kind": "chain-start",
-      "captured_at": "2026-03-13T22:40:25+00:00",
-      "exit_code": 0,
-      "content": "chain_type=self-check-compare-fail root_task_id=task-20260313T224025Z-25159adf",
-      "chain_type": "self-check-compare-fail"
-    },
-    {
-      "kind": "chain-child-self-check",
-      "captured_at": "2026-03-13T22:40:33+00:00",
-      "exit_code": 0,
-      "content": "self-check child completed with exit_code=0",
-      "chain_type": "self-check-compare-fail",
-      "child_task_id": "task-20260313T224025Z-f62a0528"
-    },
-    {
-      "kind": "chain-child-compare",
-      "captured_at": "2026-03-13T22:40:33+00:00",
-      "exit_code": 1,
-      "content": "compare child completed with exit_code=1",
-      "chain_type": "self-check-compare-fail",
-      "child_task_id": "task-20260313T224033Z-5d85c4b2"
-    },
-    {
-      "kind": "chain-summary",
-      "captured_at": "2026-03-13T22:40:33+00:00",
-      "exit_code": 0,
-      "content": "chain_status=failed child_count=2 children_done=1 children_failed=1 children_with_warnings=1",
-      "chain_type": "self-check-compare-fail",
-      "chain_status": "failed",
-      "child_task_ids": [
-        "task-20260313T224025Z-f62a0528",
-        "task-20260313T224033Z-5d85c4b2"
-      ],
-      "child_count": 2,
-      "children_done": 1,
-      "children_failed": 1,
-      "children_with_warnings": 1,
-      "artifact_paths": []
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260313T224025Z-25159adf.json.bak.20260320T195124Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260313T224025Z-25159adf"
     }
   ],
   "artifacts": [
@@ -60,20 +22,19 @@
       "created_at": "2026-03-13T22:40:33+00:00"
     }
   ],
-  "notes": [
-    "chain finalized with failed critical child"
-  ],
-  "chain_type": "self-check-compare-fail",
-  "chain_status": "failed",
-  "chain_summary": {
-    "child_task_ids": [
-      "task-20260313T224025Z-f62a0528",
-      "task-20260313T224033Z-5d85c4b2"
-    ],
-    "child_count": 2,
-    "children_done": 1,
-    "children_failed": 1,
-    "children_with_warnings": 1,
-    "artifact_paths": []
-  }
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-13T22:40:25+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "chain finalized with failed critical child"
+    },
+    {
+      "at": "2026-03-20T19:51:24Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260313T224025Z-25159adf; backup=tasks/legacy_backup/task-20260313T224025Z-25159adf.json.bak.20260320T195124Z.json"
+    }
+  ]
 }

@@ -1,66 +1,18 @@
 {
-  "task_id": "task-20260313T234227Z-bccfe57a",
-  "type": "repo-analysis",
-  "origin": "local",
-  "canonical_session": "",
-  "parent_task_id": "",
-  "depends_on": [],
-  "status": "done",
-  "created_at": "2026-03-13T23:42:27+00:00",
-  "updated_at": "2026-03-13T23:44:34+00:00",
+  "id": "task-20260313T234227Z-bccfe57a",
   "title": "Worker result extraction test",
   "objective": "Worker result extraction test",
-  "inputs": [],
-  "outputs": [
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-13T23:42:27+00:00",
+  "updated_at": "2026-03-20T19:51:25Z",
+  "acceptance_criteria": [],
+  "evidence": [
     {
-      "kind": "worker-run-ready",
-      "captured_at": "2026-03-13T23:42:52+00:00",
-      "exit_code": 0,
-      "content": "controlled codex run passed preflight",
-      "ticket_path": "handoffs/task-20260313T234227Z-bccfe57a.codex.md",
-      "prompt_path": "handoffs/task-20260313T234227Z-bccfe57a.run.prompt.md",
-      "log_path": "handoffs/task-20260313T234227Z-bccfe57a.run.log",
-      "last_message_path": "handoffs/task-20260313T234227Z-bccfe57a.run.last.md",
-      "command": "codex exec -C \"/home/lucy-ubuntu/Escritorio/golem\" -s \"read-only\" --color never -o \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260313T234227Z-bccfe57a.run.last.md\" - < \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260313T234227Z-bccfe57a.run.prompt.md\" >> \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260313T234227Z-bccfe57a.run.log\" 2>&1",
-      "sandbox_mode": "read-only",
-      "decision_source": "worker_run_policy"
-    },
-    {
-      "kind": "worker-run-start",
-      "captured_at": "2026-03-13T23:42:52+00:00",
-      "exit_code": 0,
-      "content": "controlled codex run launched",
-      "ticket_path": "handoffs/task-20260313T234227Z-bccfe57a.codex.md",
-      "prompt_path": "handoffs/task-20260313T234227Z-bccfe57a.run.prompt.md",
-      "log_path": "handoffs/task-20260313T234227Z-bccfe57a.run.log",
-      "last_message_path": "handoffs/task-20260313T234227Z-bccfe57a.run.last.md",
-      "command": "codex exec -C \"/home/lucy-ubuntu/Escritorio/golem\" -s \"read-only\" --color never -o \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260313T234227Z-bccfe57a.run.last.md\" - < \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260313T234227Z-bccfe57a.run.prompt.md\" >> \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260313T234227Z-bccfe57a.run.log\" 2>&1"
-    },
-    {
-      "kind": "worker-run-finish",
-      "captured_at": "2026-03-13T23:44:18+00:00",
-      "exit_code": 0,
-      "content": "controlled codex run finished with exit_code=0",
-      "log_path": "handoffs/task-20260313T234227Z-bccfe57a.run.log",
-      "last_message_path": "handoffs/task-20260313T234227Z-bccfe57a.run.last.md"
-    },
-    {
-      "kind": "worker-result",
-      "captured_at": "2026-03-13T23:44:34+00:00",
-      "exit_code": 0,
-      "content": "El alcance real del repo hoy es de orquestaci\u00f3n y trazabilidad operativa: modela tareas, delegaci\u00f3n a `Codex`, handoffs, tickets, scripts y auditor\u00eda; no es todav\u00eda un repo de despliegue ni de app productiva. Lo sostienen `README.md:3`, `README.md:18`, `docs/ARCHITECTURE.md:14` y `docs/CURRENT_STATE.md:16`. | Para esta tarea, el foco \u00fatil queda acotado a `docs/`, `scripts/`, `tasks/` y `handoffs/`, en especial al flujo de corrida controlada y extracci\u00f3n de resultados del worker; el objetivo ya est\u00e1 explicitado en `handoffs/task-20260313T234227Z-bccfe57a.md:16` y `handoffs/task-20260313T234227Z",
-      "status": "done",
-      "summary": "El alcance real del repo hoy es de orquestaci\u00f3n y trazabilidad operativa: modela tareas, delegaci\u00f3n a `Codex`, handoffs, tickets, scripts y auditor\u00eda; no es todav\u00eda un repo de despliegue ni de app productiva. Lo sostienen `README.md:3`, `README.md:18`, `docs/ARCHITECTURE.md:14` y `docs/CURRENT_STATE.md:16`. | Para esta tarea, el foco \u00fatil queda acotado a `docs/`, `scripts/`, `tasks/` y `handoffs/`, en especial al flujo de corrida controlada y extracci\u00f3n de resultados del worker; el objetivo ya est\u00e1 explicitado en `handoffs/task-20260313T234227Z-bccfe57a.md:16` y `handoffs/task-20260313T234227Z",
-      "source": "codex_auto_extract",
-      "artifact_paths": [
-        "handoffs/task-20260313T234227Z-bccfe57a.run.result.md"
-      ],
-      "extracted_summary": "El alcance real del repo hoy es de orquestaci\u00f3n y trazabilidad operativa: modela tareas, delegaci\u00f3n a `Codex`, handoffs, tickets, scripts y auditor\u00eda; no es todav\u00eda un repo de despliegue ni de app productiva. Lo sostienen `README.md:3`, `README.md:18`, `docs/ARCHITECTURE.md:14` y `docs/CURRENT_STATE.md:16`. | Para esta tarea, el foco \u00fatil queda acotado a `docs/`, `scripts/`, `tasks/` y `handoffs/`, en especial al flujo de corrida controlada y extracci\u00f3n de resultados del worker; el objetivo ya est\u00e1 explicitado en `handoffs/task-20260313T234227Z-bccfe57a.md:16` y `handoffs/task-20260313T234227Z-bccfe57a.md:42`. | El formato esperado del informe inmediato es el del ticket: `resumen corto`, `evidencia/verificacion` y `git status --short`, seg\u00fan `handoffs/task-20260313T234227Z-bccfe57a.codex.md:54` y `handoffs/task-20260313T234227Z-bccfe57a.run.prompt.md:78`. | Si luego este resultado se persiste como artifact Markdown, debe llevar `H1`, `generated_at:`, metadatos como `repo:` / `task_type:` / `task_id:`, secciones \u00fatiles, y pasar `./scripts/validate_markdown_artifact.sh`, seg\u00fan `docs/OUTPUT_CONVENTIONS.md:9`, `docs/OUTPUT_CONVENTIONS.md:45` y `docs/OUTPUT_CONVENTIONS.md:122`.",
-      "result_artifact_path": "handoffs/task-20260313T234227Z-bccfe57a.run.result.md",
-      "result_source_files": [
-        "handoffs/task-20260313T234227Z-bccfe57a.run.last.md",
-        "handoffs/task-20260313T234227Z-bccfe57a.run.log"
-      ]
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260313T234227Z-bccfe57a.json.bak.20260320T195125Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260313T234227Z-bccfe57a"
     }
   ],
   "artifacts": [
@@ -70,65 +22,61 @@
       "created_at": "2026-03-13T23:44:34+00:00"
     }
   ],
-  "notes": [
-    "delegated to worker_future on 2026-03-13T23:42:33+00:00",
-    "controlled codex run preflight passed on 2026-03-13T23:42:52+00:00",
-    "controlled codex run started on 2026-03-13T23:42:52+00:00",
-    "controlled codex run finished on 2026-03-13T23:44:18+00:00 with exit_code=0",
-    "worker result extracted automatically at 2026-03-13T23:44:27+00:00",
-    "worker result extracted automatically at 2026-03-13T23:44:34+00:00",
-    "controlled codex run finish requested with status=done",
-    "worker result recorded from codex"
-  ],
-  "handoff": {
-    "delegated_to": "worker_future",
-    "delegated_at": "2026-03-13T23:42:33+00:00",
-    "task_type": "repo-analysis",
-    "title": "Worker result extraction test",
-    "objective": "Worker result extraction test",
-    "recommended_next_step": "delimitar alcance del repo y formato del informe esperado",
-    "required_fields_present": [
-      "task_id",
-      "type",
-      "title",
-      "objective",
-      "created_at"
-    ],
-    "missing_required_fields": [],
-    "policy_version": "1.0",
-    "rationale": "analisis multiarchivo con tiempo y estructura suficientes para worker futuro",
-    "source_status": "queued"
-  },
-  "worker_run": {
-    "runner": "codex_cli",
-    "state": "finished",
-    "result_status": "done",
-    "decision_source": "worker_run_policy",
-    "policy_version": "1.0",
-    "ticket_path": "handoffs/task-20260313T234227Z-bccfe57a.codex.md",
-    "prompt_path": "handoffs/task-20260313T234227Z-bccfe57a.run.prompt.md",
-    "log_path": "handoffs/task-20260313T234227Z-bccfe57a.run.log",
-    "last_message_path": "handoffs/task-20260313T234227Z-bccfe57a.run.last.md",
-    "command": "codex exec -C \"/home/lucy-ubuntu/Escritorio/golem\" -s \"read-only\" --color never -o \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260313T234227Z-bccfe57a.run.last.md\" - < \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260313T234227Z-bccfe57a.run.prompt.md\" >> \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260313T234227Z-bccfe57a.run.log\" 2>&1",
-    "sandbox_mode": "read-only",
-    "started_at": "2026-03-13T23:42:52+00:00",
-    "exit_code": 0,
-    "finished_at": "2026-03-13T23:44:18+00:00",
-    "extracted_at": "2026-03-13T23:44:34+00:00",
-    "result_artifact_path": "handoffs/task-20260313T234227Z-bccfe57a.run.result.md",
-    "extracted_summary": "El alcance real del repo hoy es de orquestaci\u00f3n y trazabilidad operativa: modela tareas, delegaci\u00f3n a `Codex`, handoffs, tickets, scripts y auditor\u00eda; no es todav\u00eda un repo de despliegue ni de app productiva. Lo sostienen `README.md:3`, `README.md:18`, `docs/ARCHITECTURE.md:14` y `docs/CURRENT_STATE.md:16`. | Para esta tarea, el foco \u00fatil queda acotado a `docs/`, `scripts/`, `tasks/` y `handoffs/`, en especial al flujo de corrida controlada y extracci\u00f3n de resultados del worker; el objetivo ya est\u00e1 explicitado en `handoffs/task-20260313T234227Z-bccfe57a.md:16` y `handoffs/task-20260313T234227Z-bccfe57a.md:42`. | El formato esperado del informe inmediato es el del ticket: `resumen corto`, `evidencia/verificacion` y `git status --short`, seg\u00fan `handoffs/task-20260313T234227Z-bccfe57a.codex.md:54` y `handoffs/task-20260313T234227Z-bccfe57a.run.prompt.md:78`. | Si luego este resultado se persiste como artifact Markdown, debe llevar `H1`, `generated_at:`, metadatos como `repo:` / `task_type:` / `task_id:`, secciones \u00fatiles, y pasar `./scripts/validate_markdown_artifact.sh`, seg\u00fan `docs/OUTPUT_CONVENTIONS.md:9`, `docs/OUTPUT_CONVENTIONS.md:45` y `docs/OUTPUT_CONVENTIONS.md:122`.",
-    "extracted_summary_lines": [
-      "El alcance real del repo hoy es de orquestaci\u00f3n y trazabilidad operativa: modela tareas, delegaci\u00f3n a `Codex`, handoffs, tickets, scripts y auditor\u00eda; no es todav\u00eda un repo de despliegue ni de app productiva. Lo sostienen `README.md:3`, `README.md:18`, `docs/ARCHITECTURE.md:14` y `docs/CURRENT_STATE.md:16`.",
-      "Para esta tarea, el foco \u00fatil queda acotado a `docs/`, `scripts/`, `tasks/` y `handoffs/`, en especial al flujo de corrida controlada y extracci\u00f3n de resultados del worker; el objetivo ya est\u00e1 explicitado en `handoffs/task-20260313T234227Z-bccfe57a.md:16` y `handoffs/task-20260313T234227Z-bccfe57a.md:42`.",
-      "El formato esperado del informe inmediato es el del ticket: `resumen corto`, `evidencia/verificacion` y `git status --short`, seg\u00fan `handoffs/task-20260313T234227Z-bccfe57a.codex.md:54` y `handoffs/task-20260313T234227Z-bccfe57a.run.prompt.md:78`.",
-      "Si luego este resultado se persiste como artifact Markdown, debe llevar `H1`, `generated_at:`, metadatos como `repo:` / `task_type:` / `task_id:`, secciones \u00fatiles, y pasar `./scripts/validate_markdown_artifact.sh`, seg\u00fan `docs/OUTPUT_CONVENTIONS.md:9`, `docs/OUTPUT_CONVENTIONS.md:45` y `docs/OUTPUT_CONVENTIONS.md:122`."
-    ],
-    "result_source_files": [
-      "handoffs/task-20260313T234227Z-bccfe57a.run.last.md",
-      "handoffs/task-20260313T234227Z-bccfe57a.run.log"
-    ],
-    "finish_status": "done",
-    "finish_summary": "El alcance real del repo hoy es de orquestaci\u00f3n y trazabilidad operativa: modela tareas, delegaci\u00f3n a `Codex`, handoffs, tickets, scripts y auditor\u00eda; no es todav\u00eda un repo de despliegue ni de app productiva. Lo sostienen `README.md:3`, `README.md:18`, `docs/ARCHITECTURE.md:14` y `docs/CURRENT_STATE.md:16`. | Para esta tarea, el foco \u00fatil queda acotado a `docs/`, `scripts/`, `tasks/` y `handoffs/`, en especial al flujo de corrida controlada y extracci\u00f3n de resultados del worker; el objetivo ya est\u00e1 explicitado en `handoffs/task-20260313T234227Z-bccfe57a.md:16` y `handoffs/task-20260313T234227Z",
-    "closed_at": "2026-03-13T23:44:34+00:00"
-  }
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-13T23:42:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-13T23:42:33+00:00"
+    },
+    {
+      "at": "2026-03-13T23:42:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "controlled codex run preflight passed on 2026-03-13T23:42:52+00:00"
+    },
+    {
+      "at": "2026-03-13T23:42:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "controlled codex run started on 2026-03-13T23:42:52+00:00"
+    },
+    {
+      "at": "2026-03-13T23:42:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "controlled codex run finished on 2026-03-13T23:44:18+00:00 with exit_code=0"
+    },
+    {
+      "at": "2026-03-13T23:42:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result extracted automatically at 2026-03-13T23:44:27+00:00"
+    },
+    {
+      "at": "2026-03-13T23:42:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result extracted automatically at 2026-03-13T23:44:34+00:00"
+    },
+    {
+      "at": "2026-03-13T23:42:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "controlled codex run finish requested with status=done"
+    },
+    {
+      "at": "2026-03-13T23:42:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result recorded from codex"
+    },
+    {
+      "at": "2026-03-20T19:51:25Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260313T234227Z-bccfe57a; backup=tasks/legacy_backup/task-20260313T234227Z-bccfe57a.json.bak.20260320T195125Z.json"
+    }
+  ]
 }

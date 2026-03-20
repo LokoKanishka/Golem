@@ -1,0 +1,39 @@
+{
+  "task_id": "task-20260313T222708Z-a95f1f0a",
+  "type": "compare-files",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260313T222700Z-81660bf6",
+  "depends_on": [
+    "task-20260313T222700Z-9ea53dbb"
+  ],
+  "status": "done",
+  "created_at": "2026-03-13T22:27:08+00:00",
+  "updated_at": "2026-03-13T22:27:08+00:00",
+  "title": "Chain integration test / child compare",
+  "objective": "Chain integration test / child compare",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "comparison-files",
+      "captured_at": "2026-03-13T22:27:08+00:00",
+      "exit_code": 0,
+      "content": "COMPARISON_OK outbox/manual/20260313T222708Z_chain-compare-task-20260313T222700Z-81660bf6.md",
+      "command": "./scripts/browser_compare.sh files chain-compare-task-20260313T222700Z-81660bf6 docs/TASK_MODEL.md docs/TASK_LIFECYCLE.md",
+      "mode": "files",
+      "slug": "chain-compare-task-20260313T222700Z-81660bf6",
+      "input_a": "docs/TASK_MODEL.md",
+      "input_b": "docs/TASK_LIFECYCLE.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260313T222708Z_chain-compare-task-20260313T222700Z-81660bf6.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-13T22:27:08+00:00"
+    }
+  ],
+  "notes": [
+    "comparison generation completed and task closed"
+  ]
+}

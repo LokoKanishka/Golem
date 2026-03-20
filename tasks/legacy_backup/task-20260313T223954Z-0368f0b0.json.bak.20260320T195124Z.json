@@ -1,0 +1,39 @@
+{
+  "task_id": "task-20260313T223954Z-0368f0b0",
+  "type": "compare-files",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260313T223945Z-95551ec2",
+  "depends_on": [
+    "task-20260313T223945Z-8c2f622a"
+  ],
+  "status": "done",
+  "created_at": "2026-03-13T22:39:54+00:00",
+  "updated_at": "2026-03-13T22:39:54+00:00",
+  "title": "Chain aggregation success test / child compare",
+  "objective": "Chain aggregation success test / child compare",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "comparison-files",
+      "captured_at": "2026-03-13T22:39:54+00:00",
+      "exit_code": 0,
+      "content": "COMPARISON_OK outbox/manual/20260313T223954Z_chain-compare-task-20260313T223945Z-95551ec2.md",
+      "command": "./scripts/browser_compare.sh files chain-compare-task-20260313T223945Z-95551ec2 docs/TASK_MODEL.md docs/TASK_LIFECYCLE.md",
+      "mode": "files",
+      "slug": "chain-compare-task-20260313T223945Z-95551ec2",
+      "input_a": "docs/TASK_MODEL.md",
+      "input_b": "docs/TASK_LIFECYCLE.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260313T223954Z_chain-compare-task-20260313T223945Z-95551ec2.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-13T22:39:54+00:00"
+    }
+  ],
+  "notes": [
+    "comparison generation completed and task closed"
+  ]
+}

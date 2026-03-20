@@ -1,20 +1,18 @@
 {
-  "task_id": "task-20260313T220528Z-7f763f48",
-  "type": "smoke-task-core",
-  "origin": "local",
-  "canonical_session": "",
-  "status": "done",
-  "created_at": "2026-03-13T22:05:28+00:00",
-  "updated_at": "2026-03-13T22:05:28+00:00",
+  "id": "task-20260313T220528Z-7f763f48",
   "title": "Smoke task core",
   "objective": "Smoke task core",
-  "inputs": [],
-  "outputs": [
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-13T22:05:28+00:00",
+  "updated_at": "2026-03-20T19:51:24Z",
+  "acceptance_criteria": [],
+  "evidence": [
     {
-      "kind": "smoke-output",
-      "captured_at": "2026-03-13T22:05:28+00:00",
-      "exit_code": 0,
-      "content": "smoke output recorded"
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260313T220528Z-7f763f48.json.bak.20260320T195124Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260313T220528Z-7f763f48"
     }
   ],
   "artifacts": [
@@ -24,7 +22,19 @@
       "created_at": "2026-03-13T22:05:28+00:00"
     }
   ],
-  "notes": [
-    "smoke task core completed"
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-13T22:05:28+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "smoke task core completed"
+    },
+    {
+      "at": "2026-03-20T19:51:24Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260313T220528Z-7f763f48; backup=tasks/legacy_backup/task-20260313T220528Z-7f763f48.json.bak.20260320T195124Z.json"
+    }
   ]
 }

@@ -1,0 +1,30 @@
+{
+  "task_id": "task-20260313T223945Z-8c2f622a",
+  "type": "self-check",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260313T223945Z-95551ec2",
+  "depends_on": [
+    "task-20260313T223945Z-95551ec2"
+  ],
+  "status": "done",
+  "created_at": "2026-03-13T22:39:45+00:00",
+  "updated_at": "2026-03-13T22:39:53+00:00",
+  "title": "Chain aggregation success test / child self-check",
+  "objective": "Chain aggregation success test / child self-check",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "self-check",
+      "captured_at": "2026-03-13T22:39:53+00:00",
+      "exit_code": 0,
+      "content": "SELF-CHECK GOLEM\ngateway: OK — gateway activo, runtime running, rpc ok\nwhatsapp: OK — whatsapp conectado\nbrowser_relay: OK — browser relay chrome running\ntabs: WARN — relay activo pero 0 tabs adjuntas\nestado_general: WARN\nsintesis: el sistema está mayormente operativo pero hay señales a revisar.",
+      "command": "./scripts/self_check.sh",
+      "estado_general": "WARN"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "self-check completed and task closed"
+  ]
+}

@@ -1,26 +1,18 @@
 {
-  "task_id": "task-20260313T214158Z-47b2db30",
-  "type": "repo-analysis",
-  "origin": "local",
-  "canonical_session": "",
-  "status": "done",
-  "created_at": "2026-03-13T21:41:58+00:00",
-  "updated_at": "2026-03-13T21:45:02+00:00",
+  "id": "task-20260313T214158Z-47b2db30",
   "title": "Analisis real del repo Golem",
   "objective": "Analisis real del repo Golem",
-  "inputs": [],
-  "outputs": [
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-13T21:41:58+00:00",
+  "updated_at": "2026-03-20T19:51:24Z",
+  "acceptance_criteria": [],
+  "evidence": [
     {
-      "kind": "worker-result",
-      "captured_at": "2026-03-13T21:45:02+00:00",
-      "exit_code": 0,
-      "content": "Repo analizado y reporte markdown generado en outbox/manual",
-      "status": "done",
-      "summary": "Repo analizado y reporte markdown generado en outbox/manual",
-      "source": "codex_manual",
-      "artifact_paths": [
-        "outbox/manual/20260313T214354Z-golem-repo-analysis-report.md"
-      ]
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260313T214158Z-47b2db30.json.bak.20260320T195124Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260313T214158Z-47b2db30"
     }
   ],
   "artifacts": [
@@ -30,27 +22,25 @@
       "created_at": "2026-03-13T21:45:02+00:00"
     }
   ],
-  "notes": [
-    "delegated to worker_future on 2026-03-13T21:42:07+00:00",
-    "manual worker result recorded from codex"
-  ],
-  "handoff": {
-    "delegated_to": "worker_future",
-    "delegated_at": "2026-03-13T21:42:07+00:00",
-    "task_type": "repo-analysis",
-    "title": "Analisis real del repo Golem",
-    "objective": "Analisis real del repo Golem",
-    "recommended_next_step": "delimitar alcance del repo y formato del informe esperado",
-    "required_fields_present": [
-      "task_id",
-      "type",
-      "title",
-      "objective",
-      "created_at"
-    ],
-    "missing_required_fields": [],
-    "policy_version": "1.0",
-    "rationale": "analisis multiarchivo con tiempo y estructura suficientes para worker futuro",
-    "source_status": "queued"
-  }
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-13T21:41:58+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-13T21:42:07+00:00"
+    },
+    {
+      "at": "2026-03-13T21:41:58+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "manual worker result recorded from codex"
+    },
+    {
+      "at": "2026-03-20T19:51:24Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260313T214158Z-47b2db30; backup=tasks/legacy_backup/task-20260313T214158Z-47b2db30.json.bak.20260320T195124Z.json"
+    }
+  ]
 }

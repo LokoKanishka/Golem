@@ -2,7 +2,7 @@
 
 ## Timestamp
 
-- generated_at_utc: `2026-03-20T19:33:33Z`
+- generated_at_utc: `2026-03-20T19:51:25Z`
 
 ## Scope
 
@@ -12,40 +12,15 @@
 
 ## Active Tasks
 
-- canonical: 10
-- legacy: 1385
+- canonical: 35
+- legacy: 1360
 - corrupt: 0
 - invalid: 0
 
-`SCAN_SUMMARY total=1395 canonical=10 legacy=1385 corrupt=0 invalid=0`
+`SCAN_SUMMARY total=1395 canonical=35 legacy=1360 corrupt=0 invalid=0`
 
 ### Legacy
 
-- `TASK_SCAN_LEGACY task-20260313T214158Z-47b2db30 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T214158Z-47b2db30.json`
-- `TASK_SCAN_LEGACY task-20260313T220528Z-7f763f48 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T220528Z-7f763f48.json`
-- `TASK_SCAN_LEGACY task-20260313T220608Z-5e26f38b /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T220608Z-5e26f38b.json`
-- `TASK_SCAN_LEGACY task-20260313T222640Z-6d1ed361 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T222640Z-6d1ed361.json`
-- `TASK_SCAN_LEGACY task-20260313T222644Z-2570f3c7 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T222644Z-2570f3c7.json`
-- `TASK_SCAN_LEGACY task-20260313T222700Z-81660bf6 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T222700Z-81660bf6.json`
-- `TASK_SCAN_LEGACY task-20260313T222700Z-9ea53dbb /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T222700Z-9ea53dbb.json`
-- `TASK_SCAN_LEGACY task-20260313T222708Z-a95f1f0a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T222708Z-a95f1f0a.json`
-- `TASK_SCAN_LEGACY task-20260313T223945Z-8c2f622a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T223945Z-8c2f622a.json`
-- `TASK_SCAN_LEGACY task-20260313T223945Z-95551ec2 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T223945Z-95551ec2.json`
-- `TASK_SCAN_LEGACY task-20260313T223954Z-0368f0b0 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T223954Z-0368f0b0.json`
-- `TASK_SCAN_LEGACY task-20260313T224025Z-25159adf /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T224025Z-25159adf.json`
-- `TASK_SCAN_LEGACY task-20260313T224025Z-f62a0528 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T224025Z-f62a0528.json`
-- `TASK_SCAN_LEGACY task-20260313T224033Z-5d85c4b2 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T224033Z-5d85c4b2.json`
-- `TASK_SCAN_LEGACY task-20260313T225137Z-c1ec278e /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T225137Z-c1ec278e.json`
-- `TASK_SCAN_LEGACY task-20260313T231558Z-6a2d113d /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T231558Z-6a2d113d.json`
-- `TASK_SCAN_LEGACY task-20260313T231634Z-27a1e6d7 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T231634Z-27a1e6d7.json`
-- `TASK_SCAN_LEGACY task-20260313T234227Z-bccfe57a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T234227Z-bccfe57a.json`
-- `TASK_SCAN_LEGACY task-20260313T234516Z-461c6cbd /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T234516Z-461c6cbd.json`
-- `TASK_SCAN_LEGACY task-20260315T002139Z-89135b34 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260315T002139Z-89135b34.json`
-- `TASK_SCAN_LEGACY task-20260315T002150Z-7fc0ad62 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260315T002150Z-7fc0ad62.json`
-- `TASK_SCAN_LEGACY task-20260315T002150Z-9cf0065a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260315T002150Z-9cf0065a.json`
-- `TASK_SCAN_LEGACY task-20260315T002158Z-4f287308 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260315T002158Z-4f287308.json`
-- `TASK_SCAN_LEGACY task-20260315T002458Z-178f173c /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260315T002458Z-178f173c.json`
-- `TASK_SCAN_LEGACY task-20260315T002646Z-f90d5e96 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260315T002646Z-f90d5e96.json`
 - `TASK_SCAN_LEGACY task-20260315T002651Z-89f255f7 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260315T002651Z-89f255f7.json`
 - `TASK_SCAN_LEGACY task-20260315T002651Z-965c0f02 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260315T002651Z-965c0f02.json`
 - `TASK_SCAN_LEGACY task-20260315T002659Z-6ed59fb8 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260315T002659Z-6ed59fb8.json`
@@ -1438,12 +1413,12 @@
 
 ## Combined Totals
 
-- canonical: 10
-- legacy: 1385
+- canonical: 35
+- legacy: 1360
 - corrupt: 0
 - invalid: 0
 
-`SCAN_SUMMARY total=1395 canonical=10 legacy=1385 corrupt=0 invalid=0`
+`SCAN_SUMMARY total=1395 canonical=35 legacy=1360 corrupt=0 invalid=0`
 
 ## Reading
 
@@ -1454,12 +1429,9 @@
 
 ## Next Step
 
-La próxima acción correcta es continuar con migración legacy controlada en tandas chicas,
-porque el carril activo ya quedó sin `corrupt`.
+La próxima acción correcta es seleccionar la primera tanda real de tratamiento:
 
-Secuencia sugerida:
-
-1. inspeccionar calidad de los primeros migrados;
-2. si la quality gate sale limpia, abrir Batch 02;
-3. seguir escalando por tandas pequeñas y auditables.
+1. revisar los `corrupt`;
+2. decidir si se reparan o se aíslan;
+3. luego migrar legacy simples en tandas chicas.
 

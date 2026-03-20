@@ -1,29 +1,18 @@
 {
-  "task_id": "task-20260313T223954Z-0368f0b0",
-  "type": "compare-files",
-  "origin": "local",
-  "canonical_session": "",
-  "parent_task_id": "task-20260313T223945Z-95551ec2",
-  "depends_on": [
-    "task-20260313T223945Z-8c2f622a"
-  ],
-  "status": "done",
-  "created_at": "2026-03-13T22:39:54+00:00",
-  "updated_at": "2026-03-13T22:39:54+00:00",
+  "id": "task-20260313T223954Z-0368f0b0",
   "title": "Chain aggregation success test / child compare",
   "objective": "Chain aggregation success test / child compare",
-  "inputs": [],
-  "outputs": [
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-13T22:39:54+00:00",
+  "updated_at": "2026-03-20T19:51:24Z",
+  "acceptance_criteria": [],
+  "evidence": [
     {
-      "kind": "comparison-files",
-      "captured_at": "2026-03-13T22:39:54+00:00",
-      "exit_code": 0,
-      "content": "COMPARISON_OK outbox/manual/20260313T223954Z_chain-compare-task-20260313T223945Z-95551ec2.md",
-      "command": "./scripts/browser_compare.sh files chain-compare-task-20260313T223945Z-95551ec2 docs/TASK_MODEL.md docs/TASK_LIFECYCLE.md",
-      "mode": "files",
-      "slug": "chain-compare-task-20260313T223945Z-95551ec2",
-      "input_a": "docs/TASK_MODEL.md",
-      "input_b": "docs/TASK_LIFECYCLE.md"
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260313T223954Z-0368f0b0.json.bak.20260320T195124Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260313T223954Z-0368f0b0"
     }
   ],
   "artifacts": [
@@ -33,7 +22,19 @@
       "created_at": "2026-03-13T22:39:54+00:00"
     }
   ],
-  "notes": [
-    "comparison generation completed and task closed"
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-13T22:39:54+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "comparison generation completed and task closed"
+    },
+    {
+      "at": "2026-03-20T19:51:24Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260313T223954Z-0368f0b0; backup=tasks/legacy_backup/task-20260313T223954Z-0368f0b0.json.bak.20260320T195124Z.json"
+    }
   ]
 }
