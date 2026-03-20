@@ -1,76 +1,18 @@
 {
-  "task_id": "task-20260315T030920Z-66d687cc",
-  "type": "repo-analysis",
-  "origin": "local",
-  "canonical_session": "",
-  "parent_task_id": "task-20260315T030912Z-ec4deaf2",
-  "depends_on": [
-    "task-20260315T030913Z-4c1357a6"
-  ],
-  "status": "done",
-  "created_at": "2026-03-15T03:09:20+00:00",
-  "updated_at": "2026-03-15T03:12:43+00:00",
+  "id": "task-20260315T030920Z-66d687cc",
   "title": "V3 conditional success test / delegated repo analysis",
   "objective": "Analyze the repository and explain the mixed local-worker orchestration flow, covering conditional decisions, aggregated summary quality, and final artifact integrity.",
-  "inputs": [],
-  "outputs": [
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T03:09:20+00:00",
+  "updated_at": "2026-03-20T20:10:38Z",
+  "acceptance_criteria": [],
+  "evidence": [
     {
-      "kind": "chain-context",
-      "captured_at": "2026-03-15T03:09:20+00:00",
-      "exit_code": 0,
-      "content": "Conditional mixed local-worker chain child for repo-analysis step.",
-      "root_task_id": "task-20260315T030912Z-ec4deaf2",
-      "requested_deliverable": "Explain the mixed local-worker chain and validate the conditional final artifact flow."
-    },
-    {
-      "kind": "worker-run-ready",
-      "captured_at": "2026-03-15T03:09:20+00:00",
-      "exit_code": 0,
-      "content": "controlled codex run passed preflight",
-      "ticket_path": "handoffs/task-20260315T030920Z-66d687cc.codex.md",
-      "prompt_path": "handoffs/task-20260315T030920Z-66d687cc.run.prompt.md",
-      "log_path": "handoffs/task-20260315T030920Z-66d687cc.run.log",
-      "last_message_path": "handoffs/task-20260315T030920Z-66d687cc.run.last.md",
-      "command": "codex exec -C \"/home/lucy-ubuntu/Escritorio/golem\" -s \"read-only\" --color never -o \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260315T030920Z-66d687cc.run.last.md\" - < \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260315T030920Z-66d687cc.run.prompt.md\" >> \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260315T030920Z-66d687cc.run.log\" 2>&1",
-      "sandbox_mode": "read-only",
-      "decision_source": "worker_run_policy"
-    },
-    {
-      "kind": "worker-run-start",
-      "captured_at": "2026-03-15T03:09:20+00:00",
-      "exit_code": 0,
-      "content": "controlled codex run launched",
-      "ticket_path": "handoffs/task-20260315T030920Z-66d687cc.codex.md",
-      "prompt_path": "handoffs/task-20260315T030920Z-66d687cc.run.prompt.md",
-      "log_path": "handoffs/task-20260315T030920Z-66d687cc.run.log",
-      "last_message_path": "handoffs/task-20260315T030920Z-66d687cc.run.last.md",
-      "command": "codex exec -C \"/home/lucy-ubuntu/Escritorio/golem\" -s \"read-only\" --color never -o \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260315T030920Z-66d687cc.run.last.md\" - < \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260315T030920Z-66d687cc.run.prompt.md\" >> \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260315T030920Z-66d687cc.run.log\" 2>&1"
-    },
-    {
-      "kind": "worker-run-finish",
-      "captured_at": "2026-03-15T03:12:43+00:00",
-      "exit_code": 0,
-      "content": "controlled codex run finished with exit_code=0",
-      "log_path": "handoffs/task-20260315T030920Z-66d687cc.run.log",
-      "last_message_path": "handoffs/task-20260315T030920Z-66d687cc.run.last.md"
-    },
-    {
-      "kind": "worker-result",
-      "captured_at": "2026-03-15T03:12:43+00:00",
-      "exit_code": 0,
-      "content": "Alcance \u00fatil para este ticket: runner, decisi\u00f3n, agregaci\u00f3n y finalizaci\u00f3n en `scripts/task_chain_run_v3.sh:327`, `scripts/task_chain_decide_next.sh:32`, `scripts/task_chain_collect_results.sh:326`, `scripts/task_chain_finalize.sh:70`; pol\u00edtica de delegaci\u00f3n en `config/worker_handoff_policy.json:157`; contrato documental en `docs/TASK_ORCHESTRATION_CONDITIONAL.md:26`, `docs/TASK_CHAIN_RESULTS.md:25`, `docs/WORKER_...",
-      "status": "done",
-      "summary": "Alcance \u00fatil para este ticket: runner, decisi\u00f3n, agregaci\u00f3n y finalizaci\u00f3n en `scripts/task_chain_run_v3.sh:327`, `scripts/task_chain_decide_next.sh:32`, `scripts/task_chain_collect_results.sh:326`, `scripts/task_chain_finalize.sh:70`; pol\u00edtica de delegaci\u00f3n en `config/worker_handoff_policy.json:157`; contrato documental en `docs/TASK_ORCHESTRATION_CONDITIONAL.md:26`, `docs/TASK_CHAIN_RESULTS.md:25`, `docs/WORKER_...",
-      "source": "codex_auto_extract",
-      "artifact_paths": [
-        "handoffs/task-20260315T030920Z-66d687cc.run.result.md"
-      ],
-      "extracted_summary": "Alcance \u00fatil para este ticket: runner, decisi\u00f3n, agregaci\u00f3n y finalizaci\u00f3n en `scripts/task_chain_run_v3.sh:327`, `scripts/task_chain_decide_next.sh:32`, `scripts/task_chain_collect_results.sh:326`, `scripts/task_chain_finalize.sh:70`; pol\u00edtica de delegaci\u00f3n en `config/worker_handoff_policy.json:157`; contrato documental en `docs/TASK_ORCHESTRATION_CONDITIONAL.md:26`, `docs/TASK_CHAIN_RESULTS.md:25`, `docs/WORKER_...",
-      "result_artifact_path": "handoffs/task-20260315T030920Z-66d687cc.run.result.md",
-      "result_source_files": [
-        "handoffs/task-20260315T030920Z-66d687cc.run.last.md",
-        "handoffs/task-20260315T030920Z-66d687cc.run.log"
-      ]
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T030920Z-66d687cc.json.bak.20260320T201038Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T030920Z-66d687cc"
     }
   ],
   "artifacts": [
@@ -80,69 +22,55 @@
       "created_at": "2026-03-15T03:12:43+00:00"
     }
   ],
-  "notes": [
-    "delegated to worker_future on 2026-03-15T03:09:20+00:00",
-    "controlled codex run preflight passed on 2026-03-15T03:09:20+00:00",
-    "controlled codex run started on 2026-03-15T03:09:20+00:00",
-    "controlled codex run finished on 2026-03-15T03:12:43+00:00 with exit_code=0",
-    "worker result extracted automatically at 2026-03-15T03:12:43+00:00",
-    "controlled codex run finish requested with status=done",
-    "worker result recorded from codex"
-  ],
-  "step_name": "delegated-repo-analysis",
-  "step_order": 2,
-  "critical": true,
-  "execution_mode": "worker",
-  "handoff": {
-    "delegated_to": "worker_future",
-    "delegated_at": "2026-03-15T03:09:20+00:00",
-    "task_type": "repo-analysis",
-    "title": "V3 conditional success test / delegated repo analysis",
-    "objective": "Analyze the repository and explain the mixed local-worker orchestration flow, covering conditional decisions, aggregated summary quality, and final artifact integrity.",
-    "recommended_next_step": "delimitar alcance del repo y formato del informe esperado",
-    "required_fields_present": [
-      "task_id",
-      "type",
-      "title",
-      "objective",
-      "created_at"
-    ],
-    "missing_required_fields": [],
-    "policy_version": "1.0",
-    "rationale": "analisis multiarchivo con tiempo y estructura suficientes para worker futuro",
-    "source_status": "queued"
-  },
-  "worker_run": {
-    "runner": "codex_cli",
-    "state": "finished",
-    "result_status": "done",
-    "decision_source": "worker_run_policy",
-    "policy_version": "1.0",
-    "ticket_path": "handoffs/task-20260315T030920Z-66d687cc.codex.md",
-    "prompt_path": "handoffs/task-20260315T030920Z-66d687cc.run.prompt.md",
-    "log_path": "handoffs/task-20260315T030920Z-66d687cc.run.log",
-    "last_message_path": "handoffs/task-20260315T030920Z-66d687cc.run.last.md",
-    "command": "codex exec -C \"/home/lucy-ubuntu/Escritorio/golem\" -s \"read-only\" --color never -o \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260315T030920Z-66d687cc.run.last.md\" - < \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260315T030920Z-66d687cc.run.prompt.md\" >> \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260315T030920Z-66d687cc.run.log\" 2>&1",
-    "sandbox_mode": "read-only",
-    "started_at": "2026-03-15T03:09:20+00:00",
-    "exit_code": 0,
-    "finished_at": "2026-03-15T03:12:43+00:00",
-    "extracted_at": "2026-03-15T03:12:43+00:00",
-    "result_artifact_path": "handoffs/task-20260315T030920Z-66d687cc.run.result.md",
-    "extracted_summary": "Alcance \u00fatil para este ticket: runner, decisi\u00f3n, agregaci\u00f3n y finalizaci\u00f3n en `scripts/task_chain_run_v3.sh:327`, `scripts/task_chain_decide_next.sh:32`, `scripts/task_chain_collect_results.sh:326`, `scripts/task_chain_finalize.sh:70`; pol\u00edtica de delegaci\u00f3n en `config/worker_handoff_policy.json:157`; contrato documental en `docs/TASK_ORCHESTRATION_CONDITIONAL.md:26`, `docs/TASK_CHAIN_RESULTS.md:25`, `docs/WORKER_...",
-    "extracted_summary_lines": [
-      "Alcance \u00fatil para este ticket: runner, decisi\u00f3n, agregaci\u00f3n y finalizaci\u00f3n en `scripts/task_chain_run_v3.sh:327`, `scripts/task_chain_decide_next.sh:32`, `scripts/task_chain_collect_results.sh:326`, `scripts/task_chain_finalize.sh:70`; pol\u00edtica de delegaci\u00f3n en `config/worker_handoff_policy.json:157`; contrato documental en `docs/TASK_ORCHESTRATION_CONDITIONAL.md:26`, `docs/TASK_CHAIN_RESULTS.md:25`, `docs/WORKER_RESULT_EXTRACTION.md:29`, `docs/OUTPUT_CONVENTIONS.md:123`.",
-      "Flujo mixto: la ra\u00edz planifica `local-self-check` \u2192 `delegated-repo-analysis` \u2192 `conditional-decision` \u2192 `local-review-worker-outcome`; el \u00faltimo s\u00f3lo corre si el worker cierra con `worker_result_status=done`, y si no, queda `skipped` con raz\u00f3n persistida en `conditional_outcomes` y `decision_reason` en `scripts/task_chain_decide_next.sh:73` y `scripts/task_chain_collect_results.sh:349`.",
-      "Calidad del resumen agregado: el colector consolida `worker_outcomes` y `worker_result_summaries` en la ra\u00edz en `docs/TASK_CHAIN_RESULTS.md:64` y `scripts/task_chain_collect_results.sh:326`; el extractor prefiere `run.last.md`, cae al log, produce resumen heur\u00edstico y conserva snippet/raw/source files para auditor\u00eda en `docs/WORKER_RESULT_EXTRACTION.md:17` y `scripts/task_extract_worker_result.sh:186`.",
-      "Integridad final: el cierre genera un artefacto ra\u00edz validado con `## Summary`, `## Chain Plan`, `## Worker Outcomes`, `## Conditional Outcomes` y `## Aggregated Artifacts` en `scripts/task_chain_finalize.sh:79`; los durables son `handoffs/*.run.result.md` y `outbox/manual/*.md`, mientras `run.prompt`, `run.log` y `run.last` son runtime-only en `docs/OUTPUT_CONVENTIONS.md:127`.",
-      "Formato esperado del informe: breve y en tres bloques (`resumen corto`, `evidencia/verificacion`, `git status --short`) seg\u00fan `handoffs/task-20260315T030920Z-66d687cc.codex.md:57` y `handoffs/task-20260315T030920Z-66d687cc.run.prompt.md:81`."
-    ],
-    "result_source_files": [
-      "handoffs/task-20260315T030920Z-66d687cc.run.last.md",
-      "handoffs/task-20260315T030920Z-66d687cc.run.log"
-    ],
-    "finish_status": "done",
-    "finish_summary": "Alcance \u00fatil para este ticket: runner, decisi\u00f3n, agregaci\u00f3n y finalizaci\u00f3n en `scripts/task_chain_run_v3.sh:327`, `scripts/task_chain_decide_next.sh:32`, `scripts/task_chain_collect_results.sh:326`, `scripts/task_chain_finalize.sh:70`; pol\u00edtica de delegaci\u00f3n en `config/worker_handoff_policy.json:157`; contrato documental en `docs/TASK_ORCHESTRATION_CONDITIONAL.md:26`, `docs/TASK_CHAIN_RESULTS.md:25`, `docs/WORKER_...",
-    "closed_at": "2026-03-15T03:12:43+00:00"
-  }
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T03:09:20+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-15T03:09:20+00:00"
+    },
+    {
+      "at": "2026-03-15T03:09:20+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "controlled codex run preflight passed on 2026-03-15T03:09:20+00:00"
+    },
+    {
+      "at": "2026-03-15T03:09:20+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "controlled codex run started on 2026-03-15T03:09:20+00:00"
+    },
+    {
+      "at": "2026-03-15T03:09:20+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "controlled codex run finished on 2026-03-15T03:12:43+00:00 with exit_code=0"
+    },
+    {
+      "at": "2026-03-15T03:09:20+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result extracted automatically at 2026-03-15T03:12:43+00:00"
+    },
+    {
+      "at": "2026-03-15T03:09:20+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "controlled codex run finish requested with status=done"
+    },
+    {
+      "at": "2026-03-15T03:09:20+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result recorded from codex"
+    },
+    {
+      "at": "2026-03-20T20:10:38Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T030920Z-66d687cc; backup=tasks/legacy_backup/task-20260315T030920Z-66d687cc.json.bak.20260320T201038Z.json"
+    }
+  ]
 }

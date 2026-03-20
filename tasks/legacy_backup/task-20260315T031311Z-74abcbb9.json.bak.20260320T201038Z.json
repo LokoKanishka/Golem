@@ -1,0 +1,451 @@
+{
+  "task_id": "task-20260315T031311Z-74abcbb9",
+  "type": "task-chain",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "failed",
+  "created_at": "2026-03-15T03:13:11+00:00",
+  "updated_at": "2026-03-15T03:15:08+00:00",
+  "title": "V3 conditional failover test",
+  "objective": "Execute a mixed local-worker chain with one conditional follow-up step and produce an aggregated final artifact for repo-analysis-worker-conditional.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-plan",
+      "captured_at": "2026-03-15T03:13:11+00:00",
+      "exit_code": 0,
+      "content": "planned 4-step conditional mixed local-worker chain",
+      "chain_type": "repo-analysis-worker-conditional",
+      "plan_version": "3.0",
+      "step_count": 4,
+      "local_step_count": 3,
+      "worker_step_count": 1,
+      "critical_step_count": 3,
+      "conditional_step_count": 1
+    },
+    {
+      "kind": "chain-start",
+      "captured_at": "2026-03-15T03:13:11+00:00",
+      "exit_code": 0,
+      "content": "chain v3 started for repo-analysis-worker-conditional",
+      "chain_type": "repo-analysis-worker-conditional"
+    },
+    {
+      "kind": "chain-step-local",
+      "captured_at": "2026-03-15T03:13:19+00:00",
+      "exit_code": 0,
+      "content": "local-self-check exit_code=0",
+      "chain_type": "repo-analysis-worker-conditional",
+      "step_name": "local-self-check",
+      "child_task_id": "task-20260315T031311Z-5c277919",
+      "execution_mode": "local",
+      "critical": true
+    },
+    {
+      "kind": "chain-step-worker",
+      "captured_at": "2026-03-15T03:15:08+00:00",
+      "exit_code": 1,
+      "content": "delegated-repo-analysis exit_code=1 worker_finalize_status=failed",
+      "chain_type": "repo-analysis-worker-conditional",
+      "step_name": "delegated-repo-analysis",
+      "child_task_id": "task-20260315T031319Z-beb05af7",
+      "execution_mode": "worker",
+      "critical": true,
+      "worker_finalize_status": "failed"
+    },
+    {
+      "kind": "chain-decision",
+      "captured_at": "2026-03-15T03:15:08+00:00",
+      "exit_code": 0,
+      "content": "conditional decision applied: next_step_selected=close-root",
+      "decision_reason": "selected close-root because delegated-repo-analysis returned worker_result_status=failed and the conditional local follow-up was skipped",
+      "decision_source_step": "delegated-repo-analysis",
+      "decision_source_worker_result_status": "failed",
+      "next_step_selected": "close-root",
+      "skipped_steps": [
+        "local-review-worker-outcome"
+      ],
+      "conditional_outcomes": [
+        {
+          "step_name": "local-review-worker-outcome",
+          "step_order": 4,
+          "condition_source_step": "delegated-repo-analysis",
+          "expected_worker_result_status": "done",
+          "selected": false,
+          "status": "skipped",
+          "child_task_id": "",
+          "decision_source_step": "delegated-repo-analysis",
+          "decision_reason": "skipped local-review-worker-outcome because delegated-repo-analysis returned worker_result_status=failed instead of done",
+          "summary": "skipped local-review-worker-outcome because delegated-repo-analysis returned worker_result_status=failed instead of done"
+        }
+      ],
+      "chain_type": "repo-analysis-worker-conditional"
+    },
+    {
+      "kind": "chain-results-collected",
+      "captured_at": "2026-03-15T03:15:08+00:00",
+      "exit_code": 0,
+      "content": "chain_status=failed steps_completed=2/4 steps_skipped=1 worker_steps_done=0 worker_steps_failed=1 next_step_selected=close-root",
+      "chain_type": "repo-analysis-worker-conditional",
+      "chain_status": "failed",
+      "step_count": 4,
+      "steps_completed": 2,
+      "steps_failed": 1,
+      "steps_skipped": 1,
+      "steps_pending": 0,
+      "local_steps_count": 3,
+      "delegated_steps_count": 1,
+      "worker_steps_done": 0,
+      "worker_steps_failed": 1,
+      "decision_reason": "selected close-root because delegated-repo-analysis returned worker_result_status=failed and the conditional local follow-up was skipped",
+      "decision_source_step": "delegated-repo-analysis",
+      "decision_source_worker_result_status": "failed",
+      "next_step_selected": "close-root",
+      "skipped_steps": [
+        "local-review-worker-outcome"
+      ],
+      "conditional_outcomes": [
+        {
+          "step_name": "local-review-worker-outcome",
+          "step_order": 4,
+          "condition_source_step": "delegated-repo-analysis",
+          "expected_worker_result_status": "done",
+          "selected": false,
+          "status": "skipped",
+          "child_task_id": "",
+          "decision_source_step": "delegated-repo-analysis",
+          "decision_reason": "skipped local-review-worker-outcome because delegated-repo-analysis returned worker_result_status=failed instead of done",
+          "summary": "skipped local-review-worker-outcome because delegated-repo-analysis returned worker_result_status=failed instead of done"
+        }
+      ],
+      "worker_result_summaries": [
+        "Alcance útil del repo para este ticket: la cadena mixta vive en `scripts/task_chain_run_v3.sh:528`, decide el siguiente paso en `scripts/task_chain_decide_next.sh:32`, agrega resultados en `scripts/task_chain_collect_..."
+      ],
+      "aggregated_artifact_paths": [
+        "handoffs/task-20260315T031319Z-beb05af7.run.result.md"
+      ]
+    },
+    {
+      "kind": "chain-summary",
+      "captured_at": "2026-03-15T03:15:08+00:00",
+      "exit_code": 0,
+      "content": "chain_status=failed step_count=4 steps_completed=2 steps_failed=1 steps_skipped=1 worker_steps_done=0 worker_steps_failed=1 next_step_selected=close-root headline=Chain failed: 2/4 step(s) completed, 1 skipped, and one or more critical steps did not finish cleanly. final_artifact_path=outbox/manual/20260315T031508Z-repo-analysis-worker-conditional-chain-final.md",
+      "chain_type": "repo-analysis-worker-conditional",
+      "chain_status": "failed",
+      "child_task_ids": [
+        "task-20260315T031311Z-5c277919",
+        "task-20260315T031319Z-beb05af7"
+      ],
+      "child_count": 2,
+      "children_done": 1,
+      "children_failed": 1,
+      "children_with_warnings": 1,
+      "artifact_paths": [
+        "handoffs/task-20260315T031319Z-beb05af7.run.result.md"
+      ],
+      "aggregated_artifact_paths": [
+        "handoffs/task-20260315T031319Z-beb05af7.run.result.md"
+      ],
+      "step_count": 4,
+      "steps_completed": 2,
+      "steps_failed": 1,
+      "steps_skipped": 1,
+      "steps_pending": 0,
+      "local_steps_count": 3,
+      "delegated_steps_count": 1,
+      "worker_steps_done": 0,
+      "worker_steps_failed": 1,
+      "worker_result_summaries": [
+        "Alcance útil del repo para este ticket: la cadena mixta vive en `scripts/task_chain_run_v3.sh:528`, decide el siguiente paso en `scripts/task_chain_decide_next.sh:32`, agrega resultados en `scripts/task_chain_collect_..."
+      ],
+      "worker_outcomes": [
+        {
+          "step_name": "delegated-repo-analysis",
+          "step_order": 2,
+          "child_task_id": "task-20260315T031319Z-beb05af7",
+          "child_status": "failed",
+          "status": "failed",
+          "worker_state": "finished",
+          "worker_result_status": "failed",
+          "summary": "Alcance útil del repo para este ticket: la cadena mixta vive en `scripts/task_chain_run_v3.sh:528`, decide el siguiente paso en `scripts/task_chain_decide_next.sh:32`, agrega resultados en `scripts/task_chain_collect_...",
+          "result_artifact_path": "handoffs/task-20260315T031319Z-beb05af7.run.result.md",
+          "result_source_files": [
+            "handoffs/task-20260315T031319Z-beb05af7.run.last.md",
+            "handoffs/task-20260315T031319Z-beb05af7.run.log"
+          ],
+          "artifact_paths": [
+            "handoffs/task-20260315T031319Z-beb05af7.run.result.md"
+          ],
+          "warning": false
+        }
+      ],
+      "decision_reason": "selected close-root because delegated-repo-analysis returned worker_result_status=failed and the conditional local follow-up was skipped",
+      "decision_source_step": "delegated-repo-analysis",
+      "decision_source_worker_result_status": "failed",
+      "next_step_selected": "close-root",
+      "skipped_steps": [
+        "local-review-worker-outcome"
+      ],
+      "conditional_outcomes": [
+        {
+          "step_name": "local-review-worker-outcome",
+          "step_order": 4,
+          "condition_source_step": "delegated-repo-analysis",
+          "expected_worker_result_status": "done",
+          "selected": false,
+          "status": "skipped",
+          "child_task_id": "",
+          "decision_source_step": "delegated-repo-analysis",
+          "decision_reason": "skipped local-review-worker-outcome because delegated-repo-analysis returned worker_result_status=failed instead of done",
+          "summary": "skipped local-review-worker-outcome because delegated-repo-analysis returned worker_result_status=failed instead of done"
+        }
+      ],
+      "headline": "Chain failed: 2/4 step(s) completed, 1 skipped, and one or more critical steps did not finish cleanly.",
+      "final_artifact_path": "outbox/manual/20260315T031508Z-repo-analysis-worker-conditional-chain-final.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T031508Z-repo-analysis-worker-conditional-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T03:15:08+00:00"
+    }
+  ],
+  "notes": [
+    "chain plan v3 created at 2026-03-15T03:13:11+00:00",
+    "Chain failed: 2/4 step(s) completed, 1 skipped, and one or more critical steps did not finish cleanly."
+  ],
+  "chain_type": "repo-analysis-worker-conditional",
+  "chain_status": "failed",
+  "chain_plan": {
+    "version": "3.0",
+    "planned_at": "2026-03-15T03:13:11+00:00",
+    "mixes_execution_modes": true,
+    "supports_conditional_steps": true,
+    "local_step_count": 3,
+    "worker_step_count": 1,
+    "critical_step_count": 3,
+    "conditional_step_count": 1,
+    "step_count": 4,
+    "steps": [
+      {
+        "step_name": "local-self-check",
+        "step_order": 1,
+        "task_type": "self-check",
+        "execution_mode": "local",
+        "critical": true,
+        "depends_on_step_names": [],
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "done",
+        "child_task_id": "task-20260315T031311Z-5c277919",
+        "child_status": "done",
+        "warning": true,
+        "summary": "SELF-CHECK GOLEM gateway: OK — gateway activo, runtime running, rpc ok whatsapp: OK — whatsapp conectado browser_relay: OK — browser relay chrome running tabs: WARN — relay activo pero 0 tabs adjuntas estado_general:...",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_summary": "",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": []
+      },
+      {
+        "step_name": "delegated-repo-analysis",
+        "step_order": 2,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "failed",
+        "child_task_id": "task-20260315T031319Z-beb05af7",
+        "child_status": "failed",
+        "warning": false,
+        "summary": "Alcance útil del repo para este ticket: la cadena mixta vive en `scripts/task_chain_run_v3.sh:528`, decide el siguiente paso en `scripts/task_chain_decide_next.sh:32`, agrega resultados en `scripts/task_chain_collect_...",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [
+          "handoffs/task-20260315T031319Z-beb05af7.run.result.md"
+        ],
+        "worker_state": "finished",
+        "worker_result_status": "failed",
+        "worker_result_summary": "Alcance útil del repo para este ticket: la cadena mixta vive en `scripts/task_chain_run_v3.sh:528`, decide el siguiente paso en `scripts/task_chain_decide_next.sh:32`, agrega resultados en `scripts/task_chain_collect_...",
+        "worker_result_artifact_path": "handoffs/task-20260315T031319Z-beb05af7.run.result.md",
+        "worker_result_source_files": [
+          "handoffs/task-20260315T031319Z-beb05af7.run.last.md",
+          "handoffs/task-20260315T031319Z-beb05af7.run.log"
+        ]
+      },
+      {
+        "step_name": "conditional-decision",
+        "step_order": 3,
+        "task_type": "chain-decision",
+        "execution_mode": "local",
+        "critical": true,
+        "depends_on_step_names": [
+          "delegated-repo-analysis"
+        ],
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "done",
+        "child_task_id": "",
+        "child_status": "",
+        "warning": false,
+        "summary": "selected close-root because delegated-repo-analysis returned worker_result_status=failed and the conditional local follow-up was skipped",
+        "decision_source_step": "delegated-repo-analysis",
+        "decision_reason": "selected close-root because delegated-repo-analysis returned worker_result_status=failed and the conditional local follow-up was skipped",
+        "artifact_paths": [],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_summary": "",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": []
+      },
+      {
+        "step_name": "local-review-worker-outcome",
+        "step_order": 4,
+        "task_type": "compare-files",
+        "execution_mode": "local",
+        "critical": false,
+        "depends_on_step_names": [
+          "conditional-decision"
+        ],
+        "condition_source_step": "delegated-repo-analysis",
+        "run_if_worker_result_status": "done",
+        "status": "skipped",
+        "child_task_id": "",
+        "child_status": "",
+        "warning": false,
+        "summary": "skipped local-review-worker-outcome because delegated-repo-analysis returned worker_result_status=failed instead of done",
+        "decision_source_step": "delegated-repo-analysis",
+        "decision_reason": "skipped local-review-worker-outcome because delegated-repo-analysis returned worker_result_status=failed instead of done",
+        "artifact_paths": [],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_summary": "",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": []
+      }
+    ],
+    "last_finalized_at": "2026-03-15T03:15:08+00:00"
+  },
+  "chain_decision": {
+    "decided_at": "2026-03-15T03:15:08+00:00",
+    "decision_reason": "selected close-root because delegated-repo-analysis returned worker_result_status=failed and the conditional local follow-up was skipped",
+    "decision_source_step": "delegated-repo-analysis",
+    "decision_source_worker_result_status": "failed",
+    "next_step_selected": "close-root",
+    "skipped_steps": [
+      "local-review-worker-outcome"
+    ],
+    "conditional_outcomes": [
+      {
+        "step_name": "local-review-worker-outcome",
+        "step_order": 4,
+        "condition_source_step": "delegated-repo-analysis",
+        "expected_worker_result_status": "done",
+        "selected": false,
+        "status": "skipped",
+        "child_task_id": "",
+        "decision_source_step": "delegated-repo-analysis",
+        "decision_reason": "skipped local-review-worker-outcome because delegated-repo-analysis returned worker_result_status=failed instead of done",
+        "summary": "skipped local-review-worker-outcome because delegated-repo-analysis returned worker_result_status=failed instead of done"
+      }
+    ]
+  },
+  "chain_summary": {
+    "child_task_ids": [
+      "task-20260315T031311Z-5c277919",
+      "task-20260315T031319Z-beb05af7"
+    ],
+    "child_count": 2,
+    "children_done": 1,
+    "children_failed": 1,
+    "children_with_warnings": 1,
+    "failed_child_ids": [
+      "task-20260315T031319Z-beb05af7"
+    ],
+    "warning_child_ids": [
+      "task-20260315T031311Z-5c277919"
+    ],
+    "artifact_paths": [
+      "handoffs/task-20260315T031319Z-beb05af7.run.result.md"
+    ],
+    "aggregated_artifact_paths": [
+      "handoffs/task-20260315T031319Z-beb05af7.run.result.md"
+    ],
+    "step_count": 4,
+    "steps_completed": 2,
+    "steps_failed": 1,
+    "steps_skipped": 1,
+    "steps_pending": 0,
+    "critical_step_count": 3,
+    "critical_steps_failed": 1,
+    "critical_steps_skipped": 0,
+    "critical_steps_pending": 1,
+    "local_step_count": 3,
+    "worker_step_count": 1,
+    "local_steps_count": 3,
+    "delegated_steps_count": 1,
+    "worker_steps_done": 0,
+    "worker_steps_failed": 1,
+    "worker_child_ids": [
+      "task-20260315T031319Z-beb05af7"
+    ],
+    "worker_result_summaries": [
+      "Alcance útil del repo para este ticket: la cadena mixta vive en `scripts/task_chain_run_v3.sh:528`, decide el siguiente paso en `scripts/task_chain_decide_next.sh:32`, agrega resultados en `scripts/task_chain_collect_..."
+    ],
+    "worker_outcomes": [
+      {
+        "step_name": "delegated-repo-analysis",
+        "step_order": 2,
+        "child_task_id": "task-20260315T031319Z-beb05af7",
+        "child_status": "failed",
+        "status": "failed",
+        "worker_state": "finished",
+        "worker_result_status": "failed",
+        "summary": "Alcance útil del repo para este ticket: la cadena mixta vive en `scripts/task_chain_run_v3.sh:528`, decide el siguiente paso en `scripts/task_chain_decide_next.sh:32`, agrega resultados en `scripts/task_chain_collect_...",
+        "result_artifact_path": "handoffs/task-20260315T031319Z-beb05af7.run.result.md",
+        "result_source_files": [
+          "handoffs/task-20260315T031319Z-beb05af7.run.last.md",
+          "handoffs/task-20260315T031319Z-beb05af7.run.log"
+        ],
+        "artifact_paths": [
+          "handoffs/task-20260315T031319Z-beb05af7.run.result.md"
+        ],
+        "warning": false
+      }
+    ],
+    "decision_reason": "selected close-root because delegated-repo-analysis returned worker_result_status=failed and the conditional local follow-up was skipped",
+    "decision_source_step": "delegated-repo-analysis",
+    "decision_source_worker_result_status": "failed",
+    "next_step_selected": "close-root",
+    "skipped_steps": [
+      "local-review-worker-outcome"
+    ],
+    "conditional_outcomes": [
+      {
+        "step_name": "local-review-worker-outcome",
+        "step_order": 4,
+        "condition_source_step": "delegated-repo-analysis",
+        "expected_worker_result_status": "done",
+        "selected": false,
+        "status": "skipped",
+        "child_task_id": "",
+        "decision_source_step": "delegated-repo-analysis",
+        "decision_reason": "skipped local-review-worker-outcome because delegated-repo-analysis returned worker_result_status=failed instead of done",
+        "summary": "skipped local-review-worker-outcome because delegated-repo-analysis returned worker_result_status=failed instead of done"
+      }
+    ],
+    "headline": "Chain failed: 2/4 step(s) completed, 1 skipped, and one or more critical steps did not finish cleanly.",
+    "final_artifact_path": "outbox/manual/20260315T031508Z-repo-analysis-worker-conditional-chain-final.md",
+    "last_collected_at": "2026-03-15T03:15:08+00:00"
+  }
+}

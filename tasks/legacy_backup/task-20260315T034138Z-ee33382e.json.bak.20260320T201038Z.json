@@ -1,0 +1,39 @@
+{
+  "task_id": "task-20260315T034138Z-ee33382e",
+  "type": "compare-files",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260315T034130Z-ed5e4188",
+  "depends_on": [
+    "task-20260315T034131Z-eb7e75cf"
+  ],
+  "status": "done",
+  "created_at": "2026-03-15T03:41:38+00:00",
+  "updated_at": "2026-03-15T03:41:38+00:00",
+  "title": "Capability verification / basic orchestration / child compare",
+  "objective": "Capability verification / basic orchestration / child compare",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "comparison-files",
+      "captured_at": "2026-03-15T03:41:38+00:00",
+      "exit_code": 0,
+      "content": "COMPARISON_OK outbox/manual/20260315T034138Z_chain-compare-task-20260315T034130Z-ed5e4188.md",
+      "command": "./scripts/browser_compare.sh files chain-compare-task-20260315T034130Z-ed5e4188 docs/TASK_MODEL.md docs/TASK_LIFECYCLE.md",
+      "mode": "files",
+      "slug": "chain-compare-task-20260315T034130Z-ed5e4188",
+      "input_a": "docs/TASK_MODEL.md",
+      "input_b": "docs/TASK_LIFECYCLE.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T034138Z_chain-compare-task-20260315T034130Z-ed5e4188.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-15T03:41:38+00:00"
+    }
+  ],
+  "notes": [
+    "comparison generation completed and task closed"
+  ]
+}

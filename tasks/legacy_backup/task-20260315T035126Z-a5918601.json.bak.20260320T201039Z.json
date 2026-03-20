@@ -1,0 +1,128 @@
+{
+  "task_id": "task-20260315T035126Z-a5918601",
+  "type": "task-chain",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "running",
+  "created_at": "2026-03-15T03:51:26+00:00",
+  "updated_at": "2026-03-15T03:51:33+00:00",
+  "title": "Capability verification / orchestration v3 failover",
+  "objective": "Execute a mixed local-worker chain with one conditional follow-up step and produce an aggregated final artifact for repo-analysis-worker-conditional.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-plan",
+      "captured_at": "2026-03-15T03:51:26+00:00",
+      "exit_code": 0,
+      "content": "planned 4-step conditional mixed local-worker chain",
+      "chain_type": "repo-analysis-worker-conditional",
+      "plan_version": "3.0",
+      "step_count": 4,
+      "local_step_count": 3,
+      "worker_step_count": 1,
+      "critical_step_count": 3,
+      "conditional_step_count": 1
+    },
+    {
+      "kind": "chain-start",
+      "captured_at": "2026-03-15T03:51:26+00:00",
+      "exit_code": 0,
+      "content": "chain v3 started for repo-analysis-worker-conditional",
+      "chain_type": "repo-analysis-worker-conditional"
+    },
+    {
+      "kind": "chain-step-local",
+      "captured_at": "2026-03-15T03:51:33+00:00",
+      "exit_code": 0,
+      "content": "local-self-check exit_code=0",
+      "chain_type": "repo-analysis-worker-conditional",
+      "step_name": "local-self-check",
+      "child_task_id": "task-20260315T035126Z-62f8e440",
+      "execution_mode": "local",
+      "critical": true
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "chain plan v3 created at 2026-03-15T03:51:26+00:00"
+  ],
+  "chain_type": "repo-analysis-worker-conditional",
+  "chain_status": "running",
+  "chain_plan": {
+    "version": "3.0",
+    "planned_at": "2026-03-15T03:51:26+00:00",
+    "mixes_execution_modes": true,
+    "supports_conditional_steps": true,
+    "local_step_count": 3,
+    "worker_step_count": 1,
+    "critical_step_count": 3,
+    "conditional_step_count": 1,
+    "step_count": 4,
+    "steps": [
+      {
+        "step_name": "local-self-check",
+        "step_order": 1,
+        "task_type": "self-check",
+        "execution_mode": "local",
+        "critical": true,
+        "title": "Capability verification / orchestration v3 failover / local self check",
+        "objective": "Validate the local Golem environment before delegation.",
+        "depends_on_step_names": [],
+        "status": "done",
+        "child_task_id": "task-20260315T035126Z-62f8e440",
+        "summary": "SELF-CHECK GOLEM gateway: OK — gateway activo, runtime running, rpc ok whatsapp: OK — whatsapp conectado browser_relay: OK — browser relay chrome running tabs: WARN — relay activo pero 0 tabs adjuntas estado_general: WARN sintesis: el si...",
+        "started_at": "2026-03-15T03:51:26+00:00",
+        "last_exit_code": 0,
+        "finished_at": "2026-03-15T03:51:33+00:00"
+      },
+      {
+        "step_name": "delegated-repo-analysis",
+        "step_order": 2,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "title": "Capability verification / orchestration v3 failover / delegated repo analysis",
+        "objective": "Analyze the repository and explain the mixed local-worker orchestration flow, covering conditional decisions, aggregated summary quality, and final artifact integrity.",
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "status": "running",
+        "child_task_id": "",
+        "summary": "delegated repo-analysis child started",
+        "started_at": "2026-03-15T03:51:33+00:00"
+      },
+      {
+        "step_name": "conditional-decision",
+        "step_order": 3,
+        "task_type": "chain-decision",
+        "execution_mode": "local",
+        "critical": true,
+        "title": "Capability verification / orchestration v3 failover / conditional decision",
+        "objective": "Select the next local step according to the delegated worker outcome.",
+        "depends_on_step_names": [
+          "delegated-repo-analysis"
+        ],
+        "status": "planned",
+        "child_task_id": ""
+      },
+      {
+        "step_name": "local-review-worker-outcome",
+        "step_order": 4,
+        "task_type": "compare-files",
+        "execution_mode": "local",
+        "critical": false,
+        "title": "Capability verification / orchestration v3 failover / local worker outcome review",
+        "objective": "Produce one local review artifact only when the worker result closed successfully.",
+        "depends_on_step_names": [
+          "conditional-decision"
+        ],
+        "condition_source_step": "delegated-repo-analysis",
+        "run_if_worker_result_status": "done",
+        "status": "planned",
+        "child_task_id": ""
+      }
+    ]
+  }
+}

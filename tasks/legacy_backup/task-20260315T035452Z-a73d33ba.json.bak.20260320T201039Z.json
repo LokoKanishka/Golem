@@ -1,0 +1,28 @@
+{
+  "task_id": "task-20260315T035452Z-a73d33ba",
+  "type": "self-check",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "done",
+  "created_at": "2026-03-15T03:54:52+00:00",
+  "updated_at": "2026-03-15T03:54:59+00:00",
+  "title": "Capability verification / self-check",
+  "objective": "Capability verification / self-check",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "self-check",
+      "captured_at": "2026-03-15T03:54:59+00:00",
+      "exit_code": 0,
+      "content": "SELF-CHECK GOLEM\ngateway: OK — gateway activo, runtime running, rpc ok\nwhatsapp: OK — whatsapp conectado\nbrowser_relay: OK — browser relay chrome running\ntabs: WARN — relay activo pero 0 tabs adjuntas\nestado_general: WARN\nsintesis: el sistema está mayormente operativo pero hay señales a revisar.",
+      "command": "./scripts/self_check.sh",
+      "estado_general": "WARN"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "self-check completed and task closed"
+  ]
+}

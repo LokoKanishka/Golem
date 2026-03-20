@@ -1,0 +1,195 @@
+{
+  "task_id": "task-20260315T034130Z-ed5e4188",
+  "type": "task-chain",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "done",
+  "created_at": "2026-03-15T03:41:30+00:00",
+  "updated_at": "2026-03-15T03:41:38+00:00",
+  "title": "Capability verification / basic orchestration",
+  "objective": "Capability verification / basic orchestration",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-start",
+      "captured_at": "2026-03-15T03:41:31+00:00",
+      "exit_code": 0,
+      "content": "chain_type=self-check-compare root_task_id=task-20260315T034130Z-ed5e4188",
+      "chain_type": "self-check-compare"
+    },
+    {
+      "kind": "chain-child-self-check",
+      "captured_at": "2026-03-15T03:41:38+00:00",
+      "exit_code": 0,
+      "content": "self-check child completed with exit_code=0",
+      "chain_type": "self-check-compare",
+      "child_task_id": "task-20260315T034131Z-eb7e75cf"
+    },
+    {
+      "kind": "chain-child-compare",
+      "captured_at": "2026-03-15T03:41:38+00:00",
+      "exit_code": 0,
+      "content": "compare child completed with exit_code=0",
+      "chain_type": "self-check-compare",
+      "child_task_id": "task-20260315T034138Z-ee33382e"
+    },
+    {
+      "kind": "chain-summary",
+      "captured_at": "2026-03-15T03:41:38+00:00",
+      "exit_code": 0,
+      "content": "chain_status=completed_with_warnings step_count=2 steps_completed=2 steps_failed=0 steps_skipped=0 worker_steps_done=0 worker_steps_failed=0 next_step_selected=(none) headline=Chain completed with warnings: 2/2 step(s) completed, 0 failed, 1 warning signal(s). final_artifact_path=outbox/manual/20260315T034138Z-self-check-compare-chain-final.md",
+      "chain_type": "self-check-compare",
+      "chain_status": "completed_with_warnings",
+      "child_task_ids": [
+        "task-20260315T034131Z-eb7e75cf",
+        "task-20260315T034138Z-ee33382e"
+      ],
+      "child_count": 2,
+      "children_done": 2,
+      "children_failed": 0,
+      "children_with_warnings": 1,
+      "artifact_paths": [
+        "outbox/manual/20260315T034138Z_chain-compare-task-20260315T034130Z-ed5e4188.md"
+      ],
+      "aggregated_artifact_paths": [
+        "outbox/manual/20260315T034138Z_chain-compare-task-20260315T034130Z-ed5e4188.md"
+      ],
+      "step_count": 2,
+      "steps_completed": 2,
+      "steps_failed": 0,
+      "steps_skipped": 0,
+      "steps_pending": 0,
+      "local_steps_count": 0,
+      "delegated_steps_count": 0,
+      "worker_steps_done": 0,
+      "worker_steps_failed": 0,
+      "worker_result_summaries": [],
+      "worker_outcomes": [],
+      "decision_reason": "",
+      "decision_source_step": "",
+      "decision_source_worker_result_status": "",
+      "next_step_selected": "",
+      "skipped_steps": [],
+      "conditional_outcomes": [],
+      "headline": "Chain completed with warnings: 2/2 step(s) completed, 0 failed, 1 warning signal(s).",
+      "final_artifact_path": "outbox/manual/20260315T034138Z-self-check-compare-chain-final.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T034138Z-self-check-compare-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T03:41:38+00:00"
+    }
+  ],
+  "notes": [
+    "Chain completed with warnings: 2/2 step(s) completed, 0 failed, 1 warning signal(s)."
+  ],
+  "chain_type": "self-check-compare",
+  "chain_status": "completed_with_warnings",
+  "chain_summary": {
+    "child_task_ids": [
+      "task-20260315T034131Z-eb7e75cf",
+      "task-20260315T034138Z-ee33382e"
+    ],
+    "child_count": 2,
+    "children_done": 2,
+    "children_failed": 0,
+    "children_with_warnings": 1,
+    "failed_child_ids": [],
+    "warning_child_ids": [
+      "task-20260315T034131Z-eb7e75cf"
+    ],
+    "artifact_paths": [
+      "outbox/manual/20260315T034138Z_chain-compare-task-20260315T034130Z-ed5e4188.md"
+    ],
+    "aggregated_artifact_paths": [
+      "outbox/manual/20260315T034138Z_chain-compare-task-20260315T034130Z-ed5e4188.md"
+    ],
+    "step_count": 2,
+    "steps_completed": 2,
+    "steps_failed": 0,
+    "steps_skipped": 0,
+    "steps_pending": 0,
+    "critical_step_count": 2,
+    "critical_steps_failed": 0,
+    "critical_steps_skipped": 0,
+    "critical_steps_pending": 0,
+    "local_step_count": 0,
+    "worker_step_count": 0,
+    "local_steps_count": 0,
+    "delegated_steps_count": 0,
+    "worker_steps_done": 0,
+    "worker_steps_failed": 0,
+    "worker_child_ids": [],
+    "worker_result_summaries": [],
+    "worker_outcomes": [],
+    "decision_reason": "",
+    "decision_source_step": "",
+    "decision_source_worker_result_status": "",
+    "next_step_selected": "",
+    "skipped_steps": [],
+    "conditional_outcomes": [],
+    "headline": "Chain completed with warnings: 2/2 step(s) completed, 0 failed, 1 warning signal(s).",
+    "final_artifact_path": "outbox/manual/20260315T034138Z-self-check-compare-chain-final.md",
+    "last_collected_at": "2026-03-15T03:41:38+00:00"
+  },
+  "chain_plan": {
+    "step_count": 2,
+    "local_step_count": 0,
+    "worker_step_count": 0,
+    "steps": [
+      {
+        "step_name": "step-1",
+        "step_order": 1,
+        "task_type": "self-check",
+        "execution_mode": "",
+        "critical": true,
+        "depends_on_step_names": [],
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "done",
+        "child_task_id": "task-20260315T034131Z-eb7e75cf",
+        "child_status": "done",
+        "warning": true,
+        "summary": "SELF-CHECK GOLEM gateway: OK — gateway activo, runtime running, rpc ok whatsapp: OK — whatsapp conectado browser_relay: OK — browser relay chrome running tabs: WARN — relay activo pero 0 tabs adjuntas estado_general:...",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_summary": "",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": []
+      },
+      {
+        "step_name": "step-2",
+        "step_order": 2,
+        "task_type": "compare-files",
+        "execution_mode": "",
+        "critical": true,
+        "depends_on_step_names": [],
+        "condition_source_step": "",
+        "run_if_worker_result_status": "",
+        "status": "done",
+        "child_task_id": "task-20260315T034138Z-ee33382e",
+        "child_status": "done",
+        "warning": false,
+        "summary": "COMPARISON_OK outbox/manual/20260315T034138Z_chain-compare-task-20260315T034130Z-ed5e4188.md",
+        "decision_source_step": "",
+        "decision_reason": "",
+        "artifact_paths": [
+          "outbox/manual/20260315T034138Z_chain-compare-task-20260315T034130Z-ed5e4188.md"
+        ],
+        "worker_state": "",
+        "worker_result_status": "",
+        "worker_result_summary": "",
+        "worker_result_artifact_path": "",
+        "worker_result_source_files": []
+      }
+    ],
+    "last_finalized_at": "2026-03-15T03:41:38+00:00"
+  }
+}
