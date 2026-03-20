@@ -1454,9 +1454,12 @@
 
 ## Next Step
 
-La próxima acción correcta es seleccionar la primera tanda real de tratamiento:
+La próxima acción correcta es continuar con migración legacy controlada en tandas chicas,
+porque el carril activo ya quedó sin `corrupt`.
 
-1. revisar los `corrupt`;
-2. decidir si se reparan o se aíslan;
-3. luego migrar legacy simples en tandas chicas.
+Secuencia sugerida:
+
+1. inspeccionar calidad de los primeros migrados;
+2. si la quality gate sale limpia, abrir Batch 02;
+3. seguir escalando por tandas pequeñas y auditables.
 
