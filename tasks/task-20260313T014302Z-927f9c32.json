@@ -1,26 +1,34 @@
 {
-  "task_id": "task-20260313T014302Z-927f9c32",
-  "type": "self-check",
-  "origin": "local",
-  "canonical_session": "",
-  "status": "done",
-  "created_at": "2026-03-13T01:43:02+00:00",
-  "updated_at": "2026-03-13T01:43:09+00:00",
+  "id": "task-20260313T014302Z-927f9c32",
   "title": "Self-check lifecycle test",
   "objective": "Self-check lifecycle test",
-  "inputs": [],
-  "outputs": [
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-13T01:43:02+00:00",
+  "updated_at": "2026-03-20T19:33:32Z",
+  "acceptance_criteria": [],
+  "evidence": [
     {
-      "kind": "self-check",
-      "captured_at": "2026-03-13T01:43:09+00:00",
-      "exit_code": 0,
-      "content": "SELF-CHECK GOLEM\ngateway: OK \u2014 gateway activo, runtime running, rpc ok\nwhatsapp: OK \u2014 whatsapp conectado\nbrowser_relay: OK \u2014 browser relay chrome running\ntabs: WARN \u2014 relay activo pero 0 tabs adjuntas\nestado_general: WARN\nsintesis: el sistema est\u00e1 mayormente operativo pero hay se\u00f1ales a revisar.",
-      "command": "./scripts/self_check.sh",
-      "estado_general": "WARN"
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260313T014302Z-927f9c32.json.bak.20260320T193332Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260313T014302Z-927f9c32"
     }
   ],
   "artifacts": [],
-  "notes": [
-    "self-check completed and task closed"
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-13T01:43:02+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "self-check completed and task closed"
+    },
+    {
+      "at": "2026-03-20T19:33:32Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260313T014302Z-927f9c32; backup=tasks/legacy_backup/task-20260313T014302Z-927f9c32.json.bak.20260320T193332Z.json"
+    }
   ]
 }

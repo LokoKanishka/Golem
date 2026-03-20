@@ -1,20 +1,18 @@
 {
-  "task_id": "task-20260313T014331Z-43f0cb18",
-  "type": "demo",
-  "origin": "local",
-  "canonical_session": "",
-  "status": "done",
-  "created_at": "2026-03-13T01:43:31+00:00",
-  "updated_at": "2026-03-13T01:43:47+00:00",
+  "id": "task-20260313T014331Z-43f0cb18",
   "title": "Demo lifecycle",
   "objective": "Demo lifecycle",
-  "inputs": [],
-  "outputs": [
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-13T01:43:31+00:00",
+  "updated_at": "2026-03-20T19:33:32Z",
+  "acceptance_criteria": [],
+  "evidence": [
     {
-      "kind": "demo",
-      "captured_at": "2026-03-13T01:43:35+00:00",
-      "exit_code": 0,
-      "content": "output de prueba"
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260313T014331Z-43f0cb18.json.bak.20260320T193332Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260313T014331Z-43f0cb18"
     }
   ],
   "artifacts": [
@@ -24,7 +22,19 @@
       "created_at": "2026-03-13T01:43:41+00:00"
     }
   ],
-  "notes": [
-    "cierre manual de prueba"
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-13T01:43:31+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "cierre manual de prueba"
+    },
+    {
+      "at": "2026-03-20T19:33:32Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260313T014331Z-43f0cb18; backup=tasks/legacy_backup/task-20260313T014331Z-43f0cb18.json.bak.20260320T193332Z.json"
+    }
   ]
 }

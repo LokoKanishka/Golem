@@ -1,0 +1,10 @@
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T003348Z-06ef71e3.json
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T005459Z-617d0d60.json
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T012318Z-6353c4c3.json
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T014302Z-927f9c32.json
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T014331Z-43f0cb18.json
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T014411Z-7f4db2de.json
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T023944Z-55d0b2b6.json
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T023944Z-911516f1.json
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T032639Z-f470b6bf.json
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T032639Z-f8d87196.json

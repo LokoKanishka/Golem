@@ -1,0 +1,26 @@
+{
+  "task_id": "task-20260313T014302Z-927f9c32",
+  "type": "self-check",
+  "origin": "local",
+  "canonical_session": "",
+  "status": "done",
+  "created_at": "2026-03-13T01:43:02+00:00",
+  "updated_at": "2026-03-13T01:43:09+00:00",
+  "title": "Self-check lifecycle test",
+  "objective": "Self-check lifecycle test",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "self-check",
+      "captured_at": "2026-03-13T01:43:09+00:00",
+      "exit_code": 0,
+      "content": "SELF-CHECK GOLEM\ngateway: OK — gateway activo, runtime running, rpc ok\nwhatsapp: OK — whatsapp conectado\nbrowser_relay: OK — browser relay chrome running\ntabs: WARN — relay activo pero 0 tabs adjuntas\nestado_general: WARN\nsintesis: el sistema está mayormente operativo pero hay señales a revisar.",
+      "command": "./scripts/self_check.sh",
+      "estado_general": "WARN"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "self-check completed and task closed"
+  ]
+}

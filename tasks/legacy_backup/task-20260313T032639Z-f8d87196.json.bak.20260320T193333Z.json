@@ -1,0 +1,15 @@
+{
+  "task_id": "task-20260313T032639Z-f8d87196",
+  "type": "self-check",
+  "origin": "local",
+  "canonical_session": "",
+  "status": "queued",
+  "created_at": "2026-03-13T03:26:39+00:00",
+  "updated_at": "2026-03-13T03:26:39+00:00",
+  "title": "Self-check no delegable de prueba",
+  "objective": "Self-check no delegable de prueba",
+  "inputs": [],
+  "outputs": [],
+  "artifacts": [],
+  "notes": []
+}

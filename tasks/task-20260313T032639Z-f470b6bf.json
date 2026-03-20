@@ -1,26 +1,18 @@
 {
-  "task_id": "task-20260313T032639Z-f470b6bf",
-  "type": "bibliography-build",
-  "origin": "local",
-  "canonical_session": "",
-  "status": "done",
-  "created_at": "2026-03-13T03:26:39+00:00",
-  "updated_at": "2026-03-13T03:51:31+00:00",
+  "id": "task-20260313T032639Z-f470b6bf",
   "title": "Delegacion de bibliografia de prueba",
   "objective": "Delegacion de bibliografia de prueba",
-  "inputs": [],
-  "outputs": [
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-13T03:26:39+00:00",
+  "updated_at": "2026-03-20T19:33:33Z",
+  "acceptance_criteria": [],
+  "evidence": [
     {
-      "kind": "worker-result",
-      "captured_at": "2026-03-13T03:51:30+00:00",
-      "exit_code": 0,
-      "content": "resultado manual de Codex de prueba",
-      "status": "done",
-      "summary": "resultado manual de Codex de prueba",
-      "source": "codex_manual",
-      "artifact_paths": [
-        "handoffs/task-20260313T032639Z-f470b6bf.codex.md"
-      ]
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260313T032639Z-f470b6bf.json.bak.20260320T193333Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260313T032639Z-f470b6bf"
     }
   ],
   "artifacts": [
@@ -30,27 +22,25 @@
       "created_at": "2026-03-13T03:51:31+00:00"
     }
   ],
-  "notes": [
-    "delegated to worker_future on 2026-03-13T03:26:49+00:00",
-    "manual worker result recorded from codex"
-  ],
-  "handoff": {
-    "delegated_to": "worker_future",
-    "delegated_at": "2026-03-13T03:26:49+00:00",
-    "task_type": "bibliography-build",
-    "title": "Delegacion de bibliografia de prueba",
-    "objective": "Delegacion de bibliografia de prueba",
-    "recommended_next_step": "adjuntar corpus inicial y definir criterio de inclusion para el worker",
-    "required_fields_present": [
-      "task_id",
-      "type",
-      "title",
-      "objective",
-      "created_at"
-    ],
-    "missing_required_fields": [],
-    "policy_version": "1.0",
-    "rationale": "armado iterativo de fuentes, notas y consolidacion bibliografica",
-    "source_status": "queued"
-  }
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-13T03:26:39+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-13T03:26:49+00:00"
+    },
+    {
+      "at": "2026-03-13T03:26:39+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "manual worker result recorded from codex"
+    },
+    {
+      "at": "2026-03-20T19:33:33Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260313T032639Z-f470b6bf; backup=tasks/legacy_backup/task-20260313T032639Z-f470b6bf.json.bak.20260320T193333Z.json"
+    }
+  ]
 }

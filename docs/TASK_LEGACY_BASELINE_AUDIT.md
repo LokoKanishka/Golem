@@ -2,7 +2,7 @@
 
 ## Timestamp
 
-- generated_at_utc: `2026-03-20T19:27:45Z`
+- generated_at_utc: `2026-03-20T19:33:33Z`
 
 ## Scope
 
@@ -12,25 +12,15 @@
 
 ## Active Tasks
 
-- canonical: 0
-- legacy: 1395
+- canonical: 10
+- legacy: 1385
 - corrupt: 0
 - invalid: 0
 
-`SCAN_SUMMARY total=1395 canonical=0 legacy=1395 corrupt=0 invalid=0`
+`SCAN_SUMMARY total=1395 canonical=10 legacy=1385 corrupt=0 invalid=0`
 
 ### Legacy
 
-- `TASK_SCAN_LEGACY task-20260313T003348Z-06ef71e3 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T003348Z-06ef71e3.json`
-- `TASK_SCAN_LEGACY task-20260313T005459Z-617d0d60 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T005459Z-617d0d60.json`
-- `TASK_SCAN_LEGACY task-20260313T012318Z-6353c4c3 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T012318Z-6353c4c3.json`
-- `TASK_SCAN_LEGACY task-20260313T014302Z-927f9c32 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T014302Z-927f9c32.json`
-- `TASK_SCAN_LEGACY task-20260313T014331Z-43f0cb18 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T014331Z-43f0cb18.json`
-- `TASK_SCAN_LEGACY task-20260313T014411Z-7f4db2de /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T014411Z-7f4db2de.json`
-- `TASK_SCAN_LEGACY task-20260313T023944Z-55d0b2b6 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T023944Z-55d0b2b6.json`
-- `TASK_SCAN_LEGACY task-20260313T023944Z-911516f1 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T023944Z-911516f1.json`
-- `TASK_SCAN_LEGACY task-20260313T032639Z-f470b6bf /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T032639Z-f470b6bf.json`
-- `TASK_SCAN_LEGACY task-20260313T032639Z-f8d87196 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T032639Z-f8d87196.json`
 - `TASK_SCAN_LEGACY task-20260313T214158Z-47b2db30 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T214158Z-47b2db30.json`
 - `TASK_SCAN_LEGACY task-20260313T220528Z-7f763f48 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T220528Z-7f763f48.json`
 - `TASK_SCAN_LEGACY task-20260313T220608Z-5e26f38b /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260313T220608Z-5e26f38b.json`
@@ -1448,12 +1438,12 @@
 
 ## Combined Totals
 
-- canonical: 0
-- legacy: 1395
+- canonical: 10
+- legacy: 1385
 - corrupt: 0
 - invalid: 0
 
-`SCAN_SUMMARY total=1395 canonical=0 legacy=1395 corrupt=0 invalid=0`
+`SCAN_SUMMARY total=1395 canonical=10 legacy=1385 corrupt=0 invalid=0`
 
 ## Reading
 
