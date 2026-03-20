@@ -1,0 +1,144 @@
+{
+  "task_id": "task-20260319T190119Z-a24a837f",
+  "type": "verification-media",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "queued",
+  "created_at": "2026-03-19T19:01:19+00:00",
+  "updated_at": "2026-03-19T19:01:19+00:00",
+  "title": "Verify local path media ingestion",
+  "objective": "Verify local path media ingestion",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "media-ingestion",
+      "captured_at": "2026-03-19T19:01:19+00:00",
+      "exit_code": 0,
+      "content": "TASK_MEDIA_REGISTERED task-20260319T190119Z-a24a837f item_id=media-0001 state=registered",
+      "item_id": "media-0001",
+      "source_kind": "local-path",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190118318672Z-local-path.md",
+      "sha256": "a8983d454f1e349d045871bf61db8b9c45f1a483557354871efb66b3c44636e8",
+      "size_bytes": 168,
+      "mime_type": "text/markdown",
+      "media_state": "registered"
+    },
+    {
+      "kind": "media-readiness",
+      "captured_at": "2026-03-19T19:01:19+00:00",
+      "exit_code": 0,
+      "content": "TASK_MEDIA_READY_VERIFIED task-20260319T190119Z-a24a837f item_id=media-0001",
+      "item_id": "media-0001",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190118318672Z-local-path.md",
+      "sha256": "a8983d454f1e349d045871bf61db8b9c45f1a483557354871efb66b3c44636e8",
+      "size_bytes": 168,
+      "mime_type": "text/markdown",
+      "media_state": "verified",
+      "reason": "media identity verified and ready for downstream delivery use"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "media ingestion registered recorded for 20260319T190118318672Z-local-path.md",
+    "media readiness verified recorded for 20260319T190118318672Z-local-path.md"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "",
+    "user_facing_ready": false,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "provider_delivery_status": "",
+      "provider_delivery_reason": "",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [],
+    "claim_history": []
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": true,
+    "current_state": "verified",
+    "ready": true,
+    "allowed_for_delivery": true,
+    "items": [
+      {
+        "item_id": "media-0001",
+        "source_kind": "local-path",
+        "source_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190118318672Z-local-path.md",
+        "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190118318672Z-local-path.md",
+        "basename": "20260319T190118318672Z-local-path.md",
+        "extension": ".md",
+        "mime_type": "text/markdown",
+        "size_bytes": 168,
+        "sha256": "a8983d454f1e349d045871bf61db8b9c45f1a483557354871efb66b3c44636e8",
+        "readable": true,
+        "exists": true,
+        "owner": "lucy-ubuntu",
+        "owner_reliable": true,
+        "is_directory": false,
+        "is_file": true,
+        "collected_at": "2026-03-19T19:01:19+00:00",
+        "verified_at": "2026-03-19T19:01:19+00:00",
+        "current_state": "verified",
+        "evidence": "registered explicit local path as media candidate",
+        "actor": "verify-media-ingestion",
+        "verification_reason": "media identity verified and ready for downstream delivery use",
+        "verification_evidence": "verified explicit local path material identity",
+        "verified_by": "verify-media-ingestion"
+      }
+    ],
+    "events": [
+      {
+        "timestamp": "2026-03-19T19:01:19+00:00",
+        "actor": "verify-media-ingestion",
+        "action": "register",
+        "reason": "media registered and awaiting readiness verification",
+        "item_id": "media-0001",
+        "evidence": "registered explicit local path as media candidate"
+      },
+      {
+        "timestamp": "2026-03-19T19:01:19+00:00",
+        "actor": "verify-media-ingestion",
+        "action": "verify",
+        "reason": "media identity verified and ready for downstream delivery use",
+        "item_id": "media-0001",
+        "evidence": "verified explicit local path material identity"
+      }
+    ],
+    "last_event_at": "2026-03-19T19:01:19+00:00",
+    "last_event_reason": "media identity verified and ready for downstream delivery use"
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  }
+}

@@ -1,0 +1,239 @@
+{
+  "task_id": "task-20260319T183954Z-f0f61fa7",
+  "type": "verification-visible-artifact",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "queued",
+  "created_at": "2026-03-19T18:39:54+00:00",
+  "updated_at": "2026-03-19T18:39:54+00:00",
+  "title": "Verify visible artifact unverifiable path",
+  "objective": "Verify visible artifact unverifiable path",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "visible-artifact-delivery",
+      "captured_at": "2026-03-19T18:39:54+00:00",
+      "exit_code": 2,
+      "content": "VISIBLE_ARTIFACT_DELIVERY_BLOCKED target=desktop path=/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+      "delivery_target": "desktop",
+      "source_artifact_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T183952851769Z-blocked-source.md",
+      "requested_filename": "20260319T183952851769Z-blocked-source.md",
+      "resolved_path": "/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+      "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+      "verification_result": "BLOCKED",
+      "verification_result_detail": {
+        "exists": true,
+        "readable": true,
+        "owner": "lucy-ubuntu",
+        "owner_matches_current_user": true,
+        "owner_check_reliable": true,
+        "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+        "reported_path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+        "path_matches_reported_path": true,
+        "verified_at": "2026-03-19T18:39:54+00:00",
+        "verification_result": "BLOCKED",
+        "reason": "verification was intentionally forced into an unverifiable state for reproducible blocking"
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+      "kind": "visible-artifact-delivery",
+      "created_at": "2026-03-19T18:39:54+00:00",
+      "source_artifact_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T183952851769Z-blocked-source.md",
+      "delivery_target": "desktop",
+      "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+      "verification_result": "BLOCKED",
+      "user_visible": true
+    }
+  ],
+  "notes": [
+    "visible artifact delivery blocked for target desktop"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "visible",
+    "user_facing_ready": true,
+    "visible_artifact_required": true,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [
+      {
+        "delivery_target": "desktop",
+        "requested_filename": "20260319T183952851769Z-blocked-source.md",
+        "source_artifact_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T183952851769Z-blocked-source.md",
+        "captured_at": "2026-03-19T18:39:54+00:00",
+        "selected_directory": "/home/lucy-ubuntu/Escritorio",
+        "resolved_path": "/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+        "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+        "resolution_reason": "selected existing desktop directory from xdg-user-dir",
+        "verification_result": "BLOCKED",
+        "verified_at": "2026-03-19T18:39:54+00:00",
+        "verification": {
+          "exists": true,
+          "readable": true,
+          "owner": "lucy-ubuntu",
+          "owner_matches_current_user": true,
+          "owner_check_reliable": true,
+          "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+          "reported_path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+          "path_matches_reported_path": true,
+          "verified_at": "2026-03-19T18:39:54+00:00",
+          "verification_result": "BLOCKED",
+          "reason": "verification was intentionally forced into an unverifiable state for reproducible blocking"
+        },
+        "resolution": {
+          "requested_target": "desktop",
+          "requested_filename": "20260319T183952851769Z-blocked-source.md",
+          "selected_label": "Escritorio",
+          "selected_source": "xdg-user-dir",
+          "selected_directory": "/home/lucy-ubuntu/Escritorio",
+          "absolute_directory": "/home/lucy-ubuntu/Escritorio",
+          "resolved_path": "/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+          "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T183952851769Z-blocked-source.md",
+          "resolution_reason": "selected existing desktop directory from xdg-user-dir",
+          "candidates": [
+            {
+              "label": "Escritorio",
+              "path": "/home/lucy-ubuntu/Escritorio",
+              "exists": true,
+              "readable": true,
+              "writable": true,
+              "source": "xdg-user-dir"
+            },
+            {
+              "label": "Desktop",
+              "path": "/home/lucy-ubuntu/Desktop",
+              "exists": true,
+              "readable": true,
+              "writable": true,
+              "source": "fallback"
+            },
+            {
+              "label": "Escritorio",
+              "path": "/home/lucy-ubuntu/Escritorio",
+              "exists": true,
+              "readable": true,
+              "writable": true,
+              "source": "fallback"
+            }
+          ]
+        }
+      }
+    ],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "provider_delivery_status": "",
+      "provider_delivery_reason": "",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [
+      {
+        "state": "submitted",
+        "timestamp": "2026-03-19T18:39:54+00:00",
+        "actor": "verify-visible-artifact",
+        "channel": "repo-internal",
+        "evidence": "task submitted into the user-facing artifact lane"
+      },
+      {
+        "state": "accepted",
+        "timestamp": "2026-03-19T18:39:54+00:00",
+        "actor": "verify-visible-artifact",
+        "channel": "repo-internal",
+        "evidence": "technical artifact accepted inside repo staging"
+      },
+      {
+        "state": "delivered",
+        "timestamp": "2026-03-19T18:39:54+00:00",
+        "actor": "verify-visible-artifact",
+        "channel": "desktop",
+        "evidence": "artifact delivery initiated toward the user-facing destination"
+      },
+      {
+        "state": "visible",
+        "timestamp": "2026-03-19T18:39:54+00:00",
+        "actor": "verify-visible-artifact",
+        "channel": "desktop",
+        "evidence": "delivery evidence should only be claimable after visible artifact verification"
+      }
+    ],
+    "claim_history": [
+      {
+        "claim": "artifact visible success claim",
+        "timestamp": "2026-03-19T18:39:54+00:00",
+        "actor": "verify-visible-artifact",
+        "channel": "desktop",
+        "evidence": "attempted final claim even though visible path could not be verified",
+        "required_state": "visible",
+        "current_state": "visible",
+        "visible_artifact_required": true,
+        "visible_artifact_ready": false,
+        "artifact_requirement_note": "missing",
+        "whatsapp_required": false,
+        "whatsapp_delivery_state": "",
+        "whatsapp_allowed_user_facing_claim": "",
+        "whatsapp_provider_delivery_status": "",
+        "whatsapp_provider_delivery_reason": "",
+        "whatsapp_ready": false,
+        "whatsapp_requirement_note": "not-required",
+        "media_required": false,
+        "media_state": "none",
+        "media_ready": false,
+        "media_requirement_note": "not-required",
+        "screenshot_required": false,
+        "screenshot_state": "none",
+        "screenshot_ready": false,
+        "screenshot_requirement_note": "not-required",
+        "allowed": false
+      }
+    ],
+    "last_transition_at": "2026-03-19T18:39:54+00:00",
+    "last_transition_actor": "verify-visible-artifact",
+    "last_transition_channel": "desktop",
+    "last_visible_artifact_delivery_at": "2026-03-19T18:39:54+00:00",
+    "last_visible_artifact_delivery_result": "BLOCKED",
+    "last_claim_at": "2026-03-19T18:39:54+00:00",
+    "last_claim_actor": "verify-visible-artifact",
+    "last_claim_channel": "desktop"
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [],
+    "events": [],
+    "last_event_at": "",
+    "last_event_reason": ""
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  }
+}

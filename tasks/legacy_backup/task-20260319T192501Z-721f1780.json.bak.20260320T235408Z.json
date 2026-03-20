@@ -1,0 +1,331 @@
+{
+  "task_id": "task-20260319T192501Z-721f1780",
+  "type": "live-user-journey",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "blocked",
+  "created_at": "2026-03-19T19:25:01+00:00",
+  "updated_at": "2026-03-19T19:25:23+00:00",
+  "title": "Live user journey smoke / WhatsApp delivery",
+  "objective": "Live user journey smoke / WhatsApp delivery",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "media-ingestion",
+      "captured_at": "2026-03-19T19:25:01+00:00",
+      "exit_code": 0,
+      "content": "TASK_MEDIA_REGISTERED task-20260319T192501Z-721f1780 item_id=media-0001 state=registered",
+      "item_id": "media-0001",
+      "source_kind": "local-path",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/20260319T192501200800Z-journey-a-visible-artifact.md",
+      "sha256": "60546d5b6102fc83cc698cac65d2f84858031b53a15880d024596f19f01dd04f",
+      "size_bytes": 216,
+      "mime_type": "text/markdown",
+      "media_state": "registered"
+    },
+    {
+      "kind": "media-readiness",
+      "captured_at": "2026-03-19T19:25:01+00:00",
+      "exit_code": 0,
+      "content": "TASK_MEDIA_READY_VERIFIED task-20260319T192501Z-721f1780 item_id=media-0001",
+      "item_id": "media-0001",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/20260319T192501200800Z-journey-a-visible-artifact.md",
+      "sha256": "60546d5b6102fc83cc698cac65d2f84858031b53a15880d024596f19f01dd04f",
+      "size_bytes": 216,
+      "mime_type": "text/markdown",
+      "media_state": "verified",
+      "reason": "media identity verified and ready for downstream delivery use"
+    },
+    {
+      "kind": "whatsapp-live-send",
+      "captured_at": "2026-03-19T19:25:23+00:00",
+      "exit_code": 0,
+      "content": "whatsapp live send wrapper completed a safe dry-run without gateway acceptance evidence",
+      "command": "openclaw message send --channel whatsapp --target '+5491100000007' --message 'Live user journey smoke / WhatsApp delivery' --media '/home/lucy-ubuntu/Escritorio/20260319T192501200800Z-journey-a-visible-artifact.md' --json --dry-run",
+      "surface_mode": "openclaw-message-send",
+      "surface_exit_code": 0,
+      "to": "+5491100000007",
+      "message": "Live user journey smoke / WhatsApp delivery",
+      "media_path": "/home/lucy-ubuntu/Escritorio/20260319T192501200800Z-journey-a-visible-artifact.md",
+      "run_id": "run-20260319T192521Z-7c16ad30",
+      "wrapper_state": "requested",
+      "raw_result_excerpt": "│ ◇ Doctor warnings ────────────────────────────────────────────╮ │ │ │ - State dir migration skipped: target already exists │ │ (/home/lucy-ubuntu/.openclaw). Remove or merge manually. │ │ │ ├───────────────────────────────────────────────",
+      "provider_proof_summary": {
+        "signal": "none",
+        "provider_status": "",
+        "reason": "no explicit provider delivery evidence was found in the live send response",
+        "normalized_evidence": {
+          "status_candidates": [],
+          "boolean_candidates": [],
+          "proof_strength_candidates": []
+        }
+      },
+      "report_path": "outbox/manual/run-20260319T192521Z-7c16ad30-whatsapp-live-send.json",
+      "parsed_result": {
+        "action": "send",
+        "channel": "whatsapp",
+        "dryRun": true,
+        "handledBy": "core",
+        "payload": {
+          "channel": "whatsapp",
+          "to": "+5491100000007",
+          "via": "gateway",
+          "mediaUrl": "/home/lucy-ubuntu/Escritorio/20260319T192501200800Z-journey-a-visible-artifact.md",
+          "mediaUrls": [
+            "/home/lucy-ubuntu/Escritorio/20260319T192501200800Z-journey-a-visible-artifact.md"
+          ],
+          "dryRun": true
+        }
+      },
+      "parsed_summary": {
+        "message_id": "",
+        "channel": "whatsapp",
+        "to": "+5491100000007",
+        "provider": "core",
+        "dry_run": true
+      },
+      "wrapper_status": "DRY_RUN",
+      "message_id_drift_expected": "",
+      "message_id_drift_actual": ""
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/run-20260319T192521Z-7c16ad30-whatsapp-live-send.json",
+      "kind": "whatsapp-live-send-report",
+      "created_at": "2026-03-19T19:25:23+00:00",
+      "run_id": "run-20260319T192521Z-7c16ad30",
+      "wrapper_status": "DRY_RUN",
+      "wrapper_state": "requested"
+    }
+  ],
+  "notes": [
+    "media ingestion registered recorded for 20260319T192501200800Z-journey-a-visible-artifact.md",
+    "media readiness verified recorded for 20260319T192501200800Z-journey-a-visible-artifact.md",
+    "whatsapp delivery requested recorded for +5491100000007 with allowed claim 'solicitado'",
+    "live user journey WhatsApp path blocked before any live gateway/provider delivery proof"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "visible",
+    "user_facing_ready": true,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": true,
+      "current_state": "requested",
+      "delivery_confidence": "low",
+      "allowed_claim_level": "requested",
+      "allowed_user_facing_claim": "solicitado",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "openclaw-message-send",
+      "to": "+5491100000007",
+      "run_id": "whatsapp-live-send-requested",
+      "provider_delivery_status": "send_requested",
+      "provider_delivery_reason": "the wrapper registered the outbound intent before any gateway or provider proof",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "2026-03-19T19:25:21+00:00",
+      "attempts": [
+        {
+          "channel": "whatsapp",
+          "provider": "openclaw-message-send",
+          "to": "+5491100000007",
+          "message_id": "",
+          "run_id": "whatsapp-live-send-requested",
+          "timestamp": "2026-03-19T19:25:21+00:00",
+          "delivery_state": "requested",
+          "delivery_state_canonical": "requested",
+          "delivery_confidence": "low",
+          "allowed_claim_level": "requested",
+          "allowed_user_facing_claim": "solicitado",
+          "raw_result_excerpt": "canonical task-bound whatsapp live send wrapper invoked",
+          "provider_evidence_kind": "send_request",
+          "provider_status": "send_requested",
+          "provider_reason": "the wrapper registered the outbound intent before any gateway or provider proof",
+          "provider_evidence_normalized": {},
+          "delivery_proof_present": false,
+          "actor": "task-send-whatsapp-live"
+        }
+      ],
+      "claim_history": [
+        {
+          "channel": "whatsapp",
+          "timestamp": "2026-03-19T19:25:23+00:00",
+          "actor": "live-user-journey",
+          "requested_claim_level": "requested",
+          "requested_claim_level_input": "requested",
+          "requested_claim_text": "solicitado",
+          "current_state": "requested",
+          "allowed_claim_level": "requested",
+          "allowed_user_facing_claim": "solicitado",
+          "delivery_confidence": "low",
+          "message_id": "",
+          "provider_delivery_status": "send_requested",
+          "provider_delivery_reason": "the wrapper registered the outbound intent before any gateway or provider proof",
+          "evidence": "journey B degrades the WhatsApp wording to the exact requested-only evidence level",
+          "allowed": true
+        },
+        {
+          "channel": "whatsapp",
+          "timestamp": "2026-03-19T19:25:23+00:00",
+          "actor": "live-user-journey",
+          "requested_claim_level": "delivered",
+          "requested_claim_level_input": "delivered",
+          "requested_claim_text": "entregado",
+          "current_state": "requested",
+          "allowed_claim_level": "requested",
+          "allowed_user_facing_claim": "solicitado",
+          "delivery_confidence": "low",
+          "message_id": "",
+          "provider_delivery_status": "send_requested",
+          "provider_delivery_reason": "the wrapper registered the outbound intent before any gateway or provider proof",
+          "evidence": "journey B attempted a delivered wording without gateway/provider proof",
+          "allowed": false
+        }
+      ],
+      "last_attempt_at": "2026-03-19T19:25:21+00:00",
+      "last_actor": "task-send-whatsapp-live",
+      "last_claim_at": "2026-03-19T19:25:23+00:00",
+      "last_claim_actor": "live-user-journey"
+    },
+    "transitions": [
+      {
+        "state": "submitted",
+        "timestamp": "2026-03-19T19:25:01+00:00",
+        "actor": "live-user-journey",
+        "channel": "smoke",
+        "evidence": "journey B requested a WhatsApp delivery with a real file from journey A"
+      },
+      {
+        "state": "accepted",
+        "timestamp": "2026-03-19T19:25:01+00:00",
+        "actor": "live-user-journey",
+        "channel": "smoke",
+        "evidence": "journey B accepted the WhatsApp-oriented user request locally"
+      },
+      {
+        "state": "delivered",
+        "timestamp": "2026-03-19T19:25:01+00:00",
+        "actor": "live-user-journey",
+        "channel": "smoke",
+        "evidence": "journey B prepared the file and entered the outbound delivery lane locally"
+      },
+      {
+        "state": "visible",
+        "timestamp": "2026-03-19T19:25:01+00:00",
+        "actor": "live-user-journey",
+        "channel": "smoke",
+        "evidence": "journey B already has a locally visible prepared file before channel confirmation"
+      }
+    ],
+    "claim_history": [
+      {
+        "claim": "final success claim",
+        "timestamp": "2026-03-19T19:25:23+00:00",
+        "actor": "live-user-journey",
+        "channel": "smoke",
+        "evidence": "journey B attempted a generic final success without verified WhatsApp delivery",
+        "required_state": "visible",
+        "current_state": "visible",
+        "visible_artifact_required": false,
+        "visible_artifact_ready": false,
+        "artifact_requirement_note": "not-required",
+        "whatsapp_required": true,
+        "whatsapp_delivery_state": "requested",
+        "whatsapp_allowed_user_facing_claim": "solicitado",
+        "whatsapp_provider_delivery_status": "send_requested",
+        "whatsapp_provider_delivery_reason": "the wrapper registered the outbound intent before any gateway or provider proof",
+        "whatsapp_ready": false,
+        "whatsapp_requirement_note": "missing",
+        "media_required": true,
+        "media_state": "verified",
+        "media_ready": true,
+        "media_requirement_note": "verified",
+        "screenshot_required": false,
+        "screenshot_state": "none",
+        "screenshot_ready": false,
+        "screenshot_requirement_note": "not-required",
+        "allowed": false
+      }
+    ],
+    "last_transition_at": "2026-03-19T19:25:01+00:00",
+    "last_transition_actor": "live-user-journey",
+    "last_transition_channel": "smoke",
+    "last_claim_at": "2026-03-19T19:25:23+00:00",
+    "last_claim_actor": "live-user-journey",
+    "last_claim_channel": "smoke"
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": true,
+    "current_state": "verified",
+    "ready": true,
+    "allowed_for_delivery": true,
+    "items": [
+      {
+        "item_id": "media-0001",
+        "source_kind": "local-path",
+        "source_path": "/home/lucy-ubuntu/Escritorio/20260319T192501200800Z-journey-a-visible-artifact.md",
+        "normalized_path": "/home/lucy-ubuntu/Escritorio/20260319T192501200800Z-journey-a-visible-artifact.md",
+        "basename": "20260319T192501200800Z-journey-a-visible-artifact.md",
+        "extension": ".md",
+        "mime_type": "text/markdown",
+        "size_bytes": 216,
+        "sha256": "60546d5b6102fc83cc698cac65d2f84858031b53a15880d024596f19f01dd04f",
+        "readable": true,
+        "exists": true,
+        "owner": "lucy-ubuntu",
+        "owner_reliable": true,
+        "is_directory": false,
+        "is_file": true,
+        "collected_at": "2026-03-19T19:25:01+00:00",
+        "verified_at": "2026-03-19T19:25:01+00:00",
+        "current_state": "verified",
+        "evidence": "journey B ingested the real artifact prepared by journey A",
+        "actor": "live-user-journey",
+        "verification_reason": "media identity verified and ready for downstream delivery use",
+        "verification_evidence": "journey B verified the media identity before channel delivery",
+        "verified_by": "live-user-journey"
+      }
+    ],
+    "events": [
+      {
+        "timestamp": "2026-03-19T19:25:01+00:00",
+        "actor": "live-user-journey",
+        "action": "register",
+        "reason": "media registered and awaiting readiness verification",
+        "item_id": "media-0001",
+        "evidence": "journey B ingested the real artifact prepared by journey A"
+      },
+      {
+        "timestamp": "2026-03-19T19:25:01+00:00",
+        "actor": "live-user-journey",
+        "action": "verify",
+        "reason": "media identity verified and ready for downstream delivery use",
+        "item_id": "media-0001",
+        "evidence": "journey B verified the media identity before channel delivery"
+      }
+    ],
+    "last_event_at": "2026-03-19T19:25:01+00:00",
+    "last_event_reason": "media identity verified and ready for downstream delivery use"
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  }
+}

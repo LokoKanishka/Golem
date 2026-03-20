@@ -1,0 +1,279 @@
+{
+  "task_id": "task-20260319T190118Z-c68a54b6",
+  "type": "verification-media",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "done",
+  "created_at": "2026-03-19T19:01:19+00:00",
+  "updated_at": "2026-03-19T19:01:19+00:00",
+  "title": "Verify visible artifact media ingestion",
+  "objective": "Verify visible artifact media ingestion",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "visible-artifact-delivery",
+      "captured_at": "2026-03-19T19:01:19+00:00",
+      "exit_code": 0,
+      "content": "VISIBLE_ARTIFACT_DELIVERY_PASS target=desktop path=/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+      "delivery_target": "desktop",
+      "source_artifact_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190118318672Z-visible-artifact.md",
+      "requested_filename": "20260319T190118318672Z-visible-artifact.md",
+      "resolved_path": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+      "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+      "verification_result": "PASS",
+      "verification_result_detail": {
+        "exists": true,
+        "readable": true,
+        "owner": "lucy-ubuntu",
+        "owner_matches_current_user": true,
+        "owner_check_reliable": true,
+        "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+        "reported_path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+        "path_matches_reported_path": true,
+        "verified_at": "2026-03-19T19:01:19+00:00",
+        "verification_result": "PASS",
+        "reason": "visible artifact path verified"
+      }
+    },
+    {
+      "kind": "media-ingestion",
+      "captured_at": "2026-03-19T19:01:19+00:00",
+      "exit_code": 0,
+      "content": "TASK_MEDIA_REGISTERED task-20260319T190118Z-c68a54b6 item_id=media-0001 state=registered",
+      "item_id": "media-0001",
+      "source_kind": "visible-artifact",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+      "sha256": "a7dbdf4dc087408c1b126a7f6fdc7446a274fc7e0c6ca81560ee9357ad4d83f8",
+      "size_bytes": 174,
+      "mime_type": "text/markdown",
+      "media_state": "registered"
+    },
+    {
+      "kind": "media-readiness",
+      "captured_at": "2026-03-19T19:01:19+00:00",
+      "exit_code": 0,
+      "content": "TASK_MEDIA_READY_VERIFIED task-20260319T190118Z-c68a54b6 item_id=media-0001",
+      "item_id": "media-0001",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+      "sha256": "a7dbdf4dc087408c1b126a7f6fdc7446a274fc7e0c6ca81560ee9357ad4d83f8",
+      "size_bytes": 174,
+      "mime_type": "text/markdown",
+      "media_state": "verified",
+      "reason": "media identity verified and ready for downstream delivery use"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+      "kind": "visible-artifact-delivery",
+      "created_at": "2026-03-19T19:01:19+00:00",
+      "source_artifact_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190118318672Z-visible-artifact.md",
+      "delivery_target": "desktop",
+      "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+      "verification_result": "PASS",
+      "user_visible": true
+    }
+  ],
+  "notes": [
+    "technical artifact generation completed before visible materialization",
+    "visible artifact delivery pass for target desktop",
+    "media ingestion registered recorded for 20260319T190118318672Z-visible-artifact.md",
+    "media readiness verified recorded for 20260319T190118318672Z-visible-artifact.md"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "visible",
+    "user_facing_ready": true,
+    "visible_artifact_required": true,
+    "visible_artifact_ready": true,
+    "visible_artifact_deliveries": [
+      {
+        "delivery_target": "desktop",
+        "requested_filename": "20260319T190118318672Z-visible-artifact.md",
+        "source_artifact_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190118318672Z-visible-artifact.md",
+        "captured_at": "2026-03-19T19:01:19+00:00",
+        "selected_directory": "/home/lucy-ubuntu/Escritorio",
+        "resolved_path": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+        "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+        "resolution_reason": "selected existing desktop directory from xdg-user-dir",
+        "verification_result": "PASS",
+        "verified_at": "2026-03-19T19:01:19+00:00",
+        "verification": {
+          "exists": true,
+          "readable": true,
+          "owner": "lucy-ubuntu",
+          "owner_matches_current_user": true,
+          "owner_check_reliable": true,
+          "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+          "reported_path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+          "path_matches_reported_path": true,
+          "verified_at": "2026-03-19T19:01:19+00:00",
+          "verification_result": "PASS",
+          "reason": "visible artifact path verified"
+        },
+        "resolution": {
+          "requested_target": "desktop",
+          "requested_filename": "20260319T190118318672Z-visible-artifact.md",
+          "selected_label": "Escritorio",
+          "selected_source": "xdg-user-dir",
+          "selected_directory": "/home/lucy-ubuntu/Escritorio",
+          "absolute_directory": "/home/lucy-ubuntu/Escritorio",
+          "resolved_path": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+          "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+          "resolution_reason": "selected existing desktop directory from xdg-user-dir",
+          "candidates": [
+            {
+              "label": "Escritorio",
+              "path": "/home/lucy-ubuntu/Escritorio",
+              "exists": true,
+              "readable": true,
+              "writable": true,
+              "source": "xdg-user-dir"
+            },
+            {
+              "label": "Desktop",
+              "path": "/home/lucy-ubuntu/Desktop",
+              "exists": true,
+              "readable": true,
+              "writable": true,
+              "source": "fallback"
+            },
+            {
+              "label": "Escritorio",
+              "path": "/home/lucy-ubuntu/Escritorio",
+              "exists": true,
+              "readable": true,
+              "writable": true,
+              "source": "fallback"
+            }
+          ]
+        }
+      }
+    ],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "provider_delivery_status": "",
+      "provider_delivery_reason": "",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [
+      {
+        "state": "submitted",
+        "timestamp": "2026-03-19T19:01:19+00:00",
+        "actor": "verify-media-ingestion",
+        "channel": "repo-internal",
+        "evidence": "task entered the outbound lane"
+      },
+      {
+        "state": "accepted",
+        "timestamp": "2026-03-19T19:01:19+00:00",
+        "actor": "verify-media-ingestion",
+        "channel": "repo-internal",
+        "evidence": "technical output accepted before media readiness"
+      },
+      {
+        "state": "delivered",
+        "timestamp": "2026-03-19T19:01:19+00:00",
+        "actor": "verify-media-ingestion",
+        "channel": "desktop",
+        "evidence": "delivery lane prepared before media readiness is proven"
+      },
+      {
+        "state": "visible",
+        "timestamp": "2026-03-19T19:01:19+00:00",
+        "actor": "verify-media-ingestion",
+        "channel": "desktop",
+        "evidence": "generic user-facing truth now depends on canonical media verification"
+      }
+    ],
+    "claim_history": [],
+    "last_transition_at": "2026-03-19T19:01:19+00:00",
+    "last_transition_actor": "verify-media-ingestion",
+    "last_transition_channel": "desktop",
+    "last_visible_artifact_delivery_at": "2026-03-19T19:01:19+00:00",
+    "last_visible_artifact_delivery_result": "PASS"
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": true,
+    "current_state": "verified",
+    "ready": true,
+    "allowed_for_delivery": true,
+    "items": [
+      {
+        "item_id": "media-0001",
+        "source_kind": "visible-artifact",
+        "source_path": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+        "normalized_path": "/home/lucy-ubuntu/Escritorio/20260319T190118318672Z-visible-artifact.md",
+        "basename": "20260319T190118318672Z-visible-artifact.md",
+        "extension": ".md",
+        "mime_type": "text/markdown",
+        "size_bytes": 174,
+        "sha256": "a7dbdf4dc087408c1b126a7f6fdc7446a274fc7e0c6ca81560ee9357ad4d83f8",
+        "readable": true,
+        "exists": true,
+        "owner": "lucy-ubuntu",
+        "owner_reliable": true,
+        "is_directory": false,
+        "is_file": true,
+        "collected_at": "2026-03-19T19:01:19+00:00",
+        "verified_at": "2026-03-19T19:01:19+00:00",
+        "current_state": "verified",
+        "evidence": "registered verified visible artifact as media candidate",
+        "actor": "verify-media-ingestion",
+        "verification_reason": "media identity verified and ready for downstream delivery use",
+        "verification_evidence": "verified visible artifact material identity",
+        "verified_by": "verify-media-ingestion"
+      }
+    ],
+    "events": [
+      {
+        "timestamp": "2026-03-19T19:01:19+00:00",
+        "actor": "verify-media-ingestion",
+        "action": "register",
+        "reason": "media registered and awaiting readiness verification",
+        "item_id": "media-0001",
+        "evidence": "registered verified visible artifact as media candidate"
+      },
+      {
+        "timestamp": "2026-03-19T19:01:19+00:00",
+        "actor": "verify-media-ingestion",
+        "action": "verify",
+        "reason": "media identity verified and ready for downstream delivery use",
+        "item_id": "media-0001",
+        "evidence": "verified visible artifact material identity"
+      }
+    ],
+    "last_event_at": "2026-03-19T19:01:19+00:00",
+    "last_event_reason": "media identity verified and ready for downstream delivery use"
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  }
+}

@@ -1,0 +1,243 @@
+{
+  "task_id": "task-20260319T190114Z-aa256374",
+  "type": "verification-media",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "done",
+  "created_at": "2026-03-19T19:01:14+00:00",
+  "updated_at": "2026-03-19T19:01:15+00:00",
+  "title": "Verify internal artifact media ingestion",
+  "objective": "Verify internal artifact media ingestion",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "media-ingestion",
+      "captured_at": "2026-03-19T19:01:14+00:00",
+      "exit_code": 0,
+      "content": "TASK_MEDIA_REGISTERED task-20260319T190114Z-aa256374 item_id=media-0001 state=registered",
+      "item_id": "media-0001",
+      "source_kind": "task-artifact",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190114552189Z-internal-artifact.md",
+      "sha256": "dc68d39ddac5875589e3c9ed0c25cb4a4aa87426d444daef654cbc43e188f0ba",
+      "size_bytes": 175,
+      "mime_type": "text/markdown",
+      "media_state": "registered"
+    },
+    {
+      "kind": "media-readiness",
+      "captured_at": "2026-03-19T19:01:15+00:00",
+      "exit_code": 0,
+      "content": "TASK_MEDIA_READY_VERIFIED task-20260319T190114Z-aa256374 item_id=media-0001",
+      "item_id": "media-0001",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190114552189Z-internal-artifact.md",
+      "sha256": "dc68d39ddac5875589e3c9ed0c25cb4a4aa87426d444daef654cbc43e188f0ba",
+      "size_bytes": 175,
+      "mime_type": "text/markdown",
+      "media_state": "verified",
+      "reason": "media identity verified and ready for downstream delivery use"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190114552189Z-internal-artifact.md",
+      "kind": "internal-test-artifact",
+      "created_at": "2026-03-19T19:01:14+00:00"
+    }
+  ],
+  "notes": [
+    "technical artifact generation completed before media ingestion",
+    "media ingestion registered recorded for 20260319T190114552189Z-internal-artifact.md",
+    "media readiness verified recorded for 20260319T190114552189Z-internal-artifact.md"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "visible",
+    "user_facing_ready": true,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "provider_delivery_status": "",
+      "provider_delivery_reason": "",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [
+      {
+        "state": "submitted",
+        "timestamp": "2026-03-19T19:01:14+00:00",
+        "actor": "verify-media-ingestion",
+        "channel": "repo-internal",
+        "evidence": "task entered the outbound lane"
+      },
+      {
+        "state": "accepted",
+        "timestamp": "2026-03-19T19:01:14+00:00",
+        "actor": "verify-media-ingestion",
+        "channel": "repo-internal",
+        "evidence": "technical output accepted before media readiness"
+      },
+      {
+        "state": "delivered",
+        "timestamp": "2026-03-19T19:01:14+00:00",
+        "actor": "verify-media-ingestion",
+        "channel": "repo-internal",
+        "evidence": "delivery lane prepared before media readiness is proven"
+      },
+      {
+        "state": "visible",
+        "timestamp": "2026-03-19T19:01:14+00:00",
+        "actor": "verify-media-ingestion",
+        "channel": "repo-internal",
+        "evidence": "generic user-facing truth now depends on canonical media verification"
+      }
+    ],
+    "claim_history": [
+      {
+        "claim": "final success claim",
+        "timestamp": "2026-03-19T19:01:14+00:00",
+        "actor": "verify-media-ingestion",
+        "channel": "repo-internal",
+        "evidence": "attempted final success before media verification completed",
+        "required_state": "visible",
+        "current_state": "visible",
+        "visible_artifact_required": false,
+        "visible_artifact_ready": false,
+        "artifact_requirement_note": "not-required",
+        "whatsapp_required": false,
+        "whatsapp_delivery_state": "",
+        "whatsapp_allowed_user_facing_claim": "",
+        "whatsapp_provider_delivery_status": "",
+        "whatsapp_provider_delivery_reason": "",
+        "whatsapp_ready": false,
+        "whatsapp_requirement_note": "not-required",
+        "media_required": true,
+        "media_state": "registered",
+        "media_ready": false,
+        "media_requirement_note": "missing",
+        "screenshot_required": false,
+        "screenshot_state": "none",
+        "screenshot_ready": false,
+        "screenshot_requirement_note": "not-required",
+        "allowed": false
+      },
+      {
+        "claim": "final success claim",
+        "timestamp": "2026-03-19T19:01:15+00:00",
+        "actor": "verify-media-ingestion",
+        "channel": "repo-internal",
+        "evidence": "final success after media verification completed",
+        "required_state": "visible",
+        "current_state": "visible",
+        "visible_artifact_required": false,
+        "visible_artifact_ready": false,
+        "artifact_requirement_note": "not-required",
+        "whatsapp_required": false,
+        "whatsapp_delivery_state": "",
+        "whatsapp_allowed_user_facing_claim": "",
+        "whatsapp_provider_delivery_status": "",
+        "whatsapp_provider_delivery_reason": "",
+        "whatsapp_ready": false,
+        "whatsapp_requirement_note": "not-required",
+        "media_required": true,
+        "media_state": "verified",
+        "media_ready": true,
+        "media_requirement_note": "verified",
+        "screenshot_required": false,
+        "screenshot_state": "none",
+        "screenshot_ready": false,
+        "screenshot_requirement_note": "not-required",
+        "allowed": true
+      }
+    ],
+    "last_transition_at": "2026-03-19T19:01:14+00:00",
+    "last_transition_actor": "verify-media-ingestion",
+    "last_transition_channel": "repo-internal",
+    "last_claim_at": "2026-03-19T19:01:15+00:00",
+    "last_claim_actor": "verify-media-ingestion",
+    "last_claim_channel": "repo-internal"
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": true,
+    "current_state": "verified",
+    "ready": true,
+    "allowed_for_delivery": true,
+    "items": [
+      {
+        "item_id": "media-0001",
+        "source_kind": "task-artifact",
+        "source_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190114552189Z-internal-artifact.md",
+        "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190114552189Z-internal-artifact.md",
+        "basename": "20260319T190114552189Z-internal-artifact.md",
+        "extension": ".md",
+        "mime_type": "text/markdown",
+        "size_bytes": 175,
+        "sha256": "dc68d39ddac5875589e3c9ed0c25cb4a4aa87426d444daef654cbc43e188f0ba",
+        "readable": true,
+        "exists": true,
+        "owner": "lucy-ubuntu",
+        "owner_reliable": true,
+        "is_directory": false,
+        "is_file": true,
+        "collected_at": "2026-03-19T19:01:14+00:00",
+        "verified_at": "2026-03-19T19:01:15+00:00",
+        "current_state": "verified",
+        "evidence": "registered internal artifact as canonical media candidate",
+        "actor": "verify-media-ingestion",
+        "verification_reason": "media identity verified and ready for downstream delivery use",
+        "verification_evidence": "verified internal artifact material identity",
+        "verified_by": "verify-media-ingestion"
+      }
+    ],
+    "events": [
+      {
+        "timestamp": "2026-03-19T19:01:14+00:00",
+        "actor": "verify-media-ingestion",
+        "action": "register",
+        "reason": "media registered and awaiting readiness verification",
+        "item_id": "media-0001",
+        "evidence": "registered internal artifact as canonical media candidate"
+      },
+      {
+        "timestamp": "2026-03-19T19:01:15+00:00",
+        "actor": "verify-media-ingestion",
+        "action": "verify",
+        "reason": "media identity verified and ready for downstream delivery use",
+        "item_id": "media-0001",
+        "evidence": "verified internal artifact material identity"
+      }
+    ],
+    "last_event_at": "2026-03-19T19:01:15+00:00",
+    "last_event_reason": "media identity verified and ready for downstream delivery use"
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  }
+}

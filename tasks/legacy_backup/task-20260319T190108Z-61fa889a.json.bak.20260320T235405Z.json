@@ -1,0 +1,119 @@
+{
+  "task_id": "task-20260319T190108Z-61fa889a",
+  "type": "verification-media",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "queued",
+  "created_at": "2026-03-19T19:01:08+00:00",
+  "updated_at": "2026-03-19T19:01:08+00:00",
+  "title": "Verify missing media path",
+  "objective": "Verify missing media path",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "media-ingestion",
+      "captured_at": "2026-03-19T19:01:08+00:00",
+      "exit_code": 2,
+      "content": "TASK_MEDIA_REGISTERED task-20260319T190108Z-61fa889a item_id=media-0001 state=blocked",
+      "item_id": "media-0001",
+      "source_kind": "local-path",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190107049336Z-missing-media.md",
+      "sha256": "",
+      "size_bytes": 0,
+      "mime_type": "text/markdown",
+      "media_state": "blocked"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "media ingestion blocked recorded for 20260319T190107049336Z-missing-media.md"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "",
+    "user_facing_ready": false,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "provider_delivery_status": "",
+      "provider_delivery_reason": "",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [],
+    "claim_history": []
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": true,
+    "current_state": "blocked",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [
+      {
+        "item_id": "media-0001",
+        "source_kind": "local-path",
+        "source_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190107049336Z-missing-media.md",
+        "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190107049336Z-missing-media.md",
+        "basename": "20260319T190107049336Z-missing-media.md",
+        "extension": ".md",
+        "mime_type": "text/markdown",
+        "size_bytes": 0,
+        "sha256": "",
+        "readable": false,
+        "exists": false,
+        "owner": "",
+        "owner_reliable": false,
+        "is_directory": false,
+        "is_file": false,
+        "collected_at": "2026-03-19T19:01:08+00:00",
+        "verified_at": "",
+        "current_state": "blocked",
+        "evidence": "attempted to ingest a missing path",
+        "actor": "verify-media-ingestion"
+      }
+    ],
+    "events": [
+      {
+        "timestamp": "2026-03-19T19:01:08+00:00",
+        "actor": "verify-media-ingestion",
+        "action": "register",
+        "reason": "media source path is missing or unreadable",
+        "item_id": "media-0001",
+        "evidence": "attempted to ingest a missing path"
+      }
+    ],
+    "last_event_at": "2026-03-19T19:01:08+00:00",
+    "last_event_reason": "media source path is missing or unreadable"
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  }
+}
