@@ -29,15 +29,10 @@ corrupt_paths = []
 
 for line in lines:
     if line.startswith("TASK_SCAN_CORRUPT "):
-        prefix, rest = line.split(" ", 1)
-        marker = " tasks/"
-        idx = rest.find(marker)
-        if idx == -1:
-            marker = " /"
-            idx = rest.find(marker)
-        if idx == -1:
+        parts = line.split(" ", 2)
+        if len(parts) < 3:
             continue
-        path = rest[idx + 1 :].strip()
+        _, path, _ = parts
         corrupt_paths.append(path)
 
 paths_out.write_text("\n".join(corrupt_paths) + ("\n" if corrupt_paths else ""), encoding="utf-8")

@@ -1,0 +1,12 @@
+PATH: /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232352Z-a2d37bec.json
+EXISTS: True
+SIZE_BYTES: 0
+JSON_PARSE: FAIL
+ERROR_TYPE: JSONDecodeError
+ERROR_MSG: Expecting value: line 1 column 1 (char 0)
+
+RAW_SAMPLE_BEGIN
+
+RAW_SAMPLE_END
+
+INITIAL_DIAGNOSIS: empty-or-whitespace

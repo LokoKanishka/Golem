@@ -1,0 +1,4 @@
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232352Z-a2d37bec.json
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232353Z-7f966d0d.json
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232354Z-10fcc75b.json
+/home/lucy-ubuntu/Escritorio/golem/tasks/task-20260316T232354Z-bbb6664f.json
