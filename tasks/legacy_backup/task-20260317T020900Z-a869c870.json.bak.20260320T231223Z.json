@@ -1,0 +1,242 @@
+{
+  "task_id": "task-20260317T020900Z-a869c870",
+  "type": "verification-screenshot",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "done",
+  "created_at": "2026-03-17T02:09:00+00:00",
+  "updated_at": "2026-03-17T02:09:01+00:00",
+  "title": "Verify canonical host screenshot capture",
+  "objective": "Verify canonical host screenshot capture",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "host-screenshot-capture",
+      "captured_at": "2026-03-17T02:09:01+00:00",
+      "exit_code": 0,
+      "content": "TASK_HOST_SCREENSHOT_CAPTURED task-20260317T020900Z-a869c870 item_id=screenshot-0001",
+      "item_id": "screenshot-0001",
+      "target_kind": "desktop-root",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/host-screenshot-valid.png",
+      "sha256": "6eb70b6e234c46c0525dbb2bbc5b30fe97f1f13c5308eb57c179cd36f6dadad0",
+      "size_bytes": 512856,
+      "mime_type": "image/png",
+      "screenshot_state": "captured",
+      "reason": "host screenshot artifact was materialized and is awaiting verification"
+    },
+    {
+      "kind": "host-screenshot-verify",
+      "captured_at": "2026-03-17T02:09:01+00:00",
+      "exit_code": 0,
+      "content": "TASK_HOST_SCREENSHOT_READY_VERIFIED task-20260317T020900Z-a869c870 item_id=screenshot-0001",
+      "item_id": "screenshot-0001",
+      "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/host-screenshot-valid.png",
+      "sha256": "6eb70b6e234c46c0525dbb2bbc5b30fe97f1f13c5308eb57c179cd36f6dadad0",
+      "size_bytes": 512856,
+      "mime_type": "image/png",
+      "screenshot_state": "verified",
+      "reason": "host screenshot artifact was verified and can back visual claims"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "host-screenshot-screenshot-0001",
+      "path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/host-screenshot-valid.png",
+      "kind": "host-screenshot",
+      "captured_at": "2026-03-17T02:09:01+00:00",
+      "mime_type": "image/png",
+      "size_bytes": 512856,
+      "sha256": "6eb70b6e234c46c0525dbb2bbc5b30fe97f1f13c5308eb57c179cd36f6dadad0"
+    }
+  ],
+  "notes": [
+    "technical work closed before visual confirmation was verified",
+    "host screenshot captured recorded for target desktop-root",
+    "host screenshot verification verified recorded for desktop-root"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "visible",
+    "user_facing_ready": true,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [
+      {
+        "state": "submitted",
+        "timestamp": "2026-03-17T02:09:01+00:00",
+        "actor": "verify-host-screenshot",
+        "channel": "repo-internal",
+        "evidence": "task entered the visual evidence lane"
+      },
+      {
+        "state": "accepted",
+        "timestamp": "2026-03-17T02:09:01+00:00",
+        "actor": "verify-host-screenshot",
+        "channel": "repo-internal",
+        "evidence": "technical acceptance happened before screenshot verification"
+      },
+      {
+        "state": "delivered",
+        "timestamp": "2026-03-17T02:09:01+00:00",
+        "actor": "verify-host-screenshot",
+        "channel": "host-screenshot",
+        "evidence": "visual evidence lane prepared before screenshot verification"
+      },
+      {
+        "state": "visible",
+        "timestamp": "2026-03-17T02:09:01+00:00",
+        "actor": "verify-host-screenshot",
+        "channel": "host-screenshot",
+        "evidence": "generic user-facing truth now depends on verified host screenshot evidence"
+      }
+    ],
+    "claim_history": [
+      {
+        "claim": "visual confirmation claim",
+        "timestamp": "2026-03-17T02:09:01+00:00",
+        "actor": "verify-host-screenshot",
+        "channel": "host-screenshot",
+        "evidence": "attempted final visual claim before screenshot verification completed",
+        "required_state": "visible",
+        "current_state": "visible",
+        "visible_artifact_required": false,
+        "visible_artifact_ready": false,
+        "artifact_requirement_note": "not-required",
+        "whatsapp_required": false,
+        "whatsapp_delivery_state": "",
+        "whatsapp_allowed_user_facing_claim": "",
+        "whatsapp_ready": false,
+        "whatsapp_requirement_note": "not-required",
+        "media_required": false,
+        "media_state": "none",
+        "media_ready": false,
+        "media_requirement_note": "not-required",
+        "screenshot_required": true,
+        "screenshot_state": "captured",
+        "screenshot_ready": false,
+        "screenshot_requirement_note": "missing",
+        "allowed": false
+      },
+      {
+        "claim": "visual confirmation claim",
+        "timestamp": "2026-03-17T02:09:01+00:00",
+        "actor": "verify-host-screenshot",
+        "channel": "host-screenshot",
+        "evidence": "final visual claim after screenshot verification completed",
+        "required_state": "visible",
+        "current_state": "visible",
+        "visible_artifact_required": false,
+        "visible_artifact_ready": false,
+        "artifact_requirement_note": "not-required",
+        "whatsapp_required": false,
+        "whatsapp_delivery_state": "",
+        "whatsapp_allowed_user_facing_claim": "",
+        "whatsapp_ready": false,
+        "whatsapp_requirement_note": "not-required",
+        "media_required": false,
+        "media_state": "none",
+        "media_ready": false,
+        "media_requirement_note": "not-required",
+        "screenshot_required": true,
+        "screenshot_state": "verified",
+        "screenshot_ready": true,
+        "screenshot_requirement_note": "verified",
+        "allowed": true
+      }
+    ],
+    "last_transition_at": "2026-03-17T02:09:01+00:00",
+    "last_transition_actor": "verify-host-screenshot",
+    "last_transition_channel": "host-screenshot",
+    "last_claim_at": "2026-03-17T02:09:01+00:00",
+    "last_claim_actor": "verify-host-screenshot",
+    "last_claim_channel": "host-screenshot"
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [],
+    "events": [],
+    "last_event_at": "",
+    "last_event_reason": ""
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": true,
+    "current_state": "verified",
+    "ready_for_claim": true,
+    "items": [
+      {
+        "item_id": "screenshot-0001",
+        "target_kind": "desktop-root",
+        "target_ref": "",
+        "requested_path": "host-screenshot-valid.png",
+        "resolved_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/host-screenshot-valid.png",
+        "normalized_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/host-screenshot-valid.png",
+        "sha256": "6eb70b6e234c46c0525dbb2bbc5b30fe97f1f13c5308eb57c179cd36f6dadad0",
+        "size_bytes": 512856,
+        "mime_type": "image/png",
+        "owner": "lucy-ubuntu",
+        "owner_reliable": true,
+        "exists": true,
+        "readable": true,
+        "requested_at": "2026-03-17T02:09:01+00:00",
+        "captured_at": "2026-03-17T02:09:01+00:00",
+        "verified_at": "2026-03-17T02:09:01+00:00",
+        "evidence": "captured a real host screenshot for visual evidence",
+        "state": "verified",
+        "capture_reason": "host screenshot artifact was materialized and is awaiting verification",
+        "capture_output": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/host-screenshot-valid.png",
+        "capture_exit_code": 0,
+        "capture_command": "python3 /home/lucy-ubuntu/.codex/skills/screenshot/scripts/take_screenshot.py --path '/home/lucy-ubuntu/Escritorio/golem/outbox/manual/host-screenshot-valid.png'",
+        "verification_reason": "host screenshot artifact was verified and can back visual claims",
+        "verification_evidence": "verified host screenshot material identity",
+        "verified_by": "verify-host-screenshot"
+      }
+    ],
+    "events": [
+      {
+        "timestamp": "2026-03-17T02:09:01+00:00",
+        "actor": "verify-host-screenshot",
+        "action": "capture",
+        "reason": "host screenshot artifact was materialized and is awaiting verification",
+        "item_id": "screenshot-0001",
+        "evidence": "captured a real host screenshot for visual evidence"
+      },
+      {
+        "timestamp": "2026-03-17T02:09:01+00:00",
+        "actor": "verify-host-screenshot",
+        "action": "verify",
+        "reason": "host screenshot artifact was verified and can back visual claims",
+        "item_id": "screenshot-0001",
+        "evidence": "verified host screenshot material identity"
+      }
+    ],
+    "last_transition_at": "2026-03-17T02:09:01+00:00",
+    "last_verified_at": "2026-03-17T02:09:01+00:00",
+    "block_reason": "",
+    "fail_reason": ""
+  }
+}

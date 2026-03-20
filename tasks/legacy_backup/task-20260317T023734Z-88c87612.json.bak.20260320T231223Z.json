@@ -1,0 +1,152 @@
+{
+  "task_id": "task-20260317T023734Z-88c87612",
+  "type": "verification-whatsapp-live-send-path",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "queued",
+  "created_at": "2026-03-17T02:37:34+00:00",
+  "updated_at": "2026-03-17T02:37:36+00:00",
+  "title": "Verify canonical WhatsApp live send wrapper dry-run path",
+  "objective": "Verify canonical WhatsApp live send wrapper dry-run path",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "whatsapp-live-send",
+      "captured_at": "2026-03-17T02:37:36+00:00",
+      "exit_code": 0,
+      "content": "whatsapp live send wrapper completed a safe dry-run without gateway acceptance evidence",
+      "command": "openclaw message send --channel whatsapp --target '+5491100000000' --message 'GOLEM-209 canonical path probe' --json --dry-run",
+      "surface_mode": "openclaw-message-send",
+      "surface_exit_code": 0,
+      "to": "+5491100000000",
+      "message": "GOLEM-209 canonical path probe",
+      "media_path": "",
+      "run_id": "run-20260317T023734Z-2a41ee01",
+      "wrapper_state": "requested",
+      "raw_result_excerpt": "│ ◇ Doctor warnings ────────────────────────────────────────────╮ │ │ │ - State dir migration skipped: target already exists │ │ (/home/lucy-ubuntu/.openclaw). Remove or merge manually. │ │ │ ├───────────────────────────────────────────────",
+      "report_path": "outbox/manual/run-20260317T023734Z-2a41ee01-whatsapp-live-send.json",
+      "parsed_result": {
+        "action": "send",
+        "channel": "whatsapp",
+        "dryRun": true,
+        "handledBy": "core",
+        "payload": {
+          "channel": "whatsapp",
+          "to": "+5491100000000",
+          "via": "gateway",
+          "mediaUrl": null,
+          "dryRun": true
+        }
+      },
+      "parsed_summary": {
+        "message_id": "",
+        "channel": "whatsapp",
+        "to": "+5491100000000",
+        "provider": "core",
+        "dry_run": true
+      },
+      "wrapper_status": "DRY_RUN",
+      "message_id_drift_expected": "",
+      "message_id_drift_actual": ""
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/run-20260317T023734Z-2a41ee01-whatsapp-live-send.json",
+      "kind": "whatsapp-live-send-report",
+      "created_at": "2026-03-17T02:37:36+00:00",
+      "run_id": "run-20260317T023734Z-2a41ee01",
+      "wrapper_status": "DRY_RUN",
+      "wrapper_state": "requested"
+    }
+  ],
+  "notes": [
+    "whatsapp delivery requested recorded for +5491100000000 with allowed claim 'solicitado'"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "",
+    "user_facing_ready": false,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": true,
+      "current_state": "requested",
+      "delivery_confidence": "low",
+      "allowed_claim_level": "requested",
+      "allowed_user_facing_claim": "solicitado",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "openclaw-message-send",
+      "to": "+5491100000000",
+      "run_id": "whatsapp-live-send-requested",
+      "attempts": [
+        {
+          "channel": "whatsapp",
+          "provider": "openclaw-message-send",
+          "to": "+5491100000000",
+          "message_id": "",
+          "run_id": "whatsapp-live-send-requested",
+          "timestamp": "2026-03-17T02:37:34+00:00",
+          "delivery_state": "requested",
+          "delivery_confidence": "low",
+          "allowed_claim_level": "requested",
+          "allowed_user_facing_claim": "solicitado",
+          "raw_result_excerpt": "canonical task-bound whatsapp live send wrapper invoked",
+          "actor": "task-send-whatsapp-live"
+        }
+      ],
+      "claim_history": [
+        {
+          "channel": "whatsapp",
+          "timestamp": "2026-03-17T02:37:36+00:00",
+          "actor": "verify-whatsapp-live-send-path",
+          "requested_claim_level": "requested",
+          "requested_claim_text": "solicitado",
+          "current_state": "requested",
+          "allowed_claim_level": "requested",
+          "allowed_user_facing_claim": "solicitado",
+          "delivery_confidence": "low",
+          "message_id": "",
+          "evidence": "wrapper probe degrades wording to requested after a dry-run",
+          "allowed": true
+        }
+      ],
+      "last_attempt_at": "2026-03-17T02:37:34+00:00",
+      "last_actor": "task-send-whatsapp-live",
+      "last_claim_at": "2026-03-17T02:37:36+00:00",
+      "last_claim_actor": "verify-whatsapp-live-send-path"
+    },
+    "transitions": [],
+    "claim_history": []
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [],
+    "events": [],
+    "last_event_at": "",
+    "last_event_reason": ""
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  }
+}
