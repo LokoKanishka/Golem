@@ -551,6 +551,8 @@ if task_api_active != "active" or bridge_active != "active":
 
 summary_lines = [
     "GOLEM HOST DIAGNOSIS",
+    "",
+    "SNAPSHOT:",
     f"snapshot_dir: {snapshot_dir}",
     f"trigger_mode: {trigger_mode}",
     f"trigger_source: {trigger_source}",
@@ -558,10 +560,10 @@ summary_lines = [
     f"trigger_requested_at_utc: {trigger_requested_at}",
     f"auto_cooldown_seconds: {auto_cooldown_seconds}",
     f"overall: {overall}",
+    "",
+    "CURRENT CONTEXT:",
     f"gateway_context: {gateway_context}",
     f"gateway_last_signal: {gateway_last_signal}",
-    f"suggested_first_action: {suggested_first_action}",
-    f"second_action: {second_action}",
     f"task_api_service: {task_api_status.get('service_name', '(unknown)')}",
     f"task_api_enabled: {task_api_status.get('service_enabled', task_api_props.get('UnitFileState', 'unknown'))}",
     f"task_api_active: {task_api_active}",
@@ -580,6 +582,18 @@ summary_lines = [
     f"stack_healthcheck: {'OK' if stack_health_exit == 0 else 'FAIL'}",
     f"ports_relevant_count: {len(port_lines)}",
     f"processes_relevant_count: {len(process_lines)}",
+    "",
+    "DO FIRST:",
+    f"suggested_first_action: {suggested_first_action}",
+    "",
+    "DO NEXT:",
+    f"second_action: {second_action}",
+    "",
+    "READ FIRST:",
+    f"look_first: {snapshot_dir / 'summary.txt'}",
+    "",
+    "READ NEXT:",
+    f"look_next: {snapshot_dir / 'manifest.json'}",
 ]
 (snapshot_dir / "summary.txt").write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
 

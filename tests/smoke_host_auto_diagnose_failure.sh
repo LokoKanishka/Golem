@@ -207,16 +207,31 @@ bridge_pid = int(sys.argv[7])
 snapshot_dirs = sorted(path for path in diagnostics_root.iterdir() if path.is_dir())
 assert len(snapshot_dirs) == 1, snapshot_dirs
 snapshot_dir = snapshot_dirs[0]
+summary_path = snapshot_dir / "summary.txt"
+manifest_path = snapshot_dir / "manifest.json"
 
-summary = (snapshot_dir / "summary.txt").read_text(encoding="utf-8")
+summary = summary_path.read_text(encoding="utf-8")
 assert "trigger_mode: auto" in summary, summary
 assert "trigger_source: golem_host_stack_ctl" in summary, summary
 assert "trigger_reason: stack_healthcheck_failed" in summary, summary
 assert "overall: FAIL" in summary or "overall: WARN" in summary, summary
 assert "suggested_first_action: revisar healthcheck de whatsapp_bridge" in summary, summary
 assert "second_action: mirar journal del servicio whatsapp_bridge" in summary, summary
+assert "SNAPSHOT:" in summary, summary
+assert "CURRENT CONTEXT:" in summary, summary
+assert "DO FIRST:" in summary, summary
+assert "DO NEXT:" in summary, summary
+assert "READ FIRST:" in summary, summary
+assert "READ NEXT:" in summary, summary
+assert f"look_first: {summary_path}" in summary, summary
+assert f"look_next: {manifest_path}" in summary, summary
+assert summary.index("SNAPSHOT:") < summary.index("CURRENT CONTEXT:"), summary
+assert summary.index("CURRENT CONTEXT:") < summary.index("DO FIRST:"), summary
+assert summary.index("DO FIRST:") < summary.index("DO NEXT:"), summary
+assert summary.index("DO NEXT:") < summary.index("READ FIRST:"), summary
+assert summary.index("READ FIRST:") < summary.index("READ NEXT:"), summary
 
-manifest = json.loads((snapshot_dir / "manifest.json").read_text(encoding="utf-8"))
+manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 assert manifest["trigger"]["mode"] == "auto", manifest
 assert manifest["trigger"]["source"] == "golem_host_stack_ctl", manifest
 assert manifest["trigger"]["reason"] == "stack_healthcheck_failed", manifest

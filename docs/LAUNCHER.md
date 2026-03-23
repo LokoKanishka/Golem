@@ -140,6 +140,8 @@ El helper del ultimo snapshot puede profundizar un paso mas sin ensuciar esa sal
 - la segunda pista sale del mismo snapshot y no se imprime en el resumen corto del fallo
 - ordena la lectura por prioridad: contexto, accion primero, accion despues, leer primero, leer despues
 
+El `summary.txt` persistido del snapshot sigue ahora esa misma prioridad visual, para que el operador no tenga que reaprender el orden al pasar del helper al artefacto guardado.
+
 ## Self Check
 
 `./scripts/self_check.sh` ahora informa tambien:
