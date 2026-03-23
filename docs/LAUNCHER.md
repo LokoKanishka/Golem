@@ -126,6 +126,7 @@ Cuando una falla del stack dispara auto-diagnostico, `golem_host_stack_ctl.sh` y
 - servicios afectados
 - contexto corto del gateway
 - ultima senal breve del gateway si existe
+- `suggested_first_action` con una primera accion corta basada en la razon de falla y las senales del snapshot
 - ruta del snapshot
 - `look_first` apuntando a `summary.txt`
 - `look_next` apuntando a `manifest.json`

@@ -176,18 +176,20 @@ assert "reason: stack_healthcheck_failed" in healthcheck, healthcheck
 assert f"services: task_api={api_service_name} whatsapp_bridge={bridge_service_name}" in healthcheck, healthcheck
 assert "gateway_context:" in healthcheck, healthcheck
 assert "gateway_last_signal:" in healthcheck, healthcheck
+assert "suggested_first_action: revisar healthcheck de whatsapp_bridge" in healthcheck, healthcheck
 assert f"snapshot: {snapshot_dir}" in healthcheck, healthcheck
 assert f"look_first: {summary_path}" in healthcheck, healthcheck
 assert f"look_next: {manifest_path}" in healthcheck, healthcheck
 assert "helper: ./scripts/golem_host_last_snapshot.sh" in healthcheck, healthcheck
 assert "GOLEM HOST DIAGNOSIS" not in healthcheck, healthcheck
-assert len([line for line in healthcheck.splitlines() if line.strip()]) <= 12, healthcheck
+assert len([line for line in healthcheck.splitlines() if line.strip()]) <= 13, healthcheck
 
 assert "GOLEM HOST LAST SNAPSHOT" in helper, helper
 assert f"snapshot_dir: {snapshot_dir}" in helper, helper
 assert "trigger_reason: stack_healthcheck_failed" in helper, helper
 assert "gateway_context:" in helper, helper
 assert "gateway_last_signal:" in helper, helper
+assert "suggested_first_action: revisar healthcheck de whatsapp_bridge" in helper, helper
 assert f"look_first: {summary_path}" in helper, helper
 assert f"look_next: {manifest_path}" in helper, helper
 

@@ -24,6 +24,7 @@ Cada snapshot tambien registra:
 - `trigger_requested_at_utc`
 - `gateway_context`
 - `gateway_last_signal`
+- `suggested_first_action`
 
 El auto-disparo usa cooldown para evitar tormentas de snapshots identicos. Se puede inhibir con `GOLEM_HOST_AUTO_DIAGNOSE=0`.
 
@@ -32,5 +33,11 @@ Ruta rapida de lectura:
 1. `./scripts/golem_host_last_snapshot.sh`
 2. abrir `summary.txt`
 3. si hace falta mas detalle, abrir `manifest.json`
+
+Quick triage disponible:
+
+- `mirar journal de task_api` cuando la falla apunta a task API o no queda activa
+- `revisar healthcheck de whatsapp_bridge` cuando la falla apunta al bridge o no queda sano
+- `confirmar gateway RPC antes de reiniciar stack` cuando el contexto del gateway no confirma RPC
 
 Los directorios timestamped generados por el runner quedan fuera de Git por `.gitignore`.

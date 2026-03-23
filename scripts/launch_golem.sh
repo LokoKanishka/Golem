@@ -20,7 +20,7 @@ require_command() {
 run_auto_diagnose() {
   local reason="$1"
   local diagnose_output snapshot_path snapshot_summary snapshot_manifest timestamp_utc
-  local gateway_context gateway_last_signal
+  local gateway_context gateway_last_signal suggested_first_action
 
   diagnose_output="$(
     GOLEM_HOST_DIAG_TRIGGER_SOURCE="launch_golem" \
@@ -46,6 +46,7 @@ run_auto_diagnose() {
     timestamp_utc="$(sed -n 's/^trigger_requested_at_utc: //p' "$snapshot_summary" | tail -n 1)"
     gateway_context="$(sed -n 's/^gateway_context: //p' "$snapshot_summary" | tail -n 1)"
     gateway_last_signal="$(sed -n 's/^gateway_last_signal: //p' "$snapshot_summary" | tail -n 1)"
+    suggested_first_action="$(sed -n 's/^suggested_first_action: //p' "$snapshot_summary" | tail -n 1)"
     if [ -z "$timestamp_utc" ]; then
       timestamp_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     fi
@@ -55,9 +56,13 @@ run_auto_diagnose() {
     if [ -z "$gateway_last_signal" ]; then
       gateway_last_signal="(none)"
     fi
+    if [ -z "$suggested_first_action" ]; then
+      suggested_first_action="mirar summary.txt del ultimo snapshot"
+    fi
   else
     gateway_context="unavailable"
     gateway_last_signal="(none)"
+    suggested_first_action="mirar summary.txt del ultimo snapshot"
   fi
 
   printf 'GOLEM HOST FAILURE SUMMARY\n'
@@ -67,6 +72,7 @@ run_auto_diagnose() {
     "${GOLEM_WHATSAPP_BRIDGE_SERVICE_NAME:-golem-whatsapp-bridge.service}"
   printf 'gateway_context: %s\n' "$gateway_context"
   printf 'gateway_last_signal: %s\n' "$gateway_last_signal"
+  printf 'suggested_first_action: %s\n' "$suggested_first_action"
   printf 'snapshot: %s\n' "$snapshot_path"
   printf 'look_first: %s\n' "$snapshot_summary"
   printf 'look_next: %s\n' "$snapshot_manifest"

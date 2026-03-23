@@ -213,11 +213,13 @@ assert "trigger_mode: auto" in summary, summary
 assert "trigger_source: golem_host_stack_ctl" in summary, summary
 assert "trigger_reason: stack_healthcheck_failed" in summary, summary
 assert "overall: FAIL" in summary or "overall: WARN" in summary, summary
+assert "suggested_first_action: revisar healthcheck de whatsapp_bridge" in summary, summary
 
 manifest = json.loads((snapshot_dir / "manifest.json").read_text(encoding="utf-8"))
 assert manifest["trigger"]["mode"] == "auto", manifest
 assert manifest["trigger"]["source"] == "golem_host_stack_ctl", manifest
 assert manifest["trigger"]["reason"] == "stack_healthcheck_failed", manifest
+assert manifest["quick_triage"]["suggested_first_action"] == "revisar healthcheck de whatsapp_bridge", manifest
 assert manifest["task_api"]["service_name"] == api_service_name, manifest
 assert manifest["whatsapp_bridge"]["service_name"] == bridge_service_name, manifest
 assert manifest["whatsapp_bridge"]["health_exit_code"] != 0, manifest
