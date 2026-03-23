@@ -18,16 +18,27 @@ WHATSAPP_BRIDGE_AUDIT_FILE="${GOLEM_WHATSAPP_BRIDGE_AUDIT_FILE:-${REPO_ROOT}/sta
 
 DIAGNOSTICS_ROOT="${GOLEM_HOST_DIAGNOSTICS_ROOT:-${REPO_ROOT}/diagnostics/host}"
 JOURNAL_LINES="${GOLEM_HOST_DIAG_JOURNAL_LINES:-80}"
+AUTO_DIAG_STATE_FILE="${GOLEM_HOST_AUTO_DIAGNOSE_STATE_FILE:-${REPO_ROOT}/state/tmp/golem_host_diagnose_auto_state.json}"
+AUTO_DIAG_COOLDOWN_SECONDS="${GOLEM_HOST_AUTO_DIAGNOSE_COOLDOWN_SECONDS:-30}"
+
+LAST_SNAPSHOT_DIR=""
 
 usage() {
   cat <<'EOF'
 Usage:
   ./scripts/golem_host_diagnose.sh
-  ./scripts/golem_host_diagnose.sh snapshot
+  ./scripts/golem_host_diagnose.sh snapshot [--source <source>] [--reason <reason>]
+  ./scripts/golem_host_diagnose.sh auto --source <source> --reason <reason>
 
 Env overrides:
   GOLEM_HOST_DIAGNOSTICS_ROOT
   GOLEM_HOST_DIAG_JOURNAL_LINES
+  GOLEM_HOST_AUTO_DIAGNOSE
+  GOLEM_HOST_AUTO_DIAGNOSE_COOLDOWN_SECONDS
+  GOLEM_HOST_AUTO_DIAGNOSE_STATE_FILE
+  GOLEM_HOST_DIAG_DISABLE_AUTO
+  GOLEM_HOST_DIAG_TRIGGER_SOURCE
+  GOLEM_HOST_DIAG_TRIGGER_REASON
   GOLEM_TASK_API_SERVICE_NAME
   GOLEM_TASK_API_SERVICE_UNIT_PATH
   GOLEM_TASK_API_HOST
@@ -39,6 +50,15 @@ Env overrides:
   GOLEM_WHATSAPP_BRIDGE_RUNTIME_STATUS_FILE
   GOLEM_WHATSAPP_BRIDGE_AUDIT_FILE
 EOF
+}
+
+env_true() {
+  case "${1:-}" in
+    1|true|TRUE|yes|YES|on|ON)
+      return 0
+      ;;
+  esac
+  return 1
 }
 
 capture_split() {
@@ -61,28 +81,91 @@ write_text() {
   printf '%s\n' "$@" >"$target"
 }
 
-main() {
-  if [ "$#" -gt 1 ]; then
-    usage >&2
-    exit 2
-  fi
-  if [ "$#" -eq 1 ] && [ "$1" != "snapshot" ]; then
-    usage >&2
-    exit 2
-  fi
+sanitize_reason() {
+  local raw="${1:-}"
+  raw="${raw//$'\n'/ }"
+  raw="${raw//$'\r'/ }"
+  printf '%s\n' "$raw"
+}
+
+read_auto_state() {
+  python3 - "$AUTO_DIAG_STATE_FILE" <<'PY'
+import json
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+if not path.exists():
+    print("\t\t\t")
+    raise SystemExit(0)
+
+try:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+except Exception:
+    print("\t\t\t")
+    raise SystemExit(0)
+
+if not isinstance(payload, dict):
+    print("\t\t\t")
+    raise SystemExit(0)
+
+epoch = payload.get("last_trigger_epoch", "")
+source = str(payload.get("source", ""))
+reason = str(payload.get("reason", ""))
+snapshot = str(payload.get("snapshot_dir", ""))
+print(f"{epoch}\t{source}\t{reason}\t{snapshot}")
+PY
+}
+
+write_auto_state() {
+  local trigger_source="$1"
+  local trigger_reason="$2"
+  local snapshot_dir="$3"
+  local trigger_epoch="$4"
+
+  mkdir -p "$(dirname "$AUTO_DIAG_STATE_FILE")"
+
+  python3 - "$AUTO_DIAG_STATE_FILE" "$trigger_source" "$trigger_reason" "$snapshot_dir" "$trigger_epoch" <<'PY'
+import json
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+payload = {
+    "source": sys.argv[2],
+    "reason": sys.argv[3],
+    "snapshot_dir": sys.argv[4],
+    "last_trigger_epoch": int(sys.argv[5]),
+}
+path.write_text(json.dumps(payload, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
+PY
+}
+
+perform_snapshot() {
+  local trigger_mode="$1"
+  local trigger_source="$2"
+  local trigger_reason="$3"
+  local snapshot_ts snapshot_dir trigger_requested_at
 
   cd "$REPO_ROOT"
 
-  local snapshot_ts snapshot_dir
   snapshot_ts="$(date -u +%Y%m%dT%H%M%SZ)"
+  trigger_requested_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   snapshot_dir="${DIAGNOSTICS_ROOT}/${snapshot_ts}-golem-host-diagnose"
   mkdir -p "$snapshot_dir"
+
+  trigger_reason="$(sanitize_reason "$trigger_reason")"
 
   write_text "${snapshot_dir}/meta.env" \
     "snapshot_timestamp_utc=${snapshot_ts}" \
     "repo_root=${REPO_ROOT}" \
     "user=$(id -un)" \
     "hostname=$(hostname)" \
+    "trigger_mode=${trigger_mode}" \
+    "trigger_source=${trigger_source}" \
+    "trigger_reason=${trigger_reason}" \
+    "trigger_requested_at_utc=${trigger_requested_at}" \
+    "auto_cooldown_seconds=${AUTO_DIAG_COOLDOWN_SECONDS}" \
     "task_api_service_name=${TASK_API_SERVICE_NAME}" \
     "task_api_service_unit_path=${TASK_API_SERVICE_UNIT_PATH}" \
     "task_api_host=${TASK_API_HOST}" \
@@ -105,7 +188,7 @@ main() {
     "${snapshot_dir}/stack_healthcheck.txt" \
     "${snapshot_dir}/stack_healthcheck.stderr.txt" \
     "${snapshot_dir}/stack_healthcheck.exit_code" \
-    ./scripts/golem_host_stack_ctl.sh healthcheck
+    env GOLEM_HOST_AUTO_DIAGNOSE=0 GOLEM_HOST_DIAG_DISABLE_AUTO=1 ./scripts/golem_host_stack_ctl.sh healthcheck
 
   capture_split \
     "${snapshot_dir}/task_api_status.json" \
@@ -211,7 +294,7 @@ main() {
     "${snapshot_dir}/ports_listening.exit_code" \
     ss -ltnp
 
-  python3 - "$snapshot_dir" "$TASK_API_PORT" <<'PY'
+  python3 - "$snapshot_dir" "$TASK_API_PORT" "$trigger_mode" "$trigger_source" "$trigger_reason" "$trigger_requested_at" "$AUTO_DIAG_COOLDOWN_SECONDS" <<'PY'
 import json
 import pathlib
 import sys
@@ -219,6 +302,11 @@ from typing import Any
 
 snapshot_dir = pathlib.Path(sys.argv[1])
 task_api_port = sys.argv[2]
+trigger_mode = sys.argv[3]
+trigger_source = sys.argv[4]
+trigger_reason = sys.argv[5]
+trigger_requested_at = sys.argv[6]
+auto_cooldown_seconds = sys.argv[7]
 
 
 def read_text(name: str) -> str:
@@ -354,6 +442,11 @@ if task_api_active != "active" or bridge_active != "active":
 summary_lines = [
     "GOLEM HOST DIAGNOSIS",
     f"snapshot_dir: {snapshot_dir}",
+    f"trigger_mode: {trigger_mode}",
+    f"trigger_source: {trigger_source}",
+    f"trigger_reason: {trigger_reason}",
+    f"trigger_requested_at_utc: {trigger_requested_at}",
+    f"auto_cooldown_seconds: {auto_cooldown_seconds}",
     f"overall: {overall}",
     f"task_api_service: {task_api_status.get('service_name', '(unknown)')}",
     f"task_api_enabled: {task_api_status.get('service_enabled', task_api_props.get('UnitFileState', 'unknown'))}",
@@ -373,11 +466,18 @@ summary_lines = [
     f"stack_healthcheck: {'OK' if stack_health_exit == 0 else 'FAIL'}",
     f"ports_relevant_count: {len(port_lines)}",
     f"processes_relevant_count: {len(process_lines)}",
-  ]
+]
 (snapshot_dir / "summary.txt").write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
 
 manifest = {
     "snapshot_dir": str(snapshot_dir),
+    "trigger": {
+        "mode": trigger_mode,
+        "source": trigger_source,
+        "reason": trigger_reason,
+        "requested_at_utc": trigger_requested_at,
+        "auto_cooldown_seconds": int(float(auto_cooldown_seconds)),
+    },
     "overall": overall,
     "task_api": {
         "service_name": task_api_status.get("service_name"),
@@ -406,8 +506,103 @@ manifest = {
 (snapshot_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
 PY
 
+  LAST_SNAPSHOT_DIR="$snapshot_dir"
   cat "${snapshot_dir}/summary.txt"
   printf 'GOLEM_HOST_DIAGNOSE_SNAPSHOT %s\n' "$snapshot_dir"
+}
+
+command_snapshot() {
+  local trigger_source="$1"
+  local trigger_reason="$2"
+  perform_snapshot "manual" "$trigger_source" "$trigger_reason"
+}
+
+command_auto() {
+  local trigger_source="$1"
+  local trigger_reason="$2"
+  local now_epoch state_line last_epoch last_source last_reason last_snapshot remaining
+
+  if env_true "${GOLEM_HOST_DIAG_DISABLE_AUTO:-0}"; then
+    printf 'GOLEM_HOST_DIAGNOSE_AUTO_SKIPPED disabled source=%s reason=%s\n' "$trigger_source" "$trigger_reason"
+    return 0
+  fi
+
+  if ! env_true "${GOLEM_HOST_AUTO_DIAGNOSE:-1}"; then
+    printf 'GOLEM_HOST_DIAGNOSE_AUTO_SKIPPED disabled source=%s reason=%s\n' "$trigger_source" "$trigger_reason"
+    return 0
+  fi
+
+  now_epoch="$(date +%s)"
+  state_line="$(read_auto_state)"
+  last_epoch="$(printf '%s' "$state_line" | cut -f1)"
+  last_source="$(printf '%s' "$state_line" | cut -f2)"
+  last_reason="$(printf '%s' "$state_line" | cut -f3)"
+  last_snapshot="$(printf '%s' "$state_line" | cut -f4)"
+
+  if [ -n "$last_epoch" ] && [ "$last_source" = "$trigger_source" ] && [ "$last_reason" = "$trigger_reason" ]; then
+    if [ $((now_epoch - last_epoch)) -lt "${AUTO_DIAG_COOLDOWN_SECONDS%.*}" ]; then
+      remaining=$(( ${AUTO_DIAG_COOLDOWN_SECONDS%.*} - (now_epoch - last_epoch) ))
+      printf 'GOLEM_HOST_DIAGNOSE_AUTO_SKIPPED cooldown_seconds_remaining=%s source=%s reason=%s last_snapshot=%s\n' \
+        "$remaining" "$trigger_source" "$trigger_reason" "${last_snapshot:-"(none)"}"
+      return 0
+    fi
+  fi
+
+  perform_snapshot "auto" "$trigger_source" "$trigger_reason"
+  write_auto_state "$trigger_source" "$trigger_reason" "$LAST_SNAPSHOT_DIR" "$now_epoch"
+  printf 'GOLEM_HOST_DIAGNOSE_AUTO_TRIGGERED snapshot=%s source=%s reason=%s\n' \
+    "$LAST_SNAPSHOT_DIR" "$trigger_source" "$trigger_reason"
+}
+
+main() {
+  local command="snapshot"
+  local trigger_source="${GOLEM_HOST_DIAG_TRIGGER_SOURCE:-manual}"
+  local trigger_reason="${GOLEM_HOST_DIAG_TRIGGER_REASON:-manual_request}"
+
+  if [ "$#" -gt 0 ]; then
+    case "$1" in
+      snapshot)
+        command="snapshot"
+        shift
+        ;;
+      auto)
+        command="auto"
+        shift
+        ;;
+      *)
+        usage >&2
+        exit 2
+        ;;
+    esac
+  fi
+
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --source)
+        [ "$#" -ge 2 ] || { usage >&2; exit 2; }
+        trigger_source="$2"
+        shift 2
+        ;;
+      --reason)
+        [ "$#" -ge 2 ] || { usage >&2; exit 2; }
+        trigger_reason="$2"
+        shift 2
+        ;;
+      *)
+        usage >&2
+        exit 2
+        ;;
+    esac
+  done
+
+  case "$command" in
+    snapshot)
+      command_snapshot "$trigger_source" "$trigger_reason"
+      ;;
+    auto)
+      command_auto "$trigger_source" "$trigger_reason"
+      ;;
+  esac
 }
 
 main "$@"

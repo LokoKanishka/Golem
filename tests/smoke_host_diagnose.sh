@@ -133,6 +133,9 @@ for name in required:
 
 summary = (snapshot_dir / "summary.txt").read_text(encoding="utf-8")
 assert "GOLEM HOST DIAGNOSIS" in summary, summary
+assert "trigger_mode: manual" in summary, summary
+assert "trigger_source: golem_host_stack_ctl" in summary, summary
+assert "trigger_reason: manual_stack_diagnose" in summary, summary
 assert "overall: OK" in summary, summary
 assert f"task_api_service: {api_service_name}" in summary, summary
 assert f"whatsapp_bridge_service: {bridge_service_name}" in summary, summary
@@ -141,6 +144,9 @@ assert "whatsapp_bridge_health: OK" in summary, summary
 
 manifest = json.loads((snapshot_dir / "manifest.json").read_text(encoding="utf-8"))
 assert manifest["overall"] == "OK", manifest
+assert manifest["trigger"]["mode"] == "manual", manifest
+assert manifest["trigger"]["source"] == "golem_host_stack_ctl", manifest
+assert manifest["trigger"]["reason"] == "manual_stack_diagnose", manifest
 assert manifest["task_api"]["service_name"] == api_service_name, manifest
 assert manifest["task_api"]["health_exit_code"] == 0, manifest
 assert manifest["whatsapp_bridge"]["service_name"] == bridge_service_name, manifest

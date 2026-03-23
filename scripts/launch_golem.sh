@@ -17,6 +17,16 @@ require_command() {
   fi
 }
 
+run_auto_diagnose() {
+  local reason="$1"
+
+  GOLEM_HOST_DIAG_TRIGGER_SOURCE="launch_golem" \
+  GOLEM_HOST_DIAG_TRIGGER_REASON="$reason" \
+  "${REPO_ROOT}/scripts/golem_host_diagnose.sh" auto \
+    --source "launch_golem" \
+    --reason "$reason" || true
+}
+
 extract_dashboard_url() {
   local dashboard_raw
   local dashboard_url
@@ -64,12 +74,13 @@ ensure_local_task_stack_active() {
   "${REPO_ROOT}/scripts/golem_host_stack_ctl.sh" start
 
   for attempt in 1 2 3 4 5 6 7 8 9 10; do
-    if "${REPO_ROOT}/scripts/golem_host_stack_ctl.sh" healthcheck >/dev/null 2>&1; then
+    if GOLEM_HOST_AUTO_DIAGNOSE=0 "${REPO_ROOT}/scripts/golem_host_stack_ctl.sh" healthcheck >/dev/null 2>&1; then
       return 0
     fi
     sleep 1
   done
 
+  run_auto_diagnose "stack_startup_timeout"
   printf 'ERROR: el stack local task api + bridge no quedó sano a tiempo.\n' >&2
   exit 1
 }
@@ -78,6 +89,8 @@ main() {
   local dashboard_url
   local self_check_output
   local self_check_status
+  local task_api_self_check
+  local bridge_self_check
   local launch_summary
 
   require_command openclaw
@@ -104,6 +117,18 @@ main() {
   self_check_status="$(printf '%s\n' "$self_check_output" | sed -n 's/^estado_general: //p' | tail -n 1)"
   if [ -z "$self_check_status" ]; then
     self_check_status="UNKNOWN"
+  fi
+  task_api_self_check="$(printf '%s\n' "$self_check_output" | sed -n 's/^task_api: \([A-Z]*\).*/\1/p' | tail -n 1)"
+  bridge_self_check="$(printf '%s\n' "$self_check_output" | sed -n 's/^whatsapp_bridge_service: \([A-Z]*\).*/\1/p' | tail -n 1)"
+  if [ -z "$task_api_self_check" ]; then
+    task_api_self_check="UNKNOWN"
+  fi
+  if [ -z "$bridge_self_check" ]; then
+    bridge_self_check="UNKNOWN"
+  fi
+
+  if [ "$self_check_status" = "FAIL" ] || [ "$task_api_self_check" != "OK" ] || [ "$bridge_self_check" != "OK" ]; then
+    run_auto_diagnose "self_check_status=${self_check_status};task_api=${task_api_self_check};whatsapp_bridge_service=${bridge_self_check}"
   fi
 
   launch_summary="SUMMARY GOLEM"

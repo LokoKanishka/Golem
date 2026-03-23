@@ -84,6 +84,36 @@ Cada ejecucion deja un snapshot timestamped en `diagnostics/host/` con:
 
 El runner no intenta corregir el host. En esta fase solo congela evidencia util y persistente para auditoria local rapida.
 
+## Diagnostico automatico por falla
+
+El carril diario ahora dispara snapshot automatico cuando falla alguno de estos puntos:
+
+- `golem_host_stack_ctl.sh start`
+- `golem_host_stack_ctl.sh healthcheck`
+- `golem_host_stack_ctl.sh restart`
+- la espera de startup del stack desde `scripts/launch_golem.sh`
+- el `self_check` del launcher cuando `task_api` o `whatsapp_bridge_service` no quedan en `OK`, o cuando el estado general cae en `FAIL`
+
+El snapshot automatico se genera con:
+
+```bash
+./scripts/golem_host_diagnose.sh auto --source <source> --reason <reason>
+```
+
+Guardas de este tramo:
+
+- cooldown por defecto de 30 segundos para evitar spam de snapshots iguales;
+- registro del ultimo disparo en `state/tmp/golem_host_diagnose_auto_state.json`;
+- `GOLEM_HOST_DIAG_DISABLE_AUTO=1` para evitar recursion interna durante el propio diagnostico;
+- `GOLEM_HOST_AUTO_DIAGNOSE=0` si hace falta inhibir el auto-disparo temporalmente.
+
+Cada snapshot deja visible en `summary.txt` y `manifest.json`:
+
+- `trigger_mode`
+- `trigger_source`
+- `trigger_reason`
+- `trigger_requested_at_utc`
+
 ## Self Check
 
 `./scripts/self_check.sh` ahora informa tambien:

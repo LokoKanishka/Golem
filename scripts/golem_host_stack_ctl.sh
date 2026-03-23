@@ -37,6 +37,8 @@ Env overrides:
   GOLEM_WHATSAPP_BRIDGE_STATE_FILE
   GOLEM_WHATSAPP_BRIDGE_RUNTIME_STATUS_FILE
   GOLEM_WHATSAPP_BRIDGE_AUDIT_FILE
+  GOLEM_HOST_AUTO_DIAGNOSE
+  GOLEM_HOST_AUTO_DIAGNOSE_COOLDOWN_SECONDS
 EOF
 }
 
@@ -60,13 +62,42 @@ run_bridge_ctl() {
     --audit-file "${WHATSAPP_BRIDGE_AUDIT_FILE}"
 }
 
+trigger_auto_diagnose() {
+  local reason="$1"
+  GOLEM_HOST_DIAG_TRIGGER_SOURCE="golem_host_stack_ctl" \
+  GOLEM_HOST_DIAG_TRIGGER_REASON="$reason" \
+  "${REPO_ROOT}/scripts/golem_host_diagnose.sh" auto \
+    --source "golem_host_stack_ctl" \
+    --reason "$reason" || true
+}
+
+stack_healthcheck_raw() {
+  local exit_code=0
+
+  if ! run_task_api_ctl healthcheck >/dev/null; then
+    exit_code=1
+  fi
+  if ! run_bridge_ctl healthcheck >/dev/null; then
+    exit_code=1
+  fi
+
+  return "${exit_code}"
+}
+
 command_start() {
-  run_task_api_ctl start >/dev/null
-  if ! run_bridge_ctl start >/dev/null; then
-    run_task_api_ctl stop >/dev/null 2>&1 || true
+  if ! run_task_api_ctl start >/dev/null; then
+    trigger_auto_diagnose "task_api_start_failed"
     return 1
   fi
-  command_healthcheck >/dev/null
+  if ! run_bridge_ctl start >/dev/null; then
+    run_task_api_ctl stop >/dev/null 2>&1 || true
+    trigger_auto_diagnose "whatsapp_bridge_start_failed"
+    return 1
+  fi
+  if ! stack_healthcheck_raw; then
+    trigger_auto_diagnose "stack_healthcheck_failed_after_start"
+    return 1
+  fi
   printf 'GOLEM_HOST_STACK_STARTED task_api=%s bridge=%s base_url=%s\n' \
     "${TASK_API_SERVICE_NAME}" "${WHATSAPP_BRIDGE_SERVICE_NAME}" "${WHATSAPP_BRIDGE_BASE_URL}"
 }
@@ -87,10 +118,18 @@ command_stop() {
 }
 
 command_restart() {
-  run_task_api_ctl restart >/dev/null
-  run_bridge_ctl restart >/dev/null
-  run_bridge_ctl healthcheck >/dev/null
-  run_task_api_ctl healthcheck >/dev/null
+  if ! run_task_api_ctl restart >/dev/null; then
+    trigger_auto_diagnose "task_api_restart_failed"
+    return 1
+  fi
+  if ! run_bridge_ctl restart >/dev/null; then
+    trigger_auto_diagnose "whatsapp_bridge_restart_failed"
+    return 1
+  fi
+  if ! stack_healthcheck_raw; then
+    trigger_auto_diagnose "stack_healthcheck_failed_after_restart"
+    return 1
+  fi
   printf 'GOLEM_HOST_STACK_RESTARTED task_api=%s bridge=%s\n' \
     "${TASK_API_SERVICE_NAME}" "${WHATSAPP_BRIDGE_SERVICE_NAME}"
 }
@@ -105,14 +144,20 @@ command_status() {
 }
 
 command_healthcheck() {
-  run_task_api_ctl healthcheck >/dev/null
-  run_bridge_ctl healthcheck >/dev/null
+  if ! stack_healthcheck_raw; then
+    trigger_auto_diagnose "stack_healthcheck_failed"
+    return 1
+  fi
   printf 'GOLEM_HOST_STACK_HEALTHCHECK_OK task_api=%s bridge=%s\n' \
     "${TASK_API_SERVICE_NAME}" "${WHATSAPP_BRIDGE_SERVICE_NAME}"
 }
 
 command_diagnose() {
-  "${REPO_ROOT}/scripts/golem_host_diagnose.sh" snapshot
+  GOLEM_HOST_DIAG_TRIGGER_SOURCE="golem_host_stack_ctl" \
+  GOLEM_HOST_DIAG_TRIGGER_REASON="manual_stack_diagnose" \
+  "${REPO_ROOT}/scripts/golem_host_diagnose.sh" snapshot \
+    --source "golem_host_stack_ctl" \
+    --reason "manual_stack_diagnose"
 }
 
 main() {
