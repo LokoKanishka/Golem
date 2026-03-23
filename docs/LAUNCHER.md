@@ -72,6 +72,12 @@ Tambien puede invocarse desde el mismo carril diario:
 ./scripts/golem_host_stack_ctl.sh diagnose
 ```
 
+Y para recuperar rapido el ultimo snapshot util:
+
+```bash
+./scripts/golem_host_last_snapshot.sh
+```
+
 Cada ejecucion deja un snapshot timestamped en `diagnostics/host/` con:
 
 - `summary.txt`
@@ -113,6 +119,16 @@ Cada snapshot deja visible en `summary.txt` y `manifest.json`:
 - `trigger_source`
 - `trigger_reason`
 - `trigger_requested_at_utc`
+
+Cuando una falla del stack dispara auto-diagnostico, `golem_host_stack_ctl.sh` y `launch_golem.sh` ahora imprimen un bloque corto y consistente con:
+
+- motivo breve
+- servicios afectados
+- ruta del snapshot
+- `look_first` apuntando a `summary.txt`
+- `look_next` apuntando a `manifest.json`
+- timestamp
+- helper rapido `./scripts/golem_host_last_snapshot.sh`
 
 ## Self Check
 

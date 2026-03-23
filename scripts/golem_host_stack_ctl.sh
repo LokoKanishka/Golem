@@ -64,11 +64,43 @@ run_bridge_ctl() {
 
 trigger_auto_diagnose() {
   local reason="$1"
-  GOLEM_HOST_DIAG_TRIGGER_SOURCE="golem_host_stack_ctl" \
-  GOLEM_HOST_DIAG_TRIGGER_REASON="$reason" \
-  "${REPO_ROOT}/scripts/golem_host_diagnose.sh" auto \
+  local diagnose_output snapshot_path snapshot_summary snapshot_manifest timestamp_utc
+
+  diagnose_output="$(
+    GOLEM_HOST_DIAG_TRIGGER_SOURCE="golem_host_stack_ctl" \
+    GOLEM_HOST_DIAG_TRIGGER_REASON="$reason" \
+    "${REPO_ROOT}/scripts/golem_host_diagnose.sh" auto \
     --source "golem_host_stack_ctl" \
-    --reason "$reason" || true
+    --reason "$reason" 2>&1 || true
+  )"
+  printf '%s\n' "$diagnose_output" >&2
+
+  snapshot_path="$(printf '%s\n' "$diagnose_output" | sed -n 's/^GOLEM_HOST_DIAGNOSE_SNAPSHOT //p' | tail -n 1)"
+  if [ -z "$snapshot_path" ]; then
+    snapshot_path="$(GOLEM_HOST_DIAGNOSTICS_ROOT="${GOLEM_HOST_DIAGNOSTICS_ROOT:-${REPO_ROOT}/diagnostics/host}" "${REPO_ROOT}/scripts/golem_host_last_snapshot.sh" path 2>/dev/null || true)"
+  fi
+  if [ -z "$snapshot_path" ]; then
+    snapshot_path="(none)"
+  fi
+
+  snapshot_summary="${snapshot_path}/summary.txt"
+  snapshot_manifest="${snapshot_path}/manifest.json"
+  timestamp_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  if [ -f "$snapshot_summary" ]; then
+    timestamp_utc="$(sed -n 's/^trigger_requested_at_utc: //p' "$snapshot_summary" | tail -n 1)"
+    if [ -z "$timestamp_utc" ]; then
+      timestamp_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    fi
+  fi
+
+  printf 'GOLEM HOST FAILURE SUMMARY\n' >&2
+  printf 'reason: %s\n' "$reason" >&2
+  printf 'services: task_api=%s whatsapp_bridge=%s\n' "${TASK_API_SERVICE_NAME}" "${WHATSAPP_BRIDGE_SERVICE_NAME}" >&2
+  printf 'snapshot: %s\n' "$snapshot_path" >&2
+  printf 'look_first: %s\n' "$snapshot_summary" >&2
+  printf 'look_next: %s\n' "$snapshot_manifest" >&2
+  printf 'timestamp_utc: %s\n' "$timestamp_utc" >&2
+  printf 'helper: ./scripts/golem_host_last_snapshot.sh\n' >&2
 }
 
 stack_healthcheck_raw() {

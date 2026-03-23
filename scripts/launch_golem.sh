@@ -19,12 +19,45 @@ require_command() {
 
 run_auto_diagnose() {
   local reason="$1"
+  local diagnose_output snapshot_path snapshot_summary snapshot_manifest timestamp_utc
 
-  GOLEM_HOST_DIAG_TRIGGER_SOURCE="launch_golem" \
-  GOLEM_HOST_DIAG_TRIGGER_REASON="$reason" \
-  "${REPO_ROOT}/scripts/golem_host_diagnose.sh" auto \
+  diagnose_output="$(
+    GOLEM_HOST_DIAG_TRIGGER_SOURCE="launch_golem" \
+    GOLEM_HOST_DIAG_TRIGGER_REASON="$reason" \
+    "${REPO_ROOT}/scripts/golem_host_diagnose.sh" auto \
     --source "launch_golem" \
-    --reason "$reason" || true
+    --reason "$reason" 2>&1 || true
+  )"
+  printf '%s\n' "$diagnose_output"
+
+  snapshot_path="$(printf '%s\n' "$diagnose_output" | sed -n 's/^GOLEM_HOST_DIAGNOSE_SNAPSHOT //p' | tail -n 1)"
+  if [ -z "$snapshot_path" ]; then
+    snapshot_path="$(GOLEM_HOST_DIAGNOSTICS_ROOT="${GOLEM_HOST_DIAGNOSTICS_ROOT:-${REPO_ROOT}/diagnostics/host}" "${REPO_ROOT}/scripts/golem_host_last_snapshot.sh" path 2>/dev/null || true)"
+  fi
+  if [ -z "$snapshot_path" ]; then
+    snapshot_path="(none)"
+  fi
+
+  snapshot_summary="${snapshot_path}/summary.txt"
+  snapshot_manifest="${snapshot_path}/manifest.json"
+  timestamp_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  if [ -f "$snapshot_summary" ]; then
+    timestamp_utc="$(sed -n 's/^trigger_requested_at_utc: //p' "$snapshot_summary" | tail -n 1)"
+    if [ -z "$timestamp_utc" ]; then
+      timestamp_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    fi
+  fi
+
+  printf 'GOLEM HOST FAILURE SUMMARY\n'
+  printf 'reason: %s\n' "$reason"
+  printf 'services: task_api=%s whatsapp_bridge=%s\n' \
+    "${GOLEM_TASK_API_SERVICE_NAME:-golem-task-panel-http.service}" \
+    "${GOLEM_WHATSAPP_BRIDGE_SERVICE_NAME:-golem-whatsapp-bridge.service}"
+  printf 'snapshot: %s\n' "$snapshot_path"
+  printf 'look_first: %s\n' "$snapshot_summary"
+  printf 'look_next: %s\n' "$snapshot_manifest"
+  printf 'timestamp_utc: %s\n' "$timestamp_utc"
+  printf 'helper: ./scripts/golem_host_last_snapshot.sh\n'
 }
 
 extract_dashboard_url() {
