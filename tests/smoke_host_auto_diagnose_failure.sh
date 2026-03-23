@@ -223,6 +223,9 @@ assert "DO FIRST:" in summary, summary
 assert "DO NEXT:" in summary, summary
 assert "READ FIRST:" in summary, summary
 assert "READ NEXT:" in summary, summary
+assert "DETAILS:" in summary, summary
+assert "gateway_context: active, runtime running, rpc ok | gateway_last_signal: RPC probe: ok" in summary, summary
+assert "task_api_active: active | whatsapp_bridge_active: inactive" in summary, summary
 assert f"look_first: {summary_path}" in summary, summary
 assert f"look_next: {manifest_path}" in summary, summary
 assert summary.index("SNAPSHOT:") < summary.index("CURRENT CONTEXT:"), summary
@@ -230,6 +233,7 @@ assert summary.index("CURRENT CONTEXT:") < summary.index("DO FIRST:"), summary
 assert summary.index("DO FIRST:") < summary.index("DO NEXT:"), summary
 assert summary.index("DO NEXT:") < summary.index("READ FIRST:"), summary
 assert summary.index("READ FIRST:") < summary.index("READ NEXT:"), summary
+assert summary.index("READ NEXT:") < summary.index("DETAILS:"), summary
 
 manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 assert manifest["trigger"]["mode"] == "auto", manifest

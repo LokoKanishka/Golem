@@ -69,8 +69,9 @@ if manifest_path.exists():
 
 def summary_value(prefix: str) -> str:
     for line in summary_text.splitlines():
-        if line.startswith(prefix):
-            return line.split(": ", 1)[1]
+        for segment in line.split(" | "):
+            if segment.startswith(prefix + ": "):
+                return segment.split(": ", 1)[1]
     return ""
 
 payload = {
@@ -98,58 +99,48 @@ elif mode == "json":
     print(json.dumps(payload, ensure_ascii=True, indent=2))
 else:
     print("GOLEM HOST LAST SNAPSHOT")
-    sections = (
-        (
-            "SNAPSHOT",
-            (
-                "snapshot_dir",
-                "timestamp_utc",
-                "trigger_mode",
-                "trigger_source",
-                "trigger_reason",
-                "overall",
-            ),
-        ),
-        (
-            "CURRENT CONTEXT",
-            (
-                "gateway_context",
-                "gateway_last_signal",
-                "task_api_active",
-                "whatsapp_bridge_active",
-            ),
-        ),
-        (
-            "DO FIRST",
-            (
-                "suggested_first_action",
-            ),
-        ),
-        (
-            "DO NEXT",
-            (
-                "second_action",
-            ),
-        ),
-        (
-            "READ FIRST",
-            (
-                "look_first",
-            ),
-        ),
-        (
-            "READ NEXT",
-            (
-                "look_next",
-            ),
-        ),
+    print()
+    print("SNAPSHOT:")
+    for key in (
+        "snapshot_dir",
+        "timestamp_utc",
+        "trigger_mode",
+        "trigger_source",
+        "trigger_reason",
+        "overall",
+    ):
+        print(f"{key}: {payload[key] or '(none)'}")
+
+    print()
+    print("CURRENT CONTEXT:")
+    print(
+        "gateway_context: "
+        f"{payload['gateway_context'] or '(none)'}"
+        " | gateway_last_signal: "
+        f"{payload['gateway_last_signal'] or '(none)'}"
+    )
+    print(
+        "task_api_active: "
+        f"{payload['task_api_active'] or '(none)'}"
+        " | whatsapp_bridge_active: "
+        f"{payload['whatsapp_bridge_active'] or '(none)'}"
     )
 
-    for heading, keys in sections:
-        print()
-        print(f"{heading}:")
-        for key in keys:
-            print(f"{key}: {payload[key] or '(none)'}")
+    print()
+    print("DO FIRST:")
+    print(f"suggested_first_action: {payload['suggested_first_action'] or '(none)'}")
+
+    print()
+    print("DO NEXT:")
+    print(f"second_action: {payload['second_action'] or '(none)'}")
+
+    print()
+    print("READ FIRST:")
+    print(f"look_first: {payload['look_first'] or '(none)'}")
+
+    print()
+    print("READ NEXT:")
+    print(f"look_next: {payload['look_next'] or '(none)'}")
 PY
 }
 

@@ -196,6 +196,8 @@ assert f"snapshot_dir: {snapshot_dir}" in helper, helper
 assert "trigger_reason: stack_healthcheck_failed" in helper, helper
 assert "gateway_context:" in helper, helper
 assert "gateway_last_signal:" in helper, helper
+assert "gateway_context: active, runtime running, rpc ok | gateway_last_signal: RPC probe: ok" in helper, helper
+assert "task_api_active: active | whatsapp_bridge_active: inactive" in helper, helper
 assert "suggested_first_action: revisar healthcheck de whatsapp_bridge" in helper, helper
 assert "second_action: mirar journal del servicio whatsapp_bridge" in helper, helper
 assert f"look_first: {summary_path}" in helper, helper

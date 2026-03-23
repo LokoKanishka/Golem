@@ -141,6 +141,7 @@ El helper del ultimo snapshot puede profundizar un paso mas sin ensuciar esa sal
 - ordena la lectura por prioridad: contexto, accion primero, accion despues, leer primero, leer despues
 
 El `summary.txt` persistido del snapshot sigue ahora esa misma prioridad visual, para que el operador no tenga que reaprender el orden al pasar del helper al artefacto guardado.
+El bloque `CURRENT CONTEXT` se mantiene compacto para el primer pantallazo, y deja el detalle operativo mas largo en la parte baja del `summary.txt`.
 
 ## Self Check
 

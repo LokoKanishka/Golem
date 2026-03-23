@@ -48,5 +48,6 @@ Pulido fino del helper:
 - sale de la misma evidencia del snapshot, con reglas chicas y auditables
 - la vista rapida del helper agrupa por prioridad operativa: snapshot, contexto, hacer primero, hacer despues, leer primero y leer despues
 - `summary.txt` sigue el mismo orden visual para que helper y snapshot se lean igual bajo estres
+- `CURRENT CONTEXT` se compacta en una lectura corta de gateway y estado del stack, dejando el detalle completo mas abajo
 
 Los directorios timestamped generados por el runner quedan fuera de Git por `.gitignore`.
