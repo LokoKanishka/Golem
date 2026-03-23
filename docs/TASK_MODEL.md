@@ -1,17 +1,12 @@
 # Task Model
 
-Golem todavía no tiene un worker vivo integrado, pero ya necesita una nocion formal y local de tarea.
+Golem ya opera con tareas canonicas en repo.
 
-Esta primera fundacion vive completamente dentro del repo y no depende de OpenClaw ni de Codex en tiempo de ejecucion.
+Este documento describe el modelo vigente despues del cierre de transicion del carril de tareas.
 
 ## Objetivo
 
-Tener una representacion minima, estable y versionable de una tarea para:
-
-- registrar trabajo pendiente o en curso
-- mostrar estado
-- actualizar progreso basico
-- dejar una base clara para una integracion futura con sesiones canonicas y workers
+Tener una representacion versionada, auditable y coherente con el estado operativo real.
 
 ## Ubicacion
 
@@ -23,28 +18,37 @@ Formato de nombre:
 tasks/<task_id>.json
 ```
 
-## Campos minimos
+## Forma canonica vigente
 
-Cada tarea incluye estos campos:
+La forma canonica minima sigue siendo repo-governed y strict-validatable por `scripts/task_validate.sh`.
 
-- `task_id`
+Campos base:
+
+- `id`
+- `title`
+- `objective`
+- `status`
+- `owner`
+- `source_channel`
+- `created_at`
+- `updated_at`
+- `acceptance_criteria`
+- `evidence`
+- `artifacts`
+- `closure_note`
+- `history`
+
+Campos operativos admitidos en el carril actual:
+
+- `task_id` como alias compatible del id
 - `type`
 - `origin`
 - `canonical_session`
 - `parent_task_id`
 - `depends_on`
-- `status`
-- `created_at`
-- `updated_at`
-- `title`
-- `objective`
 - `inputs`
 - `outputs`
-- `artifacts`
 - `notes`
-
-Campo opcional cuando aplica:
-
 - `handoff`
 - `delivery`
 - `media`
@@ -59,108 +63,11 @@ Campo opcional cuando aplica:
 - `chain_summary`
 - `worker_run`
 
-Los `outputs` tambien pueden incluir resultados manuales de worker, por ejemplo una entrada `worker-result` con `source: codex_manual`, `status` y `summary`.
-
-Las tareas raiz de cadena tambien pueden persistir:
-
-- `chain_type` para identificar el tipo de cadena ejecutada
-- `chain_status` para reflejar el estado interno de la orquestacion
-- `chain_plan` para declarar los steps previstos y su metadata
-- `chain_summary` para dejar una vista agregada de las child tasks
-
-Las child tasks creadas como parte de una cadena tambien pueden persistir:
-
-- `step_name` para mapearlas a un paso del plan
-- `step_order` para mantener orden estable
-- `critical` para definir si su falla rompe la cadena
-- `execution_mode` para distinguir `local` de `worker`
-
-Las tareas delegadas que entran en corrida controlada de Codex tambien pueden persistir:
-
-- `worker_run` con paths de ticket/prompt/log
-- comando ejecutado
-- timestamps de inicio y fin
-- `exit_code`
-- estado interno de la corrida
-- `result_status`
-- `sandbox_mode`
-- `decision_source`
-- `policy_version`
-
-Las tareas tambien pueden persistir un submodelo canónico de entrega user-facing en:
-
-- `delivery.protocol_version`
-- `delivery.minimum_user_facing_success_state`
-- `delivery.current_state`
-- `delivery.user_facing_ready`
-- `delivery.visible_artifact_required`
-- `delivery.visible_artifact_ready`
-- `delivery.visible_artifact_deliveries`
-- `delivery.whatsapp`
-- `delivery.transitions`
-- `delivery.claim_history`
-
-Ese bloque no reemplaza `status`. Sirve para separar la aceptacion tecnica de la entrega real percibida por el usuario.
-
-Las tareas tambien pueden persistir un submodelo canónico de screenshot host-side en:
-
-- `screenshot.protocol_version`
-- `screenshot.required`
-- `screenshot.current_state`
-- `screenshot.ready_for_claim`
-- `screenshot.items`
-- `screenshot.events`
-- `screenshot.last_transition_at`
-- `screenshot.last_verified_at`
-- `screenshot.block_reason`
-- `screenshot.fail_reason`
-
-Ese bloque separa la simple captura host-side de la verdad visual verificada.
-
-La lectura operativa agregada de esas lanes user-facing vive por fuera del task individual y se obtiene con `./scripts/verify_user_facing_readiness.sh`.
-
-Cuando la tarea exige una entrega de artifact visible al usuario, `delivery.visible_artifact_deliveries` persiste la evidencia canónica de:
-
-- destino pedido
-- ruta resuelta
-- ruta normalizada
-- verificacion de existencia y lectura
-- owner observado
-- resultado final `PASS`, `BLOCKED` o `FAIL`
-
-Cuando la tarea depende de verdad de canal por WhatsApp, `delivery.whatsapp` persiste la evidencia canónica de:
-
-- state actual del canal
-- confidence del delivery
-- status y razon de provider proof
-- claim user-facing permitido
-- `message_id` rastreado
-- provider y destinatario
-- intentos y claims auditables por task
-
-Las tareas también pueden persistir un submodelo canónico de media en:
-
-- `media.protocol_version`
-- `media.required`
-- `media.current_state`
-- `media.ready`
-- `media.allowed_for_delivery`
-- `media.items`
-- `media.events`
-
-Ese bloque deja identidad material auditable para archivos y adjuntos antes de usarlos en un canal posterior.
-
-El estado interno recomendado de `worker_run.state` en esta etapa es:
-
-- `ready`
-- `running`
-- `finished`
-- `failed`
-
 ## Estados validos
 
-La primera version valida solamente estos estados:
+El carril vigente acepta:
 
+- `todo`
 - `queued`
 - `running`
 - `blocked`
@@ -168,38 +75,17 @@ La primera version valida solamente estos estados:
 - `worker_running`
 - `done`
 - `failed`
+- `canceled`
 - `cancelled`
 
-Semantica practica de esta etapa:
+`status` sigue siendo una lectura tecnica.
+La verdad user-facing vive en `delivery`.
 
-- `pending` es la idea general de algo pendiente; el estado persistido equivalente es `queued`
-- `blocked` significa que la tarea no pudo avanzar por una precondicion externa u operativa no satisfecha
-- `failed` queda reservado para falla interna real o para una ejecucion no exitosa despues de haber podido correr
+## Entry Point Canonico
 
-En runners que quieran una senal maquina estable, `blocked` puede aparecer junto con `outputs[].exit_code = 2`.
-
-Las tareas raiz de cadena tambien pueden cerrar como `blocked` cuando una precondicion externa impide completar un paso critico sin que exista una falla interna real del motor.
-
-Importante:
-
-- `done` no significa automaticamente `visible`
-- `accepted` y `delivered` no significan automaticamente exito percibido por el usuario
-- el claim final de exito user-facing debe pasar por el submodelo `delivery` y alcanzar al menos `visible`
-
-Tambien pueden quedar en `delegated` cuando la cadena ya avanzo hasta un paso worker manual-controlado y todavia espera un resultado registrado de ese worker.
-
-Cuando ese resultado ya existe, la raiz de cadena puede volver a `running` mediante una reanudacion explicita y cerrar luego como `done`, `failed` o `blocked` segun el outcome real del worker y de los pasos restantes.
-
-## Convenciones iniciales
-
-- `origin` se inicializa como `local`
-- `canonical_session` se inicializa vacio
-- `parent_task_id` se inicializa vacio si no aplica
-- `depends_on` se inicializa como lista vacia
-- `objective` arranca igual al `title`
-- `inputs`, `outputs`, `artifacts` y `notes` arrancan como listas vacias
-- `handoff` es opcional y aparece solo cuando una tarea queda preparada para `worker_future`
-- `created_at` y `updated_at` usan timestamp UTC ISO 8601
+- `./scripts/task_create.sh` es el entrypoint canonico.
+- `./scripts/task_new.sh` queda solo como wrapper de compatibilidad.
+- Las tareas nuevas deben nacer ya en forma strict-validatable.
 
 ## Relacion minima entre tareas
 
@@ -226,19 +112,14 @@ Solo dejan trazabilidad estructural para coordinacion local y futura orquestacio
 
 ## Scripts
 
-La base operativa minima queda cubierta por:
+La base operativa actual queda cubierta por:
 
-- `./scripts/task_new.sh <type> <title>`
+- `./scripts/task_create.sh "Title" "Objective" --type <task_type>`
 - `./scripts/task_show.sh <task_id>`
 - `./scripts/task_list.sh`
 - `./scripts/task_update.sh <task_id> <status>`
-- `./scripts/task_record_delivery_transition.sh <task_id> <state> <actor> <channel> <evidence>`
-- `./scripts/task_delivery_summary.sh <task_id>`
-- `./scripts/task_claim_user_facing_success.sh <task_id> <actor> <channel> <evidence> [claim]`
+- `./scripts/task_validate.sh --all --strict`
 - `./scripts/task_spawn_child.sh <parent_task_id> <type> <title>`
-- `./scripts/task_tree.sh <task_id>`
-- `./scripts/task_chain_plan.sh <chain_type> <title>`
-- `./scripts/task_chain_status.sh <task_id>`
 
 ## Reglas de implementacion
 
@@ -250,10 +131,6 @@ La base operativa minima queda cubierta por:
 
 ## Alcance actual
 
-Esto no es todavia un scheduler, ni una cola de workers, ni una integracion viva con el panel.
+El modelo de tarea ya no es una fundacion abstracta.
 
-Es solamente la fundacion local del modelo de tarea para que Golem pueda hablar de trabajo estructurado con IDs, estados y metadata minima.
-
-Tambien permite dejar una tarea en estado `delegated` con un bloque `handoff` persistido para una futura integracion con workers, sin ejecutar nada externo todavia.
-
-Cuando un worker externo devuelve resultado de manera manual, la misma tarea puede cerrarse en `done` o `failed` dejando ese retorno persistido en `outputs` y `artifacts`.
+Es el carril canonico vigente del repo y la base sobre la que ahora hay que integrar, verificar y reconciliar.

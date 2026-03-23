@@ -3,21 +3,29 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+TASKS_DIR="$REPO_ROOT/tasks"
+task_id=""
+
+cleanup() {
+  if [[ -n "$task_id" && -f "$TASKS_DIR/$task_id.json" ]]; then
+    rm -f "$TASKS_DIR/$task_id.json"
+  fi
+}
+trap cleanup EXIT
 
 cd "$REPO_ROOT"
 
 type_output="$(./scripts/delegation_decide.sh type repo-analysis)"
 printf '%s\n' "$type_output"
 
-created_output="$(./scripts/task_new.sh repo-analysis "Delegation repo-analysis verify test")"
+created_output="$(./scripts/task_create.sh "Delegation repo-analysis verify test" "Delegation repo-analysis verify test" --type repo-analysis --owner system --source script)"
 printf '%s\n' "$created_output"
 
-task_path="$(printf '%s\n' "$created_output" | awk '/^TASK_CREATED / {print $2}' | tail -n 1)"
-[ -n "$task_path" ] || {
-  echo "ERROR: no se pudo extraer task_path" >&2
+task_id="$(printf '%s\n' "$created_output" | awk '/^TASK_CREATED / {print $2}' | tail -n 1)"
+[ -n "$task_id" ] || {
+  echo "ERROR: no se pudo extraer task_id" >&2
   exit 1
 }
-task_id="$(basename "$task_path" .json)"
 
 task_output="$(./scripts/delegation_decide.sh task "$task_id")"
 printf '%s\n' "$task_output"

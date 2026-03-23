@@ -12,7 +12,7 @@ The user-facing readiness profile sits one level above those specialized lanes a
 
 ## Basic lifecycle
 
-The minimal task flow is:
+The current canonical task flow is:
 
 1. create the task
 2. optionally relate it to a parent task or declare dependencies
@@ -24,33 +24,29 @@ The minimal task flow is:
 
 ## Create
 
-New tasks are created with:
+Canonical creation uses:
+
+```text
+./scripts/task_create.sh "Title" "Objective" --type <task_type>
+```
+
+This initializes a strict-validatable task under `tasks/` with status `todo`.
+
+For orchestration-aware creation, `task_create.sh` also accepts compatibility env such as:
+
+```text
+TASK_PARENT_TASK_ID=<task_id_padre> \
+TASK_DEPENDS_ON='["task-a","task-b"]' \
+./scripts/task_create.sh "Title" "Objective" --type <task_type>
+```
+
+Legacy wrapper kept for compatibility:
 
 ```text
 ./scripts/task_new.sh <type> <title>
 ```
 
-This initializes the JSON file under `tasks/` with status `queued`.
-
-For orchestration-aware creation, `task_new.sh` also accepts:
-
-```text
-TASK_PARENT_TASK_ID=<task_id_padre>
-TASK_DEPENDS_ON='["task-a","task-b"]' ./scripts/task_new.sh <type> <title>
-```
-
-It also accepts optional step metadata:
-
-```text
-TASK_OBJECTIVE="..."
-TASK_STEP_NAME="delegated-repo-analysis"
-TASK_STEP_ORDER=2
-TASK_CRITICAL=true
-TASK_EXECUTION_MODE=worker
-./scripts/task_new.sh <type> <title>
-```
-
-These fields are declarative only in this version. They do not schedule or block execution by themselves.
+`task_new.sh` now delegates to `task_create.sh`. It is no longer the canonical policy surface.
 
 ## Spawn child task
 

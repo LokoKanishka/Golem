@@ -1,6 +1,6 @@
 # Handoffs
 
-Esta carpeta guarda evidencia local de delegacion y worker runs sin mezclarla con todo el ruido runtime.
+Esta carpeta guarda evidencia local durable de delegacion y worker runs, junto con algunas trazas runtime-only de vida corta.
 
 La politica completa vive en `docs/RUNTIME_ARTIFACT_POLICY.md`.
 
@@ -41,7 +41,7 @@ Esto sirve para:
 ## Relacion entre `tasks/` y `handoffs/`
 
 - `tasks/` sigue siendo la fuente de verdad del estado de la tarea
-- `handoffs/` guarda evidencia local derivada y auditable
+- `handoffs/` guarda evidencia derivada y auditable
 - `handoffs/` tambien puede contener archivos operativos de vida corta
 
 En otras palabras:
@@ -63,3 +63,9 @@ Un handoff packet no es:
 - evidencia de cierre
 
 Es solamente un artefacto de delegacion.
+
+## Regla vigente
+
+La carpeta sigue ignorada por defecto.
+
+Si algun archivo de `handoffs/` ya aparece trackeado en Git, se lo considera evidencia promovida intencionalmente y no un cambio de policy para todos los handoffs futuros.

@@ -1,24 +1,22 @@
 # Next Steps
 
 ## Etapa actual
-Fundación del repositorio y baseline del sistema vivo.
+Cierre de transicion del carril de tareas completado.
 
 ## Próximos pasos propuestos
-1. Definir modelo de tareas de Golem sin asumir integración viva con Codex.
-2. Definir qué puede hacer OpenClaw hoy por sí mismo.
-3. Separar:
-   - capacidades actuales
-   - capacidades futuras
-   - capacidades deseadas
-4. Recién después decidir:
-   - si Codex entra por ACP, exec o wrapper
-   - qué rol exacto cumple
-   - qué eventos deben dispararlo
+1. Integrar el carril canonico de tareas con reconciliacion real contra panel/WhatsApp sin reabrir el modelo.
+2. Reducir el uso residual del wrapper `task_new.sh` hasta que todo quede sobre `task_create.sh`.
+3. Endurecer verifies de integracion sobre:
+   - delivery user-facing;
+   - reconciliacion WhatsApp;
+   - worker handoff/result loop;
+   - auditoria de runtime evidence.
+4. Decidir con calma si toda evidencia durable de `handoffs/` debe seguir versionada o si parte de ella conviene mover a otra politica versionada, sin volver a ocultar la operacion real.
 
-## Enfoque inmediato recomendado (user-facing)
-- Implementar la cola priorizada en `docs/USER_FACING_DELIVERY_BACKLOG.md` empezando por P0.
-- No cerrar tareas como exitosas si no hay evidencia de entrega visible al usuario.
-- Tratar WhatsApp como canal con niveles de certeza explícitos.
+## Enfoque inmediato recomendado
+- Mantener el baseline sano y las tareas activas visibles en Git.
+- No abrir un rediseño de arquitectura en paralelo.
+- Priorizar integracion y verificabilidad por encima de nuevas capas doctrinales.
 
 ## Regla
-Antes de integrar workers, fijar doctrina y contrato del sistema.
+No volver a tratar el repo como bootstrap. El siguiente tramo correcto es integracion y reconciliacion sobre el carril canonico vigente.

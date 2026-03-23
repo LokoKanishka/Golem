@@ -3,31 +3,29 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-TASKS_DIR="$REPO_ROOT/tasks"
 
 usage() {
   cat <<USAGE
 Uso:
   ./scripts/task_new.sh <type> <title>
 
+Compatibilidad:
+  Wrapper legacy sobre ./scripts/task_create.sh.
+
 Opcional por entorno:
   TASK_PARENT_TASK_ID=<task_id_padre>
   TASK_DEPENDS_ON='["task-a","task-b"]'
+  TASK_OBJECTIVE="objetivo explicito"
+  TASK_STEP_NAME="nombre-del-step"
+  TASK_STEP_ORDER=<numero>
+  TASK_CRITICAL=true|false
+  TASK_EXECUTION_MODE=local|worker
 USAGE
 }
 
 fatal() {
   printf 'ERROR: %s\n' "$*" >&2
   exit 1
-}
-
-ensure_tasks_dir() {
-  mkdir -p "$TASKS_DIR"
-}
-
-display_path() {
-  local file="$1"
-  printf '%s\n' "${file#$REPO_ROOT/}"
 }
 
 task_type="${1:-}"
@@ -42,124 +40,23 @@ if [ "$#" -lt 2 ]; then
 fi
 
 title="${*:2}"
+objective="${TASK_OBJECTIVE:-$title}"
 
-ensure_tasks_dir
-
-task_id="$(
-  python3 - <<'PY'
-import datetime
-import uuid
-
-ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-suffix = uuid.uuid4().hex[:8]
-print(f"task-{ts}-{suffix}")
-PY
+created_output="$(
+  TASK_PARENT_TASK_ID="${TASK_PARENT_TASK_ID:-}" \
+  TASK_DEPENDS_ON="${TASK_DEPENDS_ON:-}" \
+  TASK_STEP_NAME="${TASK_STEP_NAME:-}" \
+  TASK_STEP_ORDER="${TASK_STEP_ORDER:-}" \
+  TASK_CRITICAL="${TASK_CRITICAL:-}" \
+  TASK_EXECUTION_MODE="${TASK_EXECUTION_MODE:-}" \
+  TASK_CANONICAL_SESSION="${TASK_CANONICAL_SESSION:-}" \
+  TASK_ORIGIN="${TASK_ORIGIN:-local}" \
+  "$SCRIPT_DIR/task_create.sh" "$title" "$objective" --type "$task_type"
 )"
 
-task_path="$TASKS_DIR/${task_id}.json"
-tmp_path="$(mktemp "$TASKS_DIR/.task-new.XXXXXX.tmp")"
-trap 'rm -f "$tmp_path"' EXIT
+task_path="$(printf '%s\n' "$created_output" | tail -n 1)"
+if [ -z "$task_path" ]; then
+  fatal "no se pudo extraer la ruta creada"
+fi
 
-TASK_PARENT_TASK_ID="${TASK_PARENT_TASK_ID:-}" \
-TASK_DEPENDS_ON="${TASK_DEPENDS_ON:-}" \
-python3 - "$task_id" "$task_type" "$title" > "$tmp_path" <<'PY'
-import datetime
-import json
-import os
-import sys
-
-task_id, task_type, title = sys.argv[1:4]
-now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
-parent_task_id = os.environ.get("TASK_PARENT_TASK_ID", "").strip()
-depends_on_raw = os.environ.get("TASK_DEPENDS_ON", "").strip()
-
-depends_on = []
-if depends_on_raw:
-    try:
-        parsed = json.loads(depends_on_raw)
-    except json.JSONDecodeError:
-        parsed = [item.strip() for item in depends_on_raw.split(",") if item.strip()]
-    if isinstance(parsed, list):
-        depends_on = [str(item).strip() for item in parsed if str(item).strip()]
-    else:
-        raise SystemExit("TASK_DEPENDS_ON debe ser una lista JSON o una lista separada por comas")
-
-task = {
-    "task_id": task_id,
-    "type": task_type,
-    "origin": "local",
-    "canonical_session": "",
-    "parent_task_id": parent_task_id,
-    "depends_on": depends_on,
-    "status": "queued",
-    "created_at": now,
-    "updated_at": now,
-    "title": title,
-    "objective": title,
-    "inputs": [],
-    "outputs": [],
-    "artifacts": [],
-    "notes": [],
-    "delivery": {
-        "protocol_version": "1.0",
-        "minimum_user_facing_success_state": "visible",
-        "current_state": "",
-        "user_facing_ready": False,
-        "visible_artifact_required": False,
-        "visible_artifact_ready": False,
-        "visible_artifact_deliveries": [],
-        "whatsapp": {
-            "protocol_version": "1.0",
-            "required": False,
-            "current_state": "",
-            "delivery_confidence": "unknown",
-            "allowed_claim_level": "",
-            "allowed_user_facing_claim": "",
-            "user_facing_ready": False,
-            "tracked_message_id": "",
-            "message_ids": [],
-            "provider": "",
-            "to": "",
-            "run_id": "",
-            "provider_delivery_status": "",
-            "provider_delivery_reason": "",
-            "provider_delivery_proof_at": "",
-            "last_provider_evidence_at": "",
-            "attempts": [],
-            "claim_history": [],
-        },
-        "transitions": [],
-        "claim_history": [],
-    },
-    "media": {
-        "protocol_version": "1.0",
-        "required": False,
-        "current_state": "none",
-        "ready": False,
-        "allowed_for_delivery": False,
-        "items": [],
-        "events": [],
-        "last_event_at": "",
-        "last_event_reason": "",
-    },
-    "screenshot": {
-        "protocol_version": "1.0",
-        "required": False,
-        "current_state": "none",
-        "ready_for_claim": False,
-        "items": [],
-        "events": [],
-        "last_transition_at": "",
-        "last_verified_at": "",
-        "block_reason": "",
-        "fail_reason": "",
-    },
-}
-
-json.dump(task, sys.stdout, indent=2, ensure_ascii=True)
-sys.stdout.write("\n")
-PY
-
-mv "$tmp_path" "$task_path"
-trap - EXIT
-printf 'TASK_CREATED %s\n' "$(display_path "$task_path")"
+printf 'TASK_CREATED %s\n' "${task_path#$REPO_ROOT/}"

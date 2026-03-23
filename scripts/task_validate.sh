@@ -92,7 +92,7 @@ if not paths:
     print("VALIDATE_SUMMARY total=0 valid=0 legacy=0 invalid=0")
     raise SystemExit(0)
 
-status_enum = {"todo", "running", "blocked", "done", "failed", "canceled"}
+status_enum = {"todo", "queued", "running", "blocked", "delegated", "worker_running", "done", "failed", "canceled", "cancelled"}
 source_enum = {"panel", "whatsapp", "operator", "script", "worker", "scheduled_process"}
 id_re = re.compile(r"^task-\d{8}T\d{6}Z-[a-z0-9]{6,16}$")
 

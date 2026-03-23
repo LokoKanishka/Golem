@@ -6,19 +6,40 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TASKS_DIR="$REPO_ROOT/tasks"
 HANDOFFS_DIR="$REPO_ROOT/handoffs"
 OUTBOX_DIR="$REPO_ROOT/outbox/manual"
+task_id=""
+artifact_abs=""
+
+cleanup() {
+  if [[ -n "$artifact_abs" && -f "$artifact_abs" ]]; then
+    rm -f "$artifact_abs"
+  fi
+  if [[ -n "$task_id" && -f "$TASKS_DIR/$task_id.json" ]]; then
+    rm -f "$TASKS_DIR/$task_id.json"
+  fi
+  if [[ -n "$task_id" ]]; then
+    rm -f \
+      "$HANDOFFS_DIR/$task_id.md" \
+      "$HANDOFFS_DIR/$task_id.codex.md" \
+      "$HANDOFFS_DIR/$task_id.packet.json" \
+      "$HANDOFFS_DIR/$task_id.run.result.md" \
+      "$HANDOFFS_DIR/$task_id.run.prompt.md" \
+      "$HANDOFFS_DIR/$task_id.run.log" \
+      "$HANDOFFS_DIR/$task_id.run.last.md"
+  fi
+}
+trap cleanup EXIT
 
 cd "$REPO_ROOT"
 mkdir -p "$TASKS_DIR" "$HANDOFFS_DIR" "$OUTBOX_DIR"
 
-created_output="$(./scripts/task_new.sh repo-analysis "Smoke delegation loop")"
+created_output="$(./scripts/task_create.sh "Smoke delegation loop" "Smoke delegation loop" --type repo-analysis --owner system --source script)"
 printf '%s\n' "$created_output"
 
-task_path="$(printf '%s\n' "$created_output" | awk '/^TASK_CREATED / {print $2}' | tail -n 1)"
-[ -n "$task_path" ] || {
-  echo "ERROR: no se pudo extraer task_path" >&2
+task_id="$(printf '%s\n' "$created_output" | awk '/^TASK_CREATED / {print $2}' | tail -n 1)"
+[ -n "$task_id" ] || {
+  echo "ERROR: no se pudo extraer task_id" >&2
   exit 1
 }
-task_id="$(basename "$task_path" .json)"
 
 ./scripts/task_delegate.sh "$task_id"
 ./scripts/task_prepare_codex_handoff.sh "$task_id"

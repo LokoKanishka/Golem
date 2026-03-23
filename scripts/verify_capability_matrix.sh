@@ -529,7 +529,7 @@ verify_task_core() {
 verify_task_lifecycle() {
   local capability="task lifecycle"
   local log_path="$LOG_DIR/task-lifecycle.log"
-  local cmd_new="./scripts/task_new.sh verification-lifecycle \"Capability verification / task lifecycle\""
+  local cmd_new="./scripts/task_create.sh \"Capability verification / task lifecycle\" \"Capability verification / task lifecycle\" --type verification-lifecycle --owner system --source script"
   local cmd_update=""
   local cmd_output=""
   local cmd_close=""
@@ -538,7 +538,7 @@ verify_task_lifecycle() {
   : >"$log_path"
   log_command "$log_path" "$cmd_new"
   set +e
-  created_output="$(cd "$REPO_ROOT" && ./scripts/task_new.sh verification-lifecycle "Capability verification / task lifecycle" 2>&1)"
+  created_output="$(cd "$REPO_ROOT" && ./scripts/task_create.sh "Capability verification / task lifecycle" "Capability verification / task lifecycle" --type verification-lifecycle --owner system --source script 2>&1)"
   exit_code="$?"
   set -e
   printf '%s\n' "$created_output" >>"$log_path"
@@ -578,7 +578,7 @@ verify_task_lifecycle() {
 
   if [ "$exit_code" -eq 0 ] && [ "$task_status" = "done" ]; then
     status="PASS"
-    note="task lifecycle transitions new -> running -> done were exercised successfully"
+    note="task lifecycle transitions create -> running -> done were exercised successfully"
   else
     status="FAIL"
     note="task lifecycle verification did not complete cleanly"
@@ -622,7 +622,7 @@ DIRECT_WORKER_EXTRACT_EXIT="1"
 DIRECT_WORKER_FINALIZE_EXIT="1"
 
 run_direct_worker_flow() {
-  local cmd_new="./scripts/task_new.sh repo-analysis \"Capability verification / direct worker flow\""
+  local cmd_new="./scripts/task_create.sh \"Capability verification / direct worker flow\" \"Capability verification / direct worker flow\" --type repo-analysis --owner system --source script"
   local cmd_delegate=""
   local cmd_handoff=""
   local cmd_ticket=""
@@ -635,7 +635,7 @@ run_direct_worker_flow() {
 
   log_command "$DIRECT_WORKER_LOG" "$cmd_new"
   set +e
-  output="$(cd "$REPO_ROOT" && ./scripts/task_new.sh repo-analysis "Capability verification / direct worker flow" 2>&1)"
+  output="$(cd "$REPO_ROOT" && ./scripts/task_create.sh "Capability verification / direct worker flow" "Capability verification / direct worker flow" --type repo-analysis --owner system --source script 2>&1)"
   DIRECT_WORKER_START_EXIT="$?"
   set -e
   printf '%s\n' "$output" >>"$DIRECT_WORKER_LOG"

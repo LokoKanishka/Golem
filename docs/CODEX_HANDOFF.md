@@ -68,7 +68,7 @@ Y en el carril recomendado actual también puede dejar:
 handoffs/<task_id>.packet.json
 ```
 
-Segun la runtime artifact policy, este packet es evidencia persistible y durable a nivel local, pero no se trackea en Git por defecto.
+Segun la runtime artifact policy, este packet es evidencia persistible y durable a nivel local, pero queda fuera de Git por defecto salvo promocion explicita.
 
 ## Como se inspecciona
 
@@ -89,7 +89,7 @@ Sirve como capa intermedia entre:
 
 El ticket listo para Codex se genera aparte y agrega restricciones operativas, framing de ejecucion y formato de entrega esperado.
 
-Ese ticket tambien es persistible como evidencia local, pero queda fuera de Git por defecto para evitar ruido operativo en el repo.
+Ese ticket tambien es evidencia durable a nivel local. Las trazas runtime-only (`run.prompt`, `run.log`, `run.last`) siguen siendo descartables y tambien quedan fuera de Git por defecto.
 
 ## Uso manual con Codex
 

@@ -7,7 +7,7 @@ This document defines which Golem artifacts are:
 - ignored by Git by default
 - regenerable or disposable
 
-The goal is to stop the repo from accumulating operational noise while keeping useful evidence available.
+The goal is to keep the repo coherent without flooding Git with every worker byproduct.
 
 ## Core rule
 
@@ -15,11 +15,9 @@ Do not treat every file produced during a worker run as equally durable.
 
 Golem now separates:
 
-- durable local evidence in `handoffs/`
-- runtime-only files also under `handoffs/`, but explicitly excluded from Git
-- final user-facing artifacts in `outbox/manual/`
-
-Git should track the policy and the scripts, not every per-run operational byproduct.
+- durable local evidence under `handoffs/`;
+- runtime-only traces also under `handoffs/`, but explicitly excluded from Git;
+- final user-facing artifacts in `outbox/manual/`, which stay ignored by default.
 
 ## Classification
 
@@ -28,24 +26,12 @@ Git should track the policy and the scripts, not every per-run operational bypro
 | handoff packet | `handoffs/<task_id>.md` | yes | yes, from task + handoff | ignored |
 | canonical handoff packet | `handoffs/<task_id>.packet.json` | yes | yes, from task + handoff | ignored |
 | Codex ticket | `handoffs/<task_id>.codex.md` | yes | yes, from task + handoff packet | ignored |
-| controlled run prompt | `handoffs/<task_id>.run.prompt.md` | no | yes, from ticket + run policy | ignored |
-| controlled run log | `handoffs/<task_id>.run.log` | no | no, but considered debug-only | ignored |
-| raw final worker message | `handoffs/<task_id>.run.last.md` | no | no, but replaceable by normalized result | ignored |
-| normalized worker result | `handoffs/<task_id>.run.result.md` | yes | yes, from `run.last.md` and/or `run.log` while available | ignored |
+| normalized worker result | `handoffs/<task_id>.run.result.md` | yes | yes, from runtime traces while available | ignored |
+| controlled run prompt | `handoffs/<task_id>.run.prompt.md` | no | yes | ignored |
+| controlled run log | `handoffs/<task_id>.run.log` | no | no, debug-only | ignored |
+| raw final worker message | `handoffs/<task_id>.run.last.md` | no | no, debug-only | ignored |
 | final chain/manual artifact | `outbox/manual/...` | yes | usually no | ignored |
 | temp or scratch files | `*.tmp`, transient runtime files | no | n/a | ignored |
-
-## What "persistible" means here
-
-Persistible does not mean "track in Git by default".
-
-For this repo, persistible means:
-
-- worth keeping locally for audit or review
-- stable enough to reference from `tasks/*.json`
-- durable enough to survive beyond the active run
-
-But still excluded from Git unless someone intentionally promotes a file with `git add -f`.
 
 ## Git policy
 
@@ -90,14 +76,13 @@ These files are still useful after the run:
 - canonical handoff packet
 - Codex ticket
 - normalized worker result
-- final artifacts in `outbox/manual/`
 
 Rules:
 
 - keep them readable and timestamped
 - allow tasks to reference them
-- do not auto-track them in Git
-- promote only when a human explicitly decides they belong in version control
+- keep them ignored by default
+- promote them only when there is una razon deliberada para preservarlos en Git
 
 ## Regeneration rules
 
@@ -116,15 +101,17 @@ Not worth regenerating bit-for-bit:
 
 Those are runtime traces, not canonical deliverables.
 
-## Legacy files
+## Current Repo Rule
 
-Runtime files may live next to durable handoff evidence in the same folder.
+The repo already contains some handoff artifacts that were promoted intentionally in commits previos.
 
-That is acceptable only because the Git policy draws a hard line:
+That is allowed.
 
-- runtime files stay ignored
-- durable local evidence also stays ignored by default
-- `handoffs/README.md` is the only tracked file in that folder
+The hard line is:
+
+- handoff evidence stays local by default
+- runtime-only traces stay ignored
+- if a handoff artifact was promoted intentionally, Git keeps tracking that specific file without changing the default rule for the whole folder
 
 ## Practical rule of thumb
 

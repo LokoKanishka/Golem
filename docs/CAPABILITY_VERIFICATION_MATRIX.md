@@ -181,12 +181,12 @@ The browser stack verify now supports:
 - name: `task lifecycle`
 - objective: verify direct lifecycle transitions with evidence in task JSON
 - command(s):
-  - `./scripts/task_new.sh verification-lifecycle "Capability verification / task lifecycle"`
+  - `./scripts/task_create.sh "Capability verification / task lifecycle" "Capability verification / task lifecycle" --type verification-lifecycle --owner system --source script`
   - `./scripts/task_update.sh <task_id> running`
   - `./scripts/task_add_output.sh <task_id> lifecycle-check 0 "lifecycle output recorded"`
   - `./scripts/task_close.sh <task_id> done "task lifecycle verification completed"`
   - `./scripts/task_show.sh <task_id>`
-- success criterion: task transitions through `queued/running/done` coherently
+- success criterion: task transitions through `todo/running/done` coherently
 - failure criterion: any lifecycle transition fails or the final task state is wrong
 - path coverage: success-path
 - environment dependencies:
@@ -209,7 +209,7 @@ The browser stack verify now supports:
 - name: `worker handoff packet`
 - objective: verify that a delegated task can produce the durable handoff packet
 - command(s):
-  - `./scripts/task_new.sh repo-analysis "Capability verification / direct worker flow"`
+  - `./scripts/task_create.sh "Capability verification / direct worker flow" "Capability verification / direct worker flow" --type repo-analysis --owner system --source script`
   - `./scripts/task_delegate.sh <task_id>`
   - `./scripts/task_prepare_codex_handoff.sh <task_id>`
   - `./scripts/validate_markdown_artifact.sh handoffs/<task_id>.md`

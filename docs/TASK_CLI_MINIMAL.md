@@ -2,48 +2,28 @@
 
 ## Propósito
 
-Este tramo introduce el primer carril operativo mínimo para tareas canónicas en repo.
+Este documento ya no describe un bootstrap de tareas.
 
-No intenta resolver todavía:
-
-- updates complejos;
-- cierre;
-- archivado;
-- reconciliación con panel;
-- integración con WhatsApp;
-- concurrencia;
-- validación formal contra schema externo.
-
-Su objetivo es mucho más básico y más importante en esta etapa:
-
-- crear tareas reales;
-- listarlas;
-- inspeccionarlas;
-- dejar una interfaz estable y simple para crecer después.
+Hoy define el entrypoint canonico minimo y estable del carril vigente.
 
 ---
 
-## Scripts iniciales
+## Entry Point Canonico
 
-Se agregan tres scripts mínimos:
+- `scripts/task_create.sh` es el entrypoint canonico para crear tareas nuevas.
+- `scripts/task_new.sh` queda solo como wrapper de compatibilidad para flows viejos que todavia entregan `<type> <title>`.
 
-- `scripts/task_create.sh`
-- `scripts/task_list.sh`
-- `scripts/task_show.sh`
-
-Y un verify básico:
-
-- `scripts/verify_task_cli_minimal.sh`
+La tarea resultante debe quedar estrictamente compatible con `task_validate.sh --strict` y, al mismo tiempo, cargar los campos de orquestacion que necesita el carril actual (`type`, `parent_task_id`, `depends_on`, `delivery`, `media`, `screenshot`, etc.).
 
 ---
 
 ## Principios
 
 ### 1. Repo-first
-La tarea nace en el repo, no en una vista efímera.
+La tarea nace en el repo y Git debe verla.
 
 ### 2. Simplicidad explícita
-No se agregan features “inteligentes” todavía.
+No dejar dos entrypoints canonicos compitiendo.
 
 ### 3. Salida legible
 Los comandos deben servir tanto para humanos como para automatización liviana.
@@ -53,9 +33,9 @@ Si algo no está implementado, no se simula.
 
 ---
 
-## task_create
+## task_create.sh
 
-Crea una nueva tarea JSON en `tasks/`.
+Crea una nueva tarea JSON canónica en `tasks/`.
 
 ### Uso mínimo
 
@@ -65,14 +45,41 @@ Crea una nueva tarea JSON en `tasks/`.
 
 ### Opciones
 
+- `--type <task_type>`
 - `--owner <owner>`
 - `--source <source_channel>`
 - `--accept <texto>` (repetible)
 
 ### Defaults
 
+- `type=""`
 - `owner=unassigned`
 - `source_channel=operator`
+
+### Compatibilidad de orquestacion
+
+Tambien acepta por entorno:
+
+- `TASK_PARENT_TASK_ID`
+- `TASK_DEPENDS_ON`
+- `TASK_STEP_NAME`
+- `TASK_STEP_ORDER`
+- `TASK_CRITICAL`
+- `TASK_EXECUTION_MODE`
+- `TASK_CANONICAL_SESSION`
+- `TASK_ORIGIN`
+
+---
+
+## task_new.sh
+
+Se mantiene solo por compatibilidad:
+
+```bash
+./scripts/task_new.sh <type> <title>
+```
+
+Internamente ya delega a `task_create.sh`.
 
 ---
 
@@ -113,23 +120,15 @@ Acepta:
 
 `verify_task_cli_minimal.sh` comprueba:
 
-- que se puede crear una tarea;
+- que se puede crear una tarea canonica;
 - que el archivo queda en `tasks/`;
 - que `task_list` la ve;
 - que `task_show` la imprime;
 - que el JSON tiene estructura base esperable.
 
-Este verify no reemplaza validación de schema completa.
-Solo demuestra que el carril mínimo existe y funciona.
-
 ---
 
 ## Implicación
 
-Con este tramo cerrado, recién después tiene sentido agregar:
-
-- `task_update`
-- `task_close`
-- `task_add_evidence`
-- validación contra schema
-- integración con panel/WhatsApp
+El repo ya no debe tratar `task_create.sh` y `task_new.sh` como dos verdades activas.
+La verdad canonica es `task_create.sh`.

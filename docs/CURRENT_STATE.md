@@ -1,17 +1,25 @@
 # Current State
 
-Este archivo documenta el baseline vivo actual del sistema antes de empezar a gobernarlo desde el repo.
+Este archivo documenta el estado real actual del repo despues del cierre de transicion del carril de tareas.
 
-## Baseline observado
-- Repo golem bootstrapado correctamente.
-- OpenClaw funcional.
-- Gateway operativo por systemd.
-- WhatsApp enlazado y funcionando.
-- Browser relay por Chrome ya probado.
-- Existe agente `wschat` para el canal WhatsApp.
-- El panel del gateway es la consola principal.
-- WhatsApp queda pensado como canal auxiliar/remoto.
+## Baseline operativo vigente
+- Inventario activo saneado.
+- Baseline final:
+  - canonical: 1395
+  - legacy: 0
+  - corrupt: 0
+  - invalid: 0
+- `tasks/task-*.json` activas ya trackeadas por Git.
+- El runner parametrizable de migracion legacy ya reemplazo a los batch scripts especificos.
+- El problema abierto del repo ya no es bootstrap: es integracion y reconciliacion futura sobre un carril canonico estable.
 
-## Regla
-Todavía no se despliega nada desde este repo.
-Por ahora el repo solo captura estado, arquitectura y protocolo.
+## Regla de tareas
+- Entry point canonico: `scripts/task_create.sh`.
+- `scripts/task_new.sh` queda solo como wrapper de compatibilidad para runners y verifies viejos.
+- `task_validate.sh --all --strict` y `task_git_trace_check.sh` son los checks base del carril.
+
+## Semantica del arbol
+- `tasks/`: fuente de verdad operativa de las tareas activas y archivadas.
+- `handoffs/`: evidencia durable versionable mas trazas runtime-only ignoradas.
+- `openclaw/`: placeholders y scaffolding historico/documental; no modulo activo de despliegue.
+- `state/live/`: snapshots de evidencia local sobre entorno/gateway, no estado vivo gobernado por Git.

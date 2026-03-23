@@ -55,6 +55,8 @@ El runner:
 
 ---
 
-## Implicación
+## Estado actual
 
-Con este runner cerrado, los próximos lotes dejan de ser trabajo artesanal y pasan a ser una operación repetible y auditable.
+Este runner ya es el unico carril vivo de migracion legacy.
+
+Los scripts historicos `task_migrate_legacy_batch_01.sh` y `task_migrate_legacy_batch_02.sh` quedan retirados para evitar duplicacion doctrinal.

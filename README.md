@@ -15,5 +15,23 @@ Golem es el sistema de agencia operativa donde:
 4. Los artefactos van a outbox.
 5. Todo cambio importante debe quedar versionado.
 
-## Estado
-Bootstrap inicial del repositorio.
+## Estado del Repo
+
+El repo ya no esta en bootstrap inicial.
+
+Estado real actual:
+
+- inventario activo saneado y gobernado desde `tasks/`;
+- baseline final: `canonical=1395`, `legacy=0`, `corrupt=0`, `invalid=0`;
+- `tasks/task-*.json` activas trackeadas por Git;
+- entrypoint canonico de tareas: `scripts/task_create.sh`;
+- `scripts/task_new.sh` queda solo como wrapper de compatibilidad;
+- la migracion legacy ya cerro y el runner parametrizable queda consolidado en `scripts/task_migrate_legacy_batch.sh`;
+- `handoffs/` conserva evidencia durable versionable, mientras que las trazas runtime-only siguen excluidas;
+- `openclaw/` y `state/live/` quedan como estructura documental/evidencia, no como runtime gobernado desde este repo.
+
+## Alcance Operativo
+
+Este repo gobierna el carril canonico de tareas, su trazabilidad y la evidencia local necesaria para operar y auditar Golem.
+
+No despliega OpenClaw ni controla servicios vivos desde Git.

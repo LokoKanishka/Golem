@@ -58,15 +58,15 @@ trap on_exit EXIT
 
 extract_task_id() {
   local created_output="$1"
-  local created_path
+  local created_id
 
-  created_path="$(printf '%s\n' "$created_output" | awk '/^TASK_CREATED / {print $2}' | tail -n 1)"
-  if [ -z "$created_path" ]; then
-    printf 'ERROR: no se pudo extraer la ruta de la tarea creada\n' >&2
+  created_id="$(printf '%s\n' "$created_output" | awk '/^TASK_CREATED / {print $2}' | tail -n 1)"
+  if [ -z "$created_id" ]; then
+    printf 'ERROR: no se pudo extraer el id de la tarea creada\n' >&2
     exit 1
   fi
 
-  basename "$created_path" .json
+  printf '%s\n' "$created_id"
 }
 
 title="${1:-}"
@@ -79,7 +79,7 @@ fi
 cd "$REPO_ROOT"
 mkdir -p "$TASKS_DIR"
 
-created_output="$(./scripts/task_new.sh self-check "$title")"
+created_output="$(./scripts/task_create.sh "$title" "$title" --type self-check --owner system --source script)"
 printf '%s\n' "$created_output"
 
 task_id="$(extract_task_id "$created_output")"

@@ -5,19 +5,30 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TASKS_DIR="$REPO_ROOT/tasks"
 OUTBOX_DIR="$REPO_ROOT/outbox/manual"
+task_id=""
+artifact_abs=""
+
+cleanup() {
+  if [[ -n "$artifact_abs" && -f "$artifact_abs" ]]; then
+    rm -f "$artifact_abs"
+  fi
+  if [[ -n "$task_id" && -f "$TASKS_DIR/$task_id.json" ]]; then
+    rm -f "$TASKS_DIR/$task_id.json"
+  fi
+}
+trap cleanup EXIT
 
 cd "$REPO_ROOT"
 mkdir -p "$TASKS_DIR" "$OUTBOX_DIR"
 
-created_output="$(./scripts/task_new.sh smoke-task-core "Smoke task core")"
+created_output="$(./scripts/task_create.sh "Smoke task core" "Smoke task core" --type smoke-task-core --owner system --source script)"
 printf '%s\n' "$created_output"
 
-task_path="$(printf '%s\n' "$created_output" | awk '/^TASK_CREATED / {print $2}' | tail -n 1)"
-[ -n "$task_path" ] || {
-  echo "ERROR: no se pudo extraer task_path" >&2
+task_id="$(printf '%s\n' "$created_output" | awk '/^TASK_CREATED / {print $2}' | tail -n 1)"
+[ -n "$task_id" ] || {
+  echo "ERROR: no se pudo extraer task_id" >&2
   exit 1
 }
-task_id="$(basename "$task_path" .json)"
 
 ./scripts/task_add_output.sh "$task_id" smoke-output 0 "smoke output recorded"
 
@@ -59,7 +70,11 @@ assert task["status"] == "done", task["status"]
 assert len(task["outputs"]) == 1, task["outputs"]
 assert len(task["artifacts"]) == 1, task["artifacts"]
 assert task["outputs"][0]["kind"] == "smoke-output", task["outputs"][0]
-assert task["artifacts"][0]["path"].endswith("-smoke-task-core.md"), task["artifacts"][0]
+artifact_entry = task["artifacts"][0]
+if isinstance(artifact_entry, str):
+    assert artifact_entry.endswith("-smoke-task-core.md"), artifact_entry
+else:
+    assert artifact_entry["path"].endswith("-smoke-task-core.md"), artifact_entry
 PY
 
 printf 'SMOKE_TASK_CORE_OK\n'
