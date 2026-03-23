@@ -126,6 +126,22 @@ Acepta:
 - que `task_show` la imprime;
 - que el JSON tiene estructura base esperable.
 
+## Enforcement oficial
+
+El gate oficial del carril de tareas es:
+
+```bash
+./scripts/verify_task_lane_enforcement.sh
+```
+
+Ese gate corre:
+
+- `task_entrypoint_policy_check.sh` para evitar deriva entre `task_create.sh` y `task_new.sh`;
+- `verify_task_cli_minimal.sh`;
+- `task_git_trace_check.sh`;
+- `task_validate.sh --all --strict`;
+- `tests/smoke_task_core.sh`.
+
 ---
 
 ## Implicación

@@ -86,6 +86,7 @@ La verdad user-facing vive en `delivery`.
 - `./scripts/task_create.sh` es el entrypoint canonico.
 - `./scripts/task_new.sh` queda solo como wrapper de compatibilidad.
 - Las tareas nuevas deben nacer ya en forma strict-validatable.
+- El gate oficial que protege esta decision es `./scripts/verify_task_lane_enforcement.sh`.
 
 ## Relacion minima entre tareas
 

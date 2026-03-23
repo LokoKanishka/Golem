@@ -26,6 +26,7 @@ Estado real actual:
 - `tasks/task-*.json` activas trackeadas por Git;
 - entrypoint canonico de tareas: `scripts/task_create.sh`;
 - `scripts/task_new.sh` queda solo como wrapper de compatibilidad;
+- gate oficial del carril de tareas: `scripts/verify_task_lane_enforcement.sh`;
 - la migracion legacy ya cerro y el runner parametrizable queda consolidado en `scripts/task_migrate_legacy_batch.sh`;
 - `handoffs/` conserva evidencia durable versionable, mientras que las trazas runtime-only siguen excluidas;
 - `openclaw/` y `state/live/` quedan como estructura documental/evidencia, no como runtime gobernado desde este repo.
