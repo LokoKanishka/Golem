@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import mimetypes
 import pathlib
 import subprocess
 import sys
@@ -12,6 +13,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 READ_SCRIPT = REPO_ROOT / "scripts" / "task_panel_read.sh"
 MUTATE_SCRIPT = REPO_ROOT / "scripts" / "task_panel_mutate.sh"
+PANEL_DIR = REPO_ROOT / "panel"
 
 
 def build_error_payload(code, message, details=None):
@@ -79,6 +81,29 @@ class TaskPanelHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def send_redirect(self, location):
+        self.send_response(int(HTTPStatus.FOUND))
+        self.send_header("Location", location)
+        self.end_headers()
+
+    def send_file(self, path):
+        if not path.is_file():
+            self.send_json(
+                HTTPStatus.NOT_FOUND,
+                build_error_payload("route_not_found", f"Unknown route: {self.path}"),
+            )
+            return
+
+        content_type, _ = mimetypes.guess_type(str(path))
+        if not content_type:
+            content_type = "application/octet-stream"
+        body = path.read_bytes()
+        self.send_response(int(HTTPStatus.OK))
+        self.send_header("Content-Type", f"{content_type}; charset=utf-8" if content_type.startswith("text/") or content_type == "application/javascript" else content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def read_json_body(self):
         length = int(self.headers.get("Content-Length", "0"))
         raw = self.rfile.read(length) if length > 0 else b""
@@ -94,6 +119,17 @@ class TaskPanelHandler(BaseHTTPRequestHandler):
         parts = [part for part in parsed.path.split("/") if part]
         query = parse_qs(parsed.query)
 
+        if parsed.path == "/":
+            self.send_redirect("/panel/")
+            return
+        if parsed.path in {"/panel", "/panel/"}:
+            self.send_file(PANEL_DIR / "index.html")
+            return
+        if parsed.path.startswith("/panel/") and len(parts) == 2:
+            asset = parts[1]
+            if asset in {"app.js", "styles.css"}:
+                self.send_file(PANEL_DIR / asset)
+                return
         if parsed.path == "/tasks":
             args = [READ_SCRIPT, "list"]
             status_filter = query.get("status", [""])[0]

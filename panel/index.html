@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Golem Task Panel</title>
+    <link rel="stylesheet" href="/panel/styles.css">
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Golem / Canonical Task Lane</p>
+          <h1>Local Task Panel</h1>
+          <p class="subtitle">A visible surface over the same local HTTP API used by panel and WhatsApp adapters.</p>
+        </div>
+        <div class="hero-actions">
+          <button type="button" id="refresh-all" data-testid="refresh-all">Refresh</button>
+          <span class="api-badge">API: <code>/tasks</code></span>
+        </div>
+      </header>
+
+      <section class="summary-grid" aria-label="Inventory summary">
+        <article class="summary-card total-card">
+          <p class="summary-label">Total</p>
+          <p class="summary-value" id="summary-total" data-testid="summary-total">...</p>
+          <p class="summary-meta" id="summary-updated">latest: ...</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-label">Todo</p>
+          <p class="summary-value" id="summary-todo">0</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-label">Running</p>
+          <p class="summary-value" id="summary-running">0</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-label">Done</p>
+          <p class="summary-value" id="summary-done">0</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-label">Blocked</p>
+          <p class="summary-value" id="summary-blocked">0</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-label">Failed</p>
+          <p class="summary-value" id="summary-failed">0</p>
+        </article>
+      </section>
+
+      <main class="layout">
+        <section class="panel-block inventory-block">
+          <div class="block-header">
+            <div>
+              <p class="eyebrow">Inventory</p>
+              <h2>Tasks</h2>
+            </div>
+            <form id="list-controls" class="inline-form">
+              <label>
+                Status
+                <select id="filter-status" data-testid="filter-status">
+                  <option value="">all</option>
+                  <option value="todo">todo</option>
+                  <option value="running">running</option>
+                  <option value="done">done</option>
+                  <option value="blocked">blocked</option>
+                  <option value="failed">failed</option>
+                  <option value="canceled">canceled</option>
+                </select>
+              </label>
+              <label>
+                Limit
+                <input id="filter-limit" data-testid="filter-limit" type="number" min="1" max="200" value="20">
+              </label>
+              <button type="submit" data-testid="apply-list">Apply</button>
+            </form>
+          </div>
+          <div class="inventory-meta" id="list-meta" data-testid="list-meta">Loading...</div>
+          <div class="task-list" id="task-list" data-testid="task-list" role="listbox" aria-label="Task list"></div>
+        </section>
+
+        <section class="panel-block detail-block">
+          <div class="block-header">
+            <div>
+              <p class="eyebrow">Detail</p>
+              <h2>Selected Task</h2>
+            </div>
+            <button type="button" id="reload-detail" data-testid="reload-detail">Reload</button>
+          </div>
+          <div id="detail-empty" class="empty-state" data-testid="detail-empty">Select a task to inspect its canonical payload.</div>
+          <article id="detail-card" class="detail-card hidden" data-testid="detail-card">
+            <div class="detail-topline">
+              <div>
+                <h3 id="detail-title">...</h3>
+                <p id="detail-id" class="mono">...</p>
+              </div>
+              <span id="detail-status-pill" class="status-pill">...</span>
+            </div>
+            <dl class="detail-grid">
+              <div><dt>Owner</dt><dd id="detail-owner">...</dd></div>
+              <div><dt>Source</dt><dd id="detail-source">...</dd></div>
+              <div><dt>Updated</dt><dd id="detail-updated">...</dd></div>
+              <div><dt>Type</dt><dd id="detail-type">...</dd></div>
+              <div class="detail-span"><dt>Objective</dt><dd id="detail-objective">...</dd></div>
+              <div class="detail-span"><dt>Acceptance</dt><dd id="detail-acceptance">...</dd></div>
+              <div class="detail-span"><dt>Notes</dt><dd id="detail-notes">...</dd></div>
+              <div class="detail-span"><dt>Closure Note</dt><dd id="detail-closure">...</dd></div>
+            </dl>
+          </article>
+        </section>
+
+        <section class="panel-block action-block">
+          <div class="block-header">
+            <div>
+              <p class="eyebrow">Mutations</p>
+              <h2>Create</h2>
+            </div>
+          </div>
+          <form id="create-form" class="stack-form">
+            <label>Title <input name="title" data-testid="create-title" required></label>
+            <label>Objective <textarea name="objective" data-testid="create-objective" required rows="3"></textarea></label>
+            <label>Type <input name="type" data-testid="create-type" value="panel-visible-ui"></label>
+            <label>Owner <input name="owner" data-testid="create-owner" value="panel-visible"></label>
+            <label>Acceptance Criteria <textarea name="accept" data-testid="create-accept" rows="3" placeholder="One criterion per line"></textarea></label>
+            <button type="submit" data-testid="create-submit">Create Task</button>
+          </form>
+        </section>
+
+        <section class="panel-block action-block">
+          <div class="block-header">
+            <div>
+              <p class="eyebrow">Mutations</p>
+              <h2>Update</h2>
+            </div>
+            <p id="update-target" class="mono">target: none</p>
+          </div>
+          <form id="update-form" class="stack-form">
+            <label>Status
+              <select name="status" data-testid="update-status">
+                <option value="">unchanged</option>
+                <option value="todo">todo</option>
+                <option value="running">running</option>
+                <option value="done">done</option>
+                <option value="blocked">blocked</option>
+                <option value="failed">failed</option>
+                <option value="canceled">canceled</option>
+              </select>
+            </label>
+            <label>Owner <input name="owner" data-testid="update-owner"></label>
+            <label>Title <input name="title" data-testid="update-title"></label>
+            <label>Objective <textarea name="objective" data-testid="update-objective" rows="3"></textarea></label>
+            <label>Note <textarea name="note" data-testid="update-note" rows="2"></textarea></label>
+            <label>Append Acceptance <textarea name="append_accept" data-testid="update-accept" rows="2" placeholder="One criterion per line"></textarea></label>
+            <button type="submit" data-testid="update-submit">Apply Update</button>
+          </form>
+        </section>
+
+        <section class="panel-block action-block">
+          <div class="block-header">
+            <div>
+              <p class="eyebrow">Mutations</p>
+              <h2>Close</h2>
+            </div>
+            <p id="close-target" class="mono">target: none</p>
+          </div>
+          <form id="close-form" class="stack-form">
+            <label>Status
+              <select name="status" data-testid="close-status" required>
+                <option value="done">done</option>
+                <option value="failed">failed</option>
+                <option value="blocked">blocked</option>
+                <option value="canceled">canceled</option>
+              </select>
+            </label>
+            <label>Owner <input name="owner" data-testid="close-owner"></label>
+            <label>Note <textarea name="note" data-testid="close-note" required rows="3"></textarea></label>
+            <button type="submit" data-testid="close-submit">Close Task</button>
+          </form>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p id="flash-message" data-testid="flash-message">Ready.</p>
+      </footer>
+    </div>
+    <script src="/panel/app.js" defer></script>
+  </body>
+</html>

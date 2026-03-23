@@ -30,6 +30,7 @@ Estado real actual:
 - path de lectura panel -> tareas canonicas: `scripts/task_panel_read.sh`;
 - path de mutacion minima panel -> tareas canonicas: `scripts/task_panel_mutate.sh`;
 - superficie HTTP local minima para panel -> tareas canonicas: `scripts/task_panel_http_server.py`;
+- superficie visible minima del panel sobre la API local: `http://127.0.0.1:8765/panel/`;
 - consultas minimas WhatsApp -> API local -> tareas canonicas: `scripts/task_whatsapp_query.py`;
 - mutaciones minimas WhatsApp -> API local -> tareas canonicas: `scripts/task_whatsapp_mutate.py`;
 - la migracion legacy ya cerro y el runner parametrizable queda consolidado en `scripts/task_migrate_legacy_batch.sh`;
