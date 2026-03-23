@@ -19,6 +19,7 @@ Cierre de transicion del carril de tareas completado.
 - Mantener el panel leyendo tareas canonicas por `./scripts/task_panel_read.sh` hasta abrir un tramo separado de mutaciones.
 - Mantener las mutaciones panel-side apoyadas en `task_panel_mutate.sh` y, por debajo, en `task_create.sh`, `task_update.sh` y `task_close.sh`.
 - Reutilizar `task_panel_http_server.py` como contrato base antes de abrir consultas o comandos por WhatsApp.
+- Mantener WhatsApp en modo consultas sobre `task_whatsapp_query.py` hasta abrir un tramo separado de mutaciones de canal.
 - No abrir un rediseño de arquitectura en paralelo.
 - Priorizar integracion y verificabilidad por encima de nuevas capas doctrinales.
 
