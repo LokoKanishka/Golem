@@ -1383,14 +1383,14 @@ TASK_SCAN_CANONICAL task-20260319T202937Z-2ec1ee04 /home/lucy-ubuntu/Escritorio/
 TASK_SCAN_CANONICAL task-20260319T202937Z-ea45d296 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260319T202937Z-ea45d296.json
 TASK_SCAN_CANONICAL task-20260319T202938Z-bb300f22 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260319T202938Z-bb300f22.json
 TASK_SCAN_CANONICAL task-20260319T202945Z-90713e49 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260319T202945Z-90713e49.json
-TASK_SCAN_LEGACY task-20260320T002755Z-1232e1c1 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T002755Z-1232e1c1.json
-TASK_SCAN_LEGACY task-20260320T002755Z-46c5b88c /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T002755Z-46c5b88c.json
-TASK_SCAN_LEGACY task-20260320T002755Z-dcf710d9 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T002755Z-dcf710d9.json
-TASK_SCAN_LEGACY task-20260320T003923Z-f2a179cb /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T003923Z-f2a179cb.json
-TASK_SCAN_LEGACY task-20260320T004502Z-683789eb /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004502Z-683789eb.json
-TASK_SCAN_LEGACY task-20260320T004502Z-b00b8aca /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004502Z-b00b8aca.json
-TASK_SCAN_LEGACY task-20260320T004502Z-b8b47720 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004502Z-b8b47720.json
-TASK_SCAN_LEGACY task-20260320T004636Z-5d48b885 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004636Z-5d48b885.json
-TASK_SCAN_LEGACY task-20260320T004636Z-66229532 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004636Z-66229532.json
-TASK_SCAN_LEGACY task-20260320T004636Z-c5e6e27a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004636Z-c5e6e27a.json
-SCAN_SUMMARY total=1395 canonical=1385 legacy=10 corrupt=0 invalid=0
+TASK_SCAN_CANONICAL task-20260320T002755Z-1232e1c1 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T002755Z-1232e1c1.json
+TASK_SCAN_CANONICAL task-20260320T002755Z-46c5b88c /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T002755Z-46c5b88c.json
+TASK_SCAN_CANONICAL task-20260320T002755Z-dcf710d9 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T002755Z-dcf710d9.json
+TASK_SCAN_CANONICAL task-20260320T003923Z-f2a179cb /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T003923Z-f2a179cb.json
+TASK_SCAN_CANONICAL task-20260320T004502Z-683789eb /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004502Z-683789eb.json
+TASK_SCAN_CANONICAL task-20260320T004502Z-b00b8aca /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004502Z-b00b8aca.json
+TASK_SCAN_CANONICAL task-20260320T004502Z-b8b47720 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004502Z-b8b47720.json
+TASK_SCAN_CANONICAL task-20260320T004636Z-5d48b885 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004636Z-5d48b885.json
+TASK_SCAN_CANONICAL task-20260320T004636Z-66229532 /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004636Z-66229532.json
+TASK_SCAN_CANONICAL task-20260320T004636Z-c5e6e27a /home/lucy-ubuntu/Escritorio/golem/tasks/task-20260320T004636Z-c5e6e27a.json
+SCAN_SUMMARY total=1395 canonical=1395 legacy=0 corrupt=0 invalid=0
