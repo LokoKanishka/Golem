@@ -138,6 +138,7 @@ El helper del ultimo snapshot puede profundizar un paso mas sin ensuciar esa sal
 - mantiene `suggested_first_action`
 - agrega `second_action` solo en el helper
 - la segunda pista sale del mismo snapshot y no se imprime en el resumen corto del fallo
+- ordena la lectura por prioridad: contexto, accion primero, accion despues, leer primero, leer despues
 
 ## Self Check
 

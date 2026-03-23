@@ -186,6 +186,12 @@ assert "GOLEM HOST DIAGNOSIS" not in healthcheck, healthcheck
 assert len([line for line in healthcheck.splitlines() if line.strip()]) <= 13, healthcheck
 
 assert "GOLEM HOST LAST SNAPSHOT" in helper, helper
+assert "SNAPSHOT:" in helper, helper
+assert "CURRENT CONTEXT:" in helper, helper
+assert "DO FIRST:" in helper, helper
+assert "DO NEXT:" in helper, helper
+assert "READ FIRST:" in helper, helper
+assert "READ NEXT:" in helper, helper
 assert f"snapshot_dir: {snapshot_dir}" in helper, helper
 assert "trigger_reason: stack_healthcheck_failed" in helper, helper
 assert "gateway_context:" in helper, helper
@@ -194,6 +200,10 @@ assert "suggested_first_action: revisar healthcheck de whatsapp_bridge" in helpe
 assert "second_action: mirar journal del servicio whatsapp_bridge" in helper, helper
 assert f"look_first: {summary_path}" in helper, helper
 assert f"look_next: {manifest_path}" in helper, helper
+assert helper.index("DO FIRST:") < helper.index("suggested_first_action:"), helper
+assert helper.index("DO NEXT:") < helper.index("second_action:"), helper
+assert helper.index("READ FIRST:") < helper.index("look_first:"), helper
+assert helper.index("READ NEXT:") < helper.index("look_next:"), helper
 
 for service_name in (api_service_name, bridge_service_name):
     show = subprocess.run(

@@ -46,5 +46,6 @@ Pulido fino del helper:
 - `second_action` aparece en `./scripts/golem_host_last_snapshot.sh`
 - no aparece en el resumen corto principal para no ensuciar la salida bajo estres
 - sale de la misma evidencia del snapshot, con reglas chicas y auditables
+- la vista rapida del helper agrupa por prioridad operativa: snapshot, contexto, hacer primero, hacer despues, leer primero y leer despues
 
 Los directorios timestamped generados por el runner quedan fuera de Git por `.gitignore`.

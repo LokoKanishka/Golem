@@ -98,23 +98,58 @@ elif mode == "json":
     print(json.dumps(payload, ensure_ascii=True, indent=2))
 else:
     print("GOLEM HOST LAST SNAPSHOT")
-    for key in (
-        "snapshot_dir",
-        "timestamp_utc",
-        "trigger_mode",
-        "trigger_source",
-        "trigger_reason",
-        "overall",
-        "gateway_context",
-        "gateway_last_signal",
-        "suggested_first_action",
-        "second_action",
-        "task_api_active",
-        "whatsapp_bridge_active",
-        "look_first",
-        "look_next",
-    ):
-        print(f"{key}: {payload[key] or '(none)'}")
+    sections = (
+        (
+            "SNAPSHOT",
+            (
+                "snapshot_dir",
+                "timestamp_utc",
+                "trigger_mode",
+                "trigger_source",
+                "trigger_reason",
+                "overall",
+            ),
+        ),
+        (
+            "CURRENT CONTEXT",
+            (
+                "gateway_context",
+                "gateway_last_signal",
+                "task_api_active",
+                "whatsapp_bridge_active",
+            ),
+        ),
+        (
+            "DO FIRST",
+            (
+                "suggested_first_action",
+            ),
+        ),
+        (
+            "DO NEXT",
+            (
+                "second_action",
+            ),
+        ),
+        (
+            "READ FIRST",
+            (
+                "look_first",
+            ),
+        ),
+        (
+            "READ NEXT",
+            (
+                "look_next",
+            ),
+        ),
+    )
+
+    for heading, keys in sections:
+        print()
+        print(f"{heading}:")
+        for key in keys:
+            print(f"{key}: {payload[key] or '(none)'}")
 PY
 }
 
