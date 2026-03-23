@@ -58,11 +58,19 @@ Cobertura smoke actual:
 - `./tests/smoke_host_gateway_context_triage.sh`: valida triage de gateway/RPC degradado con stack sano y contexto parcial
 - `./tests/smoke_host_stack_startup_timeout.sh`: valida el carril de `launch_golem.sh` cuando el stack arranca pero no queda sano a tiempo
 - `./tests/smoke_host_gateway_systemd_down.sh`: valida el carril del launcher cuando `openclaw-gateway.service` cae a nivel systemd y task API + bridge siguen sanos
+- `./tests/smoke_host_multi_failure_triage.sh`: valida una muestra chica de fallas simultaneas (`task_api + bridge`, `gateway + bridge`, `gateway + task_api`) y deja observable la prioridad actual del triage
 - `./tests/smoke_host_auto_diagnose_failure.sh`: valida auto-disparo y cooldown del snapshot ante falla real del stack
 - `./tests/smoke_host_last_snapshot_context_layout.sh`: valida que helper y `summary.txt` sigan alineados en lectura
 
 Todavia no se cubren todas las combinaciones posibles:
 
-- combinaciones multiples de fallas simultaneas en task API, bridge y gateway
+- combinaciones multiples mas ruidosas con tres fallas a la vez o mezclas con `stack_startup_timeout`
+
+Prioridad observable actual cuando hay mas de una falla:
+
+- `stack_startup_timeout` sigue teniendo prioridad maxima
+- `task_api` prima sobre bridge y sobre un gateway explicitamente en FAIL
+- un gateway explicitamente en FAIL prima sobre `whatsapp_bridge`
+- `second_action` apunta al siguiente problema real cubierto por el smoke multiple, en vez de repetir el mismo foco cuando ya hay otra falla fuerte visible
 
 Los directorios timestamped generados por el runner quedan fuera de Git por `.gitignore`.
