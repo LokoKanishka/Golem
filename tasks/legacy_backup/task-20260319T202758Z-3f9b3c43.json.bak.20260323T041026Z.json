@@ -1,0 +1,88 @@
+{
+  "task_id": "task-20260319T202758Z-3f9b3c43",
+  "type": "self-check",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260319T202757Z-b86637ca",
+  "depends_on": [
+    "task-20260319T202757Z-b86637ca"
+  ],
+  "status": "done",
+  "created_at": "2026-03-19T20:27:58+00:00",
+  "updated_at": "2026-03-19T20:28:05+00:00",
+  "title": "Worker packet roundtrip success path / local self-check",
+  "objective": "Validate the local Golem environment before a delegated worker run.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "self-check",
+      "captured_at": "2026-03-19T20:28:05+00:00",
+      "exit_code": 0,
+      "content": "SELF-CHECK GOLEM\ngateway: OK — gateway activo, runtime running, rpc ok\nwhatsapp: OK — whatsapp conectado\nbrowser_relay: OK — browser relay chrome running\ntabs: WARN — relay activo pero 0 tabs adjuntas\nestado_general: WARN\nsintesis: el sistema está mayormente operativo pero hay señales a revisar.",
+      "command": "./scripts/self_check.sh",
+      "estado_general": "WARN"
+    }
+  ],
+  "artifacts": [],
+  "notes": [
+    "self-check completed and task closed"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "",
+    "user_facing_ready": false,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "provider_delivery_status": "",
+      "provider_delivery_reason": "",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [],
+    "claim_history": []
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [],
+    "events": [],
+    "last_event_at": "",
+    "last_event_reason": ""
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  },
+  "step_name": "local-self-check",
+  "step_order": 1,
+  "critical": true,
+  "execution_mode": "local"
+}

@@ -1,0 +1,318 @@
+{
+  "task_id": "task-20260319T202909Z-f6458387",
+  "type": "task-chain",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "failed",
+  "created_at": "2026-03-19T20:29:09+00:00",
+  "updated_at": "2026-03-19T20:29:17+00:00",
+  "title": "Worker packet roundtrip success path",
+  "objective": "Execute a mixed local-worker chain that delegates the worker step, prepares the handoff, waits for a manual-controlled worker result, and resumes one local closing step after that result exists.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-plan-traceability",
+      "captured_at": "2026-03-19T20:29:09+00:00",
+      "exit_code": 0,
+      "content": "persisted effective chain plan and preflight artifacts for this root",
+      "effective_plan_path": "outbox/manual/20260319T202909371349Z-worker-packet-roundtrip-success-path-effective-chain-plan.json",
+      "effective_plan_sha256": "5572ce2684cd2fb345ab5f133d79d95c1eda3048136eec2e6d622d19e9aff034",
+      "preflight_artifact_path": "outbox/manual/20260319T202909439108Z-20260319t202909371349z-worker-packet-roundtrip-success-path-effective-chain-plan-chain-plan-preflight.md",
+      "preflight_sha256": "e61fdbd0fcb0ed5cc6f15c6d75f39664ae925a41f5be16f775026ff538f5fbfe",
+      "plan_version": "2.4"
+    },
+    {
+      "kind": "chain-plan",
+      "captured_at": "2026-03-19T20:29:09+00:00",
+      "exit_code": 0,
+      "content": "planned 3-step mixed local-worker chain with one awaited worker barrier and one local resume step",
+      "chain_type": "repo-analysis-worker-manual",
+      "plan_version": "2.4",
+      "step_count": 3,
+      "local_step_count": 2,
+      "worker_step_count": 1,
+      "critical_step_count": 2,
+      "await_worker_result_step_count": 1,
+      "dependency_group_count": 1,
+      "plan_traceability_persisted": true
+    },
+    {
+      "kind": "chain-start",
+      "captured_at": "2026-03-19T20:29:09+00:00",
+      "exit_code": 0,
+      "content": "chain v2 started for repo-analysis-worker-manual",
+      "chain_type": "repo-analysis-worker-manual"
+    },
+    {
+      "kind": "chain-step-local",
+      "captured_at": "2026-03-19T20:29:16+00:00",
+      "exit_code": 0,
+      "content": "local-self-check exit_code=0",
+      "chain_type": "repo-analysis-worker-manual",
+      "step_name": "local-self-check",
+      "child_task_id": "task-20260319T202909Z-fa691d8a",
+      "execution_mode": "local",
+      "critical": true
+    },
+    {
+      "kind": "chain-step-worker",
+      "captured_at": "2026-03-19T20:29:17+00:00",
+      "exit_code": 0,
+      "content": "delegated-repo-analysis delegated awaiting manual-controlled worker result",
+      "chain_type": "repo-analysis-worker-manual",
+      "step_name": "delegated-repo-analysis",
+      "child_task_id": "task-20260319T202916Z-1d5c6b57",
+      "execution_mode": "worker",
+      "critical": true
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260319T202909371349Z-worker-packet-roundtrip-success-path-effective-chain-plan.json",
+      "kind": "effective-chain-plan",
+      "created_at": "2026-03-19T20:29:09+00:00",
+      "sha256": "5572ce2684cd2fb345ab5f133d79d95c1eda3048136eec2e6d622d19e9aff034",
+      "plan_version": "2.4"
+    },
+    {
+      "path": "outbox/manual/20260319T202909439108Z-20260319t202909371349z-worker-packet-roundtrip-success-path-effective-chain-plan-chain-plan-preflight.md",
+      "kind": "chain-plan-preflight",
+      "created_at": "2026-03-19T20:29:09+00:00",
+      "sha256": "e61fdbd0fcb0ed5cc6f15c6d75f39664ae925a41f5be16f775026ff538f5fbfe",
+      "plan_version": "2.4"
+    }
+  ],
+  "notes": [
+    "chain plan v2 created at 2026-03-19T20:29:09+00:00",
+    "effective chain plan persisted at 2026-03-19T20:29:09+00:00 and preflight artifact frozen at 2026-03-19T20:29:09+00:00",
+    "task_chain_run_v2 aborted before completion"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "",
+    "user_facing_ready": false,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "provider_delivery_status": "",
+      "provider_delivery_reason": "",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [],
+    "claim_history": []
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [],
+    "events": [],
+    "last_event_at": "",
+    "last_event_reason": ""
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  },
+  "chain_type": "repo-analysis-worker-manual",
+  "chain_status": "running",
+  "chain_plan": {
+    "plan_kind": "chain_plan",
+    "plan_version": "2.4",
+    "version": "2.4",
+    "planned_at": "2026-03-19T20:29:09+00:00",
+    "mixes_execution_modes": true,
+    "manual_worker_controlled": true,
+    "dependency_group_count": 1,
+    "dependency_groups": [
+      {
+        "group_name": "delegated-repo-analysis",
+        "group_type": "await_group",
+        "step_names": [
+          "delegated-repo-analysis"
+        ],
+        "satisfaction_policy": "all_done",
+        "continue_on_blocked": false,
+        "continue_on_failed": false,
+        "used_by_step_names": [
+          "local-compare-orchestration-docs"
+        ]
+      }
+    ],
+    "local_step_count": 2,
+    "worker_step_count": 1,
+    "critical_step_count": 2,
+    "await_worker_result_step_count": 1,
+    "step_count": 3,
+    "steps": [
+      {
+        "step_name": "local-self-check",
+        "step_order": 1,
+        "task_type": "self-check",
+        "execution_mode": "local",
+        "critical": true,
+        "title": "Worker packet roundtrip success path / local self-check",
+        "objective": "Validate the local Golem environment before any delegation.",
+        "depends_on_step_names": [],
+        "status": "done",
+        "child_task_id": "task-20260319T202909Z-fa691d8a",
+        "await_worker_result": false,
+        "summary": "SELF-CHECK GOLEM gateway: OK — gateway activo, runtime running, rpc ok whatsapp: OK — whatsapp conectado browser_relay: OK — browser relay chrome running tabs: WARN — relay activo pero 0 tabs adjuntas estado_general: WARN sintesis: el si...",
+        "started_at": "2026-03-19T20:29:09+00:00",
+        "last_exit_code": 0,
+        "finished_at": "2026-03-19T20:29:16+00:00"
+      },
+      {
+        "step_name": "delegated-repo-analysis",
+        "step_order": 2,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "title": "Worker packet roundtrip success path / delegated repo analysis",
+        "objective": "Prepare a real delegated repo-analysis worker step with durable handoff and ticket, then wait for manual-controlled worker execution and result closure.",
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "await_group": "delegated-repo-analysis",
+        "status": "delegated",
+        "child_task_id": "task-20260319T202916Z-1d5c6b57",
+        "await_worker_result": true,
+        "summary": "worker handoff packet exported at handoffs/task-20260319T202916Z-1d5c6b57.packet.json",
+        "started_at": "2026-03-19T20:29:16+00:00",
+        "last_exit_code": 0
+      },
+      {
+        "step_name": "local-compare-orchestration-docs",
+        "step_order": 3,
+        "task_type": "compare-files",
+        "execution_mode": "local",
+        "critical": false,
+        "title": "Worker packet roundtrip success path / local orchestration docs comparison",
+        "objective": "Produce one local artifact after the manual-controlled worker result is registered so the chain can resume and close with mixed evidence.",
+        "depends_on_step_names": [
+          "delegated-repo-analysis"
+        ],
+        "join_group": "delegated-repo-analysis",
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": false
+      }
+    ]
+  },
+  "effective_chain_plan": {
+    "plan_kind": "chain_plan",
+    "plan_version": "2.4",
+    "version": "2.4",
+    "planned_at": "2026-03-19T20:29:09+00:00",
+    "mixes_execution_modes": true,
+    "manual_worker_controlled": true,
+    "dependency_group_count": 1,
+    "dependency_groups": [
+      {
+        "group_name": "delegated-repo-analysis",
+        "group_type": "await_group",
+        "step_names": [
+          "delegated-repo-analysis"
+        ],
+        "satisfaction_policy": "all_done",
+        "continue_on_blocked": false,
+        "continue_on_failed": false,
+        "used_by_step_names": [
+          "local-compare-orchestration-docs"
+        ]
+      }
+    ],
+    "local_step_count": 2,
+    "worker_step_count": 1,
+    "critical_step_count": 2,
+    "await_worker_result_step_count": 1,
+    "step_count": 3,
+    "steps": [
+      {
+        "step_name": "local-self-check",
+        "step_order": 1,
+        "task_type": "self-check",
+        "execution_mode": "local",
+        "critical": true,
+        "title": "Worker packet roundtrip success path / local self-check",
+        "objective": "Validate the local Golem environment before any delegation.",
+        "depends_on_step_names": [],
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": false
+      },
+      {
+        "step_name": "delegated-repo-analysis",
+        "step_order": 2,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "title": "Worker packet roundtrip success path / delegated repo analysis",
+        "objective": "Prepare a real delegated repo-analysis worker step with durable handoff and ticket, then wait for manual-controlled worker execution and result closure.",
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "await_group": "delegated-repo-analysis",
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": true
+      },
+      {
+        "step_name": "local-compare-orchestration-docs",
+        "step_order": 3,
+        "task_type": "compare-files",
+        "execution_mode": "local",
+        "critical": false,
+        "title": "Worker packet roundtrip success path / local orchestration docs comparison",
+        "objective": "Produce one local artifact after the manual-controlled worker result is registered so the chain can resume and close with mixed evidence.",
+        "depends_on_step_names": [
+          "delegated-repo-analysis"
+        ],
+        "join_group": "delegated-repo-analysis",
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": false
+      }
+    ],
+    "effective_plan_for_task_id": "task-20260319T202909Z-f6458387",
+    "effective_plan_for_chain_type": "repo-analysis-worker-manual",
+    "effective_plan_source_task_path": "tasks/task-20260319T202909Z-f6458387.json",
+    "effective_plan_created_at": "2026-03-19T20:29:09+00:00"
+  },
+  "effective_plan_path": "outbox/manual/20260319T202909371349Z-worker-packet-roundtrip-success-path-effective-chain-plan.json",
+  "effective_plan_sha256": "5572ce2684cd2fb345ab5f133d79d95c1eda3048136eec2e6d622d19e9aff034",
+  "preflight_artifact_path": "outbox/manual/20260319T202909439108Z-20260319t202909371349z-worker-packet-roundtrip-success-path-effective-chain-plan-chain-plan-preflight.md",
+  "preflight_sha256": "e61fdbd0fcb0ed5cc6f15c6d75f39664ae925a41f5be16f775026ff538f5fbfe",
+  "validated_plan_version": "2.4",
+  "validated_at": "2026-03-19T20:29:09+00:00",
+  "preflighted_at": "2026-03-19T20:29:09+00:00"
+}

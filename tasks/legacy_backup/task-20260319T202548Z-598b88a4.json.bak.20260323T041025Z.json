@@ -1,0 +1,212 @@
+{
+  "task_id": "task-20260319T202548Z-598b88a4",
+  "type": "repo-analysis",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "done",
+  "created_at": "2026-03-19T20:25:48+00:00",
+  "updated_at": "2026-03-19T20:27:30+00:00",
+  "title": "Capability verification / direct worker flow",
+  "objective": "Capability verification / direct worker flow",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "worker-handoff-packet",
+      "captured_at": "2026-03-19T20:25:48+00:00",
+      "exit_code": 0,
+      "content": "worker handoff packet exported at handoffs/task-20260319T202548Z-598b88a4.packet.json",
+      "packet_path": "handoffs/task-20260319T202548Z-598b88a4.packet.json",
+      "handoff_markdown_path": "handoffs/task-20260319T202548Z-598b88a4.md",
+      "codex_ticket_path": "handoffs/task-20260319T202548Z-598b88a4.codex.md"
+    },
+    {
+      "kind": "worker-run-ready",
+      "captured_at": "2026-03-19T20:25:48+00:00",
+      "exit_code": 0,
+      "content": "controlled codex run passed preflight",
+      "ticket_path": "handoffs/task-20260319T202548Z-598b88a4.codex.md",
+      "prompt_path": "handoffs/task-20260319T202548Z-598b88a4.run.prompt.md",
+      "log_path": "handoffs/task-20260319T202548Z-598b88a4.run.log",
+      "last_message_path": "handoffs/task-20260319T202548Z-598b88a4.run.last.md",
+      "command": "codex exec -C \"/home/lucy-ubuntu/Escritorio/golem\" -s \"read-only\" --color never -o \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260319T202548Z-598b88a4.run.last.md\" - < \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260319T202548Z-598b88a4.run.prompt.md\" >> \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260319T202548Z-598b88a4.run.log\" 2>&1",
+      "sandbox_mode": "read-only",
+      "decision_source": "worker_run_policy"
+    },
+    {
+      "kind": "worker-run-start",
+      "captured_at": "2026-03-19T20:25:48+00:00",
+      "exit_code": 0,
+      "content": "controlled codex run launched",
+      "ticket_path": "handoffs/task-20260319T202548Z-598b88a4.codex.md",
+      "prompt_path": "handoffs/task-20260319T202548Z-598b88a4.run.prompt.md",
+      "log_path": "handoffs/task-20260319T202548Z-598b88a4.run.log",
+      "last_message_path": "handoffs/task-20260319T202548Z-598b88a4.run.last.md",
+      "command": "codex exec -C \"/home/lucy-ubuntu/Escritorio/golem\" -s \"read-only\" --color never -o \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260319T202548Z-598b88a4.run.last.md\" - < \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260319T202548Z-598b88a4.run.prompt.md\" >> \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260319T202548Z-598b88a4.run.log\" 2>&1"
+    },
+    {
+      "kind": "worker-run-finish",
+      "captured_at": "2026-03-19T20:27:30+00:00",
+      "exit_code": 0,
+      "content": "controlled codex run finished with exit_code=0",
+      "log_path": "handoffs/task-20260319T202548Z-598b88a4.run.log",
+      "last_message_path": "handoffs/task-20260319T202548Z-598b88a4.run.last.md"
+    },
+    {
+      "kind": "worker-result",
+      "captured_at": "2026-03-19T20:27:30+00:00",
+      "exit_code": 0,
+      "content": "El alcance actual de `golem` es una base local de operación y trazabilidad: `OpenClaw` como orquestador/interfaz, `Codex` como worker despertable, `outbox` como salida final y el panel como sesión canónica, no una integración autónoma viva del worker ni despliegue automático del gateway, según `README.md:3`, `README.md:11`, `docs/ARCHITECTURE.md:3`, `openclaw/README.md:3`. | Para este ticket, el foco correcto sí c...",
+      "status": "done",
+      "summary": "El alcance actual de `golem` es una base local de operación y trazabilidad: `OpenClaw` como orquestador/interfaz, `Codex` como worker despertable, `outbox` como salida final y el panel como sesión canónica, no una integración autónoma viva del worker ni despliegue automático del gateway, según `README.md:3`, `README.md:11`, `docs/ARCHITECTURE.md:3`, `openclaw/README.md:3`. | Para este ticket, el foco correcto sí c...",
+      "source": "codex_auto_extract",
+      "artifact_paths": [
+        "handoffs/task-20260319T202548Z-598b88a4.run.result.md"
+      ],
+      "extracted_summary": "El alcance actual de `golem` es una base local de operación y trazabilidad: `OpenClaw` como orquestador/interfaz, `Codex` como worker despertable, `outbox` como salida final y el panel como sesión canónica, no una integración autónoma viva del worker ni despliegue automático del gateway, según `README.md:3`, `README.md:11`, `docs/ARCHITECTURE.md:3`, `openclaw/README.md:3`. | Para este ticket, el foco correcto sí c...",
+      "result_artifact_path": "handoffs/task-20260319T202548Z-598b88a4.run.result.md",
+      "result_source_files": [
+        "handoffs/task-20260319T202548Z-598b88a4.run.last.md",
+        "handoffs/task-20260319T202548Z-598b88a4.run.log"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260319T202548Z-598b88a4.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-19T20:25:48+00:00"
+    },
+    {
+      "path": "handoffs/task-20260319T202548Z-598b88a4.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-19T20:25:48+00:00"
+    },
+    {
+      "path": "handoffs/task-20260319T202548Z-598b88a4.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-19T20:25:48+00:00"
+    },
+    {
+      "path": "handoffs/task-20260319T202548Z-598b88a4.run.result.md",
+      "kind": "worker-result",
+      "created_at": "2026-03-19T20:27:30+00:00"
+    }
+  ],
+  "notes": [
+    "delegated to worker_future on 2026-03-19T20:25:48+00:00",
+    "controlled codex run preflight passed on 2026-03-19T20:25:48+00:00",
+    "controlled codex run started on 2026-03-19T20:25:48+00:00",
+    "controlled codex run finished on 2026-03-19T20:27:30+00:00 with exit_code=0",
+    "worker result extracted automatically at 2026-03-19T20:27:30+00:00",
+    "controlled codex run finish requested with status=done",
+    "worker result recorded from codex"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "",
+    "user_facing_ready": false,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "provider_delivery_status": "",
+      "provider_delivery_reason": "",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [],
+    "claim_history": []
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [],
+    "events": [],
+    "last_event_at": "",
+    "last_event_reason": ""
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  },
+  "handoff": {
+    "delegated_to": "worker_future",
+    "delegated_at": "2026-03-19T20:25:48+00:00",
+    "task_type": "repo-analysis",
+    "title": "Capability verification / direct worker flow",
+    "objective": "Capability verification / direct worker flow",
+    "recommended_next_step": "delimitar alcance del repo y formato del informe esperado",
+    "required_fields_present": [
+      "task_id",
+      "type",
+      "title",
+      "objective",
+      "created_at"
+    ],
+    "missing_required_fields": [],
+    "policy_version": "1.0",
+    "rationale": "analisis multiarchivo con tiempo y estructura suficientes para worker futuro",
+    "source_status": "queued"
+  },
+  "worker_run": {
+    "runner": "codex_cli",
+    "state": "finished",
+    "result_status": "done",
+    "decision_source": "worker_run_policy",
+    "policy_version": "1.0",
+    "ticket_path": "handoffs/task-20260319T202548Z-598b88a4.codex.md",
+    "prompt_path": "handoffs/task-20260319T202548Z-598b88a4.run.prompt.md",
+    "log_path": "handoffs/task-20260319T202548Z-598b88a4.run.log",
+    "last_message_path": "handoffs/task-20260319T202548Z-598b88a4.run.last.md",
+    "command": "codex exec -C \"/home/lucy-ubuntu/Escritorio/golem\" -s \"read-only\" --color never -o \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260319T202548Z-598b88a4.run.last.md\" - < \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260319T202548Z-598b88a4.run.prompt.md\" >> \"/home/lucy-ubuntu/Escritorio/golem/handoffs/task-20260319T202548Z-598b88a4.run.log\" 2>&1",
+    "sandbox_mode": "read-only",
+    "started_at": "2026-03-19T20:25:48+00:00",
+    "exit_code": 0,
+    "finished_at": "2026-03-19T20:27:30+00:00",
+    "extracted_at": "2026-03-19T20:27:30+00:00",
+    "result_artifact_path": "handoffs/task-20260319T202548Z-598b88a4.run.result.md",
+    "extracted_summary": "El alcance actual de `golem` es una base local de operación y trazabilidad: `OpenClaw` como orquestador/interfaz, `Codex` como worker despertable, `outbox` como salida final y el panel como sesión canónica, no una integración autónoma viva del worker ni despliegue automático del gateway, según `README.md:3`, `README.md:11`, `docs/ARCHITECTURE.md:3`, `openclaw/README.md:3`. | Para este ticket, el foco correcto sí c...",
+    "extracted_summary_lines": [
+      "El alcance actual de `golem` es una base local de operación y trazabilidad: `OpenClaw` como orquestador/interfaz, `Codex` como worker despertable, `outbox` como salida final y el panel como sesión canónica, no una integración autónoma viva del worker ni despliegue automático del gateway, según `README.md:3`, `README.md:11`, `docs/ARCHITECTURE.md:3`, `openclaw/README.md:3`.",
+      "Para este ticket, el foco correcto sí cae dentro de `repo-analysis`: el propio ticket pide “delimitar alcance del repo y formato del informe esperado” usando el handoff ya generado, en `handoffs/task-20260319T202548Z-598b88a4.codex.md:52`.",
+      "El “direct worker flow” verificable hoy pasa por la corrida controlada de Codex y la normalización/finalización del resultado worker, documentado en `docs/CAPABILITY_VERIFICATION_MATRIX.md:237` y `docs/CAPABILITY_VERIFICATION_MATRIX.md:253`.",
+      "El formato esperado del informe ya está fijado por el ticket como `resumen corto`, `evidencia/verificacion` y `git status --short`, en `handoffs/task-20260319T202548Z-598b88a4.codex.md:65`.",
+      "Si ese informe luego se persiste como artefacto Markdown, debería seguir el baseline de `docs/OUTPUT_CONVENTIONS.md:9` y tomar como referencia de forma el reporte ejemplo `outbox/manual/20260313T214354Z-golem-repo-analysis-report.md:1`."
+    ],
+    "result_source_files": [
+      "handoffs/task-20260319T202548Z-598b88a4.run.last.md",
+      "handoffs/task-20260319T202548Z-598b88a4.run.log"
+    ],
+    "finish_status": "done",
+    "finish_summary": "El alcance actual de `golem` es una base local de operación y trazabilidad: `OpenClaw` como orquestador/interfaz, `Codex` como worker despertable, `outbox` como salida final y el panel como sesión canónica, no una integración autónoma viva del worker ni despliegue automático del gateway, según `README.md:3`, `README.md:11`, `docs/ARCHITECTURE.md:3`, `openclaw/README.md:3`. | Para este ticket, el foco correcto sí c...",
+    "closed_at": "2026-03-19T20:27:30+00:00"
+  }
+}

@@ -1,0 +1,426 @@
+{
+  "task_id": "task-20260319T202748Z-54aeb9ba",
+  "type": "task-chain",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "",
+  "depends_on": [],
+  "status": "failed",
+  "created_at": "2026-03-19T20:27:48+00:00",
+  "updated_at": "2026-03-19T20:27:57+00:00",
+  "title": "Verify chain execution audit",
+  "objective": "Execute a mixed local-worker chain that delegates multiple manual-controlled worker steps, waits for their worker results independently, and resumes local continuation steps through explicit dependency barriers instead of relying on position-only ordering.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-plan-traceability",
+      "captured_at": "2026-03-19T20:27:49+00:00",
+      "exit_code": 0,
+      "content": "persisted effective chain plan and preflight artifacts for this root",
+      "effective_plan_path": "outbox/manual/20260319T202748961703Z-verify-chain-execution-audit-effective-chain-plan.json",
+      "effective_plan_sha256": "fa9bb64277f497f480e612818de78d74ce36fad691238bcb4d5e0e8dc8d7da44",
+      "preflight_artifact_path": "outbox/manual/20260319T202749032795Z-20260319t202748961703z-verify-chain-execution-audit-effective-chain-plan-chain-plan-preflight.md",
+      "preflight_sha256": "337c8f6ed1c1c84b0bb206c17ad3138934c47e1446b98698624470a5978aebf9",
+      "plan_version": "2.4"
+    },
+    {
+      "kind": "chain-plan",
+      "captured_at": "2026-03-19T20:27:49+00:00",
+      "exit_code": 0,
+      "content": "planned 5-step mixed local-worker chain with explicit dependency barriers across two awaited manual worker steps",
+      "chain_type": "repo-analysis-worker-manual-multi",
+      "plan_version": "2.4",
+      "step_count": 5,
+      "local_step_count": 3,
+      "worker_step_count": 2,
+      "critical_step_count": 3,
+      "await_worker_result_step_count": 2,
+      "dependency_group_count": 2,
+      "plan_traceability_persisted": true
+    },
+    {
+      "kind": "chain-start",
+      "captured_at": "2026-03-19T20:27:49+00:00",
+      "exit_code": 0,
+      "content": "chain v2 started for repo-analysis-worker-manual-multi",
+      "chain_type": "repo-analysis-worker-manual-multi"
+    },
+    {
+      "kind": "chain-step-local",
+      "captured_at": "2026-03-19T20:27:56+00:00",
+      "exit_code": 0,
+      "content": "local-self-check exit_code=0",
+      "chain_type": "repo-analysis-worker-manual-multi",
+      "step_name": "local-self-check",
+      "child_task_id": "task-20260319T202749Z-81853f13",
+      "execution_mode": "local",
+      "critical": true
+    },
+    {
+      "kind": "chain-step-worker",
+      "captured_at": "2026-03-19T20:27:57+00:00",
+      "exit_code": 0,
+      "content": "delegated-repo-analysis-architecture delegated awaiting manual-controlled worker result",
+      "chain_type": "repo-analysis-worker-manual-multi",
+      "step_name": "delegated-repo-analysis-architecture",
+      "child_task_id": "task-20260319T202756Z-881e39f1",
+      "execution_mode": "worker",
+      "critical": true
+    },
+    {
+      "kind": "chain-step-worker",
+      "captured_at": "2026-03-19T20:27:57+00:00",
+      "exit_code": 0,
+      "content": "delegated-repo-analysis-verification delegated awaiting manual-controlled worker result",
+      "chain_type": "repo-analysis-worker-manual-multi",
+      "step_name": "delegated-repo-analysis-verification",
+      "child_task_id": "task-20260319T202757Z-e1ab5100",
+      "execution_mode": "worker",
+      "critical": true
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260319T202748961703Z-verify-chain-execution-audit-effective-chain-plan.json",
+      "kind": "effective-chain-plan",
+      "created_at": "2026-03-19T20:27:49+00:00",
+      "sha256": "fa9bb64277f497f480e612818de78d74ce36fad691238bcb4d5e0e8dc8d7da44",
+      "plan_version": "2.4"
+    },
+    {
+      "path": "outbox/manual/20260319T202749032795Z-20260319t202748961703z-verify-chain-execution-audit-effective-chain-plan-chain-plan-preflight.md",
+      "kind": "chain-plan-preflight",
+      "created_at": "2026-03-19T20:27:49+00:00",
+      "sha256": "337c8f6ed1c1c84b0bb206c17ad3138934c47e1446b98698624470a5978aebf9",
+      "plan_version": "2.4"
+    }
+  ],
+  "notes": [
+    "chain plan v2 created at 2026-03-19T20:27:48+00:00",
+    "effective chain plan persisted at 2026-03-19T20:27:48+00:00 and preflight artifact frozen at 2026-03-19T20:27:49+00:00",
+    "task_chain_run_v2 aborted before completion"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "",
+    "user_facing_ready": false,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "provider_delivery_status": "",
+      "provider_delivery_reason": "",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [],
+    "claim_history": []
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [],
+    "events": [],
+    "last_event_at": "",
+    "last_event_reason": ""
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  },
+  "chain_type": "repo-analysis-worker-manual-multi",
+  "chain_status": "running",
+  "chain_plan": {
+    "plan_kind": "chain_plan",
+    "plan_version": "2.4",
+    "version": "2.4",
+    "planned_at": "2026-03-19T20:27:48+00:00",
+    "mixes_execution_modes": true,
+    "manual_worker_controlled": true,
+    "dependency_group_count": 2,
+    "dependency_groups": [
+      {
+        "group_name": "analysis-workers",
+        "group_type": "await_group",
+        "step_names": [
+          "delegated-repo-analysis-architecture",
+          "delegated-repo-analysis-verification"
+        ],
+        "satisfaction_policy": "all_done",
+        "continue_on_blocked": false,
+        "continue_on_failed": false,
+        "used_by_step_names": [
+          "local-compare-multi-worker-docs"
+        ]
+      },
+      {
+        "group_name": "architecture-ready",
+        "group_type": "join_barrier",
+        "step_names": [
+          "delegated-repo-analysis-architecture"
+        ],
+        "satisfaction_policy": "all_done",
+        "continue_on_blocked": false,
+        "continue_on_failed": false,
+        "used_by_step_names": [
+          "local-summarize-architecture"
+        ]
+      }
+    ],
+    "local_step_count": 3,
+    "worker_step_count": 2,
+    "critical_step_count": 3,
+    "await_worker_result_step_count": 2,
+    "step_count": 5,
+    "steps": [
+      {
+        "step_name": "local-self-check",
+        "step_order": 1,
+        "task_type": "self-check",
+        "execution_mode": "local",
+        "critical": true,
+        "title": "Verify chain execution audit / local self-check",
+        "objective": "Validate the local Golem environment before any delegation.",
+        "depends_on_step_names": [],
+        "status": "done",
+        "child_task_id": "task-20260319T202749Z-81853f13",
+        "await_worker_result": false,
+        "summary": "SELF-CHECK GOLEM gateway: OK — gateway activo, runtime running, rpc ok whatsapp: OK — whatsapp conectado browser_relay: OK — browser relay chrome running tabs: WARN — relay activo pero 0 tabs adjuntas estado_general: WARN sintesis: el si...",
+        "started_at": "2026-03-19T20:27:49+00:00",
+        "last_exit_code": 0,
+        "finished_at": "2026-03-19T20:27:56+00:00"
+      },
+      {
+        "step_name": "delegated-repo-analysis-architecture",
+        "step_order": 2,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "title": "Verify chain execution audit / delegated repo analysis architecture",
+        "objective": "Analyze the repository architecture and describe the multi-worker manual orchestration structure, focusing on chain topology and dependency boundaries.",
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "await_group": "analysis-workers",
+        "status": "delegated",
+        "child_task_id": "task-20260319T202756Z-881e39f1",
+        "await_worker_result": true,
+        "summary": "worker handoff packet exported at handoffs/task-20260319T202756Z-881e39f1.packet.json",
+        "started_at": "2026-03-19T20:27:56+00:00",
+        "last_exit_code": 0
+      },
+      {
+        "step_name": "delegated-repo-analysis-verification",
+        "step_order": 3,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "title": "Verify chain execution audit / delegated repo analysis verification",
+        "objective": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation.",
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "await_group": "analysis-workers",
+        "status": "delegated",
+        "child_task_id": "task-20260319T202757Z-e1ab5100",
+        "await_worker_result": true,
+        "summary": "worker handoff packet exported at handoffs/task-20260319T202757Z-e1ab5100.packet.json",
+        "started_at": "2026-03-19T20:27:57+00:00",
+        "last_exit_code": 0
+      },
+      {
+        "step_name": "local-summarize-architecture",
+        "step_order": 4,
+        "task_type": "compare-files",
+        "execution_mode": "local",
+        "critical": false,
+        "title": "Verify chain execution audit / local architecture summary",
+        "objective": "Produce one local artifact as soon as the architecture worker is done so the chain proves that one dependency barrier can open while another still waits.",
+        "depends_on_step_names": [
+          "delegated-repo-analysis-architecture"
+        ],
+        "join_group": "architecture-ready",
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": false
+      },
+      {
+        "step_name": "local-compare-multi-worker-docs",
+        "step_order": 5,
+        "task_type": "compare-files",
+        "execution_mode": "local",
+        "critical": false,
+        "title": "Verify chain execution audit / local multi-worker docs comparison",
+        "objective": "Produce one local artifact only after both manual-controlled worker results are done so the root closes with mixed evidence from multiple awaited workers.",
+        "depends_on_step_names": [
+          "delegated-repo-analysis-architecture",
+          "delegated-repo-analysis-verification"
+        ],
+        "join_group": "analysis-workers",
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": false
+      }
+    ]
+  },
+  "effective_chain_plan": {
+    "plan_kind": "chain_plan",
+    "plan_version": "2.4",
+    "version": "2.4",
+    "planned_at": "2026-03-19T20:27:48+00:00",
+    "mixes_execution_modes": true,
+    "manual_worker_controlled": true,
+    "dependency_group_count": 2,
+    "dependency_groups": [
+      {
+        "group_name": "analysis-workers",
+        "group_type": "await_group",
+        "step_names": [
+          "delegated-repo-analysis-architecture",
+          "delegated-repo-analysis-verification"
+        ],
+        "satisfaction_policy": "all_done",
+        "continue_on_blocked": false,
+        "continue_on_failed": false,
+        "used_by_step_names": [
+          "local-compare-multi-worker-docs"
+        ]
+      },
+      {
+        "group_name": "architecture-ready",
+        "group_type": "join_barrier",
+        "step_names": [
+          "delegated-repo-analysis-architecture"
+        ],
+        "satisfaction_policy": "all_done",
+        "continue_on_blocked": false,
+        "continue_on_failed": false,
+        "used_by_step_names": [
+          "local-summarize-architecture"
+        ]
+      }
+    ],
+    "local_step_count": 3,
+    "worker_step_count": 2,
+    "critical_step_count": 3,
+    "await_worker_result_step_count": 2,
+    "step_count": 5,
+    "steps": [
+      {
+        "step_name": "local-self-check",
+        "step_order": 1,
+        "task_type": "self-check",
+        "execution_mode": "local",
+        "critical": true,
+        "title": "Verify chain execution audit / local self-check",
+        "objective": "Validate the local Golem environment before any delegation.",
+        "depends_on_step_names": [],
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": false
+      },
+      {
+        "step_name": "delegated-repo-analysis-architecture",
+        "step_order": 2,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "title": "Verify chain execution audit / delegated repo analysis architecture",
+        "objective": "Analyze the repository architecture and describe the multi-worker manual orchestration structure, focusing on chain topology and dependency boundaries.",
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "await_group": "analysis-workers",
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": true
+      },
+      {
+        "step_name": "delegated-repo-analysis-verification",
+        "step_order": 3,
+        "task_type": "repo-analysis",
+        "execution_mode": "worker",
+        "critical": true,
+        "title": "Verify chain execution audit / delegated repo analysis verification",
+        "objective": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation.",
+        "depends_on_step_names": [
+          "local-self-check"
+        ],
+        "await_group": "analysis-workers",
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": true
+      },
+      {
+        "step_name": "local-summarize-architecture",
+        "step_order": 4,
+        "task_type": "compare-files",
+        "execution_mode": "local",
+        "critical": false,
+        "title": "Verify chain execution audit / local architecture summary",
+        "objective": "Produce one local artifact as soon as the architecture worker is done so the chain proves that one dependency barrier can open while another still waits.",
+        "depends_on_step_names": [
+          "delegated-repo-analysis-architecture"
+        ],
+        "join_group": "architecture-ready",
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": false
+      },
+      {
+        "step_name": "local-compare-multi-worker-docs",
+        "step_order": 5,
+        "task_type": "compare-files",
+        "execution_mode": "local",
+        "critical": false,
+        "title": "Verify chain execution audit / local multi-worker docs comparison",
+        "objective": "Produce one local artifact only after both manual-controlled worker results are done so the root closes with mixed evidence from multiple awaited workers.",
+        "depends_on_step_names": [
+          "delegated-repo-analysis-architecture",
+          "delegated-repo-analysis-verification"
+        ],
+        "join_group": "analysis-workers",
+        "status": "planned",
+        "child_task_id": "",
+        "await_worker_result": false
+      }
+    ],
+    "effective_plan_for_task_id": "task-20260319T202748Z-54aeb9ba",
+    "effective_plan_for_chain_type": "repo-analysis-worker-manual-multi",
+    "effective_plan_source_task_path": "tasks/task-20260319T202748Z-54aeb9ba.json",
+    "effective_plan_created_at": "2026-03-19T20:27:48+00:00"
+  },
+  "effective_plan_path": "outbox/manual/20260319T202748961703Z-verify-chain-execution-audit-effective-chain-plan.json",
+  "effective_plan_sha256": "fa9bb64277f497f480e612818de78d74ce36fad691238bcb4d5e0e8dc8d7da44",
+  "preflight_artifact_path": "outbox/manual/20260319T202749032795Z-20260319t202748961703z-verify-chain-execution-audit-effective-chain-plan-chain-plan-preflight.md",
+  "preflight_sha256": "337c8f6ed1c1c84b0bb206c17ad3138934c47e1446b98698624470a5978aebf9",
+  "validated_plan_version": "2.4",
+  "validated_at": "2026-03-19T20:27:48+00:00",
+  "preflighted_at": "2026-03-19T20:27:49+00:00"
+}

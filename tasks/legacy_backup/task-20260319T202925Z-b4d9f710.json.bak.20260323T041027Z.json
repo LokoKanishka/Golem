@@ -1,0 +1,133 @@
+{
+  "task_id": "task-20260319T202925Z-b4d9f710",
+  "type": "repo-analysis",
+  "origin": "local",
+  "canonical_session": "",
+  "parent_task_id": "task-20260319T202917Z-e8fbf2b4",
+  "depends_on": [
+    "task-20260319T202917Z-c5007f27"
+  ],
+  "status": "delegated",
+  "created_at": "2026-03-19T20:29:25+00:00",
+  "updated_at": "2026-03-19T20:29:26+00:00",
+  "title": "Multi worker await partial+success path / delegated repo analysis verification",
+  "objective": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation.",
+  "inputs": [],
+  "outputs": [
+    {
+      "kind": "chain-context",
+      "captured_at": "2026-03-19T20:29:25+00:00",
+      "exit_code": 0,
+      "content": "Mixed local-worker chain child for delegated-repo-analysis-verification.",
+      "root_task_id": "task-20260319T202917Z-e8fbf2b4",
+      "step_name": "delegated-repo-analysis-verification",
+      "requested_deliverable": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation."
+    },
+    {
+      "kind": "worker-handoff-packet",
+      "captured_at": "2026-03-19T20:29:26+00:00",
+      "exit_code": 0,
+      "content": "worker handoff packet exported at handoffs/task-20260319T202925Z-b4d9f710.packet.json",
+      "packet_path": "handoffs/task-20260319T202925Z-b4d9f710.packet.json",
+      "handoff_markdown_path": "handoffs/task-20260319T202925Z-b4d9f710.md",
+      "codex_ticket_path": "handoffs/task-20260319T202925Z-b4d9f710.codex.md"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260319T202925Z-b4d9f710.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-19T20:29:26+00:00"
+    },
+    {
+      "path": "handoffs/task-20260319T202925Z-b4d9f710.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-19T20:29:26+00:00"
+    },
+    {
+      "path": "handoffs/task-20260319T202925Z-b4d9f710.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-19T20:29:26+00:00"
+    }
+  ],
+  "notes": [
+    "delegated to worker_future on 2026-03-19T20:29:25+00:00"
+  ],
+  "delivery": {
+    "protocol_version": "1.0",
+    "minimum_user_facing_success_state": "visible",
+    "current_state": "",
+    "user_facing_ready": false,
+    "visible_artifact_required": false,
+    "visible_artifact_ready": false,
+    "visible_artifact_deliveries": [],
+    "whatsapp": {
+      "protocol_version": "1.0",
+      "required": false,
+      "current_state": "",
+      "delivery_confidence": "unknown",
+      "allowed_claim_level": "",
+      "allowed_user_facing_claim": "",
+      "user_facing_ready": false,
+      "tracked_message_id": "",
+      "message_ids": [],
+      "provider": "",
+      "to": "",
+      "run_id": "",
+      "provider_delivery_status": "",
+      "provider_delivery_reason": "",
+      "provider_delivery_proof_at": "",
+      "last_provider_evidence_at": "",
+      "attempts": [],
+      "claim_history": []
+    },
+    "transitions": [],
+    "claim_history": []
+  },
+  "media": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready": false,
+    "allowed_for_delivery": false,
+    "items": [],
+    "events": [],
+    "last_event_at": "",
+    "last_event_reason": ""
+  },
+  "screenshot": {
+    "protocol_version": "1.0",
+    "required": false,
+    "current_state": "none",
+    "ready_for_claim": false,
+    "items": [],
+    "events": [],
+    "last_transition_at": "",
+    "last_verified_at": "",
+    "block_reason": "",
+    "fail_reason": ""
+  },
+  "step_name": "delegated-repo-analysis-verification",
+  "step_order": 3,
+  "critical": true,
+  "execution_mode": "worker",
+  "handoff": {
+    "delegated_to": "worker_future",
+    "delegated_at": "2026-03-19T20:29:25+00:00",
+    "task_type": "repo-analysis",
+    "title": "Multi worker await partial+success path / delegated repo analysis verification",
+    "objective": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation.",
+    "recommended_next_step": "delimitar alcance del repo y formato del informe esperado",
+    "required_fields_present": [
+      "task_id",
+      "type",
+      "title",
+      "objective",
+      "created_at"
+    ],
+    "missing_required_fields": [],
+    "policy_version": "1.0",
+    "rationale": "analisis multiarchivo con tiempo y estructura suficientes para worker futuro",
+    "source_status": "queued"
+  }
+}
