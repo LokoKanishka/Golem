@@ -24,6 +24,8 @@ Este archivo documenta el estado real actual del repo despues del cierre de tran
 - La superficie visible minima del panel servida por ese mismo server vive en `/panel/`.
 - El path de consultas minimas por WhatsApp sobre la misma API local es `./scripts/task_whatsapp_query.py`.
 - El path de mutaciones minimas por WhatsApp sobre la misma API local es `./scripts/task_whatsapp_mutate.py`.
+- El bridge/runtime local de WhatsApp sobre el carril canonico ya existe en `./scripts/task_whatsapp_bridge_runtime.py`.
+- Ese bridge observa eventos inbound de `openclaw logs --json --follow`, delega queries/mutations a la API local y responde por `openclaw message send`.
 
 ## Semantica del arbol
 - `tasks/`: fuente de verdad operativa de las tareas activas y archivadas.
