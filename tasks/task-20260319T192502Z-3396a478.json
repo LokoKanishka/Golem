@@ -1,0 +1,40 @@
+{
+  "id": "task-20260319T192502Z-3396a478",
+  "title": "Verify canonical WhatsApp live send path",
+  "objective": "Verify canonical WhatsApp live send path",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T19:25:02+00:00",
+  "updated_at": "2026-03-23T04:10:23Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T192502Z-3396a478.json.bak.20260323T041023Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T192502Z-3396a478"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260319T192502054793Z-whatsapp-live-send-path.md",
+      "kind": "whatsapp-live-send-path-report",
+      "created_at": "2026-03-19T19:25:09+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T19:25:02+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "a canonical repo-local WhatsApp live send wrapper now exists and its dry-run path is task-bound, auditable, and semantically conservative"
+    },
+    {
+      "at": "2026-03-23T04:10:23Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T192502Z-3396a478; backup=tasks/legacy_backup/task-20260319T192502Z-3396a478.json.bak.20260323T041023Z.json"
+    }
+  ]
+}

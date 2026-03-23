@@ -1,0 +1,57 @@
+{
+  "id": "task-20260315T203912Z-da1cfd9c",
+  "title": "Multi worker await blocked path",
+  "objective": "Execute a mixed local-worker chain that delegates multiple manual-controlled worker steps, waits for their worker results independently, and resumes one local closing step only when all its worker dependencies are done.",
+  "status": "blocked",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T20:39:12+00:00",
+  "updated_at": "2026-03-20T21:04:13Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T203912Z-da1cfd9c.json.bak.20260320T210413Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T203912Z-da1cfd9c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T203920Z-repo-analysis-worker-manual-multi-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T20:39:21+00:00"
+    },
+    {
+      "path": "outbox/manual/20260315T203922Z-repo-analysis-worker-manual-multi-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T20:39:22+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T20:39:12+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "chain plan v2 created at 2026-03-15T20:39:12+00:00"
+    },
+    {
+      "at": "2026-03-15T20:39:12+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "Chain delegated and waiting: 1/4 step(s) completed, 2 delegated, 0 running, awaiting 2 worker result(s) before the chain can continue."
+    },
+    {
+      "at": "2026-03-15T20:39:12+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "Chain blocked: 1/4 step(s) completed, 1 blocked, 1 skipped, and one or more critical steps could not start or continue."
+    },
+    {
+      "at": "2026-03-20T21:04:13Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T203912Z-da1cfd9c; backup=tasks/legacy_backup/task-20260315T203912Z-da1cfd9c.json.bak.20260320T210413Z.json"
+    }
+  ]
+}

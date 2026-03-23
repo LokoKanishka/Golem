@@ -1,0 +1,46 @@
+{
+  "id": "task-20260315T040410Z-6e485103",
+  "title": "Capability verification / orchestration v3 failover",
+  "objective": "Execute a mixed local-worker chain with one conditional follow-up step and produce an aggregated final artifact for repo-analysis-worker-conditional.",
+  "status": "failed",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T04:04:10+00:00",
+  "updated_at": "2026-03-20T20:37:06Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T040410Z-6e485103.json.bak.20260320T203706Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T040410Z-6e485103"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T040742Z-repo-analysis-worker-conditional-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T04:07:42+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T04:04:10+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "chain plan v3 created at 2026-03-15T04:04:10+00:00"
+    },
+    {
+      "at": "2026-03-15T04:04:10+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "Chain failed: 2/4 step(s) completed, 1 skipped, and one or more critical steps did not finish cleanly."
+    },
+    {
+      "at": "2026-03-20T20:37:06Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T040410Z-6e485103; backup=tasks/legacy_backup/task-20260315T040410Z-6e485103.json.bak.20260320T203706Z.json"
+    }
+  ]
+}

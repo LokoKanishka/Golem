@@ -1,0 +1,52 @@
+{
+  "id": "task-20260317T023900Z-212c0f44",
+  "title": "Verify internal artifact media ingestion",
+  "objective": "Verify internal artifact media ingestion",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T02:39:00+00:00",
+  "updated_at": "2026-03-20T23:41:07Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T023900Z-212c0f44.json.bak.20260320T234107Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T023900Z-212c0f44"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260317T023900646739Z-internal-artifact.md",
+      "kind": "internal-test-artifact",
+      "created_at": "2026-03-17T02:39:00+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T02:39:00+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "technical artifact generation completed before media ingestion"
+    },
+    {
+      "at": "2026-03-17T02:39:00+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "media ingestion registered recorded for 20260317T023900646739Z-internal-artifact.md"
+    },
+    {
+      "at": "2026-03-17T02:39:00+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "media readiness verified recorded for 20260317T023900646739Z-internal-artifact.md"
+    },
+    {
+      "at": "2026-03-20T23:41:07Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T023900Z-212c0f44; backup=tasks/legacy_backup/task-20260317T023900Z-212c0f44.json.bak.20260320T234107Z.json"
+    }
+  ]
+}

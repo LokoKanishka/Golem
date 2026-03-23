@@ -1,0 +1,61 @@
+{
+  "id": "task-20260317T023817Z-897ae7dc",
+  "title": "Live user journey smoke / WhatsApp delivery",
+  "objective": "Live user journey smoke / WhatsApp delivery",
+  "status": "blocked",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T02:38:17+00:00",
+  "updated_at": "2026-03-20T23:41:06Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T023817Z-897ae7dc.json.bak.20260320T234106Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T023817Z-897ae7dc"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/run-20260317T023825Z-beb2b776-whatsapp-live-send.json",
+      "kind": "whatsapp-live-send-report",
+      "created_at": "2026-03-17T02:38:27+00:00",
+      "run_id": "run-20260317T023825Z-beb2b776",
+      "wrapper_status": "DRY_RUN",
+      "wrapper_state": "requested"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T02:38:17+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "media ingestion registered recorded for 20260317T023817048588Z-journey-a-visible-artifact.md"
+    },
+    {
+      "at": "2026-03-17T02:38:17+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "media readiness verified recorded for 20260317T023817048588Z-journey-a-visible-artifact.md"
+    },
+    {
+      "at": "2026-03-17T02:38:17+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery requested recorded for +5491100000007 with allowed claim 'solicitado'"
+    },
+    {
+      "at": "2026-03-17T02:38:17+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "live user journey WhatsApp path blocked before any live gateway/provider delivery proof"
+    },
+    {
+      "at": "2026-03-20T23:41:06Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T023817Z-897ae7dc; backup=tasks/legacy_backup/task-20260317T023817Z-897ae7dc.json.bak.20260320T234106Z.json"
+    }
+  ]
+}

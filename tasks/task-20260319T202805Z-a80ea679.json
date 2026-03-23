@@ -1,0 +1,61 @@
+{
+  "id": "task-20260319T202805Z-a80ea679",
+  "title": "Multi worker await partial+success path",
+  "objective": "Execute a mixed local-worker chain that delegates multiple manual-controlled worker steps, waits for their worker results independently, and resumes local continuation steps through explicit dependency barriers instead of relying on position-only ordering.",
+  "status": "failed",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T20:28:05+00:00",
+  "updated_at": "2026-03-23T04:10:26Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T202805Z-a80ea679.json.bak.20260323T041026Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T202805Z-a80ea679"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260319T202806060359Z-multi-worker-await-partial-success-path-effective-chain-plan.json",
+      "kind": "effective-chain-plan",
+      "created_at": "2026-03-19T20:28:06+00:00",
+      "sha256": "ec07ca43d4c3d5577838ce5e3ca002ed191b3fef1b9d639a3bec708088f70a7d",
+      "plan_version": "2.4"
+    },
+    {
+      "path": "outbox/manual/20260319T202806125979Z-20260319t202806060359z-multi-worker-await-partial-success-path-effective-chain-plan-chain-plan-preflight.md",
+      "kind": "chain-plan-preflight",
+      "created_at": "2026-03-19T20:28:06+00:00",
+      "sha256": "9b1ced0e481f9584e6315e027235b94c25956a9224e1cd91df0eb79f37ebe4cc",
+      "plan_version": "2.4"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T20:28:05+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "chain plan v2 created at 2026-03-19T20:28:06+00:00"
+    },
+    {
+      "at": "2026-03-19T20:28:05+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "effective chain plan persisted at 2026-03-19T20:28:06+00:00 and preflight artifact frozen at 2026-03-19T20:28:06+00:00"
+    },
+    {
+      "at": "2026-03-19T20:28:05+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "task_chain_run_v2 aborted before completion"
+    },
+    {
+      "at": "2026-03-23T04:10:26Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T202805Z-a80ea679; backup=tasks/legacy_backup/task-20260319T202805Z-a80ea679.json.bak.20260323T041026Z.json"
+    }
+  ]
+}

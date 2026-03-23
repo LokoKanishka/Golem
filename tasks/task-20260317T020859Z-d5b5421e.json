@@ -1,0 +1,63 @@
+{
+  "id": "task-20260317T020859Z-d5b5421e",
+  "title": "Verify visible artifact media ingestion",
+  "objective": "Verify visible artifact media ingestion",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T02:08:59+00:00",
+  "updated_at": "2026-03-20T23:12:22Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T020859Z-d5b5421e.json.bak.20260320T231222Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T020859Z-d5b5421e"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/home/lucy-ubuntu/Escritorio/20260317T020858455566Z-visible-artifact.md",
+      "kind": "visible-artifact-delivery",
+      "created_at": "2026-03-17T02:08:59+00:00",
+      "source_artifact_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260317T020858455566Z-visible-artifact.md",
+      "delivery_target": "desktop",
+      "path_normalized": "/home/lucy-ubuntu/Escritorio/20260317T020858455566Z-visible-artifact.md",
+      "verification_result": "PASS",
+      "user_visible": true
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T02:08:59+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "technical artifact generation completed before visible materialization"
+    },
+    {
+      "at": "2026-03-17T02:08:59+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "visible artifact delivery pass for target desktop"
+    },
+    {
+      "at": "2026-03-17T02:08:59+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "media ingestion registered recorded for 20260317T020858455566Z-visible-artifact.md"
+    },
+    {
+      "at": "2026-03-17T02:08:59+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "media readiness verified recorded for 20260317T020858455566Z-visible-artifact.md"
+    },
+    {
+      "at": "2026-03-20T23:12:22Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T020859Z-d5b5421e; backup=tasks/legacy_backup/task-20260317T020859Z-d5b5421e.json.bak.20260320T231222Z.json"
+    }
+  ]
+}

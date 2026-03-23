@@ -1,0 +1,50 @@
+{
+  "id": "task-20260319T202916Z-1d5c6b57",
+  "title": "Worker packet roundtrip success path / delegated repo analysis",
+  "objective": "Prepare a real delegated repo-analysis worker step with durable handoff and ticket, then wait for manual-controlled worker execution and result closure.",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T20:29:16+00:00",
+  "updated_at": "2026-03-23T04:10:27Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T202916Z-1d5c6b57.json.bak.20260323T041027Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T202916Z-1d5c6b57"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260319T202916Z-1d5c6b57.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-19T20:29:17+00:00"
+    },
+    {
+      "path": "handoffs/task-20260319T202916Z-1d5c6b57.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-19T20:29:17+00:00"
+    },
+    {
+      "path": "handoffs/task-20260319T202916Z-1d5c6b57.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-19T20:29:17+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T20:29:16+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-19T20:29:17+00:00"
+    },
+    {
+      "at": "2026-03-23T04:10:27Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T202916Z-1d5c6b57; backup=tasks/legacy_backup/task-20260319T202916Z-1d5c6b57.json.bak.20260323T041027Z.json"
+    }
+  ]
+}

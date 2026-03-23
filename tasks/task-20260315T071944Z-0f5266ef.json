@@ -1,0 +1,34 @@
+{
+  "id": "task-20260315T071944Z-0f5266ef",
+  "title": "Worker result packet import test / local self-check",
+  "objective": "Validate the local Golem environment before a delegated worker run.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T07:19:44+00:00",
+  "updated_at": "2026-03-20T20:37:08Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T071944Z-0f5266ef.json.bak.20260320T203708Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T071944Z-0f5266ef"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T07:19:44+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "self-check completed and task closed"
+    },
+    {
+      "at": "2026-03-20T20:37:08Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T071944Z-0f5266ef; backup=tasks/legacy_backup/task-20260315T071944Z-0f5266ef.json.bak.20260320T203708Z.json"
+    }
+  ]
+}

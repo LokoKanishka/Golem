@@ -1,0 +1,67 @@
+{
+  "id": "task-20260316T003605Z-61f47054",
+  "title": "Multi worker await blocked path / delegated repo analysis architecture",
+  "objective": "Analyze the repository architecture and describe the multi-worker manual orchestration structure, focusing on chain topology and dependency boundaries.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-16T00:36:05+00:00",
+  "updated_at": "2026-03-20T21:10:40Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260316T003605Z-61f47054.json.bak.20260320T211040Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260316T003605Z-61f47054"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260316T003605Z-61f47054.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-16T00:36:05+00:00"
+    },
+    {
+      "path": "handoffs/task-20260316T003605Z-61f47054.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-16T00:36:05+00:00"
+    },
+    {
+      "path": "handoffs/task-20260316T003605Z-61f47054.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-16T00:36:05+00:00"
+    },
+    {
+      "path": "outbox/manual/blocked-task-20260316T003605Z-61f47054.worker-result.json",
+      "kind": "worker-result-packet",
+      "created_at": "2026-03-16T00:36:07+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-16T00:36:05+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-16T00:36:05+00:00"
+    },
+    {
+      "at": "2026-03-16T00:36:05+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result recorded from codex"
+    },
+    {
+      "at": "2026-03-16T00:36:05+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result imported from packet outbox/manual/blocked-task-20260316T003605Z-61f47054.worker-result.json generated_at=2026-03-16T00:36:06+00:00 sha256=4a3becc1cdf61068ce0726449e5cf5577098f8634e79415259dc63e129235829"
+    },
+    {
+      "at": "2026-03-20T21:10:40Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260316T003605Z-61f47054; backup=tasks/legacy_backup/task-20260316T003605Z-61f47054.json.bak.20260320T211040Z.json"
+    }
+  ]
+}

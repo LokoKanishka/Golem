@@ -1,0 +1,40 @@
+{
+  "id": "task-20260319T183033Z-fcef6c64",
+  "title": "Verify WhatsApp post-send provider reconciliation truth",
+  "objective": "Verify WhatsApp post-send provider reconciliation truth",
+  "status": "blocked",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T18:30:33+00:00",
+  "updated_at": "2026-03-20T23:43:27Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T183033Z-fcef6c64.json.bak.20260320T234327Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T183033Z-fcef6c64"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260319T183033410458Z-whatsapp-provider-post-send-reconciliation-truth.md",
+      "kind": "whatsapp-provider-post-send-reconciliation-truth-report",
+      "created_at": "2026-03-19T18:30:44+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T18:30:33+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "the canonical post-send reconciliation lane proved the current observable ceiling honestly: WhatsApp read is unsupported and logs only expose outbound send evidence"
+    },
+    {
+      "at": "2026-03-20T23:43:27Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T183033Z-fcef6c64; backup=tasks/legacy_backup/task-20260319T183033Z-fcef6c64.json.bak.20260320T234327Z.json"
+    }
+  ]
+}

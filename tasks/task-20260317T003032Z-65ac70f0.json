@@ -1,0 +1,52 @@
+{
+  "id": "task-20260317T003032Z-65ac70f0",
+  "title": "Verify WhatsApp verified-by-user path",
+  "objective": "Verify WhatsApp verified-by-user path",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T00:30:32+00:00",
+  "updated_at": "2026-03-20T22:57:05Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T003032Z-65ac70f0.json.bak.20260320T225705Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T003032Z-65ac70f0"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T00:30:32+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery requested recorded for +5491100000003 with allowed claim 'solicitado'"
+    },
+    {
+      "at": "2026-03-17T00:30:32+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery accepted_by_gateway recorded for +5491100000003 with allowed claim 'aceptado por gateway'"
+    },
+    {
+      "at": "2026-03-17T00:30:32+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery delivered recorded for +5491100000003 with allowed claim 'entregado'"
+    },
+    {
+      "at": "2026-03-17T00:30:32+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery verified_by_user recorded for +5491100000003 with allowed claim 'confirmado por usuario'"
+    },
+    {
+      "at": "2026-03-20T22:57:05Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T003032Z-65ac70f0; backup=tasks/legacy_backup/task-20260317T003032Z-65ac70f0.json.bak.20260320T225705Z.json"
+    }
+  ]
+}

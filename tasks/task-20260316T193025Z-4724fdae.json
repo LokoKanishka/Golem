@@ -1,0 +1,67 @@
+{
+  "id": "task-20260316T193025Z-4724fdae",
+  "title": "Multi worker await partial+success path / delegated repo analysis architecture",
+  "objective": "Analyze the repository architecture and describe the multi-worker manual orchestration structure, focusing on chain topology and dependency boundaries.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-16T19:30:25+00:00",
+  "updated_at": "2026-03-20T22:07:24Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260316T193025Z-4724fdae.json.bak.20260320T220724Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260316T193025Z-4724fdae"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260316T193025Z-4724fdae.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-16T19:30:25+00:00"
+    },
+    {
+      "path": "handoffs/task-20260316T193025Z-4724fdae.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-16T19:30:25+00:00"
+    },
+    {
+      "path": "handoffs/task-20260316T193025Z-4724fdae.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-16T19:30:25+00:00"
+    },
+    {
+      "path": "outbox/manual/partial-task-20260316T193025Z-4724fdae.worker-result.json",
+      "kind": "worker-result-packet",
+      "created_at": "2026-03-16T19:30:27+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-16T19:30:25+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-16T19:30:25+00:00"
+    },
+    {
+      "at": "2026-03-16T19:30:25+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result recorded from codex"
+    },
+    {
+      "at": "2026-03-16T19:30:25+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result imported from packet outbox/manual/partial-task-20260316T193025Z-4724fdae.worker-result.json generated_at=2026-03-16T19:30:27+00:00 sha256=4bfe6f23349747572eb28ef0b869ec9049d60be9f44dd100533ff2f8151ba091"
+    },
+    {
+      "at": "2026-03-20T22:07:24Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260316T193025Z-4724fdae; backup=tasks/legacy_backup/task-20260316T193025Z-4724fdae.json.bak.20260320T220724Z.json"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "id": "task-20260316T194712Z-c5503968",
+  "title": "Browser stack verification / reading",
+  "objective": "Browser stack verification / reading",
+  "status": "failed",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-16T19:47:12+00:00",
+  "updated_at": "2026-03-20T22:07:25Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260316T194712Z-c5503968.json.bak.20260320T220725Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260316T194712Z-c5503968"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-16T19:47:12+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "task_run_read aborted before completion"
+    },
+    {
+      "at": "2026-03-20T22:07:25Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260316T194712Z-c5503968; backup=tasks/legacy_backup/task-20260316T194712Z-c5503968.json.bak.20260320T220725Z.json"
+    }
+  ]
+}

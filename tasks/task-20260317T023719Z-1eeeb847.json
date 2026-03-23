@@ -1,0 +1,43 @@
+{
+  "id": "task-20260317T023719Z-1eeeb847",
+  "title": "Verify canonical WhatsApp live send wrapper dry-run path",
+  "objective": "Verify canonical WhatsApp live send wrapper dry-run path",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T02:37:19+00:00",
+  "updated_at": "2026-03-20T23:12:23Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T023719Z-1eeeb847.json.bak.20260320T231223Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T023719Z-1eeeb847"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/run-20260317T023719Z-c3cdc826-whatsapp-live-send.json",
+      "kind": "whatsapp-live-send-report",
+      "created_at": "2026-03-17T02:37:21+00:00",
+      "run_id": "run-20260317T023719Z-c3cdc826",
+      "wrapper_status": "DRY_RUN",
+      "wrapper_state": "requested"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T02:37:19+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery requested recorded for +5491100000000 with allowed claim 'solicitado'"
+    },
+    {
+      "at": "2026-03-20T23:12:23Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T023719Z-1eeeb847; backup=tasks/legacy_backup/task-20260317T023719Z-1eeeb847.json.bak.20260320T231223Z.json"
+    }
+  ]
+}

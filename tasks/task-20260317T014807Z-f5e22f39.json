@@ -1,0 +1,45 @@
+{
+  "id": "task-20260317T014807Z-f5e22f39",
+  "title": "Verify visible artifact drift path",
+  "objective": "Verify visible artifact drift path",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T01:48:07+00:00",
+  "updated_at": "2026-03-20T23:12:21Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T014807Z-f5e22f39.json.bak.20260320T231221Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T014807Z-f5e22f39"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/home/lucy-ubuntu/Escritorio/20260317T014806344468Z-drift-reported.md",
+      "kind": "visible-artifact-delivery",
+      "created_at": "2026-03-17T01:48:08+00:00",
+      "source_artifact_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260317T014806344468Z-drift-source.md",
+      "delivery_target": "desktop",
+      "path_normalized": "/home/lucy-ubuntu/Escritorio/20260317T014806344468Z-drift-actual.md",
+      "verification_result": "FAIL",
+      "user_visible": true
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T01:48:07+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "visible artifact delivery fail for target desktop"
+    },
+    {
+      "at": "2026-03-20T23:12:21Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T014807Z-f5e22f39; backup=tasks/legacy_backup/task-20260317T014807Z-f5e22f39.json.bak.20260320T231221Z.json"
+    }
+  ]
+}

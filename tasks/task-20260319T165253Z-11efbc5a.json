@@ -1,0 +1,50 @@
+{
+  "id": "task-20260319T165253Z-11efbc5a",
+  "title": "Verify drifted host screenshot identity",
+  "objective": "Verify drifted host screenshot identity",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T16:52:53+00:00",
+  "updated_at": "2026-03-20T23:41:09Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T165253Z-11efbc5a.json.bak.20260320T234109Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T165253Z-11efbc5a"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "host-screenshot-screenshot-0001",
+      "path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/host-screenshot-drift.png",
+      "kind": "host-screenshot",
+      "captured_at": "2026-03-19T16:52:54+00:00",
+      "mime_type": "image/png",
+      "size_bytes": 522816,
+      "sha256": "f709c53fab9963ae6c4aa16f3fd9073737ebeb469edca2e6f7e0937928d804e5"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T16:52:53+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "host screenshot captured recorded for target desktop-root"
+    },
+    {
+      "at": "2026-03-19T16:52:53+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "host screenshot verification failed recorded for desktop-root"
+    },
+    {
+      "at": "2026-03-20T23:41:09Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T165253Z-11efbc5a; backup=tasks/legacy_backup/task-20260319T165253Z-11efbc5a.json.bak.20260320T234109Z.json"
+    }
+  ]
+}

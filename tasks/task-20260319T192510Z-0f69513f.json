@@ -1,0 +1,65 @@
+{
+  "id": "task-20260319T192510Z-0f69513f",
+  "title": "Verify controlled live WhatsApp provider canary",
+  "objective": "Verify controlled live WhatsApp provider canary",
+  "status": "blocked",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T19:25:10+00:00",
+  "updated_at": "2026-03-23T04:10:23Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T192510Z-0f69513f.json.bak.20260323T041023Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T192510Z-0f69513f"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/run-20260319T192512Z-2c461444-whatsapp-live-send.json",
+      "kind": "whatsapp-live-send-report",
+      "created_at": "2026-03-19T19:25:15+00:00",
+      "run_id": "run-20260319T192512Z-2c461444",
+      "wrapper_status": "ACCEPTED_BY_GATEWAY",
+      "wrapper_state": "accepted_by_gateway"
+    },
+    {
+      "path": "outbox/manual/20260319T192510084940Z-whatsapp-live-provider-canary.md",
+      "kind": "whatsapp-live-provider-canary-report",
+      "created_at": "2026-03-19T19:25:15+00:00"
+    },
+    {
+      "path": "outbox/manual/run-20260319T192515Z-5d19e49f-whatsapp-provider-post-send-reconciliation.md",
+      "kind": "whatsapp-provider-post-send-reconciliation-report",
+      "created_at": "2026-03-19T19:25:20+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T19:25:10+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery requested recorded for +156348867 with allowed claim 'solicitado'"
+    },
+    {
+      "at": "2026-03-19T19:25:10+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery accepted_by_gateway recorded for +156348867 with allowed claim 'aceptado por gateway'"
+    },
+    {
+      "at": "2026-03-19T19:25:10+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "the live canary sent a real WhatsApp message, but only gateway or inconclusive provider evidence was available"
+    },
+    {
+      "at": "2026-03-23T04:10:23Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T192510Z-0f69513f; backup=tasks/legacy_backup/task-20260319T192510Z-0f69513f.json.bak.20260323T041023Z.json"
+    }
+  ]
+}

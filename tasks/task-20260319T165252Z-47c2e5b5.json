@@ -1,0 +1,40 @@
+{
+  "id": "task-20260319T165252Z-47c2e5b5",
+  "title": "Verify drifted media identity",
+  "objective": "Verify drifted media identity",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T16:52:52+00:00",
+  "updated_at": "2026-03-20T23:41:09Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T165252Z-47c2e5b5.json.bak.20260320T234109Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T165252Z-47c2e5b5"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T16:52:52+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "media ingestion registered recorded for 20260319T165250462667Z-drift-path.md"
+    },
+    {
+      "at": "2026-03-19T16:52:52+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "media readiness failed recorded for 20260319T165250462667Z-drift-path.md"
+    },
+    {
+      "at": "2026-03-20T23:41:09Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T165252Z-47c2e5b5; backup=tasks/legacy_backup/task-20260319T165252Z-47c2e5b5.json.bak.20260320T234109Z.json"
+    }
+  ]
+}

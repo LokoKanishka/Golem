@@ -1,0 +1,52 @@
+{
+  "id": "task-20260319T171715Z-8c608f78",
+  "title": "Verify WhatsApp explicit user confirmation truth",
+  "objective": "Verify WhatsApp explicit user confirmation truth",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T17:17:15+00:00",
+  "updated_at": "2026-03-20T23:43:23Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T171715Z-8c608f78.json.bak.20260320T234323Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T171715Z-8c608f78"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T17:17:15+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery requested recorded for +5491100000014 with allowed claim 'solicitado'"
+    },
+    {
+      "at": "2026-03-19T17:17:15+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery accepted_by_gateway recorded for +5491100000014 with allowed claim 'aceptado por gateway'"
+    },
+    {
+      "at": "2026-03-19T17:17:15+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery delivered recorded for +5491100000014 with allowed claim 'entregado'"
+    },
+    {
+      "at": "2026-03-19T17:17:15+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery verified_by_user recorded for +5491100000014 with allowed claim 'confirmado por usuario'"
+    },
+    {
+      "at": "2026-03-20T23:43:23Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T171715Z-8c608f78; backup=tasks/legacy_backup/task-20260319T171715Z-8c608f78.json.bak.20260320T234323Z.json"
+    }
+  ]
+}

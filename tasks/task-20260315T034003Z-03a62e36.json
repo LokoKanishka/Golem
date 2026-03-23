@@ -1,0 +1,40 @@
+{
+  "id": "task-20260315T034003Z-03a62e36",
+  "title": "Capability verification / compare files",
+  "objective": "Capability verification / compare files",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T03:40:04+00:00",
+  "updated_at": "2026-03-20T20:10:38Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T034003Z-03a62e36.json.bak.20260320T201038Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T034003Z-03a62e36"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T034004Z_capability-matrix-compare.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-15T03:40:04+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T03:40:04+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "comparison generation completed and task closed"
+    },
+    {
+      "at": "2026-03-20T20:10:38Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T034003Z-03a62e36; backup=tasks/legacy_backup/task-20260315T034003Z-03a62e36.json.bak.20260320T201038Z.json"
+    }
+  ]
+}

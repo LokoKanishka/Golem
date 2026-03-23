@@ -1,0 +1,40 @@
+{
+  "id": "task-20260317T002845Z-4ef06a9d",
+  "title": "Smoke task core",
+  "objective": "Smoke task core",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T00:28:45+00:00",
+  "updated_at": "2026-03-20T22:47:01Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T002845Z-4ef06a9d.json.bak.20260320T224701Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T002845Z-4ef06a9d"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260317T002845Z-smoke-task-core.md",
+      "kind": "smoke-artifact",
+      "created_at": "2026-03-17T00:28:45+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T00:28:45+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "smoke task core completed"
+    },
+    {
+      "at": "2026-03-20T22:47:01Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T002845Z-4ef06a9d; backup=tasks/legacy_backup/task-20260317T002845Z-4ef06a9d.json.bak.20260320T224701Z.json"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "task-20260315T073157Z-fcae710e",
+  "title": "Outbound handoff packet auto export test / delegated repo analysis",
+  "objective": "Analyze the repository and explain the mixed local-worker orchestration flow, covering chain plan richness, aggregated summary quality, and final artifact integrity.",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T07:31:57+00:00",
+  "updated_at": "2026-03-20T20:37:09Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T073157Z-fcae710e.json.bak.20260320T203709Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T073157Z-fcae710e"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260315T073157Z-fcae710e.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-15T07:31:58+00:00"
+    },
+    {
+      "path": "handoffs/task-20260315T073157Z-fcae710e.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-15T07:31:58+00:00"
+    },
+    {
+      "path": "handoffs/task-20260315T073157Z-fcae710e.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-15T07:31:58+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T07:31:57+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-15T07:31:58+00:00"
+    },
+    {
+      "at": "2026-03-20T20:37:09Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T073157Z-fcae710e; backup=tasks/legacy_backup/task-20260315T073157Z-fcae710e.json.bak.20260320T203709Z.json"
+    }
+  ]
+}

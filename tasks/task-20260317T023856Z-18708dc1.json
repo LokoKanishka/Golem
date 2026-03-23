@@ -1,0 +1,51 @@
+{
+  "id": "task-20260317T023856Z-18708dc1",
+  "title": "Verify visible artifact downloads path",
+  "objective": "Verify visible artifact downloads path",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T02:38:56+00:00",
+  "updated_at": "2026-03-20T23:41:07Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T023856Z-18708dc1.json.bak.20260320T234107Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T023856Z-18708dc1"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/home/lucy-ubuntu/Descargas/20260317T023856385104Z-downloads-source.md",
+      "kind": "visible-artifact-delivery",
+      "created_at": "2026-03-17T02:38:57+00:00",
+      "source_artifact_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260317T023856385104Z-downloads-source.md",
+      "delivery_target": "downloads",
+      "path_normalized": "/home/lucy-ubuntu/Descargas/20260317T023856385104Z-downloads-source.md",
+      "verification_result": "PASS",
+      "user_visible": true
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T02:38:56+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "technical artifact generation closed in internal staging"
+    },
+    {
+      "at": "2026-03-17T02:38:56+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "visible artifact delivery pass for target downloads"
+    },
+    {
+      "at": "2026-03-20T23:41:07Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T023856Z-18708dc1; backup=tasks/legacy_backup/task-20260317T023856Z-18708dc1.json.bak.20260320T234107Z.json"
+    }
+  ]
+}

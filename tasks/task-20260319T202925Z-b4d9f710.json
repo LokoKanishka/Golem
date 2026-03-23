@@ -1,0 +1,50 @@
+{
+  "id": "task-20260319T202925Z-b4d9f710",
+  "title": "Multi worker await partial+success path / delegated repo analysis verification",
+  "objective": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation.",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T20:29:25+00:00",
+  "updated_at": "2026-03-23T04:10:27Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T202925Z-b4d9f710.json.bak.20260323T041027Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T202925Z-b4d9f710"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260319T202925Z-b4d9f710.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-19T20:29:26+00:00"
+    },
+    {
+      "path": "handoffs/task-20260319T202925Z-b4d9f710.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-19T20:29:26+00:00"
+    },
+    {
+      "path": "handoffs/task-20260319T202925Z-b4d9f710.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-19T20:29:26+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T20:29:25+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-19T20:29:25+00:00"
+    },
+    {
+      "at": "2026-03-23T04:10:27Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T202925Z-b4d9f710; backup=tasks/legacy_backup/task-20260319T202925Z-b4d9f710.json.bak.20260323T041027Z.json"
+    }
+  ]
+}

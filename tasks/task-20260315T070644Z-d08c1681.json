@@ -1,0 +1,40 @@
+{
+  "id": "task-20260315T070644Z-d08c1681",
+  "title": "Reconcile sweep ready test / local orchestration docs comparison",
+  "objective": "Produce one local artifact after the manual-controlled worker result is registered so the chain can resume and close with mixed evidence.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T07:06:44+00:00",
+  "updated_at": "2026-03-20T20:37:08Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T070644Z-d08c1681.json.bak.20260320T203708Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T070644Z-d08c1681"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T070644Z_chain-v2-compare-task-20260315T070617Z-be064732.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-15T07:06:44+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T07:06:44+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "comparison generation completed and task closed"
+    },
+    {
+      "at": "2026-03-20T20:37:08Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T070644Z-d08c1681; backup=tasks/legacy_backup/task-20260315T070644Z-d08c1681.json.bak.20260320T203708Z.json"
+    }
+  ]
+}

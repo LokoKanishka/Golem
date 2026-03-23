@@ -1,0 +1,45 @@
+{
+  "id": "task-20260319T190836Z-196c322b",
+  "title": "Verify visible artifact unverifiable path",
+  "objective": "Verify visible artifact unverifiable path",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T19:08:36+00:00",
+  "updated_at": "2026-03-20T23:54:06Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T190836Z-196c322b.json.bak.20260320T235406Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T190836Z-196c322b"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/home/lucy-ubuntu/Escritorio/20260319T190834825798Z-blocked-source.md",
+      "kind": "visible-artifact-delivery",
+      "created_at": "2026-03-19T19:08:36+00:00",
+      "source_artifact_path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/20260319T190834825798Z-blocked-source.md",
+      "delivery_target": "desktop",
+      "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T190834825798Z-blocked-source.md",
+      "verification_result": "BLOCKED",
+      "user_visible": true
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T19:08:36+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "visible artifact delivery blocked for target desktop"
+    },
+    {
+      "at": "2026-03-20T23:54:06Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T190836Z-196c322b; backup=tasks/legacy_backup/task-20260319T190836Z-196c322b.json.bak.20260320T235406Z.json"
+    }
+  ]
+}

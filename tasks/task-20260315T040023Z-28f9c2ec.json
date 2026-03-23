@@ -1,0 +1,46 @@
+{
+  "id": "task-20260315T040023Z-28f9c2ec",
+  "title": "Capability verification / orchestration v3 success",
+  "objective": "Execute a mixed local-worker chain with one conditional follow-up step and produce an aggregated final artifact for repo-analysis-worker-conditional.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T04:00:23+00:00",
+  "updated_at": "2026-03-20T20:37:06Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T040023Z-28f9c2ec.json.bak.20260320T203706Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T040023Z-28f9c2ec"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T040409Z-repo-analysis-worker-conditional-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T04:04:09+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T04:00:23+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "chain plan v3 created at 2026-03-15T04:00:23+00:00"
+    },
+    {
+      "at": "2026-03-15T04:00:23+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "Chain completed with warnings: 4/4 step(s) completed, 0 failed, 1 warning signal(s)."
+    },
+    {
+      "at": "2026-03-20T20:37:06Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T040023Z-28f9c2ec; backup=tasks/legacy_backup/task-20260315T040023Z-28f9c2ec.json.bak.20260320T203706Z.json"
+    }
+  ]
+}

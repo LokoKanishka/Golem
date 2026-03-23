@@ -1,0 +1,40 @@
+{
+  "id": "task-20260319T171634Z-c9275fba",
+  "title": "Verify WhatsApp gateway-only provider truth",
+  "objective": "Verify WhatsApp gateway-only provider truth",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T17:16:34+00:00",
+  "updated_at": "2026-03-20T23:41:09Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T171634Z-c9275fba.json.bak.20260320T234109Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T171634Z-c9275fba"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T17:16:34+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery requested recorded for +5491100000011 with allowed claim 'solicitado'"
+    },
+    {
+      "at": "2026-03-19T17:16:34+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery accepted_by_gateway recorded for +5491100000011 with allowed claim 'aceptado por gateway'"
+    },
+    {
+      "at": "2026-03-20T23:41:09Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T171634Z-c9275fba; backup=tasks/legacy_backup/task-20260319T171634Z-c9275fba.json.bak.20260320T234109Z.json"
+    }
+  ]
+}

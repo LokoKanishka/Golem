@@ -1,0 +1,40 @@
+{
+  "id": "task-20260317T022814Z-259f3c10",
+  "title": "GOLEM-209 quick wrapper probe",
+  "objective": "GOLEM-209 quick wrapper probe",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T02:28:15+00:00",
+  "updated_at": "2026-03-20T23:12:23Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T022814Z-259f3c10.json.bak.20260320T231223Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T022814Z-259f3c10"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T02:28:15+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery requested recorded for +5491100000001 with allowed claim 'solicitado'"
+    },
+    {
+      "at": "2026-03-17T02:28:15+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery accepted_by_gateway recorded for +5491100000001 with allowed claim 'aceptado por gateway'"
+    },
+    {
+      "at": "2026-03-20T23:12:23Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T022814Z-259f3c10; backup=tasks/legacy_backup/task-20260317T022814Z-259f3c10.json.bak.20260320T231223Z.json"
+    }
+  ]
+}

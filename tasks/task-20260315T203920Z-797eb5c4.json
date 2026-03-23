@@ -1,0 +1,50 @@
+{
+  "id": "task-20260315T203920Z-797eb5c4",
+  "title": "Multi worker await blocked path / delegated repo analysis verification",
+  "objective": "Analyze the repository verification surface and explain how multiple awaited worker results should affect settlement, resume, and final aggregation.",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T20:39:20+00:00",
+  "updated_at": "2026-03-20T21:04:13Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T203920Z-797eb5c4.json.bak.20260320T210413Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T203920Z-797eb5c4"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260315T203920Z-797eb5c4.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-15T20:39:20+00:00"
+    },
+    {
+      "path": "handoffs/task-20260315T203920Z-797eb5c4.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-15T20:39:20+00:00"
+    },
+    {
+      "path": "handoffs/task-20260315T203920Z-797eb5c4.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-15T20:39:20+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T20:39:20+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-15T20:39:20+00:00"
+    },
+    {
+      "at": "2026-03-20T21:04:13Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T203920Z-797eb5c4; backup=tasks/legacy_backup/task-20260315T203920Z-797eb5c4.json.bak.20260320T210413Z.json"
+    }
+  ]
+}

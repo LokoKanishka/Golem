@@ -1,0 +1,40 @@
+{
+  "id": "task-20260317T000516Z-3a5341bb",
+  "title": "Verify WhatsApp ambiguous provider path",
+  "objective": "Verify WhatsApp ambiguous provider path",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T00:05:16+00:00",
+  "updated_at": "2026-03-20T22:47:01Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T000516Z-3a5341bb.json.bak.20260320T224701Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T000516Z-3a5341bb"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T00:05:16+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery requested recorded for +5491100000004 with allowed claim 'solicitado'"
+    },
+    {
+      "at": "2026-03-17T00:05:16+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery accepted_by_gateway recorded for +5491100000004 with allowed claim 'aceptado por gateway'"
+    },
+    {
+      "at": "2026-03-20T22:47:01Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T000516Z-3a5341bb; backup=tasks/legacy_backup/task-20260317T000516Z-3a5341bb.json.bak.20260320T224701Z.json"
+    }
+  ]
+}

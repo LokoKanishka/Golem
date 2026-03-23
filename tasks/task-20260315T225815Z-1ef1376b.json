@@ -1,0 +1,40 @@
+{
+  "id": "task-20260315T225815Z-1ef1376b",
+  "title": "Multi worker await blocked path / local architecture summary",
+  "objective": "Produce one local artifact as soon as the architecture worker is done so the chain proves that one dependency barrier can open while another still waits.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T22:58:15+00:00",
+  "updated_at": "2026-03-20T21:04:15Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T225815Z-1ef1376b.json.bak.20260320T210415Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T225815Z-1ef1376b"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T225815Z_chain-v2-local-summarize-architecture-task-20260315T225805Z-fdadb89e.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-15T22:58:15+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T22:58:15+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "comparison generation completed and task closed"
+    },
+    {
+      "at": "2026-03-20T21:04:15Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T225815Z-1ef1376b; backup=tasks/legacy_backup/task-20260315T225815Z-1ef1376b.json.bak.20260320T210415Z.json"
+    }
+  ]
+}

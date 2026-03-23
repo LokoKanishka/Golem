@@ -1,0 +1,40 @@
+{
+  "id": "task-20260316T002239Z-5842a8fb",
+  "title": "Multi worker await partial+success path / local multi-worker docs comparison",
+  "objective": "Produce one local artifact only after both manual-controlled worker results are done so the root closes with mixed evidence from multiple awaited workers.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-16T00:22:39+00:00",
+  "updated_at": "2026-03-20T21:10:39Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260316T002239Z-5842a8fb.json.bak.20260320T211039Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260316T002239Z-5842a8fb"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260316T002239Z_chain-v2-local-compare-multi-worker-docs-task-20260316T002227Z-b2ed9918.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-16T00:22:39+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-16T00:22:39+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "comparison generation completed and task closed"
+    },
+    {
+      "at": "2026-03-20T21:10:39Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260316T002239Z-5842a8fb; backup=tasks/legacy_backup/task-20260316T002239Z-5842a8fb.json.bak.20260320T211039Z.json"
+    }
+  ]
+}

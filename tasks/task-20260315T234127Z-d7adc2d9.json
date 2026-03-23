@@ -1,0 +1,40 @@
+{
+  "id": "task-20260315T234127Z-d7adc2d9",
+  "title": "Effective plan persistence integration / local multi-worker docs comparison",
+  "objective": "Produce one local artifact only after both manual-controlled worker results are done so the root closes with mixed evidence from multiple awaited workers.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T23:41:27+00:00",
+  "updated_at": "2026-03-20T21:04:16Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T234127Z-d7adc2d9.json.bak.20260320T210416Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T234127Z-d7adc2d9"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T234127Z_chain-v2-local-compare-multi-worker-docs-task-20260315T233301Z-779b5be0.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-15T23:41:27+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T23:41:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "comparison generation completed and task closed"
+    },
+    {
+      "at": "2026-03-20T21:04:16Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T234127Z-d7adc2d9; backup=tasks/legacy_backup/task-20260315T234127Z-d7adc2d9.json.bak.20260320T210416Z.json"
+    }
+  ]
+}

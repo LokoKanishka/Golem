@@ -1,0 +1,50 @@
+{
+  "id": "task-20260315T230947Z-4398d2b4",
+  "title": "Chain plan validation integration / delegated repo analysis architecture",
+  "objective": "Analyze the repository architecture and describe the multi-worker manual orchestration structure, focusing on chain topology and dependency boundaries.",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T23:09:47+00:00",
+  "updated_at": "2026-03-20T21:04:15Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T230947Z-4398d2b4.json.bak.20260320T210415Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T230947Z-4398d2b4"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260315T230947Z-4398d2b4.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-15T23:09:47+00:00"
+    },
+    {
+      "path": "handoffs/task-20260315T230947Z-4398d2b4.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-15T23:09:47+00:00"
+    },
+    {
+      "path": "handoffs/task-20260315T230947Z-4398d2b4.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-15T23:09:47+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T23:09:47+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-15T23:09:47+00:00"
+    },
+    {
+      "at": "2026-03-20T21:04:15Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T230947Z-4398d2b4; backup=tasks/legacy_backup/task-20260315T230947Z-4398d2b4.json.bak.20260320T210415Z.json"
+    }
+  ]
+}

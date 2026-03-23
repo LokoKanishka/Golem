@@ -1,0 +1,40 @@
+{
+  "id": "task-20260316T000453Z-aad1e17a",
+  "title": "Verify chain execution audit / local architecture summary",
+  "objective": "Produce one local artifact as soon as the architecture worker is done so the chain proves that one dependency barrier can open while another still waits.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-16T00:04:53+00:00",
+  "updated_at": "2026-03-20T21:04:16Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260316T000453Z-aad1e17a.json.bak.20260320T210416Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260316T000453Z-aad1e17a"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260316T000453Z_chain-v2-local-summarize-architecture-task-20260316T000442Z-c013a253.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-16T00:04:53+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-16T00:04:53+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "comparison generation completed and task closed"
+    },
+    {
+      "at": "2026-03-20T21:04:16Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260316T000453Z-aad1e17a; backup=tasks/legacy_backup/task-20260316T000453Z-aad1e17a.json.bak.20260320T210416Z.json"
+    }
+  ]
+}

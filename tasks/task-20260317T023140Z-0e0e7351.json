@@ -1,0 +1,57 @@
+{
+  "id": "task-20260317T023140Z-0e0e7351",
+  "title": "GOLEM-209 accepted wrapper probe 2",
+  "objective": "GOLEM-209 accepted wrapper probe 2",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T02:31:40+00:00",
+  "updated_at": "2026-03-20T23:12:23Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T023140Z-0e0e7351.json.bak.20260320T231223Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T023140Z-0e0e7351"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/run-20260317T023147Z-c11b4dce-whatsapp-live-send.json",
+      "kind": "whatsapp-live-send-report",
+      "created_at": "2026-03-17T02:31:48+00:00",
+      "run_id": "run-20260317T023147Z-c11b4dce",
+      "wrapper_status": "ACCEPTED_BY_GATEWAY",
+      "wrapper_state": "accepted_by_gateway"
+    },
+    {
+      "path": "outbox/manual/run-20260317T023157Z-fe3d2004-whatsapp-live-send.json",
+      "kind": "whatsapp-live-send-report",
+      "created_at": "2026-03-17T02:31:58+00:00",
+      "run_id": "run-20260317T023157Z-fe3d2004",
+      "wrapper_status": "FAIL",
+      "wrapper_state": "accepted_by_gateway"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T02:31:40+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery requested recorded for +5491100000002 with allowed claim 'solicitado'"
+    },
+    {
+      "at": "2026-03-17T02:31:40+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery accepted_by_gateway recorded for +5491100000002 with allowed claim 'aceptado por gateway'"
+    },
+    {
+      "at": "2026-03-20T23:12:23Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T023140Z-0e0e7351; backup=tasks/legacy_backup/task-20260317T023140Z-0e0e7351.json.bak.20260320T231223Z.json"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "task-20260315T071954Z-ef7a7ab1",
+  "title": "Worker result packet import test / delegated repo analysis",
+  "objective": "Analyze the repository and explain the mixed local-worker orchestration flow, covering chain plan richness, aggregated summary quality, and final artifact integrity.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T07:19:54+00:00",
+  "updated_at": "2026-03-20T20:37:08Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T071954Z-ef7a7ab1.json.bak.20260320T203708Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T071954Z-ef7a7ab1"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T072010Z-task-20260315T071954Z-ef7a7ab1-packet-result.md",
+      "kind": "worker-result",
+      "created_at": "2026-03-15T07:20:18+00:00"
+    },
+    {
+      "path": "outbox/manual/20260315T072010Z-task-20260315T071954Z-ef7a7ab1.worker-result.json",
+      "kind": "worker-result-packet",
+      "created_at": "2026-03-15T07:20:18+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T07:19:54+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-15T07:19:54+00:00"
+    },
+    {
+      "at": "2026-03-15T07:19:54+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result recorded from codex"
+    },
+    {
+      "at": "2026-03-15T07:19:54+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result imported from packet outbox/manual/20260315T072010Z-task-20260315T071954Z-ef7a7ab1.worker-result.json generated_at=2026-03-15T07:20:10Z sha256=b2bbf534c17af7c476da67c4468fbe67a12e561193672fc10d217418dacadda1"
+    },
+    {
+      "at": "2026-03-20T20:37:08Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T071954Z-ef7a7ab1; backup=tasks/legacy_backup/task-20260315T071954Z-ef7a7ab1.json.bak.20260320T203708Z.json"
+    }
+  ]
+}

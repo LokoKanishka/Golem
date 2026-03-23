@@ -1,0 +1,34 @@
+{
+  "id": "task-20260316T192818Z-6510268a",
+  "title": "System readiness / fast self-check",
+  "objective": "System readiness / fast self-check",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-16T19:28:18+00:00",
+  "updated_at": "2026-03-20T21:28:35Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260316T192818Z-6510268a.json.bak.20260320T212835Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260316T192818Z-6510268a"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-16T19:28:18+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "self-check completed and task closed"
+    },
+    {
+      "at": "2026-03-20T21:28:35Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260316T192818Z-6510268a; backup=tasks/legacy_backup/task-20260316T192818Z-6510268a.json.bak.20260320T212835Z.json"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "id": "task-20260319T190839Z-98f3f73f",
+  "title": "Verify delivery verified-by-user path",
+  "objective": "Verify delivery verified-by-user path",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T19:08:39+00:00",
+  "updated_at": "2026-03-20T23:54:07Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T190839Z-98f3f73f.json.bak.20260320T235407Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T190839Z-98f3f73f"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T19:08:39+00:00",
+      "actor": "legacy",
+      "action": "legacy_imported",
+      "note": "Legacy task imported from raw representation. legacy_ref=task-20260319T190839Z-98f3f73f"
+    },
+    {
+      "at": "2026-03-20T23:54:07Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T190839Z-98f3f73f; backup=tasks/legacy_backup/task-20260319T190839Z-98f3f73f.json.bak.20260320T235407Z.json"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "task-20260317T011509Z-b97fae79",
+  "title": "Verify canonical host screenshot capture",
+  "objective": "Verify canonical host screenshot capture",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T01:15:09+00:00",
+  "updated_at": "2026-03-20T23:12:20Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T011509Z-b97fae79.json.bak.20260320T231220Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T011509Z-b97fae79"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "host-screenshot-screenshot-0001",
+      "path": "/home/lucy-ubuntu/Escritorio/golem/outbox/manual/host-screenshot-valid.png",
+      "kind": "host-screenshot",
+      "captured_at": "2026-03-17T01:15:09+00:00",
+      "mime_type": "image/png",
+      "size_bytes": 512856,
+      "sha256": "6eb70b6e234c46c0525dbb2bbc5b30fe97f1f13c5308eb57c179cd36f6dadad0"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T01:15:09+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "technical work closed before visual confirmation was verified"
+    },
+    {
+      "at": "2026-03-17T01:15:09+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "host screenshot captured recorded for target desktop-root"
+    },
+    {
+      "at": "2026-03-17T01:15:09+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "host screenshot verification verified recorded for desktop-root"
+    },
+    {
+      "at": "2026-03-20T23:12:20Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T011509Z-b97fae79; backup=tasks/legacy_backup/task-20260317T011509Z-b97fae79.json.bak.20260320T231220Z.json"
+    }
+  ]
+}

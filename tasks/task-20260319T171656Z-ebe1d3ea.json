@@ -1,0 +1,56 @@
+{
+  "id": "task-20260319T171656Z-ebe1d3ea",
+  "title": "Live user journey smoke / artifact visible real",
+  "objective": "Live user journey smoke / artifact visible real",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T17:16:56+00:00",
+  "updated_at": "2026-03-20T23:41:10Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T171656Z-ebe1d3ea.json.bak.20260320T234110Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T171656Z-ebe1d3ea"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260319T171656784412Z-journey-a-visible-artifact.md",
+      "kind": "live-user-journey-artifact",
+      "created_at": "2026-03-19T17:16:57+00:00"
+    },
+    {
+      "path": "/home/lucy-ubuntu/Escritorio/20260319T171656784412Z-journey-a-visible-artifact.md",
+      "kind": "visible-artifact-delivery",
+      "created_at": "2026-03-19T17:16:57+00:00",
+      "source_artifact_path": "outbox/manual/20260319T171656784412Z-journey-a-visible-artifact.md",
+      "delivery_target": "desktop",
+      "path_normalized": "/home/lucy-ubuntu/Escritorio/20260319T171656784412Z-journey-a-visible-artifact.md",
+      "verification_result": "PASS",
+      "user_visible": true
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T17:16:56+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "visible artifact delivery pass for target desktop"
+    },
+    {
+      "at": "2026-03-19T17:16:56+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "live user journey artifact visible path passed"
+    },
+    {
+      "at": "2026-03-20T23:41:10Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T171656Z-ebe1d3ea; backup=tasks/legacy_backup/task-20260319T171656Z-ebe1d3ea.json.bak.20260320T234110Z.json"
+    }
+  ]
+}

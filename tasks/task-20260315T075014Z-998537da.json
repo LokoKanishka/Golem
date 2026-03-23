@@ -1,0 +1,67 @@
+{
+  "id": "task-20260315T075014Z-998537da",
+  "title": "Worker packet roundtrip success path / delegated repo analysis",
+  "objective": "Analyze the repository and explain the mixed local-worker orchestration flow, covering chain plan richness, aggregated summary quality, and final artifact integrity.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T07:50:14+00:00",
+  "updated_at": "2026-03-20T20:37:09Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T075014Z-998537da.json.bak.20260320T203709Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T075014Z-998537da"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260315T075014Z-998537da.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-15T07:50:14+00:00"
+    },
+    {
+      "path": "handoffs/task-20260315T075014Z-998537da.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-15T07:50:14+00:00"
+    },
+    {
+      "path": "handoffs/task-20260315T075014Z-998537da.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-15T07:50:14+00:00"
+    },
+    {
+      "path": "outbox/manual/success-task-20260315T075014Z-998537da.worker-result.json",
+      "kind": "worker-result-packet",
+      "created_at": "2026-03-15T07:50:15+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T07:50:14+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-15T07:50:14+00:00"
+    },
+    {
+      "at": "2026-03-15T07:50:14+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result recorded from codex"
+    },
+    {
+      "at": "2026-03-15T07:50:14+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result imported from packet outbox/manual/success-task-20260315T075014Z-998537da.worker-result.json generated_at=2026-03-15T07:50:15+00:00 sha256=20626f707bc9005e3b3a8c6ae54987f132e7bb920395ffd1b80e6451b5baf04e"
+    },
+    {
+      "at": "2026-03-20T20:37:09Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T075014Z-998537da; backup=tasks/legacy_backup/task-20260315T075014Z-998537da.json.bak.20260320T203709Z.json"
+    }
+  ]
+}

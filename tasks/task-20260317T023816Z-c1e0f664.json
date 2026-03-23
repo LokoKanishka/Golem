@@ -1,0 +1,57 @@
+{
+  "id": "task-20260317T023816Z-c1e0f664",
+  "title": "Verify WhatsApp wrapper drift path",
+  "objective": "Verify WhatsApp wrapper drift path",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T02:38:16+00:00",
+  "updated_at": "2026-03-20T23:41:06Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T023816Z-c1e0f664.json.bak.20260320T234106Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T023816Z-c1e0f664"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/run-20260317T023816Z-12f31a85-whatsapp-live-send.json",
+      "kind": "whatsapp-live-send-report",
+      "created_at": "2026-03-17T02:38:16+00:00",
+      "run_id": "run-20260317T023816Z-12f31a85",
+      "wrapper_status": "ACCEPTED_BY_GATEWAY",
+      "wrapper_state": "accepted_by_gateway"
+    },
+    {
+      "path": "outbox/manual/run-20260317T023816Z-c498b0ea-whatsapp-live-send.json",
+      "kind": "whatsapp-live-send-report",
+      "created_at": "2026-03-17T02:38:16+00:00",
+      "run_id": "run-20260317T023816Z-c498b0ea",
+      "wrapper_status": "FAIL",
+      "wrapper_state": "accepted_by_gateway"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T02:38:16+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery requested recorded for +5491100000003 with allowed claim 'solicitado'"
+    },
+    {
+      "at": "2026-03-17T02:38:16+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery accepted_by_gateway recorded for +5491100000003 with allowed claim 'aceptado por gateway'"
+    },
+    {
+      "at": "2026-03-20T23:41:06Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T023816Z-c1e0f664; backup=tasks/legacy_backup/task-20260317T023816Z-c1e0f664.json.bak.20260320T234106Z.json"
+    }
+  ]
+}

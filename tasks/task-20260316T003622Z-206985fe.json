@@ -1,0 +1,40 @@
+{
+  "id": "task-20260316T003622Z-206985fe",
+  "title": "Verify chain execution audit / local multi-worker docs comparison",
+  "objective": "Produce one local artifact only after both manual-controlled worker results are done so the root closes with mixed evidence from multiple awaited workers.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-16T00:36:22+00:00",
+  "updated_at": "2026-03-20T21:10:41Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260316T003622Z-206985fe.json.bak.20260320T211041Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260316T003622Z-206985fe"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260316T003622Z_chain-v2-local-compare-multi-worker-docs-task-20260316T003610Z-235f2c63.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-16T00:36:22+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-16T00:36:22+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "comparison generation completed and task closed"
+    },
+    {
+      "at": "2026-03-20T21:10:41Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260316T003622Z-206985fe; backup=tasks/legacy_backup/task-20260316T003622Z-206985fe.json.bak.20260320T211041Z.json"
+    }
+  ]
+}

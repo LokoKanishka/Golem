@@ -1,0 +1,40 @@
+{
+  "id": "task-20260316T192721Z-e39c5925",
+  "title": "Worker packet roundtrip success path / local orchestration docs comparison",
+  "objective": "Produce one local artifact after the manual-controlled worker result is registered so the chain can resume and close with mixed evidence.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-16T19:27:21+00:00",
+  "updated_at": "2026-03-20T21:28:34Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260316T192721Z-e39c5925.json.bak.20260320T212834Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260316T192721Z-e39c5925"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260316T192721Z_chain-v2-local-compare-orchestration-docs-task-20260316T192712Z-6a5ff5ed.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-16T19:27:22+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-16T19:27:21+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "comparison generation completed and task closed"
+    },
+    {
+      "at": "2026-03-20T21:28:34Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260316T192721Z-e39c5925; backup=tasks/legacy_backup/task-20260316T192721Z-e39c5925.json.bak.20260320T212834Z.json"
+    }
+  ]
+}

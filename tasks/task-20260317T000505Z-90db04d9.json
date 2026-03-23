@@ -1,0 +1,40 @@
+{
+  "id": "task-20260317T000505Z-90db04d9",
+  "title": "Verify WhatsApp drift path",
+  "objective": "Verify WhatsApp drift path",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T00:05:05+00:00",
+  "updated_at": "2026-03-20T22:47:00Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T000505Z-90db04d9.json.bak.20260320T224700Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T000505Z-90db04d9"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T00:05:05+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery requested recorded for +5491100000005 with allowed claim 'solicitado'"
+    },
+    {
+      "at": "2026-03-17T00:05:05+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery accepted_by_gateway recorded for +5491100000005 with allowed claim 'aceptado por gateway'"
+    },
+    {
+      "at": "2026-03-20T22:47:00Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T000505Z-90db04d9; backup=tasks/legacy_backup/task-20260317T000505Z-90db04d9.json.bak.20260320T224700Z.json"
+    }
+  ]
+}

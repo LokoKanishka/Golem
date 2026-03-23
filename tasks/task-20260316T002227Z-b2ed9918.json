@@ -1,0 +1,88 @@
+{
+  "id": "task-20260316T002227Z-b2ed9918",
+  "title": "Multi worker await partial+success path",
+  "objective": "Execute a mixed local-worker chain that delegates multiple manual-controlled worker steps, waits for their worker results independently, and resumes local continuation steps through explicit dependency barriers instead of relying on position-only ordering.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-16T00:22:27+00:00",
+  "updated_at": "2026-03-20T21:10:39Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260316T002227Z-b2ed9918.json.bak.20260320T211039Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260316T002227Z-b2ed9918"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260316T002227Z-multi-worker-await-partial-success-path-effective-chain-plan.json",
+      "kind": "effective-chain-plan",
+      "created_at": "2026-03-16T00:22:27+00:00",
+      "sha256": "d62f5d40f75c321a6ebfe463e26d47048312f377bf00086dd7d72b3dbbce716d",
+      "plan_version": "2.4"
+    },
+    {
+      "path": "outbox/manual/20260316T002227Z-20260316t002227z-multi-worker-await-partial-success-path-effective-chain-plan-chain-plan-preflight.md",
+      "kind": "chain-plan-preflight",
+      "created_at": "2026-03-16T00:22:27+00:00",
+      "sha256": "a6f09a6cf1c388b5a5964a44fa3e67ab4a060aba3e47c573ce25e2693f815438",
+      "plan_version": "2.4"
+    },
+    {
+      "path": "outbox/manual/20260316T002235Z-repo-analysis-worker-manual-multi-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-16T00:22:35+00:00"
+    },
+    {
+      "path": "outbox/manual/20260316T002237Z-repo-analysis-worker-manual-multi-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-16T00:22:37+00:00"
+    },
+    {
+      "path": "outbox/manual/20260316T002240Z-repo-analysis-worker-manual-multi-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-16T00:22:40+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-16T00:22:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "chain plan v2 created at 2026-03-16T00:22:27+00:00"
+    },
+    {
+      "at": "2026-03-16T00:22:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "effective chain plan persisted at 2026-03-16T00:22:27+00:00 and preflight artifact frozen at 2026-03-16T00:22:27+00:00"
+    },
+    {
+      "at": "2026-03-16T00:22:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "Chain delegated and waiting: 1/5 step(s) completed, 2 delegated, 0 running, awaiting 2 worker result(s) before the chain can continue. Waiting dependency barriers: analysis-workers, architecture-ready."
+    },
+    {
+      "at": "2026-03-16T00:22:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "Chain delegated and waiting: 3/5 step(s) completed, 1 delegated, 0 running, awaiting 1 worker result(s) before the chain can continue. Waiting dependency barriers: analysis-workers."
+    },
+    {
+      "at": "2026-03-16T00:22:27+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "Chain completed with warnings: 5/5 step(s) completed, 0 failed, 1 warning signal(s)."
+    },
+    {
+      "at": "2026-03-20T21:10:39Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260316T002227Z-b2ed9918; backup=tasks/legacy_backup/task-20260316T002227Z-b2ed9918.json.bak.20260320T211039Z.json"
+    }
+  ]
+}

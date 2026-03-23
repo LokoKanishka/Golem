@@ -1,0 +1,68 @@
+{
+  "id": "task-20260315T225750Z-bc2da1c1",
+  "title": "Multi worker await partial+success path",
+  "objective": "Execute a mixed local-worker chain that delegates multiple manual-controlled worker steps, waits for their worker results independently, and resumes local continuation steps through explicit dependency barriers instead of relying on position-only ordering.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T22:57:50+00:00",
+  "updated_at": "2026-03-20T21:04:15Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T225750Z-bc2da1c1.json.bak.20260320T210415Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T225750Z-bc2da1c1"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T225800Z-repo-analysis-worker-manual-multi-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T22:58:00+00:00"
+    },
+    {
+      "path": "outbox/manual/20260315T225802Z-repo-analysis-worker-manual-multi-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T22:58:02+00:00"
+    },
+    {
+      "path": "outbox/manual/20260315T225804Z-repo-analysis-worker-manual-multi-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-15T22:58:04+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T22:57:50+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "chain plan v2 created at 2026-03-15T22:57:50+00:00"
+    },
+    {
+      "at": "2026-03-15T22:57:50+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "Chain delegated and waiting: 1/5 step(s) completed, 2 delegated, 0 running, awaiting 2 worker result(s) before the chain can continue. Waiting dependency barriers: analysis-workers, architecture-ready."
+    },
+    {
+      "at": "2026-03-15T22:57:50+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "Chain delegated and waiting: 3/5 step(s) completed, 1 delegated, 0 running, awaiting 1 worker result(s) before the chain can continue. Waiting dependency barriers: analysis-workers."
+    },
+    {
+      "at": "2026-03-15T22:57:50+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "Chain completed with warnings: 5/5 step(s) completed, 0 failed, 1 warning signal(s)."
+    },
+    {
+      "at": "2026-03-20T21:04:15Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T225750Z-bc2da1c1; backup=tasks/legacy_backup/task-20260315T225750Z-bc2da1c1.json.bak.20260320T210415Z.json"
+    }
+  ]
+}

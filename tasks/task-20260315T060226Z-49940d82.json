@@ -1,0 +1,34 @@
+{
+  "id": "task-20260315T060226Z-49940d82",
+  "title": "Blocked lifecycle test",
+  "objective": "Blocked lifecycle test",
+  "status": "blocked",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T06:02:26+00:00",
+  "updated_at": "2026-03-20T20:37:07Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T060226Z-49940d82.json.bak.20260320T203707Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T060226Z-49940d82"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T06:02:26+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "browser blocked before navigation execution"
+    },
+    {
+      "at": "2026-03-20T20:37:07Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T060226Z-49940d82; backup=tasks/legacy_backup/task-20260315T060226Z-49940d82.json.bak.20260320T203707Z.json"
+    }
+  ]
+}

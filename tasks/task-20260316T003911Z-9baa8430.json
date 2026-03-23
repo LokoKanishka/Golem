@@ -1,0 +1,77 @@
+{
+  "id": "task-20260316T003911Z-9baa8430",
+  "title": "Worker packet roundtrip blocked path",
+  "objective": "Execute a mixed local-worker chain that delegates the worker step, prepares the handoff, waits for a manual-controlled worker result, and resumes one local closing step after that result exists.",
+  "status": "blocked",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-16T00:39:11+00:00",
+  "updated_at": "2026-03-20T21:28:31Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260316T003911Z-9baa8430.json.bak.20260320T212831Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260316T003911Z-9baa8430"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260316T003911Z-worker-packet-roundtrip-blocked-path-effective-chain-plan.json",
+      "kind": "effective-chain-plan",
+      "created_at": "2026-03-16T00:39:11+00:00",
+      "sha256": "1cf821c8776cbd87ab708242bc21f05f4a96453e8d929b982c2c81b55f2e4220",
+      "plan_version": "2.4"
+    },
+    {
+      "path": "outbox/manual/20260316T003911Z-20260316t003911z-worker-packet-roundtrip-blocked-path-effective-chain-plan-chain-plan-preflight.md",
+      "kind": "chain-plan-preflight",
+      "created_at": "2026-03-16T00:39:11+00:00",
+      "sha256": "e866283e3b6dd5e987bb303f67d3ba5f6a2a07c4978af4453b7ef8f2de3f6a77",
+      "plan_version": "2.4"
+    },
+    {
+      "path": "outbox/manual/20260316T003920Z-repo-analysis-worker-manual-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-16T00:39:20+00:00"
+    },
+    {
+      "path": "outbox/manual/20260316T003921Z-repo-analysis-worker-manual-chain-final.md",
+      "kind": "chain-final",
+      "created_at": "2026-03-16T00:39:21+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-16T00:39:11+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "chain plan v2 created at 2026-03-16T00:39:11+00:00"
+    },
+    {
+      "at": "2026-03-16T00:39:11+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "effective chain plan persisted at 2026-03-16T00:39:11+00:00 and preflight artifact frozen at 2026-03-16T00:39:11+00:00"
+    },
+    {
+      "at": "2026-03-16T00:39:11+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "Chain delegated and waiting: 1/3 step(s) completed, 1 delegated, 0 running, awaiting 1 worker result(s) before the chain can continue. Waiting dependency barriers: delegated-repo-analysis."
+    },
+    {
+      "at": "2026-03-16T00:39:11+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "Chain blocked: 1/3 step(s) completed, 1 blocked, 1 skipped, and one or more critical steps could not start or continue."
+    },
+    {
+      "at": "2026-03-20T21:28:31Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260316T003911Z-9baa8430; backup=tasks/legacy_backup/task-20260316T003911Z-9baa8430.json.bak.20260320T212831Z.json"
+    }
+  ]
+}

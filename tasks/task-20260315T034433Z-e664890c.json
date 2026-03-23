@@ -1,0 +1,40 @@
+{
+  "id": "task-20260315T034433Z-e664890c",
+  "title": "Capability verification / orchestration v2 / local orchestration docs comparison",
+  "objective": "Generate one local artifact after the worker step to keep the chain mixed and inspectable.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-15T03:44:33+00:00",
+  "updated_at": "2026-03-20T20:10:38Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260315T034433Z-e664890c.json.bak.20260320T201038Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260315T034433Z-e664890c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/20260315T034433Z_chain-v2-compare-task-20260315T034138Z-57ce5229.md",
+      "kind": "comparison-files",
+      "created_at": "2026-03-15T03:44:33+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-15T03:44:33+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "comparison generation completed and task closed"
+    },
+    {
+      "at": "2026-03-20T20:10:38Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260315T034433Z-e664890c; backup=tasks/legacy_backup/task-20260315T034433Z-e664890c.json.bak.20260320T201038Z.json"
+    }
+  ]
+}

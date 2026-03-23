@@ -1,0 +1,67 @@
+{
+  "id": "task-20260316T004120Z-0fcb1829",
+  "title": "Worker packet roundtrip success path / delegated repo analysis",
+  "objective": "Prepare a real delegated repo-analysis worker step with durable handoff and ticket, then wait for manual-controlled worker execution and result closure.",
+  "status": "done",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-16T00:41:20+00:00",
+  "updated_at": "2026-03-20T21:28:33Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260316T004120Z-0fcb1829.json.bak.20260320T212833Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260316T004120Z-0fcb1829"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "handoffs/task-20260316T004120Z-0fcb1829.md",
+      "kind": "worker-handoff-markdown",
+      "created_at": "2026-03-16T00:41:20+00:00"
+    },
+    {
+      "path": "handoffs/task-20260316T004120Z-0fcb1829.codex.md",
+      "kind": "worker-codex-ticket",
+      "created_at": "2026-03-16T00:41:20+00:00"
+    },
+    {
+      "path": "handoffs/task-20260316T004120Z-0fcb1829.packet.json",
+      "kind": "worker-handoff-packet",
+      "created_at": "2026-03-16T00:41:20+00:00"
+    },
+    {
+      "path": "outbox/manual/success-task-20260316T004120Z-0fcb1829.worker-result.json",
+      "kind": "worker-result-packet",
+      "created_at": "2026-03-16T00:41:21+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-16T00:41:20+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "delegated to worker_future on 2026-03-16T00:41:20+00:00"
+    },
+    {
+      "at": "2026-03-16T00:41:20+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result recorded from codex"
+    },
+    {
+      "at": "2026-03-16T00:41:20+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "worker result imported from packet outbox/manual/success-task-20260316T004120Z-0fcb1829.worker-result.json generated_at=2026-03-16T00:41:21+00:00 sha256=61d33e37de235bc37a01ad7e48e13860a0a877cd61bdeaba43c27f343cf54bbc"
+    },
+    {
+      "at": "2026-03-20T21:28:33Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260316T004120Z-0fcb1829; backup=tasks/legacy_backup/task-20260316T004120Z-0fcb1829.json.bak.20260320T212833Z.json"
+    }
+  ]
+}

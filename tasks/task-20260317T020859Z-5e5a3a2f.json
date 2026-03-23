@@ -1,0 +1,40 @@
+{
+  "id": "task-20260317T020859Z-5e5a3a2f",
+  "title": "Verify local path media ingestion",
+  "objective": "Verify local path media ingestion",
+  "status": "todo",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-17T02:08:59+00:00",
+  "updated_at": "2026-03-20T23:12:22Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260317T020859Z-5e5a3a2f.json.bak.20260320T231222Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260317T020859Z-5e5a3a2f"
+    }
+  ],
+  "artifacts": [],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-17T02:08:59+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "media ingestion registered recorded for 20260317T020858455566Z-local-path.md"
+    },
+    {
+      "at": "2026-03-17T02:08:59+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "media readiness verified recorded for 20260317T020858455566Z-local-path.md"
+    },
+    {
+      "at": "2026-03-20T23:12:22Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260317T020859Z-5e5a3a2f; backup=tasks/legacy_backup/task-20260317T020859Z-5e5a3a2f.json.bak.20260320T231222Z.json"
+    }
+  ]
+}

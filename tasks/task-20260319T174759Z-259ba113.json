@@ -1,0 +1,54 @@
+{
+  "id": "task-20260319T174759Z-259ba113",
+  "title": "Verify controlled live WhatsApp provider canary",
+  "objective": "Verify controlled live WhatsApp provider canary",
+  "status": "blocked",
+  "owner": "unassigned",
+  "source_channel": "operator",
+  "created_at": "2026-03-19T17:47:59+00:00",
+  "updated_at": "2026-03-20T23:43:24Z",
+  "acceptance_criteria": [],
+  "evidence": [
+    {
+      "type": "migration",
+      "path": "tasks/legacy_backup/task-20260319T174759Z-259ba113.json.bak.20260320T234324Z.json",
+      "note": "Migrated from legacy representation. legacy_ref=task-20260319T174759Z-259ba113"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outbox/manual/run-20260319T174801Z-a116567d-whatsapp-live-send.json",
+      "kind": "whatsapp-live-send-report",
+      "created_at": "2026-03-19T17:48:04+00:00",
+      "run_id": "run-20260319T174801Z-a116567d",
+      "wrapper_status": "BLOCKED",
+      "wrapper_state": "requested"
+    },
+    {
+      "path": "outbox/manual/20260319T174759385450Z-whatsapp-live-provider-canary.md",
+      "kind": "whatsapp-live-provider-canary-report",
+      "created_at": "2026-03-19T17:48:05+00:00"
+    }
+  ],
+  "closure_note": "",
+  "history": [
+    {
+      "at": "2026-03-19T17:47:59+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "whatsapp delivery requested recorded for +156348867 with allowed claim 'solicitado'"
+    },
+    {
+      "at": "2026-03-19T17:47:59+00:00",
+      "actor": "legacy",
+      "action": "legacy_note",
+      "note": "the live canary could not complete a coherent live send attempt under the current runtime"
+    },
+    {
+      "at": "2026-03-20T23:43:24Z",
+      "actor": "system",
+      "action": "migrated_from_legacy",
+      "note": "Migrated legacy task. legacy_ref=task-20260319T174759Z-259ba113; backup=tasks/legacy_backup/task-20260319T174759Z-259ba113.json.bak.20260320T234324Z.json"
+    }
+  ]
+}
