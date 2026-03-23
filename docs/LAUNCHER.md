@@ -46,6 +46,7 @@ cd ~/Escritorio/golem
 ./scripts/golem_host_stack_ctl.sh start
 ./scripts/golem_host_stack_ctl.sh status
 ./scripts/golem_host_stack_ctl.sh healthcheck
+./scripts/golem_host_stack_ctl.sh diagnose
 ./scripts/golem_host_stack_ctl.sh stop
 ```
 
@@ -56,6 +57,32 @@ Orden operativo resuelto:
 - al apagar, frena primero el bridge y despues la API.
 
 Se eligio resolver la dependencia API -> bridge en este carril operativo y en `self_check`, sin acoplar duro las units entre si. Eso mantiene flexibilidad para servicios alternativos o smokes con nombres temporales.
+
+## Diagnostico profundo
+
+Cuando haga falta evidencia host-level mas profunda, el stack local tiene un runner explicito:
+
+```bash
+./scripts/golem_host_diagnose.sh
+```
+
+Tambien puede invocarse desde el mismo carril diario:
+
+```bash
+./scripts/golem_host_stack_ctl.sh diagnose
+```
+
+Cada ejecucion deja un snapshot timestamped en `diagnostics/host/` con:
+
+- `summary.txt`
+- `manifest.json`
+- status y healthcheck de task API + bridge
+- `systemctl --user status/show` de ambos servicios
+- tails de `journalctl --user -u ...`
+- tabla de procesos relevante
+- sockets/puertos relevantes
+
+El runner no intenta corregir el host. En esta fase solo congela evidencia util y persistente para auditoria local rapida.
 
 ## Self Check
 

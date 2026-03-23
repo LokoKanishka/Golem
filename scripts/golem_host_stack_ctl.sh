@@ -24,6 +24,7 @@ Usage:
   ./scripts/golem_host_stack_ctl.sh restart
   ./scripts/golem_host_stack_ctl.sh status
   ./scripts/golem_host_stack_ctl.sh healthcheck
+  ./scripts/golem_host_stack_ctl.sh diagnose
 
 Env overrides:
   GOLEM_TASK_API_SERVICE_NAME
@@ -110,6 +111,10 @@ command_healthcheck() {
     "${TASK_API_SERVICE_NAME}" "${WHATSAPP_BRIDGE_SERVICE_NAME}"
 }
 
+command_diagnose() {
+  "${REPO_ROOT}/scripts/golem_host_diagnose.sh" snapshot
+}
+
 main() {
   if [ "$#" -ne 1 ]; then
     usage >&2
@@ -133,6 +138,9 @@ main() {
       ;;
     healthcheck)
       command_healthcheck
+      ;;
+    diagnose)
+      command_diagnose
       ;;
     *)
       usage >&2

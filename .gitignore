@@ -12,6 +12,8 @@ state/tmp/
 *.tmp
 __pycache__/
 *.pyc
+diagnostics/host/*
+!diagnostics/host/README.md
 
 # editor / system
 .vscode/
