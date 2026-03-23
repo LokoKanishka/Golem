@@ -158,6 +158,7 @@ main() {
   local dashboard_url
   local self_check_output
   local self_check_status
+  local gateway_self_check
   local task_api_self_check
   local bridge_self_check
   local launch_summary
@@ -187,8 +188,12 @@ main() {
   if [ -z "$self_check_status" ]; then
     self_check_status="UNKNOWN"
   fi
+  gateway_self_check="$(printf '%s\n' "$self_check_output" | sed -n 's/^gateway: \([A-Z]*\).*/\1/p' | tail -n 1)"
   task_api_self_check="$(printf '%s\n' "$self_check_output" | sed -n 's/^task_api: \([A-Z]*\).*/\1/p' | tail -n 1)"
   bridge_self_check="$(printf '%s\n' "$self_check_output" | sed -n 's/^whatsapp_bridge_service: \([A-Z]*\).*/\1/p' | tail -n 1)"
+  if [ -z "$gateway_self_check" ]; then
+    gateway_self_check="UNKNOWN"
+  fi
   if [ -z "$task_api_self_check" ]; then
     task_api_self_check="UNKNOWN"
   fi
@@ -197,7 +202,7 @@ main() {
   fi
 
   if [ "$self_check_status" = "FAIL" ] || [ "$task_api_self_check" != "OK" ] || [ "$bridge_self_check" != "OK" ]; then
-    run_auto_diagnose "self_check_status=${self_check_status};task_api=${task_api_self_check};whatsapp_bridge_service=${bridge_self_check}"
+    run_auto_diagnose "self_check_status=${self_check_status};gateway=${gateway_self_check};task_api=${task_api_self_check};whatsapp_bridge_service=${bridge_self_check}"
   fi
 
   launch_summary="SUMMARY GOLEM"

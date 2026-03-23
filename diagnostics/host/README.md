@@ -57,12 +57,12 @@ Cobertura smoke actual:
 - `./tests/smoke_host_task_api_operator_summary.sh`: valida el mismo flujo cuando el foco de falla cae en `task_api`
 - `./tests/smoke_host_gateway_context_triage.sh`: valida triage de gateway/RPC degradado con stack sano y contexto parcial
 - `./tests/smoke_host_stack_startup_timeout.sh`: valida el carril de `launch_golem.sh` cuando el stack arranca pero no queda sano a tiempo
+- `./tests/smoke_host_gateway_systemd_down.sh`: valida el carril del launcher cuando `openclaw-gateway.service` cae a nivel systemd y task API + bridge siguen sanos
 - `./tests/smoke_host_auto_diagnose_failure.sh`: valida auto-disparo y cooldown del snapshot ante falla real del stack
 - `./tests/smoke_host_last_snapshot_context_layout.sh`: valida que helper y `summary.txt` sigan alineados en lectura
 
 Todavia no se cubren todas las combinaciones posibles:
 
-- fallas duras del servicio `openclaw-gateway.service` a nivel systemd
 - combinaciones multiples de fallas simultaneas en task API, bridge y gateway
 
 Los directorios timestamped generados por el runner quedan fuera de Git por `.gitignore`.

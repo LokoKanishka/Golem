@@ -10,6 +10,7 @@ bridge_audit="$tmpdir/bridge-audit.jsonl"
 bridge_state="$tmpdir/bridge-state.json"
 bridge_runtime="$tmpdir/bridge-runtime.json"
 diagnostics_root="$tmpdir/diagnostics-host"
+auto_state="$tmpdir/auto-state.json"
 first_healthcheck_txt="$tmpdir/first-healthcheck.txt"
 second_healthcheck_txt="$tmpdir/second-healthcheck.txt"
 api_status_json="$tmpdir/api-status.json"
@@ -147,6 +148,7 @@ GOLEM_WHATSAPP_BRIDGE_STATE_FILE="$bridge_state" \
 GOLEM_WHATSAPP_BRIDGE_RUNTIME_STATUS_FILE="$bridge_runtime" \
 GOLEM_WHATSAPP_BRIDGE_AUDIT_FILE="$bridge_audit" \
 GOLEM_HOST_DIAGNOSTICS_ROOT="$diagnostics_root" \
+GOLEM_HOST_AUTO_DIAGNOSE_STATE_FILE="$auto_state" \
 GOLEM_HOST_AUTO_DIAGNOSE_COOLDOWN_SECONDS=300 \
 ./scripts/golem_host_stack_ctl.sh healthcheck >"$first_healthcheck_txt" 2>&1
 first_exit=$?
@@ -168,6 +170,7 @@ GOLEM_WHATSAPP_BRIDGE_STATE_FILE="$bridge_state" \
 GOLEM_WHATSAPP_BRIDGE_RUNTIME_STATUS_FILE="$bridge_runtime" \
 GOLEM_WHATSAPP_BRIDGE_AUDIT_FILE="$bridge_audit" \
 GOLEM_HOST_DIAGNOSTICS_ROOT="$diagnostics_root" \
+GOLEM_HOST_AUTO_DIAGNOSE_STATE_FILE="$auto_state" \
 GOLEM_HOST_AUTO_DIAGNOSE_COOLDOWN_SECONDS=300 \
 ./scripts/golem_host_stack_ctl.sh healthcheck >"$second_healthcheck_txt" 2>&1
 second_exit=$?
