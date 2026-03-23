@@ -177,6 +177,7 @@ assert f"services: task_api={api_service_name} whatsapp_bridge={bridge_service_n
 assert "gateway_context:" in healthcheck, healthcheck
 assert "gateway_last_signal:" in healthcheck, healthcheck
 assert "suggested_first_action: revisar healthcheck de whatsapp_bridge" in healthcheck, healthcheck
+assert "second_action:" not in healthcheck, healthcheck
 assert f"snapshot: {snapshot_dir}" in healthcheck, healthcheck
 assert f"look_first: {summary_path}" in healthcheck, healthcheck
 assert f"look_next: {manifest_path}" in healthcheck, healthcheck
@@ -190,6 +191,7 @@ assert "trigger_reason: stack_healthcheck_failed" in helper, helper
 assert "gateway_context:" in helper, helper
 assert "gateway_last_signal:" in helper, helper
 assert "suggested_first_action: revisar healthcheck de whatsapp_bridge" in helper, helper
+assert "second_action: mirar journal del servicio whatsapp_bridge" in helper, helper
 assert f"look_first: {summary_path}" in helper, helper
 assert f"look_next: {manifest_path}" in helper, helper
 

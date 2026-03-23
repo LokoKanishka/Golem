@@ -410,6 +410,31 @@ def suggest_first_action(
     return "mirar summary.txt del ultimo snapshot"
 
 
+def suggest_second_action(
+    trigger_reason: str,
+    task_api_active: str,
+    task_api_health_exit: int,
+    bridge_active: str,
+    bridge_health_exit: int,
+    gateway_context: str,
+    gateway_last_signal: str,
+) -> str:
+    reason = trigger_reason.lower()
+    gateway_ok = "rpc ok" in gateway_context.lower() and "RPC probe: ok" in gateway_last_signal
+
+    if "task_api" in reason or task_api_active != "active" or task_api_health_exit != 0:
+        return "confirmar puerto y pid de task_api en summary.txt"
+    if "whatsapp_bridge" in reason or bridge_active != "active" or bridge_health_exit != 0:
+        return "mirar journal del servicio whatsapp_bridge"
+    if "stack_startup_timeout" in reason:
+        return "mirar pids y puertos relevantes en summary.txt"
+    if "self_check_status=" in reason and not gateway_ok:
+        return "mirar estado del gateway en manifest.json"
+    if not gateway_ok:
+        return "mirar estado del gateway en manifest.json"
+    return "abrir manifest.json si summary.txt no alcanza"
+
+
 task_api_status = read_json("task_api_status.json")
 task_api_health = read_json("task_api_healthcheck.json")
 bridge_status = read_json("whatsapp_bridge_status.json")
@@ -508,6 +533,15 @@ suggested_first_action = suggest_first_action(
     gateway_context,
     gateway_last_signal,
 )
+second_action = suggest_second_action(
+    trigger_reason,
+    str(task_api_active),
+    task_api_health_exit,
+    str(bridge_active),
+    bridge_health_exit,
+    gateway_context,
+    gateway_last_signal,
+)
 
 overall = "OK"
 if task_api_health_exit != 0 or bridge_health_exit != 0 or stack_health_exit != 0:
@@ -527,6 +561,7 @@ summary_lines = [
     f"gateway_context: {gateway_context}",
     f"gateway_last_signal: {gateway_last_signal}",
     f"suggested_first_action: {suggested_first_action}",
+    f"second_action: {second_action}",
     f"task_api_service: {task_api_status.get('service_name', '(unknown)')}",
     f"task_api_enabled: {task_api_status.get('service_enabled', task_api_props.get('UnitFileState', 'unknown'))}",
     f"task_api_active: {task_api_active}",
@@ -565,6 +600,7 @@ manifest = {
     },
     "quick_triage": {
         "suggested_first_action": suggested_first_action,
+        "second_action": second_action,
     },
     "task_api": {
         "service_name": task_api_status.get("service_name"),

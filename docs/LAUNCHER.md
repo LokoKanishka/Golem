@@ -133,6 +133,12 @@ Cuando una falla del stack dispara auto-diagnostico, `golem_host_stack_ctl.sh` y
 - timestamp
 - helper rapido `./scripts/golem_host_last_snapshot.sh`
 
+El helper del ultimo snapshot puede profundizar un paso mas sin ensuciar esa salida principal:
+
+- mantiene `suggested_first_action`
+- agrega `second_action` solo en el helper
+- la segunda pista sale del mismo snapshot y no se imprime en el resumen corto del fallo
+
 ## Self Check
 
 `./scripts/self_check.sh` ahora informa tambien:

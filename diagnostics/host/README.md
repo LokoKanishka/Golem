@@ -25,6 +25,7 @@ Cada snapshot tambien registra:
 - `gateway_context`
 - `gateway_last_signal`
 - `suggested_first_action`
+- `second_action`
 
 El auto-disparo usa cooldown para evitar tormentas de snapshots identicos. Se puede inhibir con `GOLEM_HOST_AUTO_DIAGNOSE=0`.
 
@@ -39,5 +40,11 @@ Quick triage disponible:
 - `mirar journal de task_api` cuando la falla apunta a task API o no queda activa
 - `revisar healthcheck de whatsapp_bridge` cuando la falla apunta al bridge o no queda sano
 - `confirmar gateway RPC antes de reiniciar stack` cuando el contexto del gateway no confirma RPC
+
+Pulido fino del helper:
+
+- `second_action` aparece en `./scripts/golem_host_last_snapshot.sh`
+- no aparece en el resumen corto principal para no ensuciar la salida bajo estres
+- sale de la misma evidencia del snapshot, con reglas chicas y auditables
 
 Los directorios timestamped generados por el runner quedan fuera de Git por `.gitignore`.
