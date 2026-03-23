@@ -19,6 +19,7 @@ Este archivo documenta el estado real actual del repo despues del cierre de tran
 - Gate oficial del carril: `./scripts/verify_task_lane_enforcement.sh`.
 - El gate oficial incluye `task_entrypoint_policy_check.sh`, `verify_task_cli_minimal.sh`, `task_git_trace_check.sh`, `task_validate.sh --all --strict` y `tests/smoke_task_core.sh`.
 - El path read-only para panel/backend inmediato sobre tareas canonicas es `./scripts/task_panel_read.sh`.
+- El path de mutacion minima para panel/backend inmediato sobre tareas canonicas es `./scripts/task_panel_mutate.sh`.
 
 ## Semantica del arbol
 - `tasks/`: fuente de verdad operativa de las tareas activas y archivadas.

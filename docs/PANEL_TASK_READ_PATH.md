@@ -12,7 +12,9 @@ tasks/task-*.json
 
 That inventory is the canonical repo-governed task truth.
 
-This phase does not authorize panel mutations.
+This adapter remains read-only.
+
+Panel-side mutations now live in the separate path documented in `docs/PANEL_TASK_MUTATION_PATH.md`.
 
 ## Adapter
 
@@ -72,7 +74,7 @@ If a requested task file is not canonical, the adapter fails instead of silently
 
 ## Explicitly out of scope
 
-This phase does not include:
+This read adapter does not include:
 
 - create from panel
 - update from panel

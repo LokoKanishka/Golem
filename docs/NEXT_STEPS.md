@@ -17,6 +17,7 @@ Cierre de transicion del carril de tareas completado.
 - Mantener el baseline sano y las tareas activas visibles en Git.
 - Tratar `./scripts/verify_task_lane_enforcement.sh` como gate obligatorio antes de merge o cierre de tramo del carril de tareas.
 - Mantener el panel leyendo tareas canonicas por `./scripts/task_panel_read.sh` hasta abrir un tramo separado de mutaciones.
+- Mantener las mutaciones panel-side apoyadas en `task_panel_mutate.sh` y, por debajo, en `task_create.sh`, `task_update.sh` y `task_close.sh`.
 - No abrir un rediseño de arquitectura en paralelo.
 - Priorizar integracion y verificabilidad por encima de nuevas capas doctrinales.
 
