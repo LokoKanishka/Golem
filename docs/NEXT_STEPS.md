@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Etapa actual
-Cierre del carril canonico de tareas completado, con panel visible y bridge/runtime local de WhatsApp sobre la misma API.
+Cierre del carril canonico de tareas completado y runtime local de WhatsApp ya endurecido para operacion sostenida sobre la misma API.
 
 ## Próximos pasos propuestos
-1. Endurecer el bridge/runtime real de WhatsApp para operacion sostenida sin reabrir el modelo ni crear otra API.
+1. Preparar un modo servicio local mas persistente para el bridge ya endurecido, sin mover todavia esta operacion al host ni abrir otra API.
 2. Reducir el uso residual del wrapper `task_new.sh` hasta que todo quede sobre `task_create.sh`.
 3. Endurecer verifies de integracion sobre:
    - delivery user-facing;
@@ -25,4 +25,4 @@ Cierre del carril canonico de tareas completado, con panel visible y bridge/runt
 - Priorizar integracion y verificabilidad por encima de nuevas capas doctrinales.
 
 ## Regla
-No volver a tratar el repo como bootstrap. El siguiente tramo correcto ya no es arquitectura del carril, sino estabilizacion operativa del runtime local sobre el contrato que quedo cerrado.
+No volver a tratar el repo como bootstrap. El siguiente tramo correcto ya no es arquitectura del carril, sino estabilizacion de producto/runtime sobre el contrato que quedo cerrado.
