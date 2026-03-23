@@ -22,6 +22,8 @@ Cada snapshot tambien registra:
 - `trigger_source`
 - `trigger_reason`
 - `trigger_requested_at_utc`
+- `gateway_context`
+- `gateway_last_signal`
 
 El auto-disparo usa cooldown para evitar tormentas de snapshots identicos. Se puede inhibir con `GOLEM_HOST_AUTO_DIAGNOSE=0`.
 

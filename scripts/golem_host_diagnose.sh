@@ -282,6 +282,24 @@ perform_snapshot() {
     "${snapshot_dir}/journal_bridge_tail.exit_code" \
     journalctl --user -u "$WHATSAPP_BRIDGE_SERVICE_NAME" --no-pager --output short-iso -n "$JOURNAL_LINES"
 
+  if command -v openclaw >/dev/null 2>&1; then
+    capture_split \
+      "${snapshot_dir}/gateway_status.txt" \
+      "${snapshot_dir}/gateway_status.stderr.txt" \
+      "${snapshot_dir}/gateway_status.exit_code" \
+      openclaw gateway status
+  else
+    write_text "${snapshot_dir}/gateway_status.txt" "openclaw command not available"
+    write_text "${snapshot_dir}/gateway_status.stderr.txt" ""
+    write_text "${snapshot_dir}/gateway_status.exit_code" "127"
+  fi
+
+  capture_split \
+    "${snapshot_dir}/gateway_systemd_state.txt" \
+    "${snapshot_dir}/gateway_systemd_state.stderr.txt" \
+    "${snapshot_dir}/gateway_systemd_state.exit_code" \
+    systemctl --user is-active openclaw-gateway.service
+
   capture_split \
     "${snapshot_dir}/process_table.txt" \
     "${snapshot_dir}/process_table.stderr.txt" \
@@ -377,6 +395,8 @@ bridge_props = read_props("systemctl_bridge_show.txt")
 
 task_api_journal = read_text("journal_task_api_tail.txt")
 bridge_journal = read_text("journal_bridge_tail.txt")
+gateway_status_text = read_text("gateway_status.txt")
+gateway_systemd_state = read_text("gateway_systemd_state.txt").strip() or "unknown"
 process_table = read_text("process_table.txt")
 ports_text = read_text("ports_listening.txt")
 
@@ -430,6 +450,28 @@ stack_health_exit = read_exit("stack_healthcheck.exit_code")
 task_api_failure = extract_failure(task_api_status, task_api_health, task_api_props, task_api_journal)
 bridge_failure = extract_failure(bridge_status, bridge_health, bridge_props, bridge_journal)
 
+gateway_context = "unavailable"
+gateway_last_signal = "(none)"
+for line in gateway_status_text.splitlines():
+    line = line.strip()
+    if not line:
+        continue
+    if line.startswith("RPC probe:"):
+        gateway_last_signal = line
+        break
+    if line.startswith("Runtime:"):
+        gateway_last_signal = line
+
+if gateway_systemd_state == "active":
+    if "Runtime: running" in gateway_status_text and "RPC probe: ok" in gateway_status_text:
+        gateway_context = "active, runtime running, rpc ok"
+    else:
+        gateway_context = "active, runtime not fully confirmed"
+elif gateway_systemd_state in {"inactive", "failed", "activating", "deactivating"}:
+    gateway_context = f"systemd {gateway_systemd_state}"
+elif "openclaw command not available" in gateway_status_text:
+    gateway_context = "openclaw status unavailable"
+
 task_api_active = task_api_status.get("service_active_state", task_api_props.get("ActiveState", "unknown"))
 bridge_active = bridge_status.get("service_active_state", bridge_props.get("ActiveState", "unknown"))
 
@@ -448,6 +490,8 @@ summary_lines = [
     f"trigger_requested_at_utc: {trigger_requested_at}",
     f"auto_cooldown_seconds: {auto_cooldown_seconds}",
     f"overall: {overall}",
+    f"gateway_context: {gateway_context}",
+    f"gateway_last_signal: {gateway_last_signal}",
     f"task_api_service: {task_api_status.get('service_name', '(unknown)')}",
     f"task_api_enabled: {task_api_status.get('service_enabled', task_api_props.get('UnitFileState', 'unknown'))}",
     f"task_api_active: {task_api_active}",
@@ -479,6 +523,11 @@ manifest = {
         "auto_cooldown_seconds": int(float(auto_cooldown_seconds)),
     },
     "overall": overall,
+    "gateway": {
+        "systemd_state": gateway_systemd_state,
+        "context": gateway_context,
+        "last_signal": gateway_last_signal,
+    },
     "task_api": {
         "service_name": task_api_status.get("service_name"),
         "active_state": task_api_active,

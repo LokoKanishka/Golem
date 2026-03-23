@@ -65,6 +65,7 @@ run_bridge_ctl() {
 trigger_auto_diagnose() {
   local reason="$1"
   local diagnose_output snapshot_path snapshot_summary snapshot_manifest timestamp_utc
+  local gateway_context gateway_last_signal
 
   diagnose_output="$(
     GOLEM_HOST_DIAG_TRIGGER_SOURCE="golem_host_stack_ctl" \
@@ -73,7 +74,7 @@ trigger_auto_diagnose() {
     --source "golem_host_stack_ctl" \
     --reason "$reason" 2>&1 || true
   )"
-  printf '%s\n' "$diagnose_output" >&2
+  printf '%s\n' "$diagnose_output" | sed -n '/^GOLEM_HOST_DIAGNOSE_/p' >&2
 
   snapshot_path="$(printf '%s\n' "$diagnose_output" | sed -n 's/^GOLEM_HOST_DIAGNOSE_SNAPSHOT //p' | tail -n 1)"
   if [ -z "$snapshot_path" ]; then
@@ -88,14 +89,27 @@ trigger_auto_diagnose() {
   timestamp_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   if [ -f "$snapshot_summary" ]; then
     timestamp_utc="$(sed -n 's/^trigger_requested_at_utc: //p' "$snapshot_summary" | tail -n 1)"
+    gateway_context="$(sed -n 's/^gateway_context: //p' "$snapshot_summary" | tail -n 1)"
+    gateway_last_signal="$(sed -n 's/^gateway_last_signal: //p' "$snapshot_summary" | tail -n 1)"
     if [ -z "$timestamp_utc" ]; then
       timestamp_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     fi
+    if [ -z "$gateway_context" ]; then
+      gateway_context="unavailable"
+    fi
+    if [ -z "$gateway_last_signal" ]; then
+      gateway_last_signal="(none)"
+    fi
+  else
+    gateway_context="unavailable"
+    gateway_last_signal="(none)"
   fi
 
   printf 'GOLEM HOST FAILURE SUMMARY\n' >&2
   printf 'reason: %s\n' "$reason" >&2
   printf 'services: task_api=%s whatsapp_bridge=%s\n' "${TASK_API_SERVICE_NAME}" "${WHATSAPP_BRIDGE_SERVICE_NAME}" >&2
+  printf 'gateway_context: %s\n' "$gateway_context" >&2
+  printf 'gateway_last_signal: %s\n' "$gateway_last_signal" >&2
   printf 'snapshot: %s\n' "$snapshot_path" >&2
   printf 'look_first: %s\n' "$snapshot_summary" >&2
   printf 'look_next: %s\n' "$snapshot_manifest" >&2
