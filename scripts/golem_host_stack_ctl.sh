@@ -66,6 +66,22 @@ trigger_auto_diagnose() {
   local reason="$1"
   local diagnose_output snapshot_path snapshot_summary snapshot_manifest timestamp_utc
   local gateway_context gateway_last_signal suggested_first_action
+  local summary_field_cmd='
+    BEGIN { value = "" }
+    {
+      for (i = 1; i <= NF; i++) {
+        if ($i ~ ("^" key ": ")) {
+          sub("^" key ": ", "", $i)
+          value = $i
+        }
+      }
+    }
+    END {
+      if (value != "") {
+        print value
+      }
+    }
+  '
 
   diagnose_output="$(
     GOLEM_HOST_DIAG_TRIGGER_SOURCE="golem_host_stack_ctl" \
@@ -89,8 +105,8 @@ trigger_auto_diagnose() {
   timestamp_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   if [ -f "$snapshot_summary" ]; then
     timestamp_utc="$(sed -n 's/^trigger_requested_at_utc: //p' "$snapshot_summary" | tail -n 1)"
-    gateway_context="$(sed -n 's/^gateway_context: //p' "$snapshot_summary" | tail -n 1)"
-    gateway_last_signal="$(sed -n 's/^gateway_last_signal: //p' "$snapshot_summary" | tail -n 1)"
+    gateway_context="$(awk -F ' \\| ' -v key='gateway_context' "$summary_field_cmd" "$snapshot_summary" | tail -n 1)"
+    gateway_last_signal="$(awk -F ' \\| ' -v key='gateway_last_signal' "$summary_field_cmd" "$snapshot_summary" | tail -n 1)"
     suggested_first_action="$(sed -n 's/^suggested_first_action: //p' "$snapshot_summary" | tail -n 1)"
     if [ -z "$timestamp_utc" ]; then
       timestamp_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"

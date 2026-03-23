@@ -399,12 +399,12 @@ def suggest_first_action(
     task_api_reason_state = reason_field(reason, "task_api")
     bridge_reason_state = reason_field(reason, "whatsapp_bridge_service")
 
+    if "stack_startup_timeout" in reason:
+        return "confirmar task_api y whatsapp_bridge antes de reintentar start"
     if reason_mentions_task_api(reason, task_api_reason_state) or task_api_active != "active" or task_api_health_exit != 0:
         return "mirar journal de task_api"
     if reason_mentions_bridge(reason, bridge_reason_state) or bridge_active != "active" or bridge_health_exit != 0:
         return "revisar healthcheck de whatsapp_bridge"
-    if "stack_startup_timeout" in reason:
-        return "confirmar task_api y whatsapp_bridge antes de reintentar start"
     if "self_check_status=" in reason and not gateway_ok:
         return "confirmar gateway RPC antes de reiniciar stack"
     if not gateway_ok:
@@ -426,12 +426,12 @@ def suggest_second_action(
     task_api_reason_state = reason_field(reason, "task_api")
     bridge_reason_state = reason_field(reason, "whatsapp_bridge_service")
 
+    if "stack_startup_timeout" in reason:
+        return "mirar pids y puertos relevantes en summary.txt"
     if reason_mentions_task_api(reason, task_api_reason_state) or task_api_active != "active" or task_api_health_exit != 0:
         return "confirmar puerto y pid de task_api en summary.txt"
     if reason_mentions_bridge(reason, bridge_reason_state) or bridge_active != "active" or bridge_health_exit != 0:
         return "mirar journal del servicio whatsapp_bridge"
-    if "stack_startup_timeout" in reason:
-        return "mirar pids y puertos relevantes en summary.txt"
     if "self_check_status=" in reason and not gateway_ok:
         return "mirar estado del gateway en manifest.json"
     if not gateway_ok:
