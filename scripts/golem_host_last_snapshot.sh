@@ -114,15 +114,15 @@ else:
     print()
     print("CURRENT CONTEXT:")
     print(
-        "gateway_context: "
+        "gateway_context / gateway_last_signal: "
         f"{payload['gateway_context'] or '(none)'}"
-        " | gateway_last_signal: "
+        " | "
         f"{payload['gateway_last_signal'] or '(none)'}"
     )
     print(
-        "task_api_active: "
+        "task_api_active / whatsapp_bridge_active: "
         f"{payload['task_api_active'] or '(none)'}"
-        " | whatsapp_bridge_active: "
+        " | "
         f"{payload['whatsapp_bridge_active'] or '(none)'}"
     )
 

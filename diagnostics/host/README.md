@@ -48,6 +48,7 @@ Pulido fino del helper:
 - sale de la misma evidencia del snapshot, con reglas chicas y auditables
 - la vista rapida del helper agrupa por prioridad operativa: snapshot, contexto, hacer primero, hacer despues, leer primero y leer despues
 - `summary.txt` sigue el mismo orden visual para que helper y snapshot se lean igual bajo estres
-- `CURRENT CONTEXT` se compacta en una lectura corta de gateway y estado del stack, dejando el detalle completo mas abajo
+- `CURRENT CONTEXT` en el helper compacta `gateway_context` con `gateway_last_signal`, y `task_api_active` con `whatsapp_bridge_active`, para bajar ruido sin perder senales
+- `summary.txt` deja esas mismas senales con etiquetas completas y el detalle operativo mas abajo
 
 Los directorios timestamped generados por el runner quedan fuera de Git por `.gitignore`.

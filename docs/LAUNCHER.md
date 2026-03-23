@@ -139,6 +139,7 @@ El helper del ultimo snapshot puede profundizar un paso mas sin ensuciar esa sal
 - agrega `second_action` solo en el helper
 - la segunda pista sale del mismo snapshot y no se imprime en el resumen corto del fallo
 - ordena la lectura por prioridad: contexto, accion primero, accion despues, leer primero, leer despues
+- compacta `gateway_context` con `gateway_last_signal`, y `task_api_active` con `whatsapp_bridge_active`, para que el primer pantallazo del helper sea mas corto
 
 El `summary.txt` persistido del snapshot sigue ahora esa misma prioridad visual, para que el operador no tenga que reaprender el orden al pasar del helper al artefacto guardado.
 El bloque `CURRENT CONTEXT` se mantiene compacto para el primer pantallazo, y deja el detalle operativo mas largo en la parte baja del `summary.txt`.
