@@ -7,7 +7,7 @@ TASKS_DIR="$REPO_ROOT/tasks"
 usage() {
   cat >&2 <<'USAGE'
 Usage:
-./scripts/task_close.sh <task-id|path> <done|failed|canceled> --note "closure note" [--actor <actor>] [--owner <owner>]
+./scripts/task_close.sh <task-id|path> <done|failed|canceled> --note "closure note" [--actor <actor>] [--owner <owner>] [--source <panel|whatsapp|operator|script|worker|scheduled_process>]
 
 Compatibility:
 ./scripts/task_close.sh <task-id> <status> [note]
@@ -24,6 +24,7 @@ shift 2
 NOTE=""
 ACTOR=""
 OWNER=""
+SOURCE_CHANNEL=""
 
 if [[ $# -gt 0 && "$1" != --* ]]; then
   NOTE="$1"
@@ -47,6 +48,11 @@ while [[ $# -gt 0 ]]; do
       OWNER="$2"
       shift 2
       ;;
+    --source)
+      [[ $# -ge 2 ]] || usage
+      SOURCE_CHANNEL="$2"
+      shift 2
+      ;;
     *)
       echo "Unknown argument: $1" >&2
       usage
@@ -64,6 +70,16 @@ esac
 
 if [[ "$CLOSE_STATUS" == "cancelled" ]]; then
   CLOSE_STATUS="canceled"
+fi
+
+if [[ -n "$SOURCE_CHANNEL" ]]; then
+  case "$SOURCE_CHANNEL" in
+    panel|whatsapp|operator|script|worker|scheduled_process) ;;
+    *)
+      echo "Invalid source_channel: $SOURCE_CHANNEL" >&2
+      exit 2
+      ;;
+  esac
 fi
 
 [[ -n "$NOTE" ]] || {
@@ -85,7 +101,7 @@ fi
 TMP_PATH="$(mktemp "$TASKS_DIR/.task-close.XXXXXX.tmp")"
 trap 'rm -f "$TMP_PATH"' EXIT
 
-TASK_TARGET="$TARGET" CLOSE_STATUS="$CLOSE_STATUS" NOTE="$NOTE" ACTOR="$ACTOR" OWNER="$OWNER" python3 - > "$TMP_PATH" <<'PY'
+TASK_TARGET="$TARGET" CLOSE_STATUS="$CLOSE_STATUS" NOTE="$NOTE" ACTOR="$ACTOR" OWNER="$OWNER" SOURCE_CHANNEL="$SOURCE_CHANNEL" python3 - > "$TMP_PATH" <<'PY'
 import datetime as dt
 import json
 import os
@@ -97,6 +113,7 @@ close_status = os.environ["CLOSE_STATUS"]
 note = os.environ["NOTE"]
 actor_override = os.environ["ACTOR"]
 owner_override = os.environ["OWNER"]
+source_channel = os.environ["SOURCE_CHANNEL"]
 
 with path.open("r", encoding="utf-8") as fh:
     data = json.load(fh)
@@ -107,6 +124,9 @@ if current_status in {"done", "failed", "canceled"}:
 
 if owner_override:
     data["owner"] = owner_override
+
+if source_channel:
+    data["source_channel"] = source_channel
 
 now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
 iso_now = now.isoformat().replace("+00:00", "Z")

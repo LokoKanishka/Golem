@@ -22,6 +22,7 @@ Este archivo documenta el estado real actual del repo despues del cierre de tran
 - El path de mutacion minima para panel/backend inmediato sobre tareas canonicas es `./scripts/task_panel_mutate.sh`.
 - La superficie HTTP local minima sobre ese mismo carril es `./scripts/task_panel_http_server.py`.
 - El path de consultas minimas por WhatsApp sobre la misma API local es `./scripts/task_whatsapp_query.py`.
+- El path de mutaciones minimas por WhatsApp sobre la misma API local es `./scripts/task_whatsapp_mutate.py`.
 
 ## Semantica del arbol
 - `tasks/`: fuente de verdad operativa de las tareas activas y archivadas.

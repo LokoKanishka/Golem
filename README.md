@@ -31,6 +31,7 @@ Estado real actual:
 - path de mutacion minima panel -> tareas canonicas: `scripts/task_panel_mutate.sh`;
 - superficie HTTP local minima para panel -> tareas canonicas: `scripts/task_panel_http_server.py`;
 - consultas minimas WhatsApp -> API local -> tareas canonicas: `scripts/task_whatsapp_query.py`;
+- mutaciones minimas WhatsApp -> API local -> tareas canonicas: `scripts/task_whatsapp_mutate.py`;
 - la migracion legacy ya cerro y el runner parametrizable queda consolidado en `scripts/task_migrate_legacy_batch.sh`;
 - `handoffs/` conserva evidencia durable versionable, mientras que las trazas runtime-only siguen excluidas;
 - `openclaw/` y `state/live/` quedan como estructura documental/evidencia, no como runtime gobernado desde este repo.

@@ -193,6 +193,8 @@ class TaskPanelHandler(BaseHTTPRequestHandler):
                 args.extend(["--owner", body["owner"]])
             if body.get("actor"):
                 args.extend(["--actor", body["actor"]])
+            if body.get("source"):
+                args.extend(["--source", body["source"]])
             expected_status = HTTPStatus.OK
         else:
             self.send_json(

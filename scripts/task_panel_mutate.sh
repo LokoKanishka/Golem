@@ -7,9 +7,9 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 usage() {
   cat >&2 <<'USAGE'
 Usage:
-./scripts/task_panel_mutate.sh create --title <title> --objective <objective> [--type <task_type>] [--owner <owner>] [--source <panel|operator|script|worker|scheduled_process>] [--accept <criterion>] [--canonical-session <session>] [--origin <origin>]
-./scripts/task_panel_mutate.sh update <task-id|path> [--status <status>] [--owner <owner>] [--title <title>] [--objective <objective>] [--source <panel|operator|script|worker|scheduled_process>] [--append-accept <criterion>] [--note <note>] [--actor <actor>]
-./scripts/task_panel_mutate.sh close <task-id|path> --status <done|failed|blocked|canceled> --note <note> [--actor <actor>] [--owner <owner>]
+./scripts/task_panel_mutate.sh create --title <title> --objective <objective> [--type <task_type>] [--owner <owner>] [--source <panel|whatsapp|operator|script|worker|scheduled_process>] [--accept <criterion>] [--canonical-session <session>] [--origin <origin>]
+./scripts/task_panel_mutate.sh update <task-id|path> [--status <status>] [--owner <owner>] [--title <title>] [--objective <objective>] [--source <panel|whatsapp|operator|script|worker|scheduled_process>] [--append-accept <criterion>] [--note <note>] [--actor <actor>]
+./scripts/task_panel_mutate.sh close <task-id|path> --status <done|failed|blocked|canceled> --note <note> [--actor <actor>] [--owner <owner>] [--source <panel|whatsapp|operator|script|worker|scheduled_process>]
 USAGE
   exit 1
 }
@@ -125,7 +125,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$SOURCE_CHANNEL" in
-  panel|operator|script|worker|scheduled_process|"") ;;
+  panel|whatsapp|operator|script|worker|scheduled_process|"") ;;
   *)
     echo "Invalid source_channel: $SOURCE_CHANNEL" >&2
     exit 2
@@ -248,6 +248,9 @@ if [[ "$COMMAND" == "close" ]]; then
   fi
   if [[ -n "$OWNER" ]]; then
     close_cmd+=(--owner "$OWNER")
+  fi
+  if [[ -n "$SOURCE_CHANNEL" ]]; then
+    close_cmd+=(--source "$SOURCE_CHANNEL")
   fi
 
   close_output="$("${close_cmd[@]}")"
