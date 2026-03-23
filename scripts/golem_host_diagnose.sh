@@ -396,10 +396,12 @@ def suggest_first_action(
 ) -> str:
     reason = trigger_reason.lower()
     gateway_ok = "rpc ok" in gateway_context.lower() and "RPC probe: ok" in gateway_last_signal
+    task_api_reason_state = reason_field(reason, "task_api")
+    bridge_reason_state = reason_field(reason, "whatsapp_bridge_service")
 
-    if "task_api" in reason or task_api_active != "active" or task_api_health_exit != 0:
+    if reason_mentions_task_api(reason, task_api_reason_state) or task_api_active != "active" or task_api_health_exit != 0:
         return "mirar journal de task_api"
-    if "whatsapp_bridge" in reason or bridge_active != "active" or bridge_health_exit != 0:
+    if reason_mentions_bridge(reason, bridge_reason_state) or bridge_active != "active" or bridge_health_exit != 0:
         return "revisar healthcheck de whatsapp_bridge"
     if "stack_startup_timeout" in reason:
         return "confirmar task_api y whatsapp_bridge antes de reintentar start"
@@ -421,10 +423,12 @@ def suggest_second_action(
 ) -> str:
     reason = trigger_reason.lower()
     gateway_ok = "rpc ok" in gateway_context.lower() and "RPC probe: ok" in gateway_last_signal
+    task_api_reason_state = reason_field(reason, "task_api")
+    bridge_reason_state = reason_field(reason, "whatsapp_bridge_service")
 
-    if "task_api" in reason or task_api_active != "active" or task_api_health_exit != 0:
+    if reason_mentions_task_api(reason, task_api_reason_state) or task_api_active != "active" or task_api_health_exit != 0:
         return "confirmar puerto y pid de task_api en summary.txt"
-    if "whatsapp_bridge" in reason or bridge_active != "active" or bridge_health_exit != 0:
+    if reason_mentions_bridge(reason, bridge_reason_state) or bridge_active != "active" or bridge_health_exit != 0:
         return "mirar journal del servicio whatsapp_bridge"
     if "stack_startup_timeout" in reason:
         return "mirar pids y puertos relevantes en summary.txt"
@@ -433,6 +437,28 @@ def suggest_second_action(
     if not gateway_ok:
         return "mirar estado del gateway en manifest.json"
     return "abrir manifest.json si summary.txt no alcanza"
+
+
+def reason_field(reason: str, key: str) -> str | None:
+    for segment in reason.split(";"):
+        if "=" not in segment:
+            continue
+        name, value = segment.split("=", 1)
+        if name.strip() == key:
+            return value.strip()
+    return None
+
+
+def reason_mentions_task_api(reason: str, reason_state: str | None) -> bool:
+    if reason_state is not None:
+        return reason_state != "ok"
+    return "task_api" in reason
+
+
+def reason_mentions_bridge(reason: str, reason_state: str | None) -> bool:
+    if reason_state is not None:
+        return reason_state != "ok"
+    return "whatsapp_bridge" in reason
 
 
 task_api_status = read_json("task_api_status.json")

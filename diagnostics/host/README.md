@@ -51,4 +51,18 @@ Pulido fino del helper:
 - `CURRENT CONTEXT` en el helper compacta `gateway_context` con `gateway_last_signal`, y `task_api_active` con `whatsapp_bridge_active`, para bajar ruido sin perder senales
 - `summary.txt` deja esas mismas senales con etiquetas completas y el detalle operativo mas abajo
 
+Cobertura smoke actual:
+
+- `./tests/smoke_host_failure_operator_summary.sh`: valida resumen corto, helper y snapshot cuando el foco de falla cae en `whatsapp_bridge`
+- `./tests/smoke_host_task_api_operator_summary.sh`: valida el mismo flujo cuando el foco de falla cae en `task_api`
+- `./tests/smoke_host_gateway_context_triage.sh`: valida triage de gateway/RPC degradado con stack sano y contexto parcial
+- `./tests/smoke_host_auto_diagnose_failure.sh`: valida auto-disparo y cooldown del snapshot ante falla real del stack
+- `./tests/smoke_host_last_snapshot_context_layout.sh`: valida que helper y `summary.txt` sigan alineados en lectura
+
+Todavia no se cubren todas las combinaciones posibles:
+
+- timeouts de startup del launcher en todas sus variantes
+- fallas duras del servicio `openclaw-gateway.service` a nivel systemd
+- combinaciones multiples de fallas simultaneas en task API, bridge y gateway
+
 Los directorios timestamped generados por el runner quedan fuera de Git por `.gitignore`.
