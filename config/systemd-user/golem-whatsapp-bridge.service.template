@@ -1,0 +1,28 @@
+[Unit]
+Description={description}
+After=network-online.target openclaw-gateway.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory={repo_root}
+Environment=HOME={home}
+Environment=PATH={path}
+Environment=PYTHONUNBUFFERED=1
+Environment={base_url_env}={base_url}
+Environment={state_file_env}={state_file}
+Environment={runtime_status_file_env}={runtime_status_file}
+Environment={audit_file_env}={audit_file}
+Environment={log_command_env}={log_command}
+Environment={live_restart_delay_env}={live_restart_delay}
+Environment={send_dry_run_env}={send_dry_run}
+ExecStartPre={python_executable} {ctl_script} service-preflight
+ExecStart={python_executable} {ctl_script} run-service
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+KillMode=control-group
+SyslogIdentifier=%N
+
+[Install]
+WantedBy=default.target
