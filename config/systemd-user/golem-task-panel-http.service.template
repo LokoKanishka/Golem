@@ -1,0 +1,23 @@
+[Unit]
+Description={description}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory={repo_root}
+Environment=HOME={home}
+Environment=PATH={path}
+Environment=PYTHONUNBUFFERED=1
+Environment={host_env}={host}
+Environment={port_env}={port}
+ExecStartPre={python_executable} {ctl_script} service-preflight
+ExecStart={python_executable} {ctl_script} run-service
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+KillMode=control-group
+SyslogIdentifier=%N
+
+[Install]
+WantedBy=default.target
