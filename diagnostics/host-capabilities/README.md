@@ -15,7 +15,7 @@ Que persiste cada corrida:
 - `manifest.json`: estructura completa del run
 - artefactos puntuales segun el carril:
   - screenshots y ventanas para percepcion
-  - screenshot objetivo, OCR crudo, OCR mejorado, OCR normalizado, layout, `surface-profile.json`, `structured-fields.json` con campos generales, finos y refinamientos contextuales, descripcion y fuentes para vision semantica
+  - screenshot objetivo, OCR crudo, OCR mejorado, OCR normalizado, layout, `surface-profile.json`, `structured-fields.json` con campos generales, finos y refinamientos contextuales, `surface-state.json` con bundles operativos por superficie, descripcion y fuentes para vision semantica
   - stdout/stderr o cambios de foco para accion
   - procesos, servicios y puertos para inspeccion
 
@@ -37,6 +37,7 @@ Limitaciones deliberadas de esta fase:
 - la clasificacion de superficie (`editor`, `chat`, `terminal`, `browser-web-app`, `unknown`) es aproximada y se apoya en metadata + OCR + layout
 - la priorizacion de `useful_lines` y `useful_regions` busca utilidad operativa por tipo de superficie, no una verdad total sobre la UI
 - los `structured_fields`, sus `fine_fields` y los `contextual_refinements` se extraen desde metadata + OCR + heuristicas y pueden quedar vacios o parciales cuando el frame no ofrece suficiente señal
+- los `surface_state_bundle` consolidan esas capas en un estado operativo mas compacto, pero siguen siendo auditados, aproximados y dependientes de la calidad del OCR y del layout visible
 - no controla multiples monitores de forma especializada
 - no automatiza navegadores complejos fuera de los carriles ya existentes
 - no abre autonomia opaca: cada accion queda materializada como evidencia local

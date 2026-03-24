@@ -157,6 +157,7 @@ useful_regions = active_description["useful_regions"]
 structured_fields = active_description["structured_fields"]
 fine_fields = structured_fields["fine_fields"]
 contextual_refinements = structured_fields["contextual_refinements"]
+surface_state_bundle = active_description["surface_state_bundle"]
 
 assert title in active_description["target_window"]["title"], active_description["target_window"]
 assert {"header", "left_sidebar", "main_content"}.issubset(roles), layout
@@ -178,6 +179,16 @@ assert contextual_refinements["main_content_snippets"], contextual_refinements
 assert contextual_refinements["primary_cta_candidate"][0]["priority"] == "primary", contextual_refinements
 assert contextual_refinements["secondary_action_candidates"][0]["priority"] == "secondary", contextual_refinements
 assert "Details" in json.dumps(contextual_refinements["secondary_action_candidates"]), contextual_refinements
+assert surface_state_bundle["surface_type"] == "browser-web-app", surface_state_bundle
+assert surface_state_bundle["fields"]["primary_header"], surface_state_bundle
+assert surface_state_bundle["fields"]["primary_cta"], surface_state_bundle
+assert surface_state_bundle["fields"]["main_content"], surface_state_bundle
+assert surface_state_bundle["fields"]["page_title"], surface_state_bundle
+assert surface_state_bundle["fields"]["main_text_focus"], surface_state_bundle
+assert surface_state_bundle["fields"]["primary_cta"]["bundle_role"] == "primary-cta", surface_state_bundle
+assert "Open Report" in json.dumps(surface_state_bundle["fields"]["primary_cta"]), surface_state_bundle
+main_content_json = json.dumps(surface_state_bundle["fields"]["main_content"], ensure_ascii=False)
+assert any(token in main_content_json for token in ["Layout evidence", "Visible text", "Footer actions remain separate", "browser surface"]), surface_state_bundle
 normalized_ocr_text = pathlib.Path(active_payload["artifacts"]["ocr_normalized_text"]).read_text(encoding="utf-8")
 assert "Visual Reading Smoke" in normalized_ocr_text or "Yisual Reading Smoke" in normalized_ocr_text
 assert "Sidebar Notes" in normalized_ocr_text
@@ -191,8 +202,9 @@ assert "layout_heuristics" in json.dumps(active_payload["description"]["source_b
 assert "surface_classification_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
 assert "structured_fields_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
 assert "contextual_refinement_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
+assert "surface_state_bundle_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
 
-for key in ("ocr_text", "ocr_enhanced_text", "ocr_normalized_text", "layout", "surface_profile", "structured_fields", "description", "sources"):
+for key in ("ocr_text", "ocr_enhanced_text", "ocr_normalized_text", "layout", "surface_profile", "structured_fields", "surface_state_bundle", "description", "sources"):
     path = pathlib.Path(active_payload["artifacts"][key])
     assert path.exists(), path
     assert path.stat().st_size > 0, path

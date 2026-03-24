@@ -126,6 +126,7 @@ for payload in (active_payload, desktop_payload, window_payload):
         "surface_classification_heuristics",
         "structured_fields_heuristics",
         "contextual_refinement_heuristics",
+        "surface_state_bundle_heuristics",
     }
     assert expected_sources.issubset(set(payload["sources_used"])), payload["sources_used"]
     assert payload["description"]["claims"], payload
@@ -140,12 +141,15 @@ for payload in (active_payload, desktop_payload, window_payload):
     assert "attempted_fine_fields" in payload["description"]["structured_fields"], payload["description"]["structured_fields"]
     assert "contextual_refinements" in payload["description"]["structured_fields"], payload["description"]["structured_fields"]
     assert "attempted_contextual_refinements" in payload["description"]["structured_fields"], payload["description"]["structured_fields"]
+    assert payload["description"]["surface_state_bundle"]["surface_type"] == payload["description"]["surface_classification"]["category"], payload["description"]["surface_state_bundle"]
+    assert "attempted_fields" in payload["description"]["surface_state_bundle"], payload["description"]["surface_state_bundle"]
     assert payload["description"]["readable_text"]["normalized_excerpt"], payload["description"]["readable_text"]
     assert payload["description"]["source_breakdown"]["layout_heuristics"], payload["description"]["source_breakdown"]
     assert payload["description"]["source_breakdown"]["surface_classification_heuristics"], payload["description"]["source_breakdown"]
     assert payload["description"]["source_breakdown"]["structured_fields_heuristics"], payload["description"]["source_breakdown"]
     assert payload["description"]["source_breakdown"]["contextual_refinement_heuristics"], payload["description"]["source_breakdown"]
-    for key in ("target_screenshot", "windows", "description", "sources", "ocr_text", "ocr_tsv", "ocr_enhanced_image", "ocr_enhanced_text", "ocr_enhanced_tsv", "ocr_normalized_text", "layout", "surface_profile", "structured_fields"):
+    assert payload["description"]["source_breakdown"]["surface_state_bundle_heuristics"], payload["description"]["source_breakdown"]
+    for key in ("target_screenshot", "windows", "description", "sources", "ocr_text", "ocr_tsv", "ocr_enhanced_image", "ocr_enhanced_text", "ocr_enhanced_tsv", "ocr_normalized_text", "layout", "surface_profile", "structured_fields", "surface_state_bundle"):
         path = pathlib.Path(payload["artifacts"][key])
         assert path.exists(), path
         assert path.stat().st_size > 0, path
@@ -172,12 +176,14 @@ assert '"id": "layout_heuristics"' in active_sources
 assert '"id": "surface_classification_heuristics"' in active_sources
 assert '"id": "structured_fields_heuristics"' in active_sources
 assert '"id": "contextual_refinement_heuristics"' in active_sources
+assert '"id": "surface_state_bundle_heuristics"' in active_sources
 assert "sources_used:" in desktop_summary
 assert title in window_description
 assert '"role": "header"' in window_layout or '"role": "main_content"' in window_layout or '"role": "footer"' in window_layout
 assert "Semantic describe smoke" in window_normalized_ocr or "Sources must stay explicit" in window_normalized_ocr
 assert "fine_fields:" in window_summary
 assert "contextual_refinements:" in window_summary
+assert "surface_state_bundle:" in window_summary
 
 print("SMOKE_HOST_DESCRIBE_LANE_OK")
 print(f"HOST_DESCRIBE_ACTIVE_SUMMARY {active_payload['description']['summary']}")

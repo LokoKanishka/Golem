@@ -9,6 +9,7 @@ import re
 import statistics
 import sys
 import unicodedata
+from typing import cast
 
 
 def parse_args() -> argparse.Namespace:
@@ -759,6 +760,41 @@ CONTEXTUAL_REFINEMENT_NAMES = {
     ],
 }
 
+SURFACE_STATE_BUNDLE_FIELDS = {
+    "editor": [
+        "active_file",
+        "active_tab",
+        "visible_tabs",
+        "primary_error",
+        "workspace_or_project",
+        "sidebar_context",
+        "main_text_focus",
+    ],
+    "chat": [
+        "active_conversation",
+        "visible_messages",
+        "composer_text",
+        "input_box",
+        "sidebar_conversations",
+        "main_text_focus",
+    ],
+    "terminal": [
+        "active_prompt",
+        "recent_command",
+        "primary_error_output",
+        "recent_output_block",
+        "main_text_focus",
+    ],
+    "browser-web-app": [
+        "primary_header",
+        "sidebar_navigation",
+        "primary_cta",
+        "main_content",
+        "page_title",
+        "main_text_focus",
+    ],
+}
+
 
 def unique_text_values(values: list[str]) -> list[str]:
     results = []
@@ -1053,6 +1089,106 @@ def contextualize_candidates(
             candidate["activity_state"] = activity_state
         results.append(candidate)
     return dedupe_field_candidates(results, limit=limit)
+
+
+def bundle_candidate_from_existing(
+    item: dict[str, object],
+    *,
+    bundle_role: str,
+    surface_type: str,
+    derived_from: list[str],
+    note: str = "",
+) -> dict[str, object] | None:
+    candidate = clone_existing_candidate(item, note=note)
+    if not candidate:
+        return None
+    source_refs = list(candidate.get("source_refs") or [])
+    if "surface_state_bundle_heuristics" not in source_refs:
+        source_refs.append("surface_state_bundle_heuristics")
+    candidate["source_refs"] = sorted(set(source_refs))
+    candidate["bundle_role"] = bundle_role
+    candidate["surface_type"] = surface_type
+    candidate["derived_from"] = derived_from
+    return candidate
+
+
+def bundle_single_field(
+    items: list[dict[str, object]],
+    *,
+    bundle_role: str,
+    surface_type: str,
+    derived_from: list[str],
+    note: str = "",
+) -> dict[str, object] | None:
+    for item in items:
+        candidate = bundle_candidate_from_existing(
+            item,
+            bundle_role=bundle_role,
+            surface_type=surface_type,
+            derived_from=derived_from,
+            note=note,
+        )
+        if candidate:
+            return candidate
+    return None
+
+
+def bundle_list_field(
+    items: list[dict[str, object]],
+    *,
+    bundle_role: str,
+    surface_type: str,
+    derived_from: list[str],
+    note: str = "",
+    limit: int = 4,
+) -> list[dict[str, object]]:
+    results = []
+    for item in items:
+        candidate = bundle_candidate_from_existing(
+            item,
+            bundle_role=bundle_role,
+            surface_type=surface_type,
+            derived_from=derived_from,
+            note=note,
+        )
+        if candidate:
+            results.append(candidate)
+    return dedupe_field_candidates(results, limit=limit)
+
+
+def bundle_focus_field(
+    items: list[dict[str, object]],
+    *,
+    bundle_role: str,
+    surface_type: str,
+    derived_from: list[str],
+    note: str = "",
+    limit: int = 3,
+) -> dict[str, object] | None:
+    candidates = bundle_list_field(
+        items,
+        bundle_role=bundle_role,
+        surface_type=surface_type,
+        derived_from=derived_from,
+        note=note,
+        limit=limit,
+    )
+    if not candidates:
+        return None
+    values = [str(item["value"]) for item in candidates[:limit]]
+    source_refs = sorted({ref for item in candidates[:limit] for ref in item.get("source_refs") or []} | {"surface_state_bundle_heuristics"})
+    confidence_order = {"high": 3, "medium": 2, "low": 1}
+    confidence = max(candidates[:limit], key=lambda item: confidence_order.get(str(item.get("confidence")), 0)).get("confidence", "low")
+    return {
+        "value": " | ".join(values),
+        "confidence": confidence,
+        "source_refs": source_refs,
+        "approximate": True,
+        "bundle_role": bundle_role,
+        "surface_type": surface_type,
+        "derived_from": derived_from,
+        "note": note or "condensed bundle field assembled from multiple contextual candidates",
+    }
 
 
 def split_window_title_candidates(title: str, app: str) -> list[str]:
@@ -1924,6 +2060,287 @@ def build_contextual_refinements(
     return refinements
 
 
+def build_editor_surface_state_bundle(
+    fields: dict[str, list[dict[str, object]]],
+    fine_fields: dict[str, list[dict[str, object]]],
+    contextual_refinements: dict[str, list[dict[str, object]]],
+) -> dict[str, object]:
+    surface_type = "editor"
+    bundle_fields = {name: None for name in SURFACE_STATE_BUNDLE_FIELDS[surface_type]}
+    bundle_fields["active_file"] = bundle_single_field(
+        contextual_refinements.get("active_file_candidate") or [],
+        bundle_role="active-file",
+        surface_type=surface_type,
+        derived_from=["fine_fields.active_file_candidate", "contextual_refinements.active_file_candidate"],
+        note="consolidated editor active file candidate",
+    )
+    bundle_fields["active_tab"] = bundle_single_field(
+        contextual_refinements.get("active_tab_candidate") or [],
+        bundle_role="active-tab",
+        surface_type=surface_type,
+        derived_from=["contextual_refinements.active_tab_candidate"],
+        note="consolidated editor active tab candidate",
+    )
+    bundle_fields["visible_tabs"] = bundle_list_field(
+        contextual_refinements.get("visible_tab_candidates") or [],
+        bundle_role="visible-tab",
+        surface_type=surface_type,
+        derived_from=["fine_fields.visible_tab_candidates", "contextual_refinements.visible_tab_candidates"],
+        note="consolidated editor visible tabs besides the active tab",
+        limit=4,
+    )
+    bundle_fields["primary_error"] = bundle_single_field(
+        contextual_refinements.get("primary_error_candidate") or [],
+        bundle_role="primary-error",
+        surface_type=surface_type,
+        derived_from=["fine_fields.primary_error_candidate", "contextual_refinements.primary_error_candidate"],
+        note="consolidated editor primary error candidate",
+    )
+    bundle_fields["workspace_or_project"] = bundle_single_field(
+        fine_fields.get("workspace_or_project_candidate") or fields.get("workspace_or_project") or [],
+        bundle_role="workspace-or-project",
+        surface_type=surface_type,
+        derived_from=["fields.workspace_or_project", "fine_fields.workspace_or_project_candidate"],
+        note="consolidated editor workspace or project context",
+    )
+    bundle_fields["sidebar_context"] = bundle_list_field(
+        contextual_refinements.get("sidebar_context_candidates") or [],
+        bundle_role="sidebar-context",
+        surface_type=surface_type,
+        derived_from=["fine_fields.explorer_context_candidates", "contextual_refinements.sidebar_context_candidates"],
+        note="consolidated editor sidebar or explorer context",
+        limit=4,
+    )
+    bundle_fields["main_text_focus"] = bundle_focus_field(
+        fields.get("active_editor_text_snippets") or [],
+        bundle_role="main-text-focus",
+        surface_type=surface_type,
+        derived_from=["fields.active_editor_text_snippets"],
+        note="condensed editor main text focus built from active editor snippets",
+        limit=3,
+    )
+    return bundle_fields
+
+
+def build_chat_surface_state_bundle(
+    fine_fields: dict[str, list[dict[str, object]]],
+    contextual_refinements: dict[str, list[dict[str, object]]],
+) -> dict[str, object]:
+    surface_type = "chat"
+    bundle_fields = {name: None for name in SURFACE_STATE_BUNDLE_FIELDS[surface_type]}
+    bundle_fields["active_conversation"] = bundle_single_field(
+        contextual_refinements.get("active_conversation_candidate") or [],
+        bundle_role="active-conversation",
+        surface_type=surface_type,
+        derived_from=["fine_fields.conversation_title_candidate", "contextual_refinements.active_conversation_candidate"],
+        note="consolidated active chat conversation candidate",
+    )
+    bundle_fields["visible_messages"] = bundle_list_field(
+        contextual_refinements.get("visible_message_snippets") or [],
+        bundle_role="visible-message",
+        surface_type=surface_type,
+        derived_from=["fine_fields.visible_message_snippets", "contextual_refinements.visible_message_snippets"],
+        note="consolidated visible chat messages in the conversation body",
+        limit=4,
+    )
+    bundle_fields["composer_text"] = bundle_single_field(
+        contextual_refinements.get("composer_text_candidate") or [],
+        bundle_role="composer-text",
+        surface_type=surface_type,
+        derived_from=["contextual_refinements.composer_text_candidate"],
+        note="consolidated composer text candidate for the active chat surface",
+    )
+    bundle_fields["input_box"] = bundle_single_field(
+        contextual_refinements.get("input_box_candidate") or [],
+        bundle_role="input-box",
+        surface_type=surface_type,
+        derived_from=["fine_fields.input_box_candidate", "contextual_refinements.input_box_candidate"],
+        note="consolidated chat input box candidate",
+    )
+    bundle_fields["sidebar_conversations"] = bundle_list_field(
+        contextual_refinements.get("sidebar_conversation_candidates") or [],
+        bundle_role="sidebar-conversation",
+        surface_type=surface_type,
+        derived_from=["fine_fields.sidebar_conversation_candidates", "contextual_refinements.sidebar_conversation_candidates"],
+        note="consolidated chat sidebar conversations distinct from the active thread",
+        limit=4,
+    )
+    bundle_fields["main_text_focus"] = bundle_focus_field(
+        contextual_refinements.get("visible_message_snippets") or [],
+        bundle_role="main-text-focus",
+        surface_type=surface_type,
+        derived_from=["fine_fields.visible_message_snippets", "contextual_refinements.visible_message_snippets"],
+        note="condensed chat main text focus built from visible messages",
+        limit=3,
+    )
+    return bundle_fields
+
+
+def build_terminal_surface_state_bundle(
+    contextual_refinements: dict[str, list[dict[str, object]]],
+) -> dict[str, object]:
+    surface_type = "terminal"
+    bundle_fields = {name: None for name in SURFACE_STATE_BUNDLE_FIELDS[surface_type]}
+    bundle_fields["active_prompt"] = bundle_single_field(
+        contextual_refinements.get("active_prompt_candidate") or [],
+        bundle_role="active-prompt",
+        surface_type=surface_type,
+        derived_from=["fine_fields.active_prompt_candidate", "contextual_refinements.active_prompt_candidate"],
+        note="consolidated active terminal prompt candidate",
+    )
+    bundle_fields["recent_command"] = bundle_single_field(
+        contextual_refinements.get("recent_command_candidate") or [],
+        bundle_role="recent-command",
+        surface_type=surface_type,
+        derived_from=["fine_fields.recent_command_candidate", "contextual_refinements.recent_command_candidate"],
+        note="consolidated recent terminal command candidate",
+    )
+    bundle_fields["primary_error_output"] = bundle_single_field(
+        contextual_refinements.get("primary_error_output_candidate") or [],
+        bundle_role="primary-error-output",
+        surface_type=surface_type,
+        derived_from=["fine_fields.primary_error_output_candidate", "contextual_refinements.primary_error_output_candidate"],
+        note="consolidated primary terminal error output candidate",
+    )
+    bundle_fields["recent_output_block"] = bundle_focus_field(
+        contextual_refinements.get("recent_output_block_snippets") or [],
+        bundle_role="recent-output-block",
+        surface_type=surface_type,
+        derived_from=["fine_fields.recent_output_block_snippets", "contextual_refinements.recent_output_block_snippets"],
+        note="condensed terminal recent output block built from contextual snippets",
+        limit=3,
+    )
+    main_focus_candidates = (
+        contextual_refinements.get("recent_command_candidate") or []
+    ) + (
+        contextual_refinements.get("recent_output_block_snippets") or []
+    ) + (
+        contextual_refinements.get("primary_error_output_candidate") or []
+    )
+    bundle_fields["main_text_focus"] = bundle_focus_field(
+        main_focus_candidates,
+        bundle_role="main-text-focus",
+        surface_type=surface_type,
+        derived_from=[
+            "contextual_refinements.recent_command_candidate",
+            "contextual_refinements.recent_output_block_snippets",
+            "contextual_refinements.primary_error_output_candidate",
+        ],
+        note="condensed terminal main text focus built from command, output, and dominant error",
+        limit=3,
+    )
+    return bundle_fields
+
+
+def build_browser_surface_state_bundle(
+    fine_fields: dict[str, list[dict[str, object]]],
+    contextual_refinements: dict[str, list[dict[str, object]]],
+) -> dict[str, object]:
+    surface_type = "browser-web-app"
+    bundle_fields = {name: None for name in SURFACE_STATE_BUNDLE_FIELDS[surface_type]}
+    bundle_fields["primary_header"] = bundle_single_field(
+        contextual_refinements.get("primary_header_candidate") or [],
+        bundle_role="primary-header",
+        surface_type=surface_type,
+        derived_from=["fine_fields.primary_header_candidate", "contextual_refinements.primary_header_candidate"],
+        note="consolidated browser primary header candidate",
+    )
+    bundle_fields["sidebar_navigation"] = bundle_list_field(
+        contextual_refinements.get("sidebar_navigation_candidates") or [],
+        bundle_role="sidebar-navigation",
+        surface_type=surface_type,
+        derived_from=["fine_fields.sidebar_navigation_candidates", "contextual_refinements.sidebar_navigation_candidates"],
+        note="consolidated browser sidebar navigation candidates",
+        limit=4,
+    )
+    bundle_fields["primary_cta"] = bundle_single_field(
+        contextual_refinements.get("primary_cta_candidate") or [],
+        bundle_role="primary-cta",
+        surface_type=surface_type,
+        derived_from=["fine_fields.primary_cta_candidate", "contextual_refinements.primary_cta_candidate"],
+        note="consolidated browser primary CTA candidate",
+    )
+    bundle_fields["main_content"] = bundle_focus_field(
+        contextual_refinements.get("main_content_snippets") or [],
+        bundle_role="main-content",
+        surface_type=surface_type,
+        derived_from=["fine_fields.main_content_snippets", "contextual_refinements.main_content_snippets"],
+        note="condensed browser main content built from contextual content snippets",
+        limit=3,
+    )
+    bundle_fields["page_title"] = bundle_single_field(
+        fine_fields.get("page_title_candidate") or [],
+        bundle_role="page-title",
+        surface_type=surface_type,
+        derived_from=["fields.page_title_candidates", "fine_fields.page_title_candidate"],
+        note="consolidated browser page title candidate",
+    )
+    bundle_fields["main_text_focus"] = bundle_focus_field(
+        contextual_refinements.get("main_content_snippets") or [],
+        bundle_role="main-text-focus",
+        surface_type=surface_type,
+        derived_from=["fine_fields.main_content_snippets", "contextual_refinements.main_content_snippets"],
+        note="condensed browser main text focus built from contextual main content",
+        limit=3,
+    )
+    return bundle_fields
+
+
+def build_surface_state_bundle(
+    category: str,
+    label: str,
+    surface_confidence: str,
+    structured_fields: dict[str, object],
+) -> dict[str, object]:
+    attempted_fields = SURFACE_STATE_BUNDLE_FIELDS.get(category, [])
+    bundle_fields: dict[str, object] = {name: None for name in attempted_fields}
+    fields = cast(dict[str, list[dict[str, object]]], structured_fields.get("fields") or {})
+    fine_fields = cast(dict[str, list[dict[str, object]]], structured_fields.get("fine_fields") or {})
+    contextual_refinements = cast(dict[str, list[dict[str, object]]], structured_fields.get("contextual_refinements") or {})
+
+    if category == "editor":
+        bundle_fields = build_editor_surface_state_bundle(fields, fine_fields, contextual_refinements)
+    elif category == "chat":
+        bundle_fields = build_chat_surface_state_bundle(fine_fields, contextual_refinements)
+    elif category == "terminal":
+        bundle_fields = build_terminal_surface_state_bundle(contextual_refinements)
+    elif category == "browser-web-app":
+        bundle_fields = build_browser_surface_state_bundle(fine_fields, contextual_refinements)
+
+    empty_fields = []
+    non_empty_fields = []
+    for field_name in attempted_fields:
+        value = bundle_fields.get(field_name)
+        if value:
+            non_empty_fields.append(field_name)
+        else:
+            empty_fields.append(field_name)
+
+    source_refs = {"surface_state_bundle_heuristics"}
+    if attempted_fields:
+        source_refs.update(
+            {
+                "structured_fields_heuristics",
+                "contextual_refinement_heuristics",
+                "surface_classification_heuristics",
+                "ocr_normalized",
+                "layout_heuristics",
+            }
+        )
+
+    return {
+        "surface_type": category,
+        "label": label,
+        "surface_confidence": surface_confidence,
+        "attempted_fields": attempted_fields,
+        "fields": bundle_fields,
+        "empty_fields": empty_fields,
+        "non_empty_fields": non_empty_fields,
+        "source_refs": sorted(source_refs),
+        "approximate": True,
+    }
+
+
 def build_structured_fields(
     category: str,
     label: str,
@@ -2290,6 +2707,7 @@ def main() -> int:
     layout_path = pathlib.Path(args.layout_path)
     surface_profile_path = run_dir / "surface-profile.json"
     structured_fields_path = run_dir / "structured-fields.json"
+    surface_state_bundle_path = run_dir / "surface-state.json"
     source_perceive_manifest = pathlib.Path(args.source_perceive_manifest)
     source_windows = pathlib.Path(args.source_windows)
     source_active_props = pathlib.Path(args.source_active_props)
@@ -2336,6 +2754,12 @@ def main() -> int:
         useful_lines,
         useful_regions,
     )
+    surface_state_bundle = build_surface_state_bundle(
+        str(surface_profile["category"]),
+        str(surface_profile["label"]),
+        str(surface_profile["confidence"]),
+        structured_fields,
+    )
     normalized_excerpts = [str(item["text"]) for item in useful_lines[:8]]
     readable_text_lines = [str(item["text"]) for item in merged_lines[:24]]
     ocr_normalized_text_path.write_text("\n".join(readable_text_lines) + ("\n" if readable_text_lines else ""), encoding="utf-8")
@@ -2353,6 +2777,10 @@ def main() -> int:
     )
     structured_fields_path.write_text(
         json.dumps(structured_fields, indent=2, ensure_ascii=True) + "\n",
+        encoding="utf-8",
+    )
+    surface_state_bundle_path.write_text(
+        json.dumps(surface_state_bundle, indent=2, ensure_ascii=True) + "\n",
         encoding="utf-8",
     )
 
@@ -2445,6 +2873,7 @@ def main() -> int:
         limits.append("OCR normalization improves readability, but stylized text, icons, and non-text imagery can still be missed or distorted.")
         limits.append("Surface classification is heuristic and can be pulled off course by mixed content inside the active window, even when metadata is strong.")
         limits.append("Structured fields are heuristic extracts from visible text and metadata; empty or partial fields are expected when the captured frame lacks a stable signal.")
+        limits.append("Surface state bundles consolidate the structured layers into an operational view, but they remain approximate summaries rather than hidden application state.")
     else:
         claims.append(
             {
@@ -2491,6 +2920,7 @@ def main() -> int:
         limits.append("The description only covers the captured target window, not hidden tabs, background windows, or content outside the frame.")
         limits.append("Surface classification is heuristic and can still be uncertain for mixed or unusually dense interfaces.")
         limits.append("Structured fields are heuristic extracts from visible text and metadata; they should support reasoning, not be treated as hidden-state certainty.")
+        limits.append("Surface state bundles consolidate structured and contextual cues into a more usable state summary, but they remain heuristic and can stay partial.")
 
     summary = " ".join(claim["text"] for claim in claims[:3])
     if target_kind == "desktop":
@@ -2518,6 +2948,7 @@ def main() -> int:
         "useful_regions": useful_regions,
         "useful_lines": useful_lines,
         "structured_fields": structured_fields,
+        "surface_state_bundle": surface_state_bundle,
         "readable_text": {
             "raw_excerpt": [str(item["text"]) for item in raw_lines[:8]],
             "enhanced_excerpt": [str(item["text"]) for item in enhanced_lines[:8]],
@@ -2550,6 +2981,7 @@ def main() -> int:
             "surface_classification_heuristics": "category inference and ranked useful lines/regions derived from metadata, OCR, and layout hints",
             "structured_fields_heuristics": "surface-specific field extraction derived from metadata, normalized OCR, useful lines, and useful regions",
             "contextual_refinement_heuristics": "context-aware refinement that distinguishes active, primary, secondary, visible, and historical candidates from the structured fields",
+            "surface_state_bundle_heuristics": "surface-specific operational bundle that consolidates structured, fine, and contextual fields into an auditable state summary",
         },
         "limits": limits,
     }
@@ -2632,6 +3064,14 @@ def main() -> int:
                 "certainty": claim_confidence_from_surface(str(surface_profile["confidence"])),
                 "notes": "Contextual refinements stay auditable and can remain empty when the visible evidence does not support a confident distinction.",
             },
+            {
+                "id": "surface_state_bundle_heuristics",
+                "kind": "heuristic",
+                "paths": [str(surface_state_bundle_path)],
+                "role": "surface-specific operational bundle that consolidates structured, fine, and contextual fields into a compact auditable state view",
+                "certainty": claim_confidence_from_surface(str(surface_profile["confidence"])),
+                "notes": "The bundle improves usability by consolidating prior heuristics, but it remains approximate and intentionally partial when the visible evidence is weak.",
+            },
         ],
         "supporting": [
             {
@@ -2679,6 +3119,7 @@ def main() -> int:
         "layout": str(layout_path),
         "surface_profile": str(surface_profile_path),
         "structured_fields": str(structured_fields_path),
+        "surface_state_bundle": str(surface_state_bundle_path),
         "source_perceive_manifest": str(source_perceive_manifest),
     }
     if source_active_props.exists():
@@ -2708,6 +3149,7 @@ def main() -> int:
         "useful_lines": description["useful_lines"],
         "useful_regions": description["useful_regions"],
         "structured_fields": description["structured_fields"],
+        "surface_state_bundle": description["surface_state_bundle"],
     }
 
     description_path.write_text(json.dumps(description, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
@@ -2786,6 +3228,24 @@ def main() -> int:
                 f"{entry['value']} [{entry['confidence']}/{entry.get('activity_state', 'unknown')}/{entry.get('priority', 'unknown')}]"
                 for entry in entries[:3]
             )
+        )
+    summary_lines.append("surface_state_bundle:")
+    for field_name in surface_state_bundle["attempted_fields"]:
+        field_value = surface_state_bundle["fields"].get(field_name)
+        if not field_value:
+            summary_lines.append(f"- {field_name}: (none)")
+            continue
+        if isinstance(field_value, list):
+            summary_lines.append(
+                f"- {field_name}: "
+                + "; ".join(
+                    f"{entry['value']} [{entry['confidence']}/{entry.get('bundle_role', 'unknown')}]"
+                    for entry in field_value[:3]
+                )
+            )
+            continue
+        summary_lines.append(
+            f"- {field_name}: {field_value['value']} [{field_value['confidence']}/{field_value.get('bundle_role', 'unknown')}]"
         )
     summary_lines.append("limits:")
     summary_lines.extend(f"- {line}" for line in limits)

@@ -307,7 +307,15 @@ terminal_title = sys.argv[11]
 browser_title = sys.argv[12]
 
 
-def assert_payload(payload, expected_category, allowed_kinds, required_fields, required_fine_fields, required_contextual_fields):
+def assert_payload(
+    payload,
+    expected_category,
+    allowed_kinds,
+    required_fields,
+    required_fine_fields,
+    required_contextual_fields,
+    required_bundle_fields,
+):
     description = payload["description"]
     classification = description["surface_classification"]
     useful_lines = description["useful_lines"]
@@ -315,6 +323,7 @@ def assert_payload(payload, expected_category, allowed_kinds, required_fields, r
     structured_fields = description["structured_fields"]
     fine_fields = structured_fields["fine_fields"]
     contextual_refinements = structured_fields["contextual_refinements"]
+    surface_state_bundle = description["surface_state_bundle"]
 
     assert classification["category"] == expected_category, classification
     assert classification["confidence"] in {"strong", "reasonable"}, classification
@@ -323,27 +332,37 @@ def assert_payload(payload, expected_category, allowed_kinds, required_fields, r
     assert "surface_classification_heuristics" in payload["sources_used"], payload["sources_used"]
     assert "structured_fields_heuristics" in payload["sources_used"], payload["sources_used"]
     assert "contextual_refinement_heuristics" in payload["sources_used"], payload["sources_used"]
+    assert "surface_state_bundle_heuristics" in payload["sources_used"], payload["sources_used"]
     assert "surface_profile" in payload["artifacts"], payload["artifacts"]
     assert "structured_fields" in payload["artifacts"], payload["artifacts"]
+    assert "surface_state_bundle" in payload["artifacts"], payload["artifacts"]
     surface_profile_path = pathlib.Path(payload["artifacts"]["surface_profile"])
     structured_fields_path = pathlib.Path(payload["artifacts"]["structured_fields"])
+    surface_state_bundle_path = pathlib.Path(payload["artifacts"]["surface_state_bundle"])
     assert surface_profile_path.exists(), surface_profile_path
     assert structured_fields_path.exists(), structured_fields_path
+    assert surface_state_bundle_path.exists(), surface_state_bundle_path
     surface_profile = json.loads(surface_profile_path.read_text(encoding="utf-8"))
     stored_structured_fields = json.loads(structured_fields_path.read_text(encoding="utf-8"))
+    stored_surface_state_bundle = json.loads(surface_state_bundle_path.read_text(encoding="utf-8"))
     assert surface_profile["surface_classification"]["category"] == expected_category, surface_profile
     assert structured_fields["category"] == expected_category, structured_fields
     assert stored_structured_fields["category"] == expected_category, stored_structured_fields
+    assert surface_state_bundle["surface_type"] == expected_category, surface_state_bundle
+    assert stored_surface_state_bundle["surface_type"] == expected_category, stored_surface_state_bundle
     assert structured_fields["attempted_fine_fields"], structured_fields
     assert stored_structured_fields["attempted_fine_fields"], stored_structured_fields
     assert structured_fields["attempted_contextual_refinements"], structured_fields
     assert stored_structured_fields["attempted_contextual_refinements"], stored_structured_fields
+    assert surface_state_bundle["attempted_fields"], surface_state_bundle
+    assert stored_surface_state_bundle["attempted_fields"], stored_surface_state_bundle
     kinds = {item["priority_kind"] for item in useful_lines}
     assert kinds & set(allowed_kinds), kinds
     assert "surface classification heuristics read the visible target as" in description["summary"].lower(), description["summary"]
     assert "surface_classification_heuristics" in description["source_breakdown"], description["source_breakdown"]
     assert "structured_fields_heuristics" in description["source_breakdown"], description["source_breakdown"]
     assert "contextual_refinement_heuristics" in description["source_breakdown"], description["source_breakdown"]
+    assert "surface_state_bundle_heuristics" in description["source_breakdown"], description["source_breakdown"]
     for field_name in required_fields:
         entries = structured_fields["fields"].get(field_name) or []
         assert entries, (field_name, structured_fields)
@@ -371,40 +390,61 @@ def assert_payload(payload, expected_category, allowed_kinds, required_fields, r
             assert entry["source_refs"], entry
             assert entry["priority"] in {"primary", "secondary"}, entry
             assert entry["activity_state"] in {"active", "visible", "current", "recent", "historical"}, entry
-    return classification, useful_lines, kinds, structured_fields, fine_fields, contextual_refinements
+    for field_name in required_bundle_fields:
+        field_value = surface_state_bundle["fields"].get(field_name)
+        stored_field_value = stored_surface_state_bundle["fields"].get(field_name)
+        assert field_value, (field_name, surface_state_bundle)
+        assert stored_field_value, (field_name, stored_surface_state_bundle)
+        entries = field_value if isinstance(field_value, list) else [field_value]
+        stored_entries = stored_field_value if isinstance(stored_field_value, list) else [stored_field_value]
+        assert entries, (field_name, field_value)
+        assert stored_entries, (field_name, stored_field_value)
+        for entry in entries[:2]:
+            assert entry["value"], entry
+            assert entry["confidence"] in {"high", "medium", "low"}, entry
+            assert entry["source_refs"], entry
+            assert "surface_state_bundle_heuristics" in entry["source_refs"], entry
+            assert entry["bundle_role"], entry
+            assert entry["surface_type"] == expected_category, entry
+            assert entry["derived_from"], entry
+    return classification, useful_lines, kinds, structured_fields, fine_fields, contextual_refinements, surface_state_bundle
 
 
-editor_classification, editor_lines, editor_kinds, editor_structured, editor_fine, editor_context = assert_payload(
+editor_classification, editor_lines, editor_kinds, editor_structured, editor_fine, editor_context, editor_bundle = assert_payload(
     editor_payload,
     "editor",
     {"error-line", "file-reference", "code-line", "explorer-item", "workspace-header"},
     {"workspace_or_project", "file_or_tab_candidates", "active_editor_text_snippets"},
     {"active_file_candidate", "visible_tab_candidates", "workspace_or_project_candidate", "explorer_context_candidates"},
     {"active_tab_candidate", "visible_tab_candidates", "primary_error_candidate", "active_file_candidate", "sidebar_context_candidates"},
+    {"active_file", "active_tab", "visible_tabs", "primary_error", "workspace_or_project", "sidebar_context", "main_text_focus"},
 )
-chat_classification, chat_lines, chat_kinds, chat_structured, chat_fine, chat_context = assert_payload(
+chat_classification, chat_lines, chat_kinds, chat_structured, chat_fine, chat_context, chat_bundle = assert_payload(
     chat_payload,
     "chat",
     {"visible-message", "composer", "conversation-sidebar"},
     {"conversation_title_candidates", "visible_message_snippets", "sidebar_chat_candidates"},
     {"conversation_title_candidate", "visible_message_snippets", "input_box_candidate", "sidebar_conversation_candidates"},
     {"active_conversation_candidate", "sidebar_conversation_candidates", "input_box_candidate", "visible_message_snippets", "composer_text_candidate"},
+    {"active_conversation", "visible_messages", "composer_text", "input_box", "sidebar_conversations", "main_text_focus"},
 )
-terminal_classification, terminal_lines, terminal_kinds, terminal_structured, terminal_fine, terminal_context = assert_payload(
+terminal_classification, terminal_lines, terminal_kinds, terminal_structured, terminal_fine, terminal_context, terminal_bundle = assert_payload(
     terminal_payload,
     "terminal",
     {"command-or-prompt", "error-output", "visible-output"},
     {"prompt_candidates", "command_candidates", "error_output_candidates"},
     {"active_prompt_candidate", "recent_command_candidate", "primary_error_output_candidate", "recent_output_block_snippets"},
     {"active_prompt_candidate", "historical_prompt_candidates", "recent_command_candidate", "primary_error_output_candidate", "recent_output_block_snippets"},
+    {"active_prompt", "recent_command", "primary_error_output", "recent_output_block", "main_text_focus"},
 )
-browser_classification, browser_lines, browser_kinds, browser_structured, browser_fine, browser_context = assert_payload(
+browser_classification, browser_lines, browser_kinds, browser_structured, browser_fine, browser_context, browser_bundle = assert_payload(
     browser_payload,
     "browser-web-app",
     {"page-header", "navigation", "page-content", "cta-or-control"},
     {"page_title_candidates", "header_text", "primary_content_snippets", "cta_or_action_text_candidates"},
     {"primary_header_candidate", "sidebar_navigation_candidates", "primary_cta_candidate", "main_content_snippets", "page_title_candidate"},
     {"primary_header_candidate", "primary_cta_candidate", "secondary_action_candidates", "sidebar_navigation_candidates", "main_content_snippets"},
+    {"primary_header", "sidebar_navigation", "primary_cta", "main_content", "page_title", "main_text_focus"},
 )
 
 assert editor_context["active_tab_candidate"][0]["value"] != editor_context["visible_tab_candidates"][0]["value"], editor_context
@@ -419,6 +459,20 @@ assert "Open Report" in json.dumps(browser_context["primary_cta_candidate"], ens
 assert "View Logs" in json.dumps(browser_context["secondary_action_candidates"], ensure_ascii=False), browser_context
 assert "Home" in json.dumps(browser_context["sidebar_navigation_candidates"], ensure_ascii=False) or "Sources" in json.dumps(browser_context["sidebar_navigation_candidates"], ensure_ascii=False), browser_context
 assert "Primary content" in json.dumps(browser_context["main_content_snippets"], ensure_ascii=False) or "browser surface" in json.dumps(browser_context["main_content_snippets"], ensure_ascii=False), browser_context
+assert editor_bundle["fields"]["active_tab"]["value"] == editor_context["active_tab_candidate"][0]["value"], editor_bundle
+assert editor_bundle["fields"]["primary_error"]["value"] == editor_context["primary_error_candidate"][0]["value"], editor_bundle
+assert editor_bundle["fields"]["visible_tabs"][0]["value"] == editor_context["visible_tab_candidates"][0]["value"], editor_bundle
+assert chat_bundle["fields"]["active_conversation"]["value"] == chat_context["active_conversation_candidate"][0]["value"], chat_bundle
+assert chat_bundle["fields"]["composer_text"]["value"] == chat_context["composer_text_candidate"][0]["value"], chat_bundle
+assert chat_bundle["fields"]["visible_messages"][0]["value"] == chat_context["visible_message_snippets"][0]["value"], chat_bundle
+assert terminal_bundle["fields"]["active_prompt"]["value"] == terminal_context["active_prompt_candidate"][0]["value"], terminal_bundle
+assert terminal_bundle["fields"]["recent_command"]["value"] == terminal_context["recent_command_candidate"][0]["value"], terminal_bundle
+assert terminal_bundle["fields"]["primary_error_output"]["value"] == terminal_context["primary_error_output_candidate"][0]["value"], terminal_bundle
+assert browser_bundle["fields"]["primary_header"]["value"] == browser_context["primary_header_candidate"][0]["value"], browser_bundle
+assert browser_bundle["fields"]["primary_cta"]["value"] == browser_context["primary_cta_candidate"][0]["value"], browser_bundle
+assert "Open Report" in json.dumps(browser_bundle["fields"]["primary_cta"], ensure_ascii=False), browser_bundle
+assert "View Logs" not in browser_bundle["fields"]["primary_cta"]["value"], browser_bundle
+assert browser_bundle["fields"]["sidebar_navigation"][0]["value"] == browser_context["sidebar_navigation_candidates"][0]["value"], browser_bundle
 
 assert editor_title in editor_payload["description"]["target_window"]["title"], editor_payload["description"]["target_window"]
 assert chat_title in chat_payload["description"]["target_window"]["title"], chat_payload["description"]["target_window"]
@@ -456,4 +510,8 @@ print(f"HOST_DESCRIBE_EDITOR_CONTEXTUAL {editor_structured['non_empty_contextual
 print(f"HOST_DESCRIBE_CHAT_CONTEXTUAL {chat_structured['non_empty_contextual_refinements']}")
 print(f"HOST_DESCRIBE_TERMINAL_CONTEXTUAL {terminal_structured['non_empty_contextual_refinements']}")
 print(f"HOST_DESCRIBE_BROWSER_CONTEXTUAL {browser_structured['non_empty_contextual_refinements']}")
+print(f"HOST_DESCRIBE_EDITOR_BUNDLE {editor_bundle['non_empty_fields']}")
+print(f"HOST_DESCRIBE_CHAT_BUNDLE {chat_bundle['non_empty_fields']}")
+print(f"HOST_DESCRIBE_TERMINAL_BUNDLE {terminal_bundle['non_empty_fields']}")
+print(f"HOST_DESCRIBE_BROWSER_BUNDLE {browser_bundle['non_empty_fields']}")
 PY

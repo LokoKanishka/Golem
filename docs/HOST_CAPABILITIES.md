@@ -15,6 +15,7 @@ Esta fase abre una capa explicita de `host perception + host action` y ahora sum
 - surface classification heuristica para distinguir `editor / IDE`, `chat / messaging workspace`, `terminal / console`, `browser / web app` o `unknown / mixed`
 - ranking auditado de `useful_lines` y `useful_regions` segun el tipo de superficie visible
 - extraccion auditada de `structured_fields` segun el tipo de superficie, con campos generales, `fine_fields` y `contextual_refinements` para distinguir mejor lo activo, lo visible y lo secundario, siempre con `value`, `confidence` y `source_refs`
+- consolidacion auditada en `surface_state_bundle` para resumir el estado operativo visible por superficie sin esconder incertidumbre
 - procesos, servicios de usuario y puertos escuchando en el host
 
 ## Que puede operar ahora
@@ -66,6 +67,7 @@ Inspeccion:
 - la estructura visible sale de heuristicas simples sobre bounding boxes OCR; sirve para leer mejor layout, no para segmentacion perfecta
 - la clasificacion de superficie combina metadata, OCR normalizado y layout heuristico; expone `confidence` (`strong`, `reasonable`, `uncertain`) y no se vende como certeza total
 - los `structured_fields` se apoyan en metadata, OCR normalizado, `useful_lines`, `useful_regions` y surface classification; ahora incluyen `fine_fields` por superficie y `contextual_refinements` para distinguir activo/primario/secundario/historico, y dejan huecos cuando la señal visible no alcanza
+- el `surface_state_bundle` consolida esas capas en un estado operativo mas utilizable por superficie, pero sigue siendo una heuristica auditada y puede quedar parcial cuando el OCR o el layout no alcanzan
 - la descripcion final explicita sus fuentes por claim y no presenta OCR, layout ni surface classification heuristica como certeza total
 - para escritorio, el listado de ventanas del desktop actual no prueba por si solo que todas esten completamente visibles u unobstruidas
 - los smokes usan `GOLEM_HOST_CAPABILITIES_ROOT` bajo `mktemp` para aislar corridas de prueba; fuera de smoke, el default sigue siendo `diagnostics/host-capabilities/`
@@ -103,12 +105,23 @@ Inspeccion:
 - cada refinamiento contextual agrega propiedades simples como `role`, `priority` y `activity_state` para distinguir activo/visible/secundario/historico sin esconder que sigue siendo heuristico
 - esta capa depende fuerte de OCR, layout y posicion relativa; si la señal no alcanza, el refinamiento puede quedar vacio u omitido
 
+## Surface State Bundles
+
+- `editor / IDE`: consolida `active_file`, `active_tab`, `visible_tabs`, `primary_error`, `workspace_or_project`, `sidebar_context` y `main_text_focus`
+- `chat / messaging workspace`: consolida `active_conversation`, `visible_messages`, `composer_text`, `input_box`, `sidebar_conversations` y `main_text_focus`
+- `terminal / console`: consolida `active_prompt`, `recent_command`, `primary_error_output`, `recent_output_block` y `main_text_focus`
+- `browser / web app`: consolida `primary_header`, `sidebar_navigation`, `primary_cta`, `main_content`, `page_title` y `main_text_focus`
+- cada entrada del bundle mantiene `value`, `confidence`, `source_refs` y, cuando aplica, `derived_from`, `bundle_role` y `surface_type`
+- el bundle no inventa estructura nueva: consolida `structured_fields`, `fine_fields` y `contextual_refinements` para que la capa superior tenga un estado visible mas usable
+- estos bundles dependen fuerte del OCR y del layout; pueden quedar incompletos, aproximados o vacios cuando la senal no alcanza
+
 ## Artefactos nuevos en vision semantica
 
 - `surface-profile.json`: clasificacion de superficie, scores por categoria, evidencia, `useful_lines` y `useful_regions`
 - `structured-fields.json`: campos estructurados por tipo de superficie con `value`, `confidence`, `source_refs`, `fine_fields` mas especificos y `contextual_refinements`
-- `description.json`: ahora incluye `surface_classification`, `useful_lines`, `useful_regions` y `structured_fields` con subcampos finos y refinamientos contextuales
-- `summary.txt`: resume categoria detectada, confianza, lineas priorizadas, regiones utiles, campos estructurados generales, subcampos finos y refinamientos contextuales
+- `surface-state.json`: bundle operativo por superficie con campos consolidados, `derived_from` y trazabilidad a fuentes
+- `description.json`: ahora incluye `surface_classification`, `useful_lines`, `useful_regions`, `structured_fields` y `surface_state_bundle`
+- `summary.txt`: resume categoria detectada, confianza, lineas priorizadas, regiones utiles, campos estructurados generales, subcampos finos, refinamientos contextuales y el bundle operativo consolidado
 
 ## Que sigue fuera en esta fase
 
