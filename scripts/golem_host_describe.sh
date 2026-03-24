@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/golem_host_capability_common.sh"
 
 SCREENSHOT_HELPER="${GOLEM_SCREENSHOT_HELPER:-$HOME/.codex/skills/screenshot/scripts/take_screenshot.py}"
+DESCRIBE_ANALYZE_HELPER="${GOLEM_HOST_DESCRIBE_ANALYZE_HELPER:-${SCRIPT_DIR}/golem_host_describe_analyze.py}"
 
 usage() {
   cat <<'EOF'
@@ -21,6 +22,7 @@ Usage:
 Env overrides:
   GOLEM_HOST_CAPABILITIES_ROOT
   GOLEM_SCREENSHOT_HELPER
+  GOLEM_HOST_DESCRIBE_ANALYZE_HELPER
 EOF
 }
 
@@ -125,16 +127,20 @@ main() {
       ;;
   esac
 
-  golem_host_capabilities_require_tools python3 wmctrl xdotool xprop identify tesseract ps
+  golem_host_capabilities_require_tools python3 wmctrl xdotool xprop identify convert tesseract ps
   [ -f "$SCREENSHOT_HELPER" ] || {
     printf 'ERROR: screenshot helper not found: %s\n' "$SCREENSHOT_HELPER" >&2
+    exit 1
+  }
+  [ -f "$DESCRIBE_ANALYZE_HELPER" ] || {
+    printf 'ERROR: describe analyze helper not found: %s\n' "$DESCRIBE_ANALYZE_HELPER" >&2
     exit 1
   }
 
   local perceive_json run_dir summary_path manifest_path description_path sources_path
   local selection_path windows_json_path desktops_txt root_props_txt target_props_txt target_process_txt
   local source_manifest_copy source_windows_txt source_active_props_txt target_screenshot size_txt
-  local ocr_txt ocr_tsv supporting_active_png
+  local ocr_txt ocr_tsv ocr_enhanced_png ocr_enhanced_txt ocr_enhanced_tsv ocr_normalized_txt layout_json supporting_active_png
   local perceive_run_dir perceive_manifest_path perceive_windows_txt perceive_active_props perceive_desktop_png perceive_active_png
   local resolved_window_id resolved_window_pid resolved_window_title matched_window_count selection_reason
 
@@ -157,6 +163,11 @@ main() {
   size_txt="${run_dir}/target-screenshot-size.txt"
   ocr_txt="${run_dir}/ocr.txt"
   ocr_tsv="${run_dir}/ocr.tsv"
+  ocr_enhanced_png="${run_dir}/ocr-enhanced.png"
+  ocr_enhanced_txt="${run_dir}/ocr-enhanced.txt"
+  ocr_enhanced_tsv="${run_dir}/ocr-enhanced.tsv"
+  ocr_normalized_txt="${run_dir}/ocr-normalized.txt"
+  layout_json="${run_dir}/layout.json"
 
   readarray -t perceive_meta < <(python3 - "$perceive_json" <<'PY'
 import json
@@ -398,450 +409,55 @@ PY
     printf 'level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n' >"$ocr_tsv"
   fi
 
-  python3 - "$run_dir" "$summary_path" "$manifest_path" "$description_path" "$sources_path" "$selection_path" "$windows_json_path" "$desktops_txt" "$root_props_txt" "$target_props_txt" "$target_process_txt" "$target_screenshot" "$size_txt" "$ocr_txt" "$ocr_tsv" "$source_manifest_copy" "$source_windows_txt" "$source_active_props_txt" "$supporting_active_png" <<'PY'
-import csv
-import json
-import pathlib
-import re
-import statistics
-import sys
+  if ! convert "$target_screenshot" \
+    -colorspace Gray \
+    -strip \
+    -filter Lanczos \
+    -resize 200% \
+    -contrast-stretch 1%x1% \
+    -sharpen 0x1 \
+    "$ocr_enhanced_png" >/dev/null 2>&1; then
+    cp "$target_screenshot" "$ocr_enhanced_png"
+  fi
 
-run_dir = pathlib.Path(sys.argv[1])
-summary_path = pathlib.Path(sys.argv[2])
-manifest_path = pathlib.Path(sys.argv[3])
-description_path = pathlib.Path(sys.argv[4])
-sources_path = pathlib.Path(sys.argv[5])
-selection_path = pathlib.Path(sys.argv[6])
-windows_json_path = pathlib.Path(sys.argv[7])
-desktops_txt = pathlib.Path(sys.argv[8])
-root_props_txt = pathlib.Path(sys.argv[9])
-target_props_txt = pathlib.Path(sys.argv[10])
-target_process_txt = pathlib.Path(sys.argv[11])
-target_screenshot = pathlib.Path(sys.argv[12])
-size_txt = pathlib.Path(sys.argv[13])
-ocr_txt = pathlib.Path(sys.argv[14])
-ocr_tsv = pathlib.Path(sys.argv[15])
-source_manifest_copy = pathlib.Path(sys.argv[16])
-source_windows_txt = pathlib.Path(sys.argv[17])
-source_active_props_txt = pathlib.Path(sys.argv[18])
-supporting_active_png = pathlib.Path(sys.argv[19])
+  tesseract "$ocr_enhanced_png" "${run_dir}/ocr-enhanced" --psm 11 >/dev/null 2>&1 || true
+  [ -f "$ocr_enhanced_txt" ] || : >"$ocr_enhanced_txt"
+  tesseract "$ocr_enhanced_png" "${run_dir}/ocr-enhanced" --psm 11 tsv >/dev/null 2>&1 || true
+  if [ -f "${run_dir}/ocr-enhanced.tsv" ] && [ "${run_dir}/ocr-enhanced.tsv" != "$ocr_enhanced_tsv" ]; then
+    mv "${run_dir}/ocr-enhanced.tsv" "$ocr_enhanced_tsv"
+  elif [ -f "${run_dir}/ocr-enhanced.txt.tsv" ]; then
+    mv "${run_dir}/ocr-enhanced.txt.tsv" "$ocr_enhanced_tsv"
+  elif [ -f "${run_dir}/ocr-enhanced.tsv.txt" ]; then
+    mv "${run_dir}/ocr-enhanced.tsv.txt" "$ocr_enhanced_tsv"
+  else
+    printf 'level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n' >"$ocr_enhanced_tsv"
+  fi
 
-selection = json.loads(selection_path.read_text(encoding="utf-8"))
-windows_payload = json.loads(windows_json_path.read_text(encoding="utf-8"))
-source_manifest = json.loads(source_manifest_copy.read_text(encoding="utf-8"))
-target = selection["resolved_window"]
-target_kind = selection["target_kind"]
-requested = selection["requested"]
-windows = windows_payload["windows"]
-
-
-def read_text(path):
-    if path.exists():
-        return path.read_text(encoding="utf-8", errors="replace")
-    return ""
-
-
-def parse_desktops(text):
-    entries = []
-    current = None
-    for raw_line in text.splitlines():
-        line = raw_line.rstrip()
-        if not line:
-            continue
-        match = re.match(r"^(\d+)\s+([*-])\s+", line)
-        if not match:
-            continue
-        desktop_id = int(match.group(1))
-        is_current = match.group(2) == "*"
-        entries.append({"desktop": desktop_id, "is_current": is_current, "raw": line})
-        if is_current:
-            current = desktop_id
-    return current, entries
-
-
-def parse_xprop(text):
-    data = {"wm_class": [], "wm_name": "", "pid": ""}
-    for line in text.splitlines():
-        if line.startswith("WM_CLASS"):
-            data["wm_class"] = re.findall(r'"([^"]+)"', line)
-        elif line.startswith("WM_NAME"):
-            matches = re.findall(r'"([^"]+)"', line)
-            if matches:
-                data["wm_name"] = matches[-1]
-        elif "_NET_WM_PID" in line:
-            match = re.search(r"=\s*(\d+)", line)
-            if match:
-                data["pid"] = match.group(1)
-    return data
-
-
-def parse_process(text):
-    line = text.strip()
-    if not line or line == "pid unavailable" or line.lower().startswith("error:"):
-        return {"pid": "", "comm": "", "args": ""}
-    parts = line.split(None, 2)
-    return {
-        "pid": parts[0] if len(parts) > 0 else "",
-        "comm": parts[1] if len(parts) > 1 else "",
-        "args": parts[2] if len(parts) > 2 else "",
-    }
-
-
-def app_name(props, process, title):
-    tokens = " ".join(props.get("wm_class", []) + [process.get("comm", ""), process.get("args", ""), title or ""]).lower()
-    mapping = [
-        ("chatgpt", "ChatGPT"),
-        ("code", "Visual Studio Code"),
-        ("visual studio code", "Visual Studio Code"),
-        ("google-chrome", "Google Chrome"),
-        ("chromium", "Chromium"),
-        ("firefox", "Firefox"),
-        ("xmessage", "XMessage"),
-        ("zenity", "Zenity"),
-        ("gnome-terminal", "GNOME Terminal"),
-        ("xterm", "XTerm"),
-        ("kitty", "Kitty"),
-        ("alacritty", "Alacritty"),
-        ("tilix", "Tilix"),
-        ("konsole", "Konsole"),
-    ]
-    for needle, label in mapping:
-        if needle in tokens:
-            return label
-    for value in reversed(props.get("wm_class", [])):
-        if value:
-            return value
-    if process.get("comm"):
-        return process["comm"]
-    if title:
-        return title
-    return "unknown-app"
-
-
-def surface_kind(app, title, ocr_text):
-    haystack = " ".join([app, title, ocr_text]).lower()
-    if "chatgpt" in haystack:
-        return "chat-assistant"
-    if "visual studio code" in haystack or "code" in haystack:
-        return "editor"
-    if any(term in haystack for term in ["terminal", "xterm", "bash", "zsh", "fish", "kitty", "alacritty", "konsole", "tilix"]):
-        return "terminal"
-    if any(term in haystack for term in ["xmessage", "zenity", "dialog"]):
-        return "dialog"
-    if any(term in haystack for term in ["chrome", "chromium", "firefox", "browser"]):
-        return "browser"
-    return "generic-window"
-
-
-def clean_ocr_lines(text):
-    lines = []
-    seen = set()
-    for raw_line in text.replace("\f", "\n").splitlines():
-        line = re.sub(r"\s+", " ", raw_line).strip()
-        if len(line) < 3:
-            continue
-        normalized = line.lower()
-        if normalized in seen:
-            continue
-        seen.add(normalized)
-        lines.append(line)
-    return lines
-
-
-def parse_ocr_confidence(path):
-    if not path.exists():
-        return {"words": 0, "avg_conf": None}
-    words = []
-    with path.open("r", encoding="utf-8", errors="replace") as fh:
-        reader = csv.DictReader(fh, delimiter="\t")
-        for row in reader:
-            text = (row.get("text") or "").strip()
-            if not text:
-                continue
-            try:
-                conf = float(row.get("conf") or "-1")
-            except ValueError:
-                continue
-            if conf >= 0:
-                words.append(conf)
-    return {
-        "words": len(words),
-        "avg_conf": round(statistics.mean(words), 1) if words else None,
-    }
-
-
-def describe_visible_content(kind, app, title, lines):
-    lower_lines = [line.lower() for line in lines]
-    combined = "\n".join(lines).lower()
-    if not lines:
-        if kind == "desktop":
-            return "The desktop screenshot is real, but OCR did not recover enough readable text to describe the visible content beyond window metadata."
-        return "The window screenshot is real, but OCR did not recover enough readable text to describe the visible content confidently."
-
-    snippets = ", ".join(f'"{line}"' for line in lines[:3])
-    if "chatgpt" in combined or "chatgpt" in title.lower():
-        if any(marker in combined for marker in ["##", "###", "nuevo chat", "biblioteca", "pregunta lo que quieras"]):
-            return f'The visible content appears to be a ChatGPT conversation or workspace with sidebar/navigation text and a markdown-style checklist; OCR snippets include {snippets}.'
-        return f'The visible content appears to be a ChatGPT conversation or workspace; OCR snippets include {snippets}.'
-    if kind == "dialog":
-        return f'The visible content appears to be a dialog/message window; OCR snippets include {snippets}.'
-    if kind == "terminal":
-        return f'The visible content appears to be a terminal session; OCR snippets include {snippets}.'
-    if kind == "editor":
-        return f'The visible content appears to be an editor/workspace window; OCR snippets include {snippets}.'
-    if kind == "browser":
-        return f'The visible content appears to be a browser page or web app; OCR snippets include {snippets}.'
-    return f'The visible content looks text-heavy, but the app-specific semantics remain approximate; OCR snippets include {snippets}.'
-
-
-def summarize_windows(items):
-    summarized = []
-    for item in items[:5]:
-        title = item.get("title") or "(untitled)"
-        summarized.append(
-            {
-                "window_id": item.get("window_id"),
-                "desktop": item.get("desktop"),
-                "title": title,
-                "pid": item.get("pid"),
-            }
-        )
-    return summarized
-
-
-current_desktop, desktops = parse_desktops(read_text(desktops_txt))
-target_props = parse_xprop(read_text(target_props_txt))
-process_info = parse_process(read_text(target_process_txt))
-ocr_text = read_text(ocr_txt)
-ocr_lines = clean_ocr_lines(ocr_text)
-ocr_confidence = parse_ocr_confidence(ocr_tsv)
-title = target_props.get("wm_name") or target.get("title") or ""
-app = app_name(target_props, process_info, title)
-kind = surface_kind(app, title, ocr_text)
-dimensions = read_text(size_txt).strip()
-resolved_pid = target.get("pid")
-if resolved_pid in {"", "0", None}:
-    resolved_pid = target_props.get("pid") or process_info.get("pid") or ""
-
-current_desktop_windows = []
-if current_desktop is not None:
-    for item in windows:
-        desktop = item.get("desktop")
-        if desktop == "-1":
-            current_desktop_windows.append(item)
-        else:
-            try:
-                if int(desktop) == current_desktop:
-                    current_desktop_windows.append(item)
-            except (TypeError, ValueError):
-                continue
-
-registered_current_desktop = [
-    item for item in current_desktop_windows if item.get("title") and item.get("title") != "Desktop Icons 1"
-]
-
-claims = []
-limits = []
-
-window_identity = f'{app} window "{title or target.get("title") or "(untitled)"}"'
-
-if target_kind == "desktop":
-    claims.append(
-        {
-            "confidence": "high",
-            "sources": ["window_metadata"],
-            "text": f'The active surface registered by metadata is {window_identity} (window_id={target.get("window_id") or "unknown"}, pid={resolved_pid or "unknown"}).',
-        }
-    )
-    if current_desktop is not None and registered_current_desktop:
-        titles = ", ".join(f'"{item["title"]}"' for item in registered_current_desktop[:5])
-        claims.append(
-            {
-                "confidence": "medium",
-                "sources": ["window_metadata"],
-                "text": f'Window metadata registers {len(registered_current_desktop)} titled surfaces on current desktop {current_desktop}: {titles}. This list is auditable metadata, not a guarantee that every listed window is unobscured in the screenshot.',
-            }
-        )
-    claims.append(
-        {
-            "confidence": "medium" if ocr_lines else "low",
-            "sources": ["desktop_screenshot", "ocr"],
-            "text": describe_visible_content("desktop", app, title, ocr_lines[:6]),
-        }
-    )
-    limits.append("Window metadata can confirm registered surfaces on the current desktop, but it does not prove whether a window is hidden behind another one.")
-    limits.append("OCR is approximate and may miss stylized text, icons, or non-text content in the desktop screenshot.")
-else:
-    claims.append(
-        {
-            "confidence": "high",
-            "sources": ["window_metadata"],
-            "text": f'The described target resolves to {window_identity} (window_id={target.get("window_id") or "unknown"}, pid={resolved_pid or "unknown"}).',
-        }
-    )
-    claims.append(
-        {
-            "confidence": "medium" if ocr_lines else "low",
-            "sources": ["target_screenshot", "ocr"],
-            "text": describe_visible_content(kind, app, title, ocr_lines[:6]),
-        }
-    )
-    limits.append("OCR is approximate and may distort punctuation, sidebars, or small UI text.")
-    limits.append("The description only covers the captured target window, not hidden tabs, background windows, or content outside the frame.")
-
-summary = " ".join(claim["text"] for claim in claims[:2])
-if target_kind == "desktop" and len(claims) > 2:
-    summary = " ".join(claim["text"] for claim in claims[:3])
-
-description = {
-    "summary": summary,
-    "claims": claims,
-    "target_kind": target_kind,
-    "target_window": {
-        "window_id": target.get("window_id"),
-        "title": title or target.get("title"),
-        "pid": resolved_pid,
-        "app": app,
-        "surface_kind": kind,
-        "is_active": bool(target.get("is_active")),
-    },
-    "selection_reason": selection.get("selection_reason"),
-    "matched_window_count": selection.get("matched_window_count"),
-    "requested": requested,
-    "current_desktop": current_desktop,
-    "registered_current_desktop_windows": summarize_windows(registered_current_desktop),
-    "ocr_excerpt": ocr_lines[:8],
-    "ocr": {
-        "words_with_confidence": ocr_confidence["words"],
-        "average_confidence": ocr_confidence["avg_conf"],
-        "approximate": True,
-    },
-    "limits": limits,
-}
-
-sources = {
-    "used": [
-        {
-            "id": "window_metadata",
-            "kind": "metadata",
-            "paths": [
-                str(source_windows_txt),
-                str(desktops_txt),
-                str(target_props_txt),
-                str(target_process_txt),
-                str(source_active_props_txt),
-            ],
-            "role": "window identity, current desktop inventory, pid, and app hints",
-            "certainty": "high",
-        },
-        {
-            "id": "desktop_screenshot" if target_kind == "desktop" else "target_screenshot",
-            "kind": "screenshot",
-            "paths": [str(target_screenshot)],
-            "role": "raw visual evidence for the described target",
-            "certainty": "high",
-        },
-        {
-            "id": "ocr",
-            "kind": "ocr",
-            "paths": [str(ocr_txt), str(ocr_tsv)],
-            "role": "approximate text extraction from the screenshot",
-            "certainty": "medium" if ocr_lines else "low",
-            "notes": "OCR is approximate and should not be treated as perfect transcription.",
-        },
-    ],
-    "supporting": [
-        {
-            "id": "source_perceive_manifest",
-            "kind": "manifest",
-            "paths": [str(source_manifest_copy)],
-            "role": "links the semantic run back to the raw host perception capture",
-        }
-    ],
-}
-if supporting_active_png.exists():
-    sources["supporting"].append(
-        {
-            "id": "supporting_active_window_screenshot",
-            "kind": "screenshot",
-            "paths": [str(supporting_active_png)],
-            "role": "zoomed active-window screenshot captured by the raw perception lane",
-        }
-    )
-
-artifacts = {
-    "summary": str(summary_path),
-    "description": str(description_path),
-    "sources": str(sources_path),
-    "selection": str(selection_path),
-    "target_screenshot": str(target_screenshot),
-    "windows": str(source_windows_txt),
-    "windows_json": str(windows_json_path),
-    "desktops": str(desktops_txt),
-    "root_properties": str(root_props_txt),
-    "target_window_properties": str(target_props_txt),
-    "target_process": str(target_process_txt),
-    "ocr_text": str(ocr_txt),
-    "ocr_tsv": str(ocr_tsv),
-    "source_perceive_manifest": str(source_manifest_copy),
-}
-if source_active_props_txt.exists():
-    artifacts["active_window_properties"] = str(source_active_props_txt)
-if supporting_active_png.exists():
-    artifacts["supporting_active_window_screenshot"] = str(supporting_active_png)
-
-manifest = {
-    "kind": "golem_host_describe",
-    "run_dir": str(run_dir),
-    "target": {
-        "kind": target_kind,
-        "requested": requested,
-        "selection_reason": selection.get("selection_reason"),
-        "matched_window_count": selection.get("matched_window_count"),
-        "resolved_window": description["target_window"],
-    },
-    "source_perceive_run_dir": source_manifest.get("run_dir"),
-    "sources_used": [item["id"] for item in sources["used"]],
-    "artifacts": artifacts,
-    "description": description,
-    "current_desktop": current_desktop,
-    "registered_current_desktop_windows": description["registered_current_desktop_windows"],
-    "ocr": description["ocr"],
-}
-
-description_path.write_text(json.dumps(description, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
-sources_path.write_text(json.dumps(sources, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
-manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
-
-summary_lines = [
-    "GOLEM HOST SEMANTIC DESCRIPTION",
-    "",
-    f"run_dir: {run_dir}",
-    f"target: {target_kind}",
-    f"requested_window_id: {requested.get('window_id') or '(none)'}",
-    f"requested_title: {requested.get('title') or '(none)'}",
-    f"selection_reason: {selection.get('selection_reason')}",
-    f"matched_window_count: {selection.get('matched_window_count')}",
-    f"target_window_id: {description['target_window']['window_id'] or '(none)'}",
-    f"target_title: {description['target_window']['title'] or '(none)'}",
-    f"target_app: {description['target_window']['app']}",
-    f"target_surface_kind: {description['target_window']['surface_kind']}",
-    f"target_screenshot: {target_screenshot}",
-    f"target_screenshot_size: {dimensions or '(unknown)'}",
-    "sources_used:",
-]
-summary_lines.extend(f"- {item['id']}: {item['role']}" for item in sources["used"])
-summary_lines.append("claims:")
-summary_lines.extend(
-    f"- [{'+'.join(claim['sources'])}/{claim['confidence']}] {claim['text']}"
-    for claim in claims
-)
-summary_lines.append("ocr_excerpt:")
-summary_lines.extend(f"- {line}" for line in description["ocr_excerpt"] or ["(none)"])
-summary_lines.append("limits:")
-summary_lines.extend(f"- {line}" for line in limits)
-summary_path.write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
-PY
+  python3 "$DESCRIBE_ANALYZE_HELPER" \
+    --run-dir "$run_dir" \
+    --summary-path "$summary_path" \
+    --manifest-path "$manifest_path" \
+    --description-path "$description_path" \
+    --sources-path "$sources_path" \
+    --selection-path "$selection_path" \
+    --windows-json-path "$windows_json_path" \
+    --desktops-path "$desktops_txt" \
+    --root-props-path "$root_props_txt" \
+    --target-props-path "$target_props_txt" \
+    --target-process-path "$target_process_txt" \
+    --target-screenshot "$target_screenshot" \
+    --size-path "$size_txt" \
+    --ocr-text "$ocr_txt" \
+    --ocr-tsv "$ocr_tsv" \
+    --ocr-enhanced-image "$ocr_enhanced_png" \
+    --ocr-enhanced-text "$ocr_enhanced_txt" \
+    --ocr-enhanced-tsv "$ocr_enhanced_tsv" \
+    --ocr-normalized-text "$ocr_normalized_txt" \
+    --layout-path "$layout_json" \
+    --source-perceive-manifest "$source_manifest_copy" \
+    --source-windows "$source_windows_txt" \
+    --source-active-props "$source_active_props_txt" \
+    --supporting-active-png "$supporting_active_png"
 
   emit_run "$format" "$run_dir"
 }

@@ -10,6 +10,8 @@ Esta fase abre una capa explicita de `host perception + host action` y ahora sum
 - contexto visible rapido a partir de las ventanas abiertas
 - descripcion semantica auditada del escritorio, ventana activa o una ventana puntual
 - OCR aproximado con evidencia persistida y limites explicitados
+- OCR mejorado y texto normalizado para aumentar legibilidad sin borrar el OCR crudo
+- layout heuristico de bajo nivel para identificar header, sidebar, main content, footer o paneles equivalentes
 - procesos, servicios de usuario y puertos escuchando en el host
 
 ## Que puede operar ahora
@@ -57,8 +59,9 @@ Inspeccion:
 
 - la identidad de ventanas/apps sale de metadata real (`wmctrl`, `xprop`, `ps`)
 - el contenido visible sale de screenshots reales
-- el texto visible recuperado por OCR es aproximado y queda persistido como evidencia separada
-- la descripcion final explicita sus fuentes por claim y no presenta OCR como certeza total
+- el texto visible recuperado por OCR se persiste en tres capas auditables: crudo, mejorado y normalizado
+- la estructura visible sale de heuristicas simples sobre bounding boxes OCR; sirve para leer mejor layout, no para segmentacion perfecta
+- la descripcion final explicita sus fuentes por claim y no presenta OCR ni layout heuristico como certeza total
 - para escritorio, el listado de ventanas del desktop actual no prueba por si solo que todas esten completamente visibles u unobstruidas
 - los smokes usan `GOLEM_HOST_CAPABILITIES_ROOT` bajo `mktemp` para aislar corridas de prueba; fuera de smoke, el default sigue siendo `diagnostics/host-capabilities/`
 
@@ -77,3 +80,4 @@ Inspeccion:
 - `./tests/smoke_host_action_lane.sh`
 - `./tests/smoke_host_inspection_lane.sh`
 - `./tests/smoke_host_describe_lane.sh`
+- `./tests/smoke_host_describe_visual_reading.sh`

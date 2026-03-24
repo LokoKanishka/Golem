@@ -15,7 +15,7 @@ Que persiste cada corrida:
 - `manifest.json`: estructura completa del run
 - artefactos puntuales segun el carril:
   - screenshots y ventanas para percepcion
-  - screenshot objetivo, OCR, descripcion y fuentes para vision semantica
+  - screenshot objetivo, OCR crudo, OCR mejorado, OCR normalizado, layout, descripcion y fuentes para vision semantica
   - stdout/stderr o cambios de foco para accion
   - procesos, servicios y puertos para inspeccion
 
@@ -33,6 +33,7 @@ Persistencia:
 Limitaciones deliberadas de esta fase:
 
 - la vision semantica usa OCR aproximado y reglas honestas; no hace interpretacion multimodal profunda
+- el layout se infiere por heuristicas simples sobre texto visible; no reemplaza una segmentacion visual fuerte
 - no controla multiples monitores de forma especializada
 - no automatiza navegadores complejos fuera de los carriles ya existentes
 - no abre autonomia opaca: cada accion queda materializada como evidencia local
