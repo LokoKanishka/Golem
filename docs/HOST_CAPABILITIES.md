@@ -1,6 +1,6 @@
 # Host Capabilities
 
-Esta fase abre una primera capa explicita de `host perception + host action` para Golem.
+Esta fase abre una capa explicita de `host perception + host action` y ahora suma un carril auditado de vision semantica del escritorio para Golem.
 
 ## Que puede ver ahora
 
@@ -8,6 +8,8 @@ Esta fase abre una primera capa explicita de `host perception + host action` par
 - screenshot real de la ventana activa
 - listado real de ventanas con `window_id`, `pid` y titulo
 - contexto visible rapido a partir de las ventanas abiertas
+- descripcion semantica auditada del escritorio, ventana activa o una ventana puntual
+- OCR aproximado con evidencia persistida y limites explicitados
 - procesos, servicios de usuario y puertos escuchando en el host
 
 ## Que puede operar ahora
@@ -26,6 +28,16 @@ Percepcion:
 - `./scripts/golem_host_perceive.sh json`
 - `./scripts/golem_host_perceive.sh path`
 
+Vision semantica:
+
+- `./scripts/golem_host_describe.sh`
+- `./scripts/golem_host_describe.sh desktop`
+- `./scripts/golem_host_describe.sh active-window`
+- `./scripts/golem_host_describe.sh window --title "Mi ventana"`
+- `./scripts/golem_host_describe.sh window --window-id 0x01200007`
+- `./scripts/golem_host_describe.sh json`
+- `./scripts/golem_host_describe.sh path`
+
 Accion:
 
 - `./scripts/golem_host_act.sh command --label date-check -- date -u`
@@ -41,9 +53,18 @@ Inspeccion:
 - `./scripts/golem_host_inspect.sh json`
 - `./scripts/golem_host_inspect.sh path`
 
+## Precision y limites del nuevo carril
+
+- la identidad de ventanas/apps sale de metadata real (`wmctrl`, `xprop`, `ps`)
+- el contenido visible sale de screenshots reales
+- el texto visible recuperado por OCR es aproximado y queda persistido como evidencia separada
+- la descripcion final explicita sus fuentes por claim y no presenta OCR como certeza total
+- para escritorio, el listado de ventanas del desktop actual no prueba por si solo que todas esten completamente visibles u unobstruidas
+- los smokes usan `GOLEM_HOST_CAPABILITIES_ROOT` bajo `mktemp` para aislar corridas de prueba; fuera de smoke, el default sigue siendo `diagnostics/host-capabilities/`
+
 ## Que sigue fuera en esta fase
 
-- OCR o interpretacion profunda del contenido visual
+- interpretacion multimodal profunda de iconografia, diagramas o imagenes sin texto
 - control fino de ventanas por workspace/monitor
 - navegacion web general fuera de Playwright o carriles ya existentes
 - operacion remota de la LAN mas alla de inspeccion basica local
@@ -55,3 +76,4 @@ Inspeccion:
 - `./tests/smoke_host_perception_session.sh`
 - `./tests/smoke_host_action_lane.sh`
 - `./tests/smoke_host_inspection_lane.sh`
+- `./tests/smoke_host_describe_lane.sh`
