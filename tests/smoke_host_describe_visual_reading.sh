@@ -147,6 +147,7 @@ surface_classification = active_description["surface_classification"]
 useful_lines = active_description["useful_lines"]
 useful_regions = active_description["useful_regions"]
 structured_fields = active_description["structured_fields"]
+fine_fields = structured_fields["fine_fields"]
 
 assert title in active_description["target_window"]["title"], active_description["target_window"]
 assert {"header", "left_sidebar", "main_content"}.issubset(roles), layout
@@ -157,6 +158,10 @@ assert structured_fields["category"] == "browser-web-app", structured_fields
 assert structured_fields["fields"]["page_title_candidates"], structured_fields
 assert structured_fields["fields"]["header_text"], structured_fields
 assert structured_fields["fields"]["primary_content_snippets"], structured_fields
+assert fine_fields["primary_header_candidate"], fine_fields
+assert fine_fields["page_title_candidate"], fine_fields
+assert fine_fields["main_content_snippets"], fine_fields
+assert fine_fields["primary_cta_candidate"], fine_fields
 normalized_ocr_text = pathlib.Path(active_payload["artifacts"]["ocr_normalized_text"]).read_text(encoding="utf-8")
 assert "Visual Reading Smoke" in normalized_ocr_text or "Yisual Reading Smoke" in normalized_ocr_text
 assert "Sidebar Notes" in normalized_ocr_text

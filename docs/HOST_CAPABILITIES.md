@@ -14,7 +14,7 @@ Esta fase abre una capa explicita de `host perception + host action` y ahora sum
 - layout heuristico de bajo nivel para identificar header, sidebar, main content, footer o paneles equivalentes
 - surface classification heuristica para distinguir `editor / IDE`, `chat / messaging workspace`, `terminal / console`, `browser / web app` o `unknown / mixed`
 - ranking auditado de `useful_lines` y `useful_regions` segun el tipo de superficie visible
-- extraccion auditada de `structured_fields` segun el tipo de superficie, con `value`, `confidence` y `source_refs`
+- extraccion auditada de `structured_fields` segun el tipo de superficie, con campos generales y `fine_fields` mas especificos, siempre con `value`, `confidence` y `source_refs`
 - procesos, servicios de usuario y puertos escuchando en el host
 
 ## Que puede operar ahora
@@ -65,7 +65,7 @@ Inspeccion:
 - el texto visible recuperado por OCR se persiste en tres capas auditables: crudo, mejorado y normalizado
 - la estructura visible sale de heuristicas simples sobre bounding boxes OCR; sirve para leer mejor layout, no para segmentacion perfecta
 - la clasificacion de superficie combina metadata, OCR normalizado y layout heuristico; expone `confidence` (`strong`, `reasonable`, `uncertain`) y no se vende como certeza total
-- los `structured_fields` se apoyan en metadata, OCR normalizado, `useful_lines`, `useful_regions` y surface classification; dejan huecos cuando la señal visible no alcanza
+- los `structured_fields` se apoyan en metadata, OCR normalizado, `useful_lines`, `useful_regions` y surface classification; ahora incluyen `fine_fields` por superficie y dejan huecos cuando la señal visible no alcanza
 - la descripcion final explicita sus fuentes por claim y no presenta OCR, layout ni surface classification heuristica como certeza total
 - para escritorio, el listado de ventanas del desktop actual no prueba por si solo que todas esten completamente visibles u unobstruidas
 - los smokes usan `GOLEM_HOST_CAPABILITIES_ROOT` bajo `mktemp` para aislar corridas de prueba; fuera de smoke, el default sigue siendo `diagnostics/host-capabilities/`
@@ -86,12 +86,20 @@ Inspeccion:
 - `browser / web app`: intenta `page_title_candidates`, `header_text`, `sidebar_navigation_candidates`, `primary_content_snippets` y `cta_or_action_text_candidates`
 - todos estos campos son aproximados y dependen fuerte de la calidad del OCR y del layout visible
 
+## Subcampos finos por superficie
+
+- `editor / IDE`: intenta `active_file_candidate`, `visible_tab_candidates`, `primary_error_candidate`, `workspace_or_project_candidate` y `explorer_context_candidates`
+- `chat / messaging workspace`: intenta `conversation_title_candidate`, `visible_message_snippets`, `input_box_candidate` y `sidebar_conversation_candidates`
+- `terminal / console`: intenta `active_prompt_candidate`, `recent_command_candidate`, `primary_error_output_candidate` y `recent_output_block_snippets`
+- `browser / web app`: intenta `primary_header_candidate`, `sidebar_navigation_candidates`, `primary_cta_candidate`, `main_content_snippets` y `page_title_candidate`
+- los subcampos finos reusan la misma trazabilidad auditable; los nombres singulares devuelven el mejor candidato disponible y los plurales mantienen varias opciones visibles
+
 ## Artefactos nuevos en vision semantica
 
 - `surface-profile.json`: clasificacion de superficie, scores por categoria, evidencia, `useful_lines` y `useful_regions`
-- `structured-fields.json`: campos estructurados por tipo de superficie con `value`, `confidence` y `source_refs`
-- `description.json`: ahora incluye `surface_classification`, `useful_lines`, `useful_regions` y `structured_fields`
-- `summary.txt`: resume categoria detectada, confianza, lineas priorizadas, regiones utiles y campos estructurados
+- `structured-fields.json`: campos estructurados por tipo de superficie con `value`, `confidence`, `source_refs` y `fine_fields` mas especificos
+- `description.json`: ahora incluye `surface_classification`, `useful_lines`, `useful_regions` y `structured_fields` con subcampos finos
+- `summary.txt`: resume categoria detectada, confianza, lineas priorizadas, regiones utiles, campos estructurados generales y subcampos finos
 
 ## Que sigue fuera en esta fase
 

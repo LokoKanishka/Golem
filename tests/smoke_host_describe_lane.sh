@@ -113,6 +113,8 @@ for payload in (active_payload, desktop_payload, window_payload):
     assert payload["description"]["useful_lines"], payload["description"]["useful_lines"]
     assert payload["description"]["useful_regions"], payload["description"]["useful_regions"]
     assert payload["description"]["structured_fields"]["category"] == payload["description"]["surface_classification"]["category"], payload["description"]["structured_fields"]
+    assert "fine_fields" in payload["description"]["structured_fields"], payload["description"]["structured_fields"]
+    assert "attempted_fine_fields" in payload["description"]["structured_fields"], payload["description"]["structured_fields"]
     assert payload["description"]["readable_text"]["normalized_excerpt"], payload["description"]["readable_text"]
     assert payload["description"]["source_breakdown"]["layout_heuristics"], payload["description"]["source_breakdown"]
     assert payload["description"]["source_breakdown"]["surface_classification_heuristics"], payload["description"]["source_breakdown"]
@@ -135,6 +137,7 @@ desktop_summary = pathlib.Path(desktop_payload["artifacts"]["summary"]).read_tex
 window_description = pathlib.Path(window_payload["artifacts"]["description"]).read_text(encoding="utf-8")
 window_layout = pathlib.Path(window_payload["artifacts"]["layout"]).read_text(encoding="utf-8")
 window_normalized_ocr = pathlib.Path(window_payload["artifacts"]["ocr_normalized_text"]).read_text(encoding="utf-8")
+window_summary = pathlib.Path(window_payload["artifacts"]["summary"]).read_text(encoding="utf-8")
 
 assert '"id": "window_metadata"' in active_sources
 assert '"id": "ocr_raw"' in active_sources
@@ -146,6 +149,7 @@ assert "sources_used:" in desktop_summary
 assert title in window_description
 assert '"role": "header"' in window_layout or '"role": "main_content"' in window_layout or '"role": "footer"' in window_layout
 assert "Semantic describe smoke" in window_normalized_ocr or "Sources must stay explicit" in window_normalized_ocr
+assert "fine_fields:" in window_summary
 
 print("SMOKE_HOST_DESCRIBE_LANE_OK")
 print(f"HOST_DESCRIBE_ACTIVE_SUMMARY {active_payload['description']['summary']}")

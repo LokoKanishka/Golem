@@ -288,12 +288,13 @@ terminal_title = sys.argv[11]
 browser_title = sys.argv[12]
 
 
-def assert_payload(payload, expected_category, allowed_kinds, required_fields):
+def assert_payload(payload, expected_category, allowed_kinds, required_fields, required_fine_fields):
     description = payload["description"]
     classification = description["surface_classification"]
     useful_lines = description["useful_lines"]
     useful_regions = description["useful_regions"]
     structured_fields = description["structured_fields"]
+    fine_fields = structured_fields["fine_fields"]
 
     assert classification["category"] == expected_category, classification
     assert classification["confidence"] in {"strong", "reasonable"}, classification
@@ -312,6 +313,8 @@ def assert_payload(payload, expected_category, allowed_kinds, required_fields):
     assert surface_profile["surface_classification"]["category"] == expected_category, surface_profile
     assert structured_fields["category"] == expected_category, structured_fields
     assert stored_structured_fields["category"] == expected_category, stored_structured_fields
+    assert structured_fields["attempted_fine_fields"], structured_fields
+    assert stored_structured_fields["attempted_fine_fields"], stored_structured_fields
     kinds = {item["priority_kind"] for item in useful_lines}
     assert kinds & set(allowed_kinds), kinds
     assert "surface classification heuristics read the visible target as" in description["summary"].lower(), description["summary"]
@@ -324,32 +327,45 @@ def assert_payload(payload, expected_category, allowed_kinds, required_fields):
             assert entry["value"], entry
             assert entry["confidence"] in {"high", "medium", "low"}, entry
             assert entry["source_refs"], entry
-    return classification, useful_lines, kinds, structured_fields
+    for field_name in required_fine_fields:
+        entries = fine_fields.get(field_name) or []
+        stored_entries = stored_structured_fields["fine_fields"].get(field_name) or []
+        assert entries, (field_name, fine_fields)
+        assert stored_entries, (field_name, stored_structured_fields["fine_fields"])
+        for entry in entries[:2]:
+            assert entry["value"], entry
+            assert entry["confidence"] in {"high", "medium", "low"}, entry
+            assert entry["source_refs"], entry
+    return classification, useful_lines, kinds, structured_fields, fine_fields
 
 
-editor_classification, editor_lines, editor_kinds, editor_structured = assert_payload(
+editor_classification, editor_lines, editor_kinds, editor_structured, editor_fine = assert_payload(
     editor_payload,
     "editor",
     {"error-line", "file-reference", "code-line", "explorer-item", "workspace-header"},
     {"workspace_or_project", "file_or_tab_candidates", "active_editor_text_snippets"},
+    {"active_file_candidate", "visible_tab_candidates", "workspace_or_project_candidate", "explorer_context_candidates"},
 )
-chat_classification, chat_lines, chat_kinds, chat_structured = assert_payload(
+chat_classification, chat_lines, chat_kinds, chat_structured, chat_fine = assert_payload(
     chat_payload,
     "chat",
     {"visible-message", "composer", "conversation-sidebar"},
     {"conversation_title_candidates", "visible_message_snippets", "sidebar_chat_candidates"},
+    {"conversation_title_candidate", "visible_message_snippets", "input_box_candidate", "sidebar_conversation_candidates"},
 )
-terminal_classification, terminal_lines, terminal_kinds, terminal_structured = assert_payload(
+terminal_classification, terminal_lines, terminal_kinds, terminal_structured, terminal_fine = assert_payload(
     terminal_payload,
     "terminal",
     {"command-or-prompt", "error-output", "visible-output"},
     {"prompt_candidates", "command_candidates", "error_output_candidates"},
+    {"active_prompt_candidate", "recent_command_candidate", "primary_error_output_candidate", "recent_output_block_snippets"},
 )
-browser_classification, browser_lines, browser_kinds, browser_structured = assert_payload(
+browser_classification, browser_lines, browser_kinds, browser_structured, browser_fine = assert_payload(
     browser_payload,
     "browser-web-app",
     {"page-header", "navigation", "page-content", "cta-or-control"},
     {"page_title_candidates", "header_text", "primary_content_snippets", "cta_or_action_text_candidates"},
+    {"primary_header_candidate", "sidebar_navigation_candidates", "primary_cta_candidate", "main_content_snippets", "page_title_candidate"},
 )
 
 assert editor_title in editor_payload["description"]["target_window"]["title"], editor_payload["description"]["target_window"]
@@ -380,4 +396,8 @@ print(f"HOST_DESCRIBE_EDITOR_FIELDS {editor_structured['non_empty_fields']}")
 print(f"HOST_DESCRIBE_CHAT_FIELDS {chat_structured['non_empty_fields']}")
 print(f"HOST_DESCRIBE_TERMINAL_FIELDS {terminal_structured['non_empty_fields']}")
 print(f"HOST_DESCRIBE_BROWSER_FIELDS {browser_structured['non_empty_fields']}")
+print(f"HOST_DESCRIBE_EDITOR_FINE_FIELDS {editor_structured['non_empty_fine_fields']}")
+print(f"HOST_DESCRIBE_CHAT_FINE_FIELDS {chat_structured['non_empty_fine_fields']}")
+print(f"HOST_DESCRIBE_TERMINAL_FINE_FIELDS {terminal_structured['non_empty_fine_fields']}")
+print(f"HOST_DESCRIBE_BROWSER_FINE_FIELDS {browser_structured['non_empty_fine_fields']}")
 PY

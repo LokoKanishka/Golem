@@ -698,6 +698,35 @@ STRUCTURED_FIELD_NAMES = {
     ],
 }
 
+FINE_FIELD_NAMES = {
+    "editor": [
+        "active_file_candidate",
+        "visible_tab_candidates",
+        "primary_error_candidate",
+        "workspace_or_project_candidate",
+        "explorer_context_candidates",
+    ],
+    "chat": [
+        "conversation_title_candidate",
+        "visible_message_snippets",
+        "input_box_candidate",
+        "sidebar_conversation_candidates",
+    ],
+    "terminal": [
+        "active_prompt_candidate",
+        "recent_command_candidate",
+        "primary_error_output_candidate",
+        "recent_output_block_snippets",
+    ],
+    "browser-web-app": [
+        "primary_header_candidate",
+        "sidebar_navigation_candidates",
+        "primary_cta_candidate",
+        "main_content_snippets",
+        "page_title_candidate",
+    ],
+}
+
 
 def unique_text_values(values: list[str]) -> list[str]:
     results = []
@@ -750,6 +779,7 @@ def make_field_candidate(
     avg_confidence: float | int | None = None,
     section_role: str = "",
     priority_kind: str = "",
+    center_y_ratio: float | int | None = None,
     note: str = "",
 ) -> dict[str, object] | None:
     normalized = normalize_visible_text(value)
@@ -765,6 +795,8 @@ def make_field_candidate(
         candidate["section_role"] = section_role
     if priority_kind:
         candidate["priority_kind"] = priority_kind
+    if isinstance(center_y_ratio, (int, float)):
+        candidate["center_y_ratio"] = round(float(center_y_ratio), 4)
     if note:
         candidate["note"] = note
     return candidate
@@ -804,6 +836,7 @@ def line_candidate(
         avg_confidence=item.get("avg_confidence"),
         section_role=str(item.get("section_role") or ""),
         priority_kind=str(item.get("priority_kind") or ""),
+        center_y_ratio=item.get("center_y_ratio"),
         note=note,
     )
 
@@ -820,6 +853,7 @@ def merged_line_candidate(
         ["ocr_normalized", "layout_heuristics", "surface_classification_heuristics", "structured_fields_heuristics"],
         avg_confidence=item.get("avg_confidence"),
         section_role=str(item.get("section_role") or ""),
+        center_y_ratio=item.get("center_y_ratio"),
         note=note,
     )
 
@@ -836,6 +870,89 @@ def metadata_candidate(
         ["window_metadata", "structured_fields_heuristics"],
         note=note,
     )
+
+
+def clone_existing_candidate(
+    item: dict[str, object],
+    *,
+    note: str = "",
+) -> dict[str, object] | None:
+    source_refs = list(item.get("source_refs") or item.get("sources") or [])
+    if "structured_fields_heuristics" not in source_refs:
+        source_refs.append("structured_fields_heuristics")
+    confidence = str(item.get("confidence") or "low")
+    if confidence not in {"high", "medium", "low"}:
+        confidence = "low"
+
+    candidate = {
+        "value": normalize_visible_text(str(item.get("value") or item.get("text") or "")),
+        "confidence": confidence,
+        "source_refs": sorted(set(source_refs)),
+        "approximate": True,
+    }
+    if len(candidate["value"]) < 2:
+        return None
+    if item.get("section_role"):
+        candidate["section_role"] = str(item["section_role"])
+    if item.get("priority_kind"):
+        candidate["priority_kind"] = str(item["priority_kind"])
+    if isinstance(item.get("center_y_ratio"), (int, float)):
+        candidate["center_y_ratio"] = round(float(item["center_y_ratio"]), 4)
+    if note:
+        candidate["note"] = note
+    elif item.get("note"):
+        candidate["note"] = str(item["note"])
+    return candidate
+
+
+def sort_field_candidates(
+    items: list[dict[str, object]],
+    *,
+    prefer_roles: tuple[str, ...] = (),
+    prefer_kinds: tuple[str, ...] = (),
+    prefer_recent: bool = False,
+) -> list[dict[str, object]]:
+    role_order = {value: idx for idx, value in enumerate(prefer_roles)}
+    kind_order = {value: idx for idx, value in enumerate(prefer_kinds)}
+    confidence_order = {"high": 0, "medium": 1, "low": 2}
+
+    def sort_key(item: dict[str, object]) -> tuple[object, ...]:
+        role = str(item.get("section_role") or "")
+        kind = str(item.get("priority_kind") or "")
+        confidence = str(item.get("confidence") or "low")
+        center_y = float(item.get("center_y_ratio") or 0.0)
+        return (
+            kind_order.get(kind, len(kind_order)),
+            role_order.get(role, len(role_order)),
+            confidence_order.get(confidence, 3),
+            -center_y if prefer_recent else 0.0,
+            str(item.get("value") or ""),
+        )
+
+    return sorted(items, key=sort_key)
+
+
+def take_ranked_candidates(
+    items: list[dict[str, object]],
+    *,
+    limit: int = 1,
+    note: str = "",
+    prefer_roles: tuple[str, ...] = (),
+    prefer_kinds: tuple[str, ...] = (),
+    prefer_recent: bool = False,
+) -> list[dict[str, object]]:
+    cloned = []
+    for item in items:
+        candidate = clone_existing_candidate(item, note=note)
+        if candidate:
+            cloned.append(candidate)
+    ranked = sort_field_candidates(
+        cloned,
+        prefer_roles=prefer_roles,
+        prefer_kinds=prefer_kinds,
+        prefer_recent=prefer_recent,
+    )
+    return dedupe_field_candidates(ranked, limit=limit)
 
 
 def split_window_title_candidates(title: str, app: str) -> list[str]:
@@ -1191,6 +1308,182 @@ def build_browser_structured_fields(
     return fields
 
 
+def build_editor_fine_fields(fields: dict[str, list[dict[str, object]]]) -> dict[str, list[dict[str, object]]]:
+    fine_fields = {name: [] for name in FINE_FIELD_NAMES["editor"]}
+    fine_fields["active_file_candidate"] = take_ranked_candidates(
+        fields.get("file_or_tab_candidates") or [],
+        note="best active file or tab candidate derived from editor-visible fields",
+        prefer_roles=("header", "main_content"),
+        prefer_kinds=("file-reference", "workspace-header"),
+    )
+    fine_fields["visible_tab_candidates"] = take_ranked_candidates(
+        fields.get("file_or_tab_candidates") or [],
+        limit=4,
+        note="visible editor tabs or file labels derived from ranked field candidates",
+        prefer_roles=("header", "main_content"),
+        prefer_kinds=("file-reference", "workspace-header"),
+    )
+    fine_fields["primary_error_candidate"] = take_ranked_candidates(
+        fields.get("error_candidates") or [],
+        note="dominant visible editor error candidate",
+        prefer_roles=("main_content", "bottom_panel"),
+        prefer_kinds=("error-line",),
+        prefer_recent=True,
+    )
+    fine_fields["workspace_or_project_candidate"] = take_ranked_candidates(
+        fields.get("workspace_or_project") or [],
+        note="best workspace or project candidate derived from editor-visible fields",
+        prefer_roles=("header", "left_sidebar"),
+        prefer_kinds=("workspace-header", "explorer-item", "file-reference"),
+    )
+    explorer_context_candidates = take_ranked_candidates(
+        fields.get("sidebar_context") or [],
+        limit=4,
+        note="visible explorer or project-tree context",
+        prefer_roles=("left_sidebar",),
+        prefer_kinds=("explorer-item",),
+    )
+    if not explorer_context_candidates:
+        explorer_context_candidates = take_ranked_candidates(
+            (fields.get("workspace_or_project") or []) + (fields.get("file_or_tab_candidates") or []),
+            limit=4,
+            note="fallback editor project context when explicit explorer/sidebar text is weak",
+            prefer_roles=("left_sidebar", "header", "main_content"),
+            prefer_kinds=("explorer-item", "workspace-header", "file-reference"),
+        )
+    fine_fields["explorer_context_candidates"] = explorer_context_candidates
+    return fine_fields
+
+
+def build_chat_fine_fields(fields: dict[str, list[dict[str, object]]]) -> dict[str, list[dict[str, object]]]:
+    fine_fields = {name: [] for name in FINE_FIELD_NAMES["chat"]}
+    fine_fields["conversation_title_candidate"] = take_ranked_candidates(
+        fields.get("conversation_title_candidates") or [],
+        note="best conversation or thread title candidate",
+        prefer_roles=("header",),
+    )
+    fine_fields["visible_message_snippets"] = take_ranked_candidates(
+        fields.get("visible_message_snippets") or [],
+        limit=4,
+        note="visible chat message snippets prioritized from the conversation body",
+        prefer_roles=("main_content",),
+        prefer_kinds=("visible-message",),
+    )
+    input_box_candidate = take_ranked_candidates(
+        fields.get("input_area_text") or [],
+        note="best visible input or composer candidate",
+        prefer_roles=("footer",),
+        prefer_kinds=("composer",),
+    )
+    if not input_box_candidate:
+        fallback_input_candidates = []
+        input_pattern = re.compile(r"\bescrib\w*\b|\bmensaje\b|\bmessage\b|\binput\b|\bprompt\b", re.IGNORECASE)
+        for item in (fields.get("visible_message_snippets") or []) + (fields.get("sidebar_chat_candidates") or []):
+            if input_pattern.search(str(item.get("value") or "")):
+                fallback_input_candidates.append(item)
+        input_box_candidate = take_ranked_candidates(
+            fallback_input_candidates,
+            note="fallback input or composer candidate when footer OCR is weak",
+            prefer_roles=("footer", "main_content"),
+            prefer_recent=True,
+        )
+    fine_fields["input_box_candidate"] = input_box_candidate
+    fine_fields["sidebar_conversation_candidates"] = take_ranked_candidates(
+        fields.get("sidebar_chat_candidates") or [],
+        limit=4,
+        note="visible sidebar conversation or chat-list entries",
+        prefer_roles=("left_sidebar",),
+        prefer_kinds=("conversation-sidebar",),
+    )
+    return fine_fields
+
+
+def build_terminal_fine_fields(fields: dict[str, list[dict[str, object]]]) -> dict[str, list[dict[str, object]]]:
+    fine_fields = {name: [] for name in FINE_FIELD_NAMES["terminal"]}
+    fine_fields["active_prompt_candidate"] = take_ranked_candidates(
+        fields.get("prompt_candidates") or [],
+        note="lowest visible terminal prompt candidate on screen",
+        prefer_kinds=("command-or-prompt",),
+        prefer_recent=True,
+    )
+    fine_fields["recent_command_candidate"] = take_ranked_candidates(
+        fields.get("command_candidates") or [],
+        note="most recent visible terminal command candidate",
+        prefer_kinds=("command-or-prompt",),
+        prefer_recent=True,
+    )
+    fine_fields["primary_error_output_candidate"] = take_ranked_candidates(
+        fields.get("error_output_candidates") or [],
+        note="dominant visible terminal error output candidate",
+        prefer_kinds=("error-output",),
+        prefer_recent=True,
+    )
+    fine_fields["recent_output_block_snippets"] = take_ranked_candidates(
+        fields.get("recent_output_snippets") or [],
+        limit=4,
+        note="recent terminal output block snippets ranked near the lower visible area",
+        prefer_roles=("main_content",),
+        prefer_recent=True,
+    )
+    return fine_fields
+
+
+def build_browser_fine_fields(fields: dict[str, list[dict[str, object]]]) -> dict[str, list[dict[str, object]]]:
+    fine_fields = {name: [] for name in FINE_FIELD_NAMES["browser-web-app"]}
+    fine_fields["primary_header_candidate"] = take_ranked_candidates(
+        fields.get("header_text") or [],
+        note="best primary header candidate from visible browser header text",
+        prefer_roles=("header",),
+        prefer_kinds=("page-header",),
+    )
+    fine_fields["sidebar_navigation_candidates"] = take_ranked_candidates(
+        fields.get("sidebar_navigation_candidates") or [],
+        limit=4,
+        note="visible browser navigation entries from sidebars or rails",
+        prefer_roles=("left_sidebar", "right_sidebar"),
+        prefer_kinds=("navigation",),
+    )
+    fine_fields["primary_cta_candidate"] = take_ranked_candidates(
+        fields.get("cta_or_action_text_candidates") or [],
+        note="best visible primary browser CTA or action candidate",
+        prefer_roles=("footer", "main_content"),
+        prefer_kinds=("cta-or-control",),
+    )
+    fine_fields["main_content_snippets"] = take_ranked_candidates(
+        fields.get("primary_content_snippets") or [],
+        limit=4,
+        note="primary visible browser content snippets",
+        prefer_roles=("main_content",),
+        prefer_kinds=("page-content",),
+    )
+    fine_fields["page_title_candidate"] = take_ranked_candidates(
+        fields.get("page_title_candidates") or [],
+        note="best page title candidate derived from browser metadata or header text",
+        prefer_roles=("header",),
+        prefer_kinds=("page-header",),
+    )
+    return fine_fields
+
+
+def build_fine_fields(
+    category: str,
+    fields: dict[str, list[dict[str, object]]],
+) -> dict[str, list[dict[str, object]]]:
+    fine_fields: dict[str, list[dict[str, object]]] = {name: [] for name in FINE_FIELD_NAMES.get(category, [])}
+    if category == "editor":
+        fine_fields = build_editor_fine_fields(fields)
+    elif category == "chat":
+        fine_fields = build_chat_fine_fields(fields)
+    elif category == "terminal":
+        fine_fields = build_terminal_fine_fields(fields)
+    elif category == "browser-web-app":
+        fine_fields = build_browser_fine_fields(fields)
+
+    for name in fine_fields:
+        fine_fields[name] = dedupe_field_candidates(fine_fields[name], limit=4)
+    return fine_fields
+
+
 def build_structured_fields(
     category: str,
     label: str,
@@ -1202,7 +1495,9 @@ def build_structured_fields(
     useful_regions: list[dict[str, object]],
 ) -> dict[str, object]:
     attempted_fields = STRUCTURED_FIELD_NAMES.get(category, [])
+    attempted_fine_fields = FINE_FIELD_NAMES.get(category, [])
     fields: dict[str, list[dict[str, object]]] = {name: [] for name in attempted_fields}
+    fine_fields: dict[str, list[dict[str, object]]] = {name: [] for name in attempted_fine_fields}
 
     if category == "editor":
         fields = build_editor_structured_fields(title, app, surface_confidence, merged_lines, useful_lines)
@@ -1214,8 +1509,10 @@ def build_structured_fields(
         fields = build_browser_structured_fields(title, app, surface_confidence, merged_lines, useful_lines)
 
     empty_fields = [name for name in attempted_fields if not fields.get(name)]
+    fine_fields = build_fine_fields(category, fields)
+    empty_fine_fields = [name for name in attempted_fine_fields if not fine_fields.get(name)]
     source_refs = {"structured_fields_heuristics", "surface_classification_heuristics"}
-    if attempted_fields:
+    if attempted_fields or attempted_fine_fields:
         source_refs.update({"ocr_normalized", "layout_heuristics"})
     if title:
         source_refs.add("window_metadata")
@@ -1228,6 +1525,10 @@ def build_structured_fields(
         "fields": fields,
         "empty_fields": empty_fields,
         "non_empty_fields": [name for name in attempted_fields if fields.get(name)],
+        "attempted_fine_fields": attempted_fine_fields,
+        "fine_fields": fine_fields,
+        "empty_fine_fields": empty_fine_fields,
+        "non_empty_fine_fields": [name for name in attempted_fine_fields if fine_fields.get(name)],
         "useful_region_roles": [str(item.get("role") or "") for item in useful_regions],
         "source_refs": sorted(source_refs),
         "approximate": True,
@@ -1344,6 +1645,7 @@ def build_useful_lines(lines: list[dict[str, object]], category: str) -> list[di
                 "score": round(score, 2),
                 "section_role": str(line.get("section_role") or ""),
                 "priority_kind": priority_kind_for_line(category, text, str(line.get("section_role") or "")),
+                "center_y_ratio": round(float(line.get("center_y_ratio") or 0.0), 4),
                 "reasons": reasons,
                 "sources": ["ocr_normalized", "layout_heuristics", "surface_classification_heuristics"],
                 "approximate": True,
@@ -1990,6 +2292,16 @@ def main() -> int:
     summary_lines.append("structured_fields:")
     for field_name in structured_fields["attempted_fields"]:
         entries = structured_fields["fields"].get(field_name) or []
+        if not entries:
+            summary_lines.append(f"- {field_name}: (none)")
+            continue
+        summary_lines.append(
+            f"- {field_name}: "
+            + "; ".join(f"{entry['value']} [{entry['confidence']}]" for entry in entries[:3])
+        )
+    summary_lines.append("fine_fields:")
+    for field_name in structured_fields["attempted_fine_fields"]:
+        entries = structured_fields["fine_fields"].get(field_name) or []
         if not entries:
             summary_lines.append(f"- {field_name}: (none)")
             continue
