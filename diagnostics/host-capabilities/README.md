@@ -15,7 +15,7 @@ Que persiste cada corrida:
 - `manifest.json`: estructura completa del run
 - artefactos puntuales segun el carril:
   - screenshots y ventanas para percepcion
-  - screenshot objetivo, OCR crudo, OCR mejorado, OCR normalizado, layout, descripcion y fuentes para vision semantica
+  - screenshot objetivo, OCR crudo, OCR mejorado, OCR normalizado, layout, `surface-profile.json`, descripcion y fuentes para vision semantica
   - stdout/stderr o cambios de foco para accion
   - procesos, servicios y puertos para inspeccion
 
@@ -34,6 +34,8 @@ Limitaciones deliberadas de esta fase:
 
 - la vision semantica usa OCR aproximado y reglas honestas; no hace interpretacion multimodal profunda
 - el layout se infiere por heuristicas simples sobre texto visible; no reemplaza una segmentacion visual fuerte
+- la clasificacion de superficie (`editor`, `chat`, `terminal`, `browser-web-app`, `unknown`) es aproximada y se apoya en metadata + OCR + layout
+- la priorizacion de `useful_lines` y `useful_regions` busca utilidad operativa por tipo de superficie, no una verdad total sobre la UI
 - no controla multiples monitores de forma especializada
 - no automatiza navegadores complejos fuera de los carriles ya existentes
 - no abre autonomia opaca: cada accion queda materializada como evidencia local

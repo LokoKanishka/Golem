@@ -10,6 +10,20 @@ title="Golem Visual Reading Smoke $$"
 app_pid=""
 window_id=""
 
+wait_for_active_title() {
+  local expected="$1"
+  local active_title=""
+  for _ in $(seq 1 50); do
+    active_title="$(xdotool getactivewindow getwindowname 2>/dev/null || true)"
+    if [[ "$active_title" == "$expected" ]]; then
+      return 0
+    fi
+    sleep 0.1
+  done
+  printf 'FAIL: active window did not settle on expected title: %s (last=%s)\n' "$expected" "$active_title" >&2
+  return 1
+}
+
 cleanup() {
   if [[ -n "$window_id" ]]; then
     wmctrl -i -c "$window_id" >/dev/null 2>&1 || true
@@ -102,6 +116,7 @@ PY
 
 GOLEM_HOST_CAPABILITIES_ROOT="$cap_root" \
   ./scripts/golem_host_act.sh focus --title "$title" --json >/dev/null
+wait_for_active_title "$title"
 
 active_json="$(
   GOLEM_HOST_CAPABILITIES_ROOT="$cap_root" \
@@ -128,9 +143,15 @@ assert desktop_payload["target"]["kind"] == "desktop", desktop_payload["target"]
 active_description = active_payload["description"]
 layout = active_description["layout"]
 roles = {section["role"] for section in layout["sections"]}
+surface_classification = active_description["surface_classification"]
+useful_lines = active_description["useful_lines"]
+useful_regions = active_description["useful_regions"]
 
 assert title in active_description["target_window"]["title"], active_description["target_window"]
 assert {"header", "left_sidebar", "main_content"}.issubset(roles), layout
+assert surface_classification["category"] in {"browser-web-app", "unknown"}, surface_classification
+assert useful_lines, useful_lines
+assert useful_regions, useful_regions
 normalized_ocr_text = pathlib.Path(active_payload["artifacts"]["ocr_normalized_text"]).read_text(encoding="utf-8")
 assert "Visual Reading Smoke" in normalized_ocr_text or "Yisual Reading Smoke" in normalized_ocr_text
 assert "Sidebar Notes" in normalized_ocr_text
@@ -138,20 +159,23 @@ assert "Main Content" in normalized_ocr_text
 
 claims_text = "\n".join(claim["text"] for claim in active_description["claims"])
 assert "layout heuristics suggest" in claims_text.lower(), claims_text
-assert "normalized ocr recovered" in claims_text.lower(), claims_text
+assert "surface classification heuristics read the visible target as" in claims_text.lower(), claims_text
+assert "prioritized visible cues include" in claims_text.lower(), claims_text
 assert "layout_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
+assert "surface_classification_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
 
-for key in ("ocr_text", "ocr_enhanced_text", "ocr_normalized_text", "layout", "description", "sources"):
+for key in ("ocr_text", "ocr_enhanced_text", "ocr_normalized_text", "layout", "surface_profile", "description", "sources"):
     path = pathlib.Path(active_payload["artifacts"][key])
     assert path.exists(), path
     assert path.stat().st_size > 0, path
 
 desktop_claims = "\n".join(claim["text"] for claim in desktop_payload["description"]["claims"])
 assert "metadata" in desktop_claims.lower(), desktop_claims
-assert "normalized ocr" in desktop_claims.lower(), desktop_claims
+assert "surface classification heuristics read the visible target as" in desktop_claims.lower(), desktop_claims
 
 print("SMOKE_HOST_DESCRIBE_VISUAL_READING_OK")
 print(f"HOST_DESCRIBE_VISUAL_LAYOUT_ROLES {sorted(roles)}")
+print(f"HOST_DESCRIBE_VISUAL_SURFACE {surface_classification['category']}:{surface_classification['confidence']}")
 print(f"HOST_DESCRIBE_VISUAL_ACTIVE_SUMMARY {active_description['summary']}")
 print(f"HOST_DESCRIBE_VISUAL_DESKTOP_RUN_DIR {desktop_payload['run_dir']}")
 PY

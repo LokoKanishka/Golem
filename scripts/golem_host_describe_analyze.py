@@ -150,6 +150,224 @@ def surface_kind(app: str, title: str, ocr_text: str) -> str:
     return "generic-window"
 
 
+SURFACE_LABELS = {
+    "editor": "editor / IDE",
+    "chat": "chat / messaging workspace",
+    "terminal": "terminal / console",
+    "browser-web-app": "browser / web app",
+    "unknown": "unknown / mixed surface",
+}
+
+
+def empty_category_scores() -> dict[str, int]:
+    return {
+        "editor": 0,
+        "chat": 0,
+        "terminal": 0,
+        "browser-web-app": 0,
+        "unknown": 0,
+    }
+
+
+def add_score(
+    scores: dict[str, int],
+    evidence: list[dict[str, object]],
+    category: str,
+    weight: int,
+    source: str,
+    reason: str,
+) -> None:
+    scores[category] = scores.get(category, 0) + weight
+    evidence.append(
+        {
+            "category": category,
+            "weight": weight,
+            "source": source,
+            "reason": reason,
+        }
+    )
+
+
+def metadata_surface_scores(
+    app: str,
+    title: str,
+    process: dict[str, str],
+    props: dict[str, object],
+) -> tuple[dict[str, int], list[dict[str, object]]]:
+    scores = empty_category_scores()
+    evidence: list[dict[str, object]] = []
+    text = " ".join(
+        [
+            app,
+            title,
+            process.get("comm", ""),
+            process.get("args", ""),
+            " ".join(str(item) for item in props.get("wm_class", [])),
+        ]
+    ).lower()
+
+    if "visual studio code" in text or re.search(r"\bcode\b", text):
+        add_score(scores, evidence, "editor", 12, "window_metadata", "metadata identifies Visual Studio Code/editor tooling")
+    if "chatgpt" in text:
+        add_score(scores, evidence, "chat", 12, "window_metadata", "metadata identifies ChatGPT")
+    if "notebooklm" in text:
+        add_score(scores, evidence, "browser-web-app", 10, "window_metadata", "metadata identifies NotebookLM web app")
+    if any(term in text for term in ["gnome-terminal", "xterm", "terminal", "konsole", "alacritty", "kitty", "tilix"]):
+        add_score(scores, evidence, "terminal", 12, "window_metadata", "metadata identifies terminal software")
+    if any(term in text for term in ["google-chrome", "chromium", "firefox"]) and scores["chat"] < 10:
+        add_score(scores, evidence, "browser-web-app", 7, "window_metadata", "metadata identifies a browser-class window")
+    if any(term in text for term in ["xmessage", "zenity", "dialog"]):
+        add_score(scores, evidence, "unknown", 5, "window_metadata", "metadata identifies a generic dialog surface")
+
+    return scores, evidence
+
+
+def ocr_surface_scores(lines: list[dict[str, object]]) -> tuple[dict[str, int], list[dict[str, object]]]:
+    scores = empty_category_scores()
+    evidence: list[dict[str, object]] = []
+
+    editor_patterns = [
+        (re.compile(r"\bexplorer\b|\bopen file\b|\brepository\b|\bworkspace\b"), 4, "editor-style navigation or workspace labels"),
+        (re.compile(r"\bdef\b|\bclass\b|\bimport\b|\breturn\b|\bfunction\b|\bmodule\b|\bconst\b|\blet\b|=>"), 4, "code-like tokens"),
+        (re.compile(r"\b[\w.-]+\.[a-z0-9]{1,5}\b|(?:^|\s)(?:[\w.-]+/)+[\w./-]+|@[A-Za-z0-9_.-]+\.[A-Za-z0-9]+"), 3, "file paths or file extensions"),
+        (re.compile(r"\berror\b|\btraceback\b|\bfailed\b|\bwarning\b"), 3, "editor-visible error or trace text"),
+    ]
+    chat_patterns = [
+        (re.compile(r"\bnuevo chat\b|\bbiblioteca\b|\bbuscar chats\b|\bchatgpt\b|\bcompartir\b"), 4, "chat-style sidebar or header labels"),
+        (re.compile(r"\bmarkdown\b|\bmensaje\b|\bpregunta\b|\bconversation\b|\bchat\b|\busuario:\b|\basistente:\b|\bassistant:\b"), 3, "chat/message vocabulary"),
+        (re.compile(r"^[-*]\s|\b##\b|\b###\b"), 2, "chat or assistant output formatting"),
+    ]
+    terminal_patterns = [
+        (re.compile(r"(^| )\$ ?|# ?|~/?|[A-Za-z0-9_.-]+@[A-Za-z0-9_.-]+"), 4, "prompt-like shell markers"),
+        (re.compile(r"\btraceback\b|\berror\b|\bfailed\b|\bexit code\b"), 5, "terminal error/output markers"),
+        (re.compile(r"\bgit\b|\bpython3?\b|\bbash\b|\bpip\b|\bnpm\b|\bmake\b|\bcd\b|\brg\b|\bls\b|\bpytest\b"), 4, "command-line vocabulary"),
+    ]
+    browser_patterns = [
+        (re.compile(r"\bsources\b|\bsearch\b|\bshare\b|\bconfigur\w*\b|\bdashboard\b|\bsettings\b|\boverview\b|\bdocs?\b|\bhome\b"), 3, "web app controls or navigation"),
+        (re.compile(r"\bsubmit\b|\bconfirm\b|\bcontinue\b|\bopen\b|\blaunch\b|\bsign in\b"), 3, "browser/web CTA text"),
+        (re.compile(r"\bnotebooklm\b|\bweb\b|\bpage\b|\bsource\b"), 3, "browser/web app nouns"),
+    ]
+
+    for line in lines:
+        text = str(line["text"])
+        lowered = text.lower()
+        for pattern, weight, reason in editor_patterns:
+            if pattern.search(lowered):
+                add_score(scores, evidence, "editor", weight, "ocr_normalized", reason)
+        for pattern, weight, reason in chat_patterns:
+            if pattern.search(lowered):
+                add_score(scores, evidence, "chat", weight, "ocr_normalized", reason)
+        for pattern, weight, reason in terminal_patterns:
+            if pattern.search(text):
+                add_score(scores, evidence, "terminal", weight, "ocr_normalized", reason)
+        for pattern, weight, reason in browser_patterns:
+            if pattern.search(lowered):
+                add_score(scores, evidence, "browser-web-app", weight, "ocr_normalized", reason)
+
+        section_role = str(line.get("section_role") or "")
+        if section_role == "left_sidebar":
+            add_score(scores, evidence, "editor", 1, "layout_heuristics", "sidebar layout supports editor/chat/browser categories")
+            add_score(scores, evidence, "chat", 1, "layout_heuristics", "sidebar layout supports editor/chat/browser categories")
+            add_score(scores, evidence, "browser-web-app", 1, "layout_heuristics", "sidebar layout supports editor/chat/browser categories")
+        if section_role == "footer" and ("chat" in lowered or "prompt" in lowered or "search" in lowered):
+            add_score(scores, evidence, "chat", 2, "layout_heuristics", "footer text looks like a composer or search/input area")
+        if section_role == "main_content" and any(token in lowered for token in ["traceback", "build failed", "error"]):
+            add_score(scores, evidence, "terminal", 2, "layout_heuristics", "main content contains terminal-style error/output text")
+
+    return scores, evidence
+
+
+def classify_surface_profile(
+    app: str,
+    title: str,
+    process: dict[str, str],
+    props: dict[str, object],
+    lines: list[dict[str, object]],
+    layout: dict[str, object],
+) -> dict[str, object]:
+    metadata_scores, metadata_evidence = metadata_surface_scores(app, title, process, props)
+    ocr_scores, ocr_evidence = ocr_surface_scores(lines)
+    layout_evidence: list[dict[str, object]] = []
+    combined_scores = empty_category_scores()
+    for category in combined_scores:
+        combined_scores[category] = metadata_scores.get(category, 0) + ocr_scores.get(category, 0)
+
+    if len(layout.get("sections", [])) >= 3:
+        if any(section["role"] == "left_sidebar" for section in layout["sections"]):
+            combined_scores["editor"] += 1
+            combined_scores["chat"] += 1
+            combined_scores["browser-web-app"] += 1
+            for category in ("editor", "chat", "browser-web-app"):
+                layout_evidence.append(
+                    {
+                        "category": category,
+                        "weight": 1,
+                        "source": "layout_heuristics",
+                        "reason": "layout includes a left sidebar region often seen in editor/chat/browser surfaces",
+                    }
+                )
+        if any(section["role"] == "footer" for section in layout["sections"]):
+            combined_scores["chat"] += 1
+            layout_evidence.append(
+                {
+                    "category": "chat",
+                    "weight": 1,
+                    "source": "layout_heuristics",
+                    "reason": "layout includes a footer/input region consistent with a chat composer",
+                }
+            )
+        if any(section["role"] == "main_content" for section in layout["sections"]) and not any(
+            section["role"] == "left_sidebar" for section in layout["sections"]
+        ):
+            combined_scores["terminal"] += 1
+            layout_evidence.append(
+                {
+                    "category": "terminal",
+                    "weight": 1,
+                    "source": "layout_heuristics",
+                    "reason": "layout is dominated by a central content region consistent with terminal output",
+                }
+            )
+
+    sorted_scores = sorted(combined_scores.items(), key=lambda item: item[1], reverse=True)
+    best_category, best_score = sorted_scores[0]
+    second_score = sorted_scores[1][1] if len(sorted_scores) > 1 else 0
+    margin = best_score - second_score
+
+    if best_score >= 12 and margin >= 4:
+        confidence = "strong"
+    elif best_score >= 7 and margin >= 2:
+        confidence = "reasonable"
+    else:
+        confidence = "uncertain"
+
+    if best_score < 5:
+        best_category = "unknown"
+        confidence = "uncertain"
+
+    evidence = metadata_evidence + ocr_evidence + layout_evidence
+    relevant_evidence = [
+        item for item in evidence if item["category"] == best_category
+    ]
+    relevant_evidence.sort(key=lambda item: (-int(item["weight"]), str(item["source"]), str(item["reason"])))
+
+    return {
+        "category": best_category,
+        "label": SURFACE_LABELS.get(best_category, best_category),
+        "confidence": confidence,
+        "approximate": confidence != "strong",
+        "scores": combined_scores,
+        "ranked_categories": [
+            {"category": category, "label": SURFACE_LABELS.get(category, category), "score": score}
+            for category, score in sorted_scores
+        ],
+        "best_score": best_score,
+        "margin": margin,
+        "evidence": relevant_evidence[:8],
+        "sources": sorted({str(item["source"]) for item in relevant_evidence}),
+    }
+
+
 def normalize_visible_text(text: str) -> str:
     if not text:
         return ""
@@ -443,40 +661,287 @@ def select_excerpt_lines(lines: list[dict[str, object]], preferred_sections: lis
     return excerpts
 
 
-def describe_visible_content(target_kind: str, surface: str, app: str, title: str, layout: dict[str, object], excerpts: list[str]) -> str:
-    if not excerpts:
+SURFACE_SECTION_PRIORITIES = {
+    "editor": ["main_content", "left_sidebar", "header", "footer", "bottom_panel", "right_sidebar"],
+    "chat": ["main_content", "footer", "left_sidebar", "header", "right_sidebar", "bottom_panel"],
+    "terminal": ["main_content", "header", "footer", "left_sidebar", "right_sidebar"],
+    "browser-web-app": ["main_content", "header", "left_sidebar", "right_sidebar", "footer", "bottom_panel"],
+    "unknown": ["main_content", "header", "left_sidebar", "footer", "right_sidebar", "bottom_panel"],
+}
+
+
+def priority_kind_for_line(category: str, text: str, section_role: str) -> str:
+    lowered = text.lower()
+    if category == "editor":
+        if re.search(r"\berror\b|\btraceback\b|\bfailed\b|\bwarning\b", lowered):
+            return "error-line"
+        if re.search(r"\b[\w.-]+\.[a-z0-9]{1,5}\b|(?:^|\s)(?:[\w.-]+/)+[\w./-]+|@[A-Za-z0-9_.-]+\.[A-Za-z0-9]+", text):
+            return "file-reference"
+        if re.search(r"\bdef\b|\bclass\b|\bimport\b|\breturn\b|\bfunction\b|\bconst\b|\blet\b|=>", lowered):
+            return "code-line"
+        if section_role == "left_sidebar":
+            return "explorer-item"
+        return "workspace-header" if section_role == "header" else "editor-detail"
+    if category == "chat":
+        if section_role == "footer":
+            return "composer"
+        if section_role == "left_sidebar":
+            return "conversation-sidebar"
+        return "visible-message"
+    if category == "terminal":
+        if re.search(r"\btraceback\b|\berror\b|\bfailed\b|\bexit code\b", lowered):
+            return "error-output"
+        if re.search(r"(^| )\$ ?|# ?|~/?|[A-Za-z0-9_.-]+@[A-Za-z0-9_.-]+", text) or re.search(r"\bgit\b|\bpython3?\b|\bbash\b|\bpip\b|\bnpm\b|\bmake\b", lowered):
+            return "command-or-prompt"
+        return "visible-output"
+    if category == "browser-web-app":
+        if section_role == "header":
+            return "page-header"
+        if section_role in {"left_sidebar", "right_sidebar"}:
+            return "navigation"
+        if re.search(r"\bsubmit\b|\bconfirm\b|\bcontinue\b|\bopen\b|\blaunch\b|\bshare\b", lowered):
+            return "cta-or-control"
+        return "page-content"
+    return "visible-text"
+
+
+def score_line_for_category(line: dict[str, object], category: str) -> tuple[float, list[str]]:
+    text = str(line["text"])
+    lowered = text.lower()
+    section_role = str(line.get("section_role") or "")
+    section_priorities = SURFACE_SECTION_PRIORITIES.get(category, SURFACE_SECTION_PRIORITIES["unknown"])
+    priority_index = section_priorities.index(section_role) if section_role in section_priorities else len(section_priorities)
+    score = 25.0 - float(priority_index * 2)
+    score += min(len(text) / 18.0, 6.0)
+    if isinstance(line.get("avg_confidence"), (int, float)):
+        score += float(line["avg_confidence"]) / 20.0
+    reasons = [f"section:{section_role or 'unknown'}"]
+
+    kind = priority_kind_for_line(category, text, section_role)
+    reasons.append(f"kind:{kind}")
+
+    if category == "editor":
+        if kind == "error-line":
+            score += 8
+        if kind == "file-reference":
+            score += 7
+        if kind == "code-line":
+            score += 6
+        if kind == "explorer-item":
+            score += 4
+        if kind == "workspace-header":
+            score += 3
+    elif category == "chat":
+        if kind == "visible-message":
+            score += 6
+        if kind == "composer":
+            score += 5
+        if kind == "conversation-sidebar":
+            score += 4
+        if re.search(r"^[-*]\s|\b##\b|\b###\b", lowered):
+            score += 2
+            reasons.append("chat-formatting")
+    elif category == "terminal":
+        if kind == "error-output":
+            score += 8
+        if kind == "command-or-prompt":
+            score += 7
+        if kind == "visible-output":
+            score += 4
+        score += float(line.get("center_y_ratio") or 0) * 3
+    elif category == "browser-web-app":
+        if kind == "page-header":
+            score += 5
+        if kind == "navigation":
+            score += 4
+        if kind == "cta-or-control":
+            score += 5
+        if kind == "page-content":
+            score += 4
+    else:
+        score += 2
+
+    return score, reasons
+
+
+def build_useful_lines(lines: list[dict[str, object]], category: str) -> list[dict[str, object]]:
+    ranked: list[dict[str, object]] = []
+    seen = set()
+    for line in lines:
+        text = str(line["text"])
+        key = fingerprint(text)
+        if key in seen or len(text) < 4:
+            continue
+        seen.add(key)
+        score, reasons = score_line_for_category(line, category)
+        ranked.append(
+            {
+                "text": text,
+                "score": round(score, 2),
+                "section_role": str(line.get("section_role") or ""),
+                "priority_kind": priority_kind_for_line(category, text, str(line.get("section_role") or "")),
+                "reasons": reasons,
+                "sources": ["ocr_normalized", "layout_heuristics", "surface_classification_heuristics"],
+                "approximate": True,
+                "avg_confidence": line.get("avg_confidence"),
+            }
+        )
+    ranked.sort(key=lambda item: (-float(item["score"]), item["text"]))
+    return ranked[:10]
+
+
+def build_useful_regions(layout: dict[str, object], category: str) -> list[dict[str, object]]:
+    priorities = SURFACE_SECTION_PRIORITIES.get(category, SURFACE_SECTION_PRIORITIES["unknown"])
+    section_map = {section["role"]: section for section in layout.get("sections", [])}
+    region_reasons = {
+        "editor": {
+            "main_content": "likely editor/code working area",
+            "left_sidebar": "likely explorer/project tree",
+            "header": "window header or active tab strip",
+            "footer": "status or bottom input area",
+            "bottom_panel": "problems/output panel",
+        },
+        "chat": {
+            "main_content": "visible conversation body",
+            "left_sidebar": "conversation list or context rail",
+            "footer": "composer/input area",
+            "header": "chat header and controls",
+        },
+        "terminal": {
+            "main_content": "visible prompt, command, and output block",
+            "header": "terminal title/header",
+            "footer": "lower edge of the visible terminal block",
+        },
+        "browser-web-app": {
+            "main_content": "primary page or app content",
+            "header": "page header or app controls",
+            "left_sidebar": "navigation rail",
+            "right_sidebar": "secondary side panel",
+            "footer": "footer or lower controls",
+        },
+        "unknown": {
+            "main_content": "main visible text area",
+            "header": "header or title region",
+            "left_sidebar": "side context area",
+            "footer": "lower visible area",
+        },
+    }
+    results = []
+    for role in priorities:
+        section = section_map.get(role)
+        if not section:
+            continue
+        results.append(
+            {
+                "role": role,
+                "label": section["label"],
+                "line_count": section["line_count"],
+                "reason": region_reasons.get(category, region_reasons["unknown"]).get(role, "useful visible region"),
+                "sources": ["layout_heuristics", "surface_classification_heuristics"],
+                "approximate": True,
+            }
+        )
+    return results
+
+
+def summarize_priority_focus(category: str, useful_lines: list[dict[str, object]]) -> str:
+    kinds = [str(item["priority_kind"]) for item in useful_lines[:5]]
+    if category == "editor":
+        parts = []
+        if any(kind == "workspace-header" for kind in kinds):
+            parts.append("workspace or active tab cues")
+        if any(kind == "explorer-item" for kind in kinds):
+            parts.append("explorer/sidebar entries")
+        if any(kind in {"code-line", "file-reference"} for kind in kinds):
+            parts.append("code or file-reference lines")
+        if any(kind == "error-line" for kind in kinds):
+            parts.append("visible errors or trace lines")
+        return ", ".join(parts) if parts else "editor-visible code, file, and sidebar cues"
+    if category == "chat":
+        parts = []
+        if any(kind == "conversation-sidebar" for kind in kinds):
+            parts.append("conversation list entries")
+        if any(kind == "visible-message" for kind in kinds):
+            parts.append("visible messages")
+        if any(kind == "composer" for kind in kinds):
+            parts.append("the composer/input area")
+        return ", ".join(parts) if parts else "chat messages, context rails, and input cues"
+    if category == "terminal":
+        parts = []
+        if any(kind == "command-or-prompt" for kind in kinds):
+            parts.append("prompt and recent command lines")
+        if any(kind == "error-output" for kind in kinds):
+            parts.append("recent errors or trace output")
+        if any(kind == "visible-output" for kind in kinds):
+            parts.append("the latest visible output block")
+        return ", ".join(parts) if parts else "prompt, command, and output cues"
+    if category == "browser-web-app":
+        parts = []
+        if any(kind == "page-header" for kind in kinds):
+            parts.append("page header text")
+        if any(kind == "navigation" for kind in kinds):
+            parts.append("navigation/sidebar labels")
+        if any(kind == "cta-or-control" for kind in kinds):
+            parts.append("CTA or control text")
+        if any(kind == "page-content" for kind in kinds):
+            parts.append("central page content")
+        return ", ".join(parts) if parts else "navigation, header, central content, and CTA cues"
+    return "the most stable visible text across the captured frame"
+
+
+def describe_surface_specific_content(
+    target_kind: str,
+    category: str,
+    layout: dict[str, object],
+    useful_lines: list[dict[str, object]],
+    useful_regions: list[dict[str, object]],
+) -> str:
+    if not useful_lines:
         if target_kind == "desktop":
             return "The desktop screenshot is real, but even after OCR cleanup there is not enough stable readable text to describe the visible content beyond metadata."
         return "The target screenshot is real, but even after OCR cleanup there is not enough stable readable text to describe the visible content confidently."
 
-    snippets = ", ".join(f'"{line}"' for line in excerpts[:3])
-    layout_summary = str(layout.get("summary") or "")
-    if surface == "chat-assistant":
-        return f'The visible content is consistent with a chat workspace. {layout_summary} Normalized OCR recovered snippets such as {snippets}.'
-    if surface == "editor":
-        return f'The visible content is consistent with an editor or review workspace. {layout_summary} Normalized OCR recovered snippets such as {snippets}.'
-    if surface == "browser":
-        return f'The visible content is consistent with a browser page or web application. {layout_summary} Normalized OCR recovered snippets such as {snippets}.'
-    if surface == "terminal":
-        return f'The visible content is consistent with a terminal session. {layout_summary} Normalized OCR recovered snippets such as {snippets}.'
-    if surface == "dialog":
-        return f'The visible content is consistent with a dialog or message surface. {layout_summary} Normalized OCR recovered snippets such as {snippets}.'
-    return f'The visible content is text-heavy and its layout can be partially structured. {layout_summary} Normalized OCR recovered snippets such as {snippets}.'
+    line_snippets = ", ".join(f'"{item["text"]}"' for item in useful_lines[:3])
+    region_snippets = ", ".join(region["label"] for region in useful_regions[:3]) if useful_regions else layout.get("summary", "")
+    focus_summary = summarize_priority_focus(category, useful_lines)
+
+    if category == "editor":
+        return f'The visible content is consistent with an editor / IDE surface. The most useful visible regions are {region_snippets}. The ranking prioritizes {focus_summary}. Prioritized visible cues include {line_snippets}.'
+    if category == "chat":
+        return f'The visible content is consistent with a chat or messaging workspace. The most useful visible regions are {region_snippets}. The ranking prioritizes {focus_summary}. Prioritized visible cues include {line_snippets}.'
+    if category == "terminal":
+        return f'The visible content is consistent with a terminal / console surface. The most useful visible regions are {region_snippets}. The ranking prioritizes {focus_summary}. Prioritized visible cues include {line_snippets}.'
+    if category == "browser-web-app":
+        return f'The visible content is consistent with a browser / web app surface. The most useful visible regions are {region_snippets}. The ranking prioritizes {focus_summary}. Prioritized visible cues include {line_snippets}.'
+    return f'The visible content remains mixed or generic. The most useful visible regions are {region_snippets}. The ranking prioritizes {focus_summary}. Prioritized visible cues include {line_snippets}.'
 
 
-def consistency_claim(surface: str, app: str, excerpts: list[str]) -> str:
-    joined = " ".join(excerpts).lower()
-    if surface == "chat-assistant":
-        if any(marker in joined for marker in ["nuevo chat", "biblioteca", "pregunta", "chat"]):
-            return "Window metadata and readable text are mutually consistent with a chat-style workspace, so the semantic label is supported by both metadata and visible evidence."
-        return "Window metadata suggests a chat workspace, but the visible text only partially confirms that reading."
-    if surface == "editor":
-        if any(marker in joined for marker in ["explorer", "review", "workspace", "editor"]):
-            return "Window metadata and readable text are mutually consistent with an editor/review workspace rather than a generic browser tab."
-        return "Window metadata suggests an editor workspace, but the visible text only partially confirms that reading."
-    if surface == "browser":
-        return "Window metadata identifies a browser-class surface; the visible text supports that but does not by itself identify hidden tabs or page state beyond the captured frame."
-    return f'Window metadata identifies the surface as {app}; the visible text is directionally consistent but still approximate.'
+def consistency_claim(category: str, app: str, useful_lines: list[dict[str, object]]) -> str:
+    joined = " ".join(item["text"] for item in useful_lines).lower()
+    if category == "chat":
+        if any(marker in joined for marker in ["nuevo chat", "biblioteca", "chatgpt", "compartir"]):
+            return "Window metadata and prioritized visible text both support a chat-style reading rather than a generic browser page."
+        return "Metadata strongly suggests a chat workspace; the visible text is directionally consistent but still partial."
+    if category == "editor":
+        if any(marker in joined for marker in ["explorer", "workspace", "repository", ".py", "open file"]):
+            return "Window metadata and prioritized visible text both support an editor / IDE reading instead of a generic document view."
+        return "Metadata strongly suggests an editor / IDE; the visible text only partially confirms that reading."
+    if category == "terminal":
+        if any(marker in joined for marker in ["traceback", "failed", "$", "git", "python"]):
+            return "Window metadata and prioritized visible text both support a terminal / console reading."
+        return "Metadata strongly suggests a terminal; the visible text only partially confirms that reading."
+    if category == "browser-web-app":
+        return "Window metadata identifies a browser-class surface; prioritized visible text supports a web app reading without proving hidden tabs or off-screen state."
+    return f'Window metadata identifies the surface as {app}; prioritized visible text is useful but still not enough to classify it strongly.'
+
+
+def claim_confidence_from_surface(profile_confidence: str) -> str:
+    mapping = {
+        "strong": "high",
+        "reasonable": "medium",
+        "uncertain": "low",
+    }
+    return mapping.get(profile_confidence, "low")
 
 
 def main() -> int:
@@ -501,6 +966,7 @@ def main() -> int:
     ocr_enhanced_tsv_path = pathlib.Path(args.ocr_enhanced_tsv)
     ocr_normalized_text_path = pathlib.Path(args.ocr_normalized_text)
     layout_path = pathlib.Path(args.layout_path)
+    surface_profile_path = run_dir / "surface-profile.json"
     source_perceive_manifest = pathlib.Path(args.source_perceive_manifest)
     source_windows = pathlib.Path(args.source_windows)
     source_active_props = pathlib.Path(args.source_active_props)
@@ -534,10 +1000,24 @@ def main() -> int:
     joined_ocr = "\n".join(str(item["text"]) for item in merged_lines)
     surface = surface_kind(app, title, joined_ocr or raw_ocr_text or enhanced_ocr_text)
     layout = build_layout(merged_lines, surface)
-    normalized_excerpts = select_excerpt_lines(merged_lines, ["main_content", "left_sidebar", "header", "bottom_panel", "footer", "right_sidebar"])
+    surface_profile = classify_surface_profile(app, title, process_info, target_props, merged_lines, layout)
+    useful_lines = build_useful_lines(merged_lines, surface_profile["category"])
+    useful_regions = build_useful_regions(layout, surface_profile["category"])
+    normalized_excerpts = [str(item["text"]) for item in useful_lines[:8]]
     readable_text_lines = [str(item["text"]) for item in merged_lines[:24]]
     ocr_normalized_text_path.write_text("\n".join(readable_text_lines) + ("\n" if readable_text_lines else ""), encoding="utf-8")
     layout_path.write_text(json.dumps(layout, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+    surface_profile_artifact = {
+        "surface_kind": surface,
+        "surface_classification": surface_profile,
+        "useful_lines": useful_lines,
+        "useful_regions": useful_regions,
+        "approximate": True,
+    }
+    surface_profile_path.write_text(
+        json.dumps(surface_profile_artifact, indent=2, ensure_ascii=True) + "\n",
+        encoding="utf-8",
+    )
 
     raw_confidence = parse_ocr_confidence(ocr_tsv_path)
     enhanced_confidence = parse_ocr_confidence(ocr_enhanced_tsv_path)
@@ -565,6 +1045,20 @@ def main() -> int:
     claims: list[dict[str, object]] = []
     limits: list[str] = []
     window_identity = f'{app} window "{title or target.get("title") or "(untitled)"}"'
+    classification_claim = (
+        f'Surface classification heuristics read the visible target as {surface_profile["label"]} '
+        f'with {surface_profile["confidence"]} confidence. This combines metadata, normalized OCR, '
+        f"and layout cues, and remains approximate rather than hidden-state certainty."
+    )
+    visible_content_claim = describe_surface_specific_content(
+        target_kind,
+        surface_profile["category"],
+        layout,
+        useful_lines,
+        useful_regions,
+    )
+    consistency_text = consistency_claim(surface_profile["category"], app, useful_lines)
+    classification_claim_confidence = claim_confidence_from_surface(str(surface_profile["confidence"]))
 
     if target_kind == "desktop":
         claims.append(
@@ -587,23 +1081,32 @@ def main() -> int:
             )
         claims.append(
             {
-                "confidence": "medium" if normalized_excerpts else "low",
-                "sources": [screenshot_source_id, "ocr_enhanced", "ocr_normalized", "layout_heuristics"],
+                "confidence": classification_claim_confidence,
+                "sources": ["window_metadata", "ocr_normalized", "layout_heuristics", "surface_classification_heuristics"],
                 "inference_strength": "approximate",
-                "text": describe_visible_content(target_kind, surface, app, title, layout, normalized_excerpts),
+                "text": classification_claim,
             }
         )
         claims.append(
             {
-                "confidence": "medium" if normalized_excerpts else "low",
-                "sources": ["window_metadata", "ocr_normalized", "layout_heuristics"],
+                "confidence": classification_claim_confidence if useful_lines else "low",
+                "sources": [screenshot_source_id, "ocr_raw", "ocr_enhanced", "ocr_normalized", "layout_heuristics", "surface_classification_heuristics"],
                 "inference_strength": "approximate",
-                "text": consistency_claim(surface, app, normalized_excerpts),
+                "text": visible_content_claim,
+            }
+        )
+        claims.append(
+            {
+                "confidence": classification_claim_confidence if useful_lines else "low",
+                "sources": ["window_metadata", "ocr_normalized", "layout_heuristics", "surface_classification_heuristics"],
+                "inference_strength": "approximate",
+                "text": consistency_text,
             }
         )
         limits.append("Window metadata can confirm registered surfaces on the current desktop, but it does not prove whether a window is hidden behind another one.")
         limits.append("Layout heuristics are approximate and only describe the captured frame, not off-screen monitors or hidden workspaces.")
         limits.append("OCR normalization improves readability, but stylized text, icons, and non-text imagery can still be missed or distorted.")
+        limits.append("Surface classification is heuristic and can be pulled off course by mixed content inside the active window, even when metadata is strong.")
     else:
         claims.append(
             {
@@ -615,31 +1118,40 @@ def main() -> int:
         )
         claims.append(
             {
+                "confidence": classification_claim_confidence,
+                "sources": ["window_metadata", "ocr_normalized", "layout_heuristics", "surface_classification_heuristics"],
+                "inference_strength": "approximate",
+                "text": classification_claim,
+            }
+        )
+        claims.append(
+            {
                 "confidence": "medium" if layout["sections"] else "low",
-                "sources": [screenshot_source_id, "ocr_enhanced", "layout_heuristics"],
+                "sources": [screenshot_source_id, "ocr_enhanced", "layout_heuristics", "surface_classification_heuristics"],
                 "inference_strength": "approximate",
                 "text": f'{layout["summary"]} This is inferred from OCR line placement on the captured screenshot, not from hidden UI state.',
             }
         )
         claims.append(
             {
-                "confidence": "medium" if normalized_excerpts else "low",
-                "sources": [screenshot_source_id, "ocr_raw", "ocr_enhanced", "ocr_normalized"],
+                "confidence": classification_claim_confidence if useful_lines else "low",
+                "sources": [screenshot_source_id, "ocr_raw", "ocr_enhanced", "ocr_normalized", "layout_heuristics", "surface_classification_heuristics"],
                 "inference_strength": "approximate",
-                "text": describe_visible_content(target_kind, surface, app, title, layout, normalized_excerpts),
+                "text": visible_content_claim,
             }
         )
         claims.append(
             {
-                "confidence": "medium" if normalized_excerpts else "low",
-                "sources": ["window_metadata", "ocr_normalized", "layout_heuristics"],
+                "confidence": classification_claim_confidence if useful_lines else "low",
+                "sources": ["window_metadata", "ocr_normalized", "layout_heuristics", "surface_classification_heuristics"],
                 "inference_strength": "approximate",
-                "text": consistency_claim(surface, app, normalized_excerpts),
+                "text": consistency_text,
             }
         )
         limits.append("OCR normalization improves legibility but does not guarantee exact transcription of small text, punctuation, or stylized UI labels.")
         limits.append("Layout sections are heuristic regions derived from OCR geometry; they are useful structure hints, not pixel-perfect segmentation.")
         limits.append("The description only covers the captured target window, not hidden tabs, background windows, or content outside the frame.")
+        limits.append("Surface classification is heuristic and can still be uncertain for mixed or unusually dense interfaces.")
 
     summary = " ".join(claim["text"] for claim in claims[:3])
     if target_kind == "desktop":
@@ -657,17 +1169,21 @@ def main() -> int:
             "surface_kind": surface,
             "is_active": bool(target.get("is_active")),
         },
+        "surface_classification": surface_profile,
         "selection_reason": selection.get("selection_reason"),
         "matched_window_count": selection.get("matched_window_count"),
         "requested": requested,
         "current_desktop": current_desktop,
         "registered_current_desktop_windows": summarize_windows(registered_current_desktop),
         "layout": layout,
+        "useful_regions": useful_regions,
+        "useful_lines": useful_lines,
         "readable_text": {
             "raw_excerpt": [str(item["text"]) for item in raw_lines[:8]],
             "enhanced_excerpt": [str(item["text"]) for item in enhanced_lines[:8]],
             "normalized_excerpt": normalized_excerpts,
             "normalized_lines_total": len(merged_lines),
+            "prioritized_lines_total": len(useful_lines),
             "approximate": True,
         },
         "ocr": {
@@ -691,6 +1207,7 @@ def main() -> int:
             "ocr_enhanced": "OCR output from the contrast-enhanced screenshot",
             "ocr_normalized": "deduplicated, whitespace-normalized text assembled from OCR candidates",
             "layout_heuristics": "approximate section labels inferred from OCR bounding boxes",
+            "surface_classification_heuristics": "category inference and ranked useful lines/regions derived from metadata, OCR, and layout hints",
         },
         "limits": limits,
     }
@@ -749,6 +1266,14 @@ def main() -> int:
                 "certainty": "medium" if layout["sections"] else "low",
                 "notes": "Layout sections are heuristics derived from visible OCR positions.",
             },
+            {
+                "id": "surface_classification_heuristics",
+                "kind": "heuristic",
+                "paths": [str(surface_profile_path)],
+                "role": "surface category inference plus ranked useful lines and regions for the final description",
+                "certainty": claim_confidence_from_surface(str(surface_profile["confidence"])),
+                "notes": "This is an auditable heuristic layer built from metadata, OCR, and layout cues rather than hidden UI state.",
+            },
         ],
         "supporting": [
             {
@@ -794,6 +1319,7 @@ def main() -> int:
         "ocr_enhanced_tsv": str(ocr_enhanced_tsv_path),
         "ocr_normalized_text": str(ocr_normalized_text_path),
         "layout": str(layout_path),
+        "surface_profile": str(surface_profile_path),
         "source_perceive_manifest": str(source_perceive_manifest),
     }
     if source_active_props.exists():
@@ -819,6 +1345,9 @@ def main() -> int:
         "registered_current_desktop_windows": description["registered_current_desktop_windows"],
         "ocr": description["ocr"],
         "layout": description["layout"],
+        "surface_classification": description["surface_classification"],
+        "useful_lines": description["useful_lines"],
+        "useful_regions": description["useful_regions"],
     }
 
     description_path.write_text(json.dumps(description, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
@@ -838,6 +1367,9 @@ def main() -> int:
         f"target_title: {description['target_window']['title'] or '(none)'}",
         f"target_app: {description['target_window']['app']}",
         f"target_surface_kind: {description['target_window']['surface_kind']}",
+        f"surface_category: {description['surface_classification']['category']}",
+        f"surface_category_label: {description['surface_classification']['label']}",
+        f"surface_category_confidence: {description['surface_classification']['confidence']}",
         f"target_screenshot: {target_screenshot}",
         f"target_screenshot_size: {read_text(size_path).strip() or '(unknown)'}",
         "sources_used:",
@@ -852,6 +1384,16 @@ def main() -> int:
     )
     summary_lines.append("normalized_ocr_excerpt:")
     summary_lines.extend(f"- {line}" for line in normalized_excerpts or ["(none)"])
+    summary_lines.append("useful_lines:")
+    summary_lines.extend(
+        f"- [{item['priority_kind']}/{item['section_role'] or 'unknown'}/{item['score']}] {item['text']}"
+        for item in useful_lines[:8]
+    )
+    summary_lines.append("useful_regions:")
+    summary_lines.extend(
+        f"- [{item['role']}/{item['line_count']}] {item['label']} -> {item['reason']}"
+        for item in useful_regions[:6]
+    )
     summary_lines.append("limits:")
     summary_lines.extend(f"- {line}" for line in limits)
     summary_path.write_text("\n".join(summary_lines) + "\n", encoding="utf-8")

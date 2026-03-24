@@ -10,6 +10,20 @@ title="Golem Host Describe Smoke $$"
 dialog_pid=""
 window_id=""
 
+wait_for_active_title() {
+  local expected="$1"
+  local active_title=""
+  for _ in $(seq 1 50); do
+    active_title="$(xdotool getactivewindow getwindowname 2>/dev/null || true)"
+    if [[ "$active_title" == "$expected" ]]; then
+      return 0
+    fi
+    sleep 0.1
+  done
+  printf 'FAIL: active window did not settle on expected title: %s (last=%s)\n' "$expected" "$active_title" >&2
+  return 1
+}
+
 cleanup() {
   if [[ -n "$window_id" ]]; then
     wmctrl -i -c "$window_id" >/dev/null 2>&1 || true
@@ -47,6 +61,7 @@ window_id="$(printf '%s\n' "$window_meta" | sed -n '2p')"
 
 GOLEM_HOST_CAPABILITIES_ROOT="$cap_root" \
   ./scripts/golem_host_act.sh focus --title "$title" --json >/dev/null
+wait_for_active_title "$title"
 
 active_json="$(
   GOLEM_HOST_CAPABILITIES_ROOT="$cap_root" \
@@ -86,15 +101,20 @@ for payload in (active_payload, desktop_payload, window_payload):
         "ocr_enhanced",
         "ocr_normalized",
         "layout_heuristics",
+        "surface_classification_heuristics",
     }
     assert expected_sources.issubset(set(payload["sources_used"])), payload["sources_used"]
     assert payload["description"]["claims"], payload
     assert payload["description"]["limits"], payload
     assert payload["description"]["summary"], payload
     assert payload["description"]["layout"]["sections"], payload["description"]["layout"]
+    assert payload["description"]["surface_classification"]["category"], payload["description"]["surface_classification"]
+    assert payload["description"]["useful_lines"], payload["description"]["useful_lines"]
+    assert payload["description"]["useful_regions"], payload["description"]["useful_regions"]
     assert payload["description"]["readable_text"]["normalized_excerpt"], payload["description"]["readable_text"]
     assert payload["description"]["source_breakdown"]["layout_heuristics"], payload["description"]["source_breakdown"]
-    for key in ("target_screenshot", "windows", "description", "sources", "ocr_text", "ocr_tsv", "ocr_enhanced_image", "ocr_enhanced_text", "ocr_enhanced_tsv", "ocr_normalized_text", "layout"):
+    assert payload["description"]["source_breakdown"]["surface_classification_heuristics"], payload["description"]["source_breakdown"]
+    for key in ("target_screenshot", "windows", "description", "sources", "ocr_text", "ocr_tsv", "ocr_enhanced_image", "ocr_enhanced_text", "ocr_enhanced_tsv", "ocr_normalized_text", "layout", "surface_profile"):
         path = pathlib.Path(payload["artifacts"][key])
         assert path.exists(), path
         assert path.stat().st_size > 0, path
@@ -117,6 +137,7 @@ assert '"id": "window_metadata"' in active_sources
 assert '"id": "ocr_raw"' in active_sources
 assert '"id": "ocr_normalized"' in active_sources
 assert '"id": "layout_heuristics"' in active_sources
+assert '"id": "surface_classification_heuristics"' in active_sources
 assert "sources_used:" in desktop_summary
 assert title in window_description
 assert '"role": "header"' in window_layout or '"role": "main_content"' in window_layout or '"role": "footer"' in window_layout
