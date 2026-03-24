@@ -14,6 +14,8 @@ __pycache__/
 *.pyc
 diagnostics/host/*
 !diagnostics/host/README.md
+diagnostics/acceptance/*
+!diagnostics/acceptance/README.md
 
 # editor / system
 .vscode/
