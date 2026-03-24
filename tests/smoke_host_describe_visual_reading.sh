@@ -6,7 +6,7 @@ cd "$REPO_ROOT"
 
 tmpdir="$(mktemp -d)"
 cap_root="$tmpdir/host-capabilities"
-title="Golem Visual Reading Smoke $$"
+title="Firefox - Golem Visual Reading Smoke $$ [synthetic]"
 app_pid=""
 window_id=""
 
@@ -146,12 +146,17 @@ roles = {section["role"] for section in layout["sections"]}
 surface_classification = active_description["surface_classification"]
 useful_lines = active_description["useful_lines"]
 useful_regions = active_description["useful_regions"]
+structured_fields = active_description["structured_fields"]
 
 assert title in active_description["target_window"]["title"], active_description["target_window"]
 assert {"header", "left_sidebar", "main_content"}.issubset(roles), layout
-assert surface_classification["category"] in {"browser-web-app", "unknown"}, surface_classification
+assert surface_classification["category"] == "browser-web-app", surface_classification
 assert useful_lines, useful_lines
 assert useful_regions, useful_regions
+assert structured_fields["category"] == "browser-web-app", structured_fields
+assert structured_fields["fields"]["page_title_candidates"], structured_fields
+assert structured_fields["fields"]["header_text"], structured_fields
+assert structured_fields["fields"]["primary_content_snippets"], structured_fields
 normalized_ocr_text = pathlib.Path(active_payload["artifacts"]["ocr_normalized_text"]).read_text(encoding="utf-8")
 assert "Visual Reading Smoke" in normalized_ocr_text or "Yisual Reading Smoke" in normalized_ocr_text
 assert "Sidebar Notes" in normalized_ocr_text
@@ -163,8 +168,9 @@ assert "surface classification heuristics read the visible target as" in claims_
 assert "prioritized visible cues include" in claims_text.lower(), claims_text
 assert "layout_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
 assert "surface_classification_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
+assert "structured_fields_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
 
-for key in ("ocr_text", "ocr_enhanced_text", "ocr_normalized_text", "layout", "surface_profile", "description", "sources"):
+for key in ("ocr_text", "ocr_enhanced_text", "ocr_normalized_text", "layout", "surface_profile", "structured_fields", "description", "sources"):
     path = pathlib.Path(active_payload["artifacts"][key])
     assert path.exists(), path
     assert path.stat().st_size > 0, path

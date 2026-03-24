@@ -9,9 +9,11 @@ cap_root="$tmpdir/host-capabilities"
 editor_title="Visual Studio Code - Golem Editor Surface Smoke $$ [synthetic]"
 chat_title="ChatGPT - Golem Chat Surface Smoke $$ [synthetic]"
 terminal_title="Golem Terminal Surface Smoke $$ [synthetic]"
+browser_title="Firefox - Golem Browser Surface Smoke $$ [synthetic]"
 editor_pid=""
 chat_pid=""
 terminal_pid=""
+browser_pid=""
 
 wait_for_active_title() {
   local expected="$1"
@@ -28,7 +30,7 @@ wait_for_active_title() {
 }
 
 cleanup() {
-  for pid in "$editor_pid" "$chat_pid" "$terminal_pid"; do
+  for pid in "$editor_pid" "$chat_pid" "$terminal_pid" "$browser_pid"; do
     if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
       kill "$pid" 2>/dev/null || true
       wait "$pid" 2>/dev/null || true
@@ -172,6 +174,56 @@ PY
 python3 "$terminal_app" >"$tmpdir/terminal-surface-app.log" 2>&1 &
 terminal_pid="$!"
 
+browser_app="$tmpdir/browser_surface_app.py"
+cat >"$browser_app" <<PY
+import tkinter as tk
+
+root = tk.Tk()
+root.title("${browser_title}")
+root.geometry("1080x760+200+200")
+root.configure(bg="#f6f8fb")
+
+header = tk.Frame(root, bg="#1f3b5b", height=58)
+header.pack(fill="x")
+header.pack_propagate(False)
+tk.Label(header, text="Dashboard Overview", fg="#ffffff", bg="#1f3b5b", font=("DejaVu Sans", 18, "bold")).pack(side="left", padx=18, pady=14)
+tk.Label(header, text="Settings", fg="#d9e5f2", bg="#1f3b5b", font=("DejaVu Sans", 13)).pack(side="right", padx=18)
+
+body = tk.Frame(root, bg="#f6f8fb")
+body.pack(fill="both", expand=True)
+
+sidebar = tk.Frame(body, bg="#dde7f2", width=250)
+sidebar.pack(side="left", fill="y")
+sidebar.pack_propagate(False)
+for line in ["Home", "Sources", "Docs", "Configuration"]:
+    tk.Label(sidebar, text=line, fg="#203040", bg="#dde7f2", font=("DejaVu Sans", 14)).pack(anchor="w", padx=18, pady=8)
+
+main = tk.Frame(body, bg="#ffffff")
+main.pack(side="left", fill="both", expand=True, padx=18, pady=18)
+tk.Label(main, text="Primary Content", fg="#203040", bg="#ffffff", font=("DejaVu Sans", 20, "bold")).pack(anchor="w", padx=18, pady=(18, 10))
+text = tk.Text(main, wrap="word", font=("DejaVu Sans", 14), bg="#ffffff", fg="#222222")
+text.pack(fill="both", expand=True, padx=18, pady=(0, 18))
+text.insert(
+    "1.0",
+    "Primary content summary for the browser surface.\\n"
+    "Open report to continue.\\n"
+    "Sources stay visible in the sidebar.\\n"
+    "Configuration text remains explicit.\\n"
+)
+text.configure(state="disabled")
+
+footer = tk.Frame(root, bg="#edf2f7", height=70)
+footer.pack(fill="x")
+footer.pack_propagate(False)
+tk.Label(footer, text="Open Report", fg="#203040", bg="#edf2f7", font=("DejaVu Sans", 15, "bold")).pack(side="left", padx=20, pady=18)
+tk.Label(footer, text="Continue", fg="#203040", bg="#edf2f7", font=("DejaVu Sans", 15)).pack(side="left", padx=18)
+
+root.after(30000, root.destroy)
+root.mainloop()
+PY
+python3 "$browser_app" >"$tmpdir/browser-surface-app.log" 2>&1 &
+browser_pid="$!"
+
 editor_wait_json="$(
   GOLEM_HOST_CAPABILITIES_ROOT="$cap_root" \
   ./scripts/golem_host_act.sh wait-window --title "$editor_title" --timeout 10 --json
@@ -183,6 +235,10 @@ chat_wait_json="$(
 terminal_wait_json="$(
   GOLEM_HOST_CAPABILITIES_ROOT="$cap_root" \
   ./scripts/golem_host_act.sh wait-window --title "$terminal_title" --timeout 10 --json
+)"
+browser_wait_json="$(
+  GOLEM_HOST_CAPABILITIES_ROOT="$cap_root" \
+  ./scripts/golem_host_act.sh wait-window --title "$browser_title" --timeout 10 --json
 )"
 
 GOLEM_HOST_CAPABILITIES_ROOT="$cap_root" ./scripts/golem_host_act.sh focus --title "$editor_title" --json >/dev/null
@@ -206,7 +262,14 @@ terminal_json="$(
   ./scripts/golem_host_describe.sh active-window --json
 )"
 
-python3 - "$editor_json" "$chat_json" "$terminal_json" "$editor_wait_json" "$chat_wait_json" "$terminal_wait_json" "$editor_title" "$chat_title" "$terminal_title" <<'PY'
+GOLEM_HOST_CAPABILITIES_ROOT="$cap_root" ./scripts/golem_host_act.sh focus --title "$browser_title" --json >/dev/null
+wait_for_active_title "$browser_title"
+browser_json="$(
+  GOLEM_HOST_CAPABILITIES_ROOT="$cap_root" \
+  ./scripts/golem_host_describe.sh window --title "$browser_title" --json
+)"
+
+python3 - "$editor_json" "$chat_json" "$terminal_json" "$browser_json" "$editor_wait_json" "$chat_wait_json" "$terminal_wait_json" "$browser_wait_json" "$editor_title" "$chat_title" "$terminal_title" "$browser_title" <<'PY'
 import json
 import pathlib
 import sys
@@ -214,59 +277,89 @@ import sys
 editor_payload = json.loads(sys.argv[1])
 chat_payload = json.loads(sys.argv[2])
 terminal_payload = json.loads(sys.argv[3])
-editor_wait = json.loads(sys.argv[4])
-chat_wait = json.loads(sys.argv[5])
-terminal_wait = json.loads(sys.argv[6])
-editor_title = sys.argv[7]
-chat_title = sys.argv[8]
-terminal_title = sys.argv[9]
+browser_payload = json.loads(sys.argv[4])
+editor_wait = json.loads(sys.argv[5])
+chat_wait = json.loads(sys.argv[6])
+terminal_wait = json.loads(sys.argv[7])
+browser_wait = json.loads(sys.argv[8])
+editor_title = sys.argv[9]
+chat_title = sys.argv[10]
+terminal_title = sys.argv[11]
+browser_title = sys.argv[12]
 
 
-def assert_payload(payload, expected_category, allowed_kinds):
+def assert_payload(payload, expected_category, allowed_kinds, required_fields):
     description = payload["description"]
     classification = description["surface_classification"]
     useful_lines = description["useful_lines"]
     useful_regions = description["useful_regions"]
+    structured_fields = description["structured_fields"]
 
     assert classification["category"] == expected_category, classification
     assert classification["confidence"] in {"strong", "reasonable"}, classification
     assert useful_lines, useful_lines
     assert useful_regions, useful_regions
     assert "surface_classification_heuristics" in payload["sources_used"], payload["sources_used"]
+    assert "structured_fields_heuristics" in payload["sources_used"], payload["sources_used"]
     assert "surface_profile" in payload["artifacts"], payload["artifacts"]
+    assert "structured_fields" in payload["artifacts"], payload["artifacts"]
     surface_profile_path = pathlib.Path(payload["artifacts"]["surface_profile"])
+    structured_fields_path = pathlib.Path(payload["artifacts"]["structured_fields"])
     assert surface_profile_path.exists(), surface_profile_path
+    assert structured_fields_path.exists(), structured_fields_path
     surface_profile = json.loads(surface_profile_path.read_text(encoding="utf-8"))
+    stored_structured_fields = json.loads(structured_fields_path.read_text(encoding="utf-8"))
     assert surface_profile["surface_classification"]["category"] == expected_category, surface_profile
+    assert structured_fields["category"] == expected_category, structured_fields
+    assert stored_structured_fields["category"] == expected_category, stored_structured_fields
     kinds = {item["priority_kind"] for item in useful_lines}
     assert kinds & set(allowed_kinds), kinds
     assert "surface classification heuristics read the visible target as" in description["summary"].lower(), description["summary"]
     assert "surface_classification_heuristics" in description["source_breakdown"], description["source_breakdown"]
-    return classification, useful_lines, kinds
+    assert "structured_fields_heuristics" in description["source_breakdown"], description["source_breakdown"]
+    for field_name in required_fields:
+        entries = structured_fields["fields"].get(field_name) or []
+        assert entries, (field_name, structured_fields)
+        for entry in entries[:2]:
+            assert entry["value"], entry
+            assert entry["confidence"] in {"high", "medium", "low"}, entry
+            assert entry["source_refs"], entry
+    return classification, useful_lines, kinds, structured_fields
 
 
-editor_classification, editor_lines, editor_kinds = assert_payload(
+editor_classification, editor_lines, editor_kinds, editor_structured = assert_payload(
     editor_payload,
     "editor",
     {"error-line", "file-reference", "code-line", "explorer-item", "workspace-header"},
+    {"workspace_or_project", "file_or_tab_candidates", "active_editor_text_snippets"},
 )
-chat_classification, chat_lines, chat_kinds = assert_payload(
+chat_classification, chat_lines, chat_kinds, chat_structured = assert_payload(
     chat_payload,
     "chat",
     {"visible-message", "composer", "conversation-sidebar"},
+    {"conversation_title_candidates", "visible_message_snippets", "sidebar_chat_candidates"},
 )
-terminal_classification, terminal_lines, terminal_kinds = assert_payload(
+terminal_classification, terminal_lines, terminal_kinds, terminal_structured = assert_payload(
     terminal_payload,
     "terminal",
     {"command-or-prompt", "error-output", "visible-output"},
+    {"prompt_candidates", "command_candidates", "error_output_candidates"},
+)
+browser_classification, browser_lines, browser_kinds, browser_structured = assert_payload(
+    browser_payload,
+    "browser-web-app",
+    {"page-header", "navigation", "page-content", "cta-or-control"},
+    {"page_title_candidates", "header_text", "primary_content_snippets", "cta_or_action_text_candidates"},
 )
 
 assert editor_title in editor_payload["description"]["target_window"]["title"], editor_payload["description"]["target_window"]
 assert chat_title in chat_payload["description"]["target_window"]["title"], chat_payload["description"]["target_window"]
 assert terminal_title in terminal_payload["description"]["target_window"]["title"], terminal_payload["description"]["target_window"]
+assert browser_title in browser_payload["description"]["target_window"]["title"], browser_payload["description"]["target_window"]
 assert editor_wait["window"]["title"] == editor_title, editor_wait
 assert chat_wait["window"]["title"] == chat_title, chat_wait
 assert terminal_wait["window"]["title"] == terminal_title, terminal_wait
+assert browser_wait["window"]["title"] == browser_title, browser_wait
 
 print("SMOKE_HOST_DESCRIBE_SURFACE_PROFILES_OK")
 print("HOST_DESCRIBE_EDITOR_MODE synthetic")
@@ -274,10 +367,17 @@ print("HOST_DESCRIBE_CHAT_MODE synthetic")
 print(f"HOST_DESCRIBE_EDITOR_SURFACE {editor_classification['category']}:{editor_classification['confidence']}:{sorted(editor_kinds)}")
 print(f"HOST_DESCRIBE_CHAT_SURFACE {chat_classification['category']}:{chat_classification['confidence']}:{sorted(chat_kinds)}")
 print(f"HOST_DESCRIBE_TERMINAL_SURFACE {terminal_classification['category']}:{terminal_classification['confidence']}:{sorted(terminal_kinds)}")
+print(f"HOST_DESCRIBE_BROWSER_SURFACE {browser_classification['category']}:{browser_classification['confidence']}:{sorted(browser_kinds)}")
 print(f"HOST_DESCRIBE_EDITOR_RUN_DIR {editor_payload['run_dir']}")
 print(f"HOST_DESCRIBE_CHAT_RUN_DIR {chat_payload['run_dir']}")
 print(f"HOST_DESCRIBE_TERMINAL_RUN_DIR {terminal_payload['run_dir']}")
+print(f"HOST_DESCRIBE_BROWSER_RUN_DIR {browser_payload['run_dir']}")
 print(f"HOST_DESCRIBE_EDITOR_LINE {editor_lines[0]['text']}")
 print(f"HOST_DESCRIBE_CHAT_LINE {chat_lines[0]['text']}")
 print(f"HOST_DESCRIBE_TERMINAL_LINE {terminal_lines[0]['text']}")
+print(f"HOST_DESCRIBE_BROWSER_LINE {browser_lines[0]['text']}")
+print(f"HOST_DESCRIBE_EDITOR_FIELDS {editor_structured['non_empty_fields']}")
+print(f"HOST_DESCRIBE_CHAT_FIELDS {chat_structured['non_empty_fields']}")
+print(f"HOST_DESCRIBE_TERMINAL_FIELDS {terminal_structured['non_empty_fields']}")
+print(f"HOST_DESCRIBE_BROWSER_FIELDS {browser_structured['non_empty_fields']}")
 PY

@@ -669,6 +669,570 @@ SURFACE_SECTION_PRIORITIES = {
     "unknown": ["main_content", "header", "left_sidebar", "footer", "right_sidebar", "bottom_panel"],
 }
 
+STRUCTURED_FIELD_NAMES = {
+    "editor": [
+        "workspace_or_project",
+        "file_or_tab_candidates",
+        "error_candidates",
+        "active_editor_text_snippets",
+        "sidebar_context",
+    ],
+    "chat": [
+        "conversation_title_candidates",
+        "visible_message_snippets",
+        "input_area_text",
+        "sidebar_chat_candidates",
+    ],
+    "terminal": [
+        "prompt_candidates",
+        "command_candidates",
+        "error_output_candidates",
+        "recent_output_snippets",
+    ],
+    "browser-web-app": [
+        "page_title_candidates",
+        "header_text",
+        "sidebar_navigation_candidates",
+        "primary_content_snippets",
+        "cta_or_action_text_candidates",
+    ],
+}
+
+
+def unique_text_values(values: list[str]) -> list[str]:
+    results = []
+    seen = set()
+    for raw in values:
+        value = normalize_visible_text(raw)
+        if len(value) < 2:
+            continue
+        key = fingerprint(value)
+        if key in seen:
+            continue
+        seen.add(key)
+        results.append(value)
+    return results
+
+
+def surface_confidence_score(surface_confidence: str) -> int:
+    return {
+        "strong": 3,
+        "reasonable": 2,
+        "uncertain": 1,
+    }.get(surface_confidence, 1)
+
+
+def structured_field_confidence(
+    surface_confidence: str,
+    source_refs: list[str],
+    avg_confidence: float | int | None = None,
+) -> str:
+    score = surface_confidence_score(surface_confidence)
+    if "window_metadata" in source_refs:
+        score += 1
+    if isinstance(avg_confidence, (int, float)):
+        if avg_confidence >= 80:
+            score += 1
+        elif avg_confidence < 55:
+            score -= 1
+    if score >= 4:
+        return "high"
+    if score >= 2:
+        return "medium"
+    return "low"
+
+
+def make_field_candidate(
+    value: str,
+    surface_confidence: str,
+    source_refs: list[str],
+    *,
+    avg_confidence: float | int | None = None,
+    section_role: str = "",
+    priority_kind: str = "",
+    note: str = "",
+) -> dict[str, object] | None:
+    normalized = normalize_visible_text(value)
+    if len(normalized) < 2:
+        return None
+    candidate = {
+        "value": normalized,
+        "confidence": structured_field_confidence(surface_confidence, source_refs, avg_confidence),
+        "source_refs": sorted(set(source_refs)),
+        "approximate": True,
+    }
+    if section_role:
+        candidate["section_role"] = section_role
+    if priority_kind:
+        candidate["priority_kind"] = priority_kind
+    if note:
+        candidate["note"] = note
+    return candidate
+
+
+def dedupe_field_candidates(items: list[dict[str, object]], limit: int = 5) -> list[dict[str, object]]:
+    deduped: list[dict[str, object]] = []
+    seen = set()
+    for item in items:
+        value = normalize_visible_text(str(item.get("value") or ""))
+        if len(value) < 2:
+            continue
+        key = fingerprint(value)
+        if key in seen:
+            continue
+        seen.add(key)
+        item["value"] = value
+        deduped.append(item)
+        if len(deduped) >= limit:
+            break
+    return deduped
+
+
+def line_candidate(
+    item: dict[str, object],
+    surface_confidence: str,
+    *,
+    note: str = "",
+) -> dict[str, object] | None:
+    source_refs = list(item.get("sources") or [])
+    if "structured_fields_heuristics" not in source_refs:
+        source_refs.append("structured_fields_heuristics")
+    return make_field_candidate(
+        str(item.get("text") or ""),
+        surface_confidence,
+        source_refs,
+        avg_confidence=item.get("avg_confidence"),
+        section_role=str(item.get("section_role") or ""),
+        priority_kind=str(item.get("priority_kind") or ""),
+        note=note,
+    )
+
+
+def merged_line_candidate(
+    item: dict[str, object],
+    surface_confidence: str,
+    *,
+    note: str = "",
+) -> dict[str, object] | None:
+    return make_field_candidate(
+        str(item.get("text") or ""),
+        surface_confidence,
+        ["ocr_normalized", "layout_heuristics", "surface_classification_heuristics", "structured_fields_heuristics"],
+        avg_confidence=item.get("avg_confidence"),
+        section_role=str(item.get("section_role") or ""),
+        note=note,
+    )
+
+
+def metadata_candidate(
+    value: str,
+    surface_confidence: str,
+    *,
+    note: str = "",
+) -> dict[str, object] | None:
+    return make_field_candidate(
+        value,
+        surface_confidence,
+        ["window_metadata", "structured_fields_heuristics"],
+        note=note,
+    )
+
+
+def split_window_title_candidates(title: str, app: str) -> list[str]:
+    normalized_title = normalize_visible_text(title)
+    if not normalized_title:
+        return []
+    generic_parts = {
+        normalize_visible_text(app).lower(),
+        "visual studio code",
+        "chatgpt",
+        "gnome terminal",
+        "terminal",
+        "google chrome",
+        "chromium",
+        "firefox",
+        "tk",
+    }
+    results = []
+    if normalized_title.lower() not in generic_parts:
+        results.append(normalized_title)
+    for separator in (" - ", " | ", " -- "):
+        if separator not in normalized_title:
+            continue
+        for part in normalized_title.split(separator):
+            cleaned = normalize_visible_text(part)
+            if len(cleaned) < 3 or cleaned.lower() in generic_parts:
+                continue
+            results.append(cleaned)
+    return unique_text_values(results)
+
+
+def extract_path_tokens(text: str) -> list[str]:
+    tokens = re.findall(r"(?:[\w.-]+/)+[\w./-]+|\b[\w.-]+\.[A-Za-z0-9]{1,5}\b", text)
+    return unique_text_values(tokens)
+
+
+def project_candidate_from_path(path: str) -> str:
+    cleaned = normalize_visible_text(path).strip("/")
+    if not cleaned:
+        return ""
+    parts = [part for part in cleaned.split("/") if part]
+    if parts and "." in parts[-1]:
+        parts = parts[:-1]
+    if not parts:
+        return ""
+    if len(parts) >= 2 and parts[0].lower() == "workspace":
+        return "/".join(parts[:2])
+    if len(parts) >= 2:
+        return "/".join(parts[:2])
+    return parts[0]
+
+
+def file_candidate_from_path(path: str) -> str:
+    cleaned = normalize_visible_text(path)
+    if not cleaned:
+        return ""
+    if "/" in cleaned:
+        return cleaned.rsplit("/", 1)[-1]
+    return cleaned
+
+
+def extract_prompt_prefix(text: str) -> str:
+    match = re.match(r"^(.*?[$#])\s*(?:.+)?$", text)
+    if match:
+        return normalize_visible_text(match.group(1))
+    return ""
+
+
+def extract_shell_command(text: str) -> str:
+    match = re.match(r"^.*?[$#]\s*(.+)$", text)
+    if match:
+        return normalize_visible_text(match.group(1))
+    return ""
+
+
+def lines_for_section(lines: list[dict[str, object]], section_role: str) -> list[dict[str, object]]:
+    return [item for item in lines if str(item.get("section_role") or "") == section_role]
+
+
+def useful_candidates_for_kinds(
+    useful_lines: list[dict[str, object]],
+    surface_confidence: str,
+    kinds: set[str],
+    *,
+    section_roles: set[str] | None = None,
+    limit: int = 4,
+    note: str = "",
+) -> list[dict[str, object]]:
+    results = []
+    for item in useful_lines:
+        if str(item.get("priority_kind") or "") not in kinds:
+            continue
+        if section_roles and str(item.get("section_role") or "") not in section_roles:
+            continue
+        candidate = line_candidate(item, surface_confidence, note=note)
+        if candidate:
+            results.append(candidate)
+    return dedupe_field_candidates(results, limit=limit)
+
+
+def merged_candidates_for_section(
+    lines: list[dict[str, object]],
+    surface_confidence: str,
+    section_role: str,
+    *,
+    limit: int = 4,
+    note: str = "",
+) -> list[dict[str, object]]:
+    results = []
+    for item in lines_for_section(lines, section_role):
+        candidate = merged_line_candidate(item, surface_confidence, note=note)
+        if candidate:
+            results.append(candidate)
+    return dedupe_field_candidates(results, limit=limit)
+
+
+def build_editor_structured_fields(
+    title: str,
+    app: str,
+    surface_confidence: str,
+    merged_lines: list[dict[str, object]],
+    useful_lines: list[dict[str, object]],
+) -> dict[str, list[dict[str, object]]]:
+    fields = {name: [] for name in STRUCTURED_FIELD_NAMES["editor"]}
+
+    for candidate in split_window_title_candidates(title, app):
+        metadata_entry = metadata_candidate(candidate, surface_confidence, note="derived from window title metadata")
+        if metadata_entry:
+            fields["workspace_or_project"].append(dict(metadata_entry))
+            fields["file_or_tab_candidates"].append(dict(metadata_entry))
+
+    for item in useful_lines:
+        priority_kind = str(item.get("priority_kind") or "")
+        section_role = str(item.get("section_role") or "")
+        text = str(item.get("text") or "")
+
+        if priority_kind in {"file-reference", "workspace-header"}:
+            for path in extract_path_tokens(text):
+                project_value = project_candidate_from_path(path)
+                if project_value:
+                    candidate = make_field_candidate(
+                        project_value,
+                        surface_confidence,
+                        list(item.get("sources") or []) + ["structured_fields_heuristics"],
+                        avg_confidence=item.get("avg_confidence"),
+                        section_role=section_role,
+                        priority_kind=priority_kind,
+                        note="derived from visible path or tab text",
+                    )
+                    if candidate:
+                        fields["workspace_or_project"].append(candidate)
+                file_value = file_candidate_from_path(path)
+                if file_value:
+                    candidate = make_field_candidate(
+                        file_value,
+                        surface_confidence,
+                        list(item.get("sources") or []) + ["structured_fields_heuristics"],
+                        avg_confidence=item.get("avg_confidence"),
+                        section_role=section_role,
+                        priority_kind=priority_kind,
+                        note="derived from visible file path or tab text",
+                    )
+                    if candidate:
+                        fields["file_or_tab_candidates"].append(candidate)
+
+        if priority_kind == "error-line":
+            candidate = line_candidate(item, surface_confidence, note="visible editor error or trace text")
+            if candidate:
+                fields["error_candidates"].append(candidate)
+
+        if priority_kind in {"code-line", "file-reference", "error-line", "editor-detail"} and section_role == "main_content":
+            candidate = line_candidate(item, surface_confidence, note="visible active editor text")
+            if candidate:
+                fields["active_editor_text_snippets"].append(candidate)
+
+        if priority_kind == "explorer-item" or section_role == "left_sidebar":
+            candidate = line_candidate(item, surface_confidence, note="visible explorer or sidebar context")
+            if candidate:
+                fields["sidebar_context"].append(candidate)
+
+    for item in lines_for_section(merged_lines, "left_sidebar"):
+        candidate = merged_line_candidate(item, surface_confidence, note="visible explorer or sidebar context")
+        if candidate:
+            fields["sidebar_context"].append(candidate)
+
+    for name in fields:
+        fields[name] = dedupe_field_candidates(fields[name])
+    return fields
+
+
+def build_chat_structured_fields(
+    title: str,
+    app: str,
+    surface_confidence: str,
+    merged_lines: list[dict[str, object]],
+    useful_lines: list[dict[str, object]],
+) -> dict[str, list[dict[str, object]]]:
+    fields = {name: [] for name in STRUCTURED_FIELD_NAMES["chat"]}
+
+    for candidate in split_window_title_candidates(title, app):
+        metadata_entry = metadata_candidate(candidate, surface_confidence, note="derived from window title metadata")
+        if metadata_entry:
+            fields["conversation_title_candidates"].append(metadata_entry)
+
+    for item in lines_for_section(merged_lines, "header"):
+        candidate = merged_line_candidate(item, surface_confidence, note="visible chat header text")
+        if candidate:
+            fields["conversation_title_candidates"].append(candidate)
+
+    fields["visible_message_snippets"] = useful_candidates_for_kinds(
+        useful_lines,
+        surface_confidence,
+        {"visible-message"},
+        section_roles={"main_content"},
+        note="visible chat message text",
+    )
+
+    for item in useful_lines:
+        if str(item.get("priority_kind") or "") == "composer" or str(item.get("section_role") or "") == "footer":
+            candidate = line_candidate(item, surface_confidence, note="visible input or composer text")
+            if candidate:
+                fields["input_area_text"].append(candidate)
+        if str(item.get("priority_kind") or "") == "conversation-sidebar" or str(item.get("section_role") or "") == "left_sidebar":
+            candidate = line_candidate(item, surface_confidence, note="visible chat list or sidebar context")
+            if candidate:
+                fields["sidebar_chat_candidates"].append(candidate)
+
+    for item in lines_for_section(merged_lines, "footer"):
+        candidate = merged_line_candidate(item, surface_confidence, note="visible input or composer text")
+        if candidate:
+            fields["input_area_text"].append(candidate)
+    for item in lines_for_section(merged_lines, "left_sidebar"):
+        candidate = merged_line_candidate(item, surface_confidence, note="visible chat list or sidebar context")
+        if candidate:
+            fields["sidebar_chat_candidates"].append(candidate)
+
+    for name in fields:
+        fields[name] = dedupe_field_candidates(fields[name])
+    return fields
+
+
+def build_terminal_structured_fields(
+    surface_confidence: str,
+    merged_lines: list[dict[str, object]],
+    useful_lines: list[dict[str, object]],
+) -> dict[str, list[dict[str, object]]]:
+    fields = {name: [] for name in STRUCTURED_FIELD_NAMES["terminal"]}
+
+    for item in useful_lines:
+        text = str(item.get("text") or "")
+        if str(item.get("priority_kind") or "") == "command-or-prompt":
+            prompt_value = extract_prompt_prefix(text)
+            if prompt_value:
+                candidate = make_field_candidate(
+                    prompt_value,
+                    surface_confidence,
+                    list(item.get("sources") or []) + ["structured_fields_heuristics"],
+                    avg_confidence=item.get("avg_confidence"),
+                    section_role=str(item.get("section_role") or ""),
+                    priority_kind=str(item.get("priority_kind") or ""),
+                    note="derived from visible terminal prompt text",
+                )
+                if candidate:
+                    fields["prompt_candidates"].append(candidate)
+            command_value = extract_shell_command(text)
+            if command_value:
+                candidate = make_field_candidate(
+                    command_value,
+                    surface_confidence,
+                    list(item.get("sources") or []) + ["structured_fields_heuristics"],
+                    avg_confidence=item.get("avg_confidence"),
+                    section_role=str(item.get("section_role") or ""),
+                    priority_kind=str(item.get("priority_kind") or ""),
+                    note="derived from visible terminal command text",
+                )
+                if candidate:
+                    fields["command_candidates"].append(candidate)
+        if str(item.get("priority_kind") or "") == "error-output":
+            candidate = line_candidate(item, surface_confidence, note="visible terminal error output")
+            if candidate:
+                fields["error_output_candidates"].append(candidate)
+        if str(item.get("priority_kind") or "") in {"visible-output", "error-output"}:
+            candidate = line_candidate(item, surface_confidence, note="recent visible terminal output")
+            if candidate:
+                fields["recent_output_snippets"].append(candidate)
+
+    recent_lines = sorted(
+        [item for item in lines_for_section(merged_lines, "main_content") if not extract_shell_command(str(item.get("text") or ""))],
+        key=lambda item: float(item.get("center_y_ratio") or 0.0),
+        reverse=True,
+    )
+    for item in recent_lines[:6]:
+        candidate = merged_line_candidate(item, surface_confidence, note="recent visible terminal output")
+        if candidate:
+            fields["recent_output_snippets"].append(candidate)
+
+    for name in fields:
+        fields[name] = dedupe_field_candidates(fields[name])
+    return fields
+
+
+def build_browser_structured_fields(
+    title: str,
+    app: str,
+    surface_confidence: str,
+    merged_lines: list[dict[str, object]],
+    useful_lines: list[dict[str, object]],
+) -> dict[str, list[dict[str, object]]]:
+    fields = {name: [] for name in STRUCTURED_FIELD_NAMES["browser-web-app"]}
+
+    for candidate in split_window_title_candidates(title, app):
+        metadata_entry = metadata_candidate(candidate, surface_confidence, note="derived from browser window title metadata")
+        if metadata_entry:
+            fields["page_title_candidates"].append(metadata_entry)
+
+    for item in lines_for_section(merged_lines, "header"):
+        candidate = merged_line_candidate(item, surface_confidence, note="visible page header text")
+        if candidate:
+            fields["page_title_candidates"].append(candidate)
+            fields["header_text"].append(dict(candidate))
+
+    for item in useful_lines:
+        priority_kind = str(item.get("priority_kind") or "")
+        section_role = str(item.get("section_role") or "")
+        if priority_kind == "navigation" or section_role in {"left_sidebar", "right_sidebar"}:
+            candidate = line_candidate(item, surface_confidence, note="visible browser navigation text")
+            if candidate:
+                fields["sidebar_navigation_candidates"].append(candidate)
+        if priority_kind == "page-content" and section_role == "main_content":
+            candidate = line_candidate(item, surface_confidence, note="visible primary page content")
+            if candidate:
+                fields["primary_content_snippets"].append(candidate)
+        if priority_kind == "cta-or-control":
+            candidate = line_candidate(item, surface_confidence, note="visible page action or CTA text")
+            if candidate:
+                fields["cta_or_action_text_candidates"].append(candidate)
+
+    cta_pattern = re.compile(r"\bsubmit\b|\bconfirm\b|\bcontinue\b|\bopen\b|\blaunch\b|\bshare\b|\bsign in\b", re.IGNORECASE)
+    for item in lines_for_section(merged_lines, "main_content") + lines_for_section(merged_lines, "footer"):
+        text = str(item.get("text") or "")
+        if cta_pattern.search(text):
+            candidate = merged_line_candidate(item, surface_confidence, note="visible page action or CTA text")
+            if candidate:
+                fields["cta_or_action_text_candidates"].append(candidate)
+
+    for item in lines_for_section(merged_lines, "left_sidebar") + lines_for_section(merged_lines, "right_sidebar"):
+        candidate = merged_line_candidate(item, surface_confidence, note="visible browser navigation text")
+        if candidate:
+            fields["sidebar_navigation_candidates"].append(candidate)
+
+    for name in fields:
+        fields[name] = dedupe_field_candidates(fields[name])
+    return fields
+
+
+def build_structured_fields(
+    category: str,
+    label: str,
+    surface_confidence: str,
+    title: str,
+    app: str,
+    merged_lines: list[dict[str, object]],
+    useful_lines: list[dict[str, object]],
+    useful_regions: list[dict[str, object]],
+) -> dict[str, object]:
+    attempted_fields = STRUCTURED_FIELD_NAMES.get(category, [])
+    fields: dict[str, list[dict[str, object]]] = {name: [] for name in attempted_fields}
+
+    if category == "editor":
+        fields = build_editor_structured_fields(title, app, surface_confidence, merged_lines, useful_lines)
+    elif category == "chat":
+        fields = build_chat_structured_fields(title, app, surface_confidence, merged_lines, useful_lines)
+    elif category == "terminal":
+        fields = build_terminal_structured_fields(surface_confidence, merged_lines, useful_lines)
+    elif category == "browser-web-app":
+        fields = build_browser_structured_fields(title, app, surface_confidence, merged_lines, useful_lines)
+
+    empty_fields = [name for name in attempted_fields if not fields.get(name)]
+    source_refs = {"structured_fields_heuristics", "surface_classification_heuristics"}
+    if attempted_fields:
+        source_refs.update({"ocr_normalized", "layout_heuristics"})
+    if title:
+        source_refs.add("window_metadata")
+
+    return {
+        "category": category,
+        "label": label,
+        "surface_confidence": surface_confidence,
+        "attempted_fields": attempted_fields,
+        "fields": fields,
+        "empty_fields": empty_fields,
+        "non_empty_fields": [name for name in attempted_fields if fields.get(name)],
+        "useful_region_roles": [str(item.get("role") or "") for item in useful_regions],
+        "source_refs": sorted(source_refs),
+        "approximate": True,
+    }
+
 
 def priority_kind_for_line(category: str, text: str, section_role: str) -> str:
     lowered = text.lower()
@@ -967,6 +1531,7 @@ def main() -> int:
     ocr_normalized_text_path = pathlib.Path(args.ocr_normalized_text)
     layout_path = pathlib.Path(args.layout_path)
     surface_profile_path = run_dir / "surface-profile.json"
+    structured_fields_path = run_dir / "structured-fields.json"
     source_perceive_manifest = pathlib.Path(args.source_perceive_manifest)
     source_windows = pathlib.Path(args.source_windows)
     source_active_props = pathlib.Path(args.source_active_props)
@@ -1003,6 +1568,16 @@ def main() -> int:
     surface_profile = classify_surface_profile(app, title, process_info, target_props, merged_lines, layout)
     useful_lines = build_useful_lines(merged_lines, surface_profile["category"])
     useful_regions = build_useful_regions(layout, surface_profile["category"])
+    structured_fields = build_structured_fields(
+        surface_profile["category"],
+        str(surface_profile["label"]),
+        str(surface_profile["confidence"]),
+        title,
+        app,
+        merged_lines,
+        useful_lines,
+        useful_regions,
+    )
     normalized_excerpts = [str(item["text"]) for item in useful_lines[:8]]
     readable_text_lines = [str(item["text"]) for item in merged_lines[:24]]
     ocr_normalized_text_path.write_text("\n".join(readable_text_lines) + ("\n" if readable_text_lines else ""), encoding="utf-8")
@@ -1016,6 +1591,10 @@ def main() -> int:
     }
     surface_profile_path.write_text(
         json.dumps(surface_profile_artifact, indent=2, ensure_ascii=True) + "\n",
+        encoding="utf-8",
+    )
+    structured_fields_path.write_text(
+        json.dumps(structured_fields, indent=2, ensure_ascii=True) + "\n",
         encoding="utf-8",
     )
 
@@ -1107,6 +1686,7 @@ def main() -> int:
         limits.append("Layout heuristics are approximate and only describe the captured frame, not off-screen monitors or hidden workspaces.")
         limits.append("OCR normalization improves readability, but stylized text, icons, and non-text imagery can still be missed or distorted.")
         limits.append("Surface classification is heuristic and can be pulled off course by mixed content inside the active window, even when metadata is strong.")
+        limits.append("Structured fields are heuristic extracts from visible text and metadata; empty or partial fields are expected when the captured frame lacks a stable signal.")
     else:
         claims.append(
             {
@@ -1152,6 +1732,7 @@ def main() -> int:
         limits.append("Layout sections are heuristic regions derived from OCR geometry; they are useful structure hints, not pixel-perfect segmentation.")
         limits.append("The description only covers the captured target window, not hidden tabs, background windows, or content outside the frame.")
         limits.append("Surface classification is heuristic and can still be uncertain for mixed or unusually dense interfaces.")
+        limits.append("Structured fields are heuristic extracts from visible text and metadata; they should support reasoning, not be treated as hidden-state certainty.")
 
     summary = " ".join(claim["text"] for claim in claims[:3])
     if target_kind == "desktop":
@@ -1178,6 +1759,7 @@ def main() -> int:
         "layout": layout,
         "useful_regions": useful_regions,
         "useful_lines": useful_lines,
+        "structured_fields": structured_fields,
         "readable_text": {
             "raw_excerpt": [str(item["text"]) for item in raw_lines[:8]],
             "enhanced_excerpt": [str(item["text"]) for item in enhanced_lines[:8]],
@@ -1208,6 +1790,7 @@ def main() -> int:
             "ocr_normalized": "deduplicated, whitespace-normalized text assembled from OCR candidates",
             "layout_heuristics": "approximate section labels inferred from OCR bounding boxes",
             "surface_classification_heuristics": "category inference and ranked useful lines/regions derived from metadata, OCR, and layout hints",
+            "structured_fields_heuristics": "surface-specific field extraction derived from metadata, normalized OCR, useful lines, and useful regions",
         },
         "limits": limits,
     }
@@ -1274,6 +1857,14 @@ def main() -> int:
                 "certainty": claim_confidence_from_surface(str(surface_profile["confidence"])),
                 "notes": "This is an auditable heuristic layer built from metadata, OCR, and layout cues rather than hidden UI state.",
             },
+            {
+                "id": "structured_fields_heuristics",
+                "kind": "heuristic",
+                "paths": [str(structured_fields_path)],
+                "role": "surface-specific structured field extraction built from metadata, OCR normalization, useful lines, and useful regions",
+                "certainty": claim_confidence_from_surface(str(surface_profile["confidence"])),
+                "notes": "Structured fields are approximate and intentionally leave gaps when the visible evidence is weak or ambiguous.",
+            },
         ],
         "supporting": [
             {
@@ -1320,6 +1911,7 @@ def main() -> int:
         "ocr_normalized_text": str(ocr_normalized_text_path),
         "layout": str(layout_path),
         "surface_profile": str(surface_profile_path),
+        "structured_fields": str(structured_fields_path),
         "source_perceive_manifest": str(source_perceive_manifest),
     }
     if source_active_props.exists():
@@ -1348,6 +1940,7 @@ def main() -> int:
         "surface_classification": description["surface_classification"],
         "useful_lines": description["useful_lines"],
         "useful_regions": description["useful_regions"],
+        "structured_fields": description["structured_fields"],
     }
 
     description_path.write_text(json.dumps(description, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
@@ -1394,6 +1987,16 @@ def main() -> int:
         f"- [{item['role']}/{item['line_count']}] {item['label']} -> {item['reason']}"
         for item in useful_regions[:6]
     )
+    summary_lines.append("structured_fields:")
+    for field_name in structured_fields["attempted_fields"]:
+        entries = structured_fields["fields"].get(field_name) or []
+        if not entries:
+            summary_lines.append(f"- {field_name}: (none)")
+            continue
+        summary_lines.append(
+            f"- {field_name}: "
+            + "; ".join(f"{entry['value']} [{entry['confidence']}]" for entry in entries[:3])
+        )
     summary_lines.append("limits:")
     summary_lines.extend(f"- {line}" for line in limits)
     summary_path.write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
