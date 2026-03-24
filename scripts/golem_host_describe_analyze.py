@@ -727,6 +727,38 @@ FINE_FIELD_NAMES = {
     ],
 }
 
+CONTEXTUAL_REFINEMENT_NAMES = {
+    "editor": [
+        "active_tab_candidate",
+        "visible_tab_candidates",
+        "primary_error_candidate",
+        "secondary_error_candidates",
+        "active_file_candidate",
+        "sidebar_context_candidates",
+    ],
+    "chat": [
+        "active_conversation_candidate",
+        "sidebar_conversation_candidates",
+        "input_box_candidate",
+        "visible_message_snippets",
+        "composer_text_candidate",
+    ],
+    "terminal": [
+        "active_prompt_candidate",
+        "historical_prompt_candidates",
+        "recent_command_candidate",
+        "primary_error_output_candidate",
+        "recent_output_block_snippets",
+    ],
+    "browser-web-app": [
+        "primary_header_candidate",
+        "primary_cta_candidate",
+        "secondary_action_candidates",
+        "sidebar_navigation_candidates",
+        "main_content_snippets",
+    ],
+}
+
 
 def unique_text_values(values: list[str]) -> list[str]:
     results = []
@@ -779,7 +811,9 @@ def make_field_candidate(
     avg_confidence: float | int | None = None,
     section_role: str = "",
     priority_kind: str = "",
+    center_x_ratio: float | int | None = None,
     center_y_ratio: float | int | None = None,
+    width_ratio: float | int | None = None,
     note: str = "",
 ) -> dict[str, object] | None:
     normalized = normalize_visible_text(value)
@@ -795,8 +829,12 @@ def make_field_candidate(
         candidate["section_role"] = section_role
     if priority_kind:
         candidate["priority_kind"] = priority_kind
+    if isinstance(center_x_ratio, (int, float)):
+        candidate["center_x_ratio"] = round(float(center_x_ratio), 4)
     if isinstance(center_y_ratio, (int, float)):
         candidate["center_y_ratio"] = round(float(center_y_ratio), 4)
+    if isinstance(width_ratio, (int, float)):
+        candidate["width_ratio"] = round(float(width_ratio), 4)
     if note:
         candidate["note"] = note
     return candidate
@@ -836,7 +874,9 @@ def line_candidate(
         avg_confidence=item.get("avg_confidence"),
         section_role=str(item.get("section_role") or ""),
         priority_kind=str(item.get("priority_kind") or ""),
+        center_x_ratio=item.get("center_x_ratio"),
         center_y_ratio=item.get("center_y_ratio"),
+        width_ratio=item.get("width_ratio"),
         note=note,
     )
 
@@ -853,7 +893,9 @@ def merged_line_candidate(
         ["ocr_normalized", "layout_heuristics", "surface_classification_heuristics", "structured_fields_heuristics"],
         avg_confidence=item.get("avg_confidence"),
         section_role=str(item.get("section_role") or ""),
+        center_x_ratio=item.get("center_x_ratio"),
         center_y_ratio=item.get("center_y_ratio"),
+        width_ratio=item.get("width_ratio"),
         note=note,
     )
 
@@ -896,8 +938,12 @@ def clone_existing_candidate(
         candidate["section_role"] = str(item["section_role"])
     if item.get("priority_kind"):
         candidate["priority_kind"] = str(item["priority_kind"])
+    if isinstance(item.get("center_x_ratio"), (int, float)):
+        candidate["center_x_ratio"] = round(float(item["center_x_ratio"]), 4)
     if isinstance(item.get("center_y_ratio"), (int, float)):
         candidate["center_y_ratio"] = round(float(item["center_y_ratio"]), 4)
+    if isinstance(item.get("width_ratio"), (int, float)):
+        candidate["width_ratio"] = round(float(item["width_ratio"]), 4)
     if note:
         candidate["note"] = note
     elif item.get("note"):
@@ -911,6 +957,8 @@ def sort_field_candidates(
     prefer_roles: tuple[str, ...] = (),
     prefer_kinds: tuple[str, ...] = (),
     prefer_recent: bool = False,
+    prefer_wider: bool = False,
+    prefer_longer: bool = False,
 ) -> list[dict[str, object]]:
     role_order = {value: idx for idx, value in enumerate(prefer_roles)}
     kind_order = {value: idx for idx, value in enumerate(prefer_kinds)}
@@ -921,12 +969,16 @@ def sort_field_candidates(
         kind = str(item.get("priority_kind") or "")
         confidence = str(item.get("confidence") or "low")
         center_y = float(item.get("center_y_ratio") or 0.0)
+        width_ratio = float(item.get("width_ratio") or 0.0)
+        value = str(item.get("value") or "")
         return (
             kind_order.get(kind, len(kind_order)),
             role_order.get(role, len(role_order)),
             confidence_order.get(confidence, 3),
             -center_y if prefer_recent else 0.0,
-            str(item.get("value") or ""),
+            -width_ratio if prefer_wider else 0.0,
+            -len(value) if prefer_longer else 0,
+            value,
         )
 
     return sorted(items, key=sort_key)
@@ -940,6 +992,8 @@ def take_ranked_candidates(
     prefer_roles: tuple[str, ...] = (),
     prefer_kinds: tuple[str, ...] = (),
     prefer_recent: bool = False,
+    prefer_wider: bool = False,
+    prefer_longer: bool = False,
 ) -> list[dict[str, object]]:
     cloned = []
     for item in items:
@@ -951,8 +1005,54 @@ def take_ranked_candidates(
         prefer_roles=prefer_roles,
         prefer_kinds=prefer_kinds,
         prefer_recent=prefer_recent,
+        prefer_wider=prefer_wider,
+        prefer_longer=prefer_longer,
     )
     return dedupe_field_candidates(ranked, limit=limit)
+
+
+def candidate_identity(item: dict[str, object]) -> str:
+    return fingerprint(str(item.get("value") or item.get("text") or ""))
+
+
+def filter_candidates_by_value(
+    items: list[dict[str, object]],
+    excluded: list[dict[str, object]] | None = None,
+) -> list[dict[str, object]]:
+    excluded_keys = {candidate_identity(item) for item in (excluded or []) if candidate_identity(item)}
+    return [item for item in items if candidate_identity(item) not in excluded_keys]
+
+
+def filter_candidates_by_pattern(items: list[dict[str, object]], pattern: re.Pattern[str]) -> list[dict[str, object]]:
+    return [item for item in items if pattern.search(str(item.get("value") or item.get("text") or ""))]
+
+
+def contextualize_candidates(
+    items: list[dict[str, object]],
+    *,
+    limit: int = 1,
+    role: str = "",
+    priority: str = "",
+    activity_state: str = "",
+    note: str = "",
+) -> list[dict[str, object]]:
+    results = []
+    for item in items:
+        candidate = clone_existing_candidate(item, note=note)
+        if not candidate:
+            continue
+        source_refs = list(candidate.get("source_refs") or [])
+        if "contextual_refinement_heuristics" not in source_refs:
+            source_refs.append("contextual_refinement_heuristics")
+        candidate["source_refs"] = sorted(set(source_refs))
+        if role:
+            candidate["role"] = role
+        if priority:
+            candidate["priority"] = priority
+        if activity_state:
+            candidate["activity_state"] = activity_state
+        results.append(candidate)
+    return dedupe_field_candidates(results, limit=limit)
 
 
 def split_window_title_candidates(title: str, app: str) -> list[str]:
@@ -1484,6 +1584,346 @@ def build_fine_fields(
     return fine_fields
 
 
+def build_editor_contextual_refinements(
+    fields: dict[str, list[dict[str, object]]],
+    fine_fields: dict[str, list[dict[str, object]]],
+) -> dict[str, list[dict[str, object]]]:
+    refinements = {name: [] for name in CONTEXTUAL_REFINEMENT_NAMES["editor"]}
+    active_file = fine_fields.get("active_file_candidate") or []
+    primary_error = fine_fields.get("primary_error_candidate") or []
+
+    active_tab_base = take_ranked_candidates(
+        fields.get("file_or_tab_candidates") or [],
+        note="best visible tab candidate inferred from editor header/main content ordering",
+        prefer_roles=("header", "main_content"),
+        prefer_kinds=("workspace-header", "file-reference"),
+        prefer_wider=True,
+    )
+    if not active_tab_base:
+        active_tab_base = active_file
+    refinements["active_tab_candidate"] = contextualize_candidates(
+        active_tab_base,
+        role="tab",
+        priority="primary",
+        activity_state="active",
+        note="editor tab most likely active based on header prominence and file cues",
+    )
+    visible_tabs_base = filter_candidates_by_value(
+        fields.get("file_or_tab_candidates") or [],
+        refinements["active_tab_candidate"],
+    )
+    visible_tabs_base = take_ranked_candidates(
+        visible_tabs_base,
+        limit=4,
+        note="other visible editor tabs or file labels besides the likely active tab",
+        prefer_roles=("header", "main_content"),
+        prefer_kinds=("workspace-header", "file-reference"),
+        prefer_wider=True,
+    )
+    refinements["visible_tab_candidates"] = contextualize_candidates(
+        visible_tabs_base,
+        limit=4,
+        role="tab",
+        priority="secondary",
+        activity_state="visible",
+        note="visible editor tabs that do not appear to be the active one",
+    )
+    explicit_error_pattern = re.compile(r"\berror\b|\btraceback\b|\bfailed\b", re.IGNORECASE)
+    primary_error_base = filter_candidates_by_pattern(fields.get("error_candidates") or [], explicit_error_pattern)
+    primary_error_base = take_ranked_candidates(
+        primary_error_base or (fields.get("error_candidates") or []),
+        note="dominant editor error candidate emphasizing explicit error or traceback text",
+        prefer_roles=("main_content", "bottom_panel"),
+        prefer_kinds=("error-line",),
+        prefer_recent=True,
+        prefer_longer=True,
+    )
+    if not primary_error_base:
+        primary_error_base = primary_error
+    refinements["primary_error_candidate"] = contextualize_candidates(
+        primary_error_base,
+        role="error",
+        priority="primary",
+        activity_state="current",
+        note="dominant editor error candidate based on error strength and reading priority",
+    )
+    secondary_error_base = filter_candidates_by_value(
+        fields.get("error_candidates") or [],
+        primary_error_base,
+    )
+    secondary_error_base = take_ranked_candidates(
+        secondary_error_base,
+        limit=4,
+        note="other visible editor errors besides the dominant one",
+        prefer_roles=("main_content", "bottom_panel"),
+        prefer_kinds=("error-line",),
+        prefer_recent=True,
+        prefer_longer=True,
+    )
+    refinements["secondary_error_candidates"] = contextualize_candidates(
+        secondary_error_base,
+        limit=4,
+        role="error",
+        priority="secondary",
+        activity_state="visible",
+        note="secondary editor errors that remain visible but less dominant",
+    )
+    refinements["active_file_candidate"] = contextualize_candidates(
+        active_file,
+        role="file",
+        priority="primary",
+        activity_state="active",
+        note="editor file most likely active in the current working area",
+    )
+    refinements["sidebar_context_candidates"] = contextualize_candidates(
+        fine_fields.get("explorer_context_candidates") or [],
+        limit=4,
+        role="sidebar-context",
+        priority="secondary",
+        activity_state="visible",
+        note="editor sidebar or explorer context that appears visible but not active",
+    )
+    return refinements
+
+
+def build_chat_contextual_refinements(
+    fine_fields: dict[str, list[dict[str, object]]],
+) -> dict[str, list[dict[str, object]]]:
+    refinements = {name: [] for name in CONTEXTUAL_REFINEMENT_NAMES["chat"]}
+    active_conversation = fine_fields.get("conversation_title_candidate") or []
+    refinements["active_conversation_candidate"] = contextualize_candidates(
+        active_conversation,
+        role="conversation",
+        priority="primary",
+        activity_state="active",
+        note="chat conversation most likely active based on header prominence",
+    )
+    sidebar_candidates = filter_candidates_by_value(
+        fine_fields.get("sidebar_conversation_candidates") or [],
+        active_conversation,
+    )
+    refinements["sidebar_conversation_candidates"] = contextualize_candidates(
+        sidebar_candidates,
+        limit=4,
+        role="conversation",
+        priority="secondary",
+        activity_state="visible",
+        note="sidebar conversations that appear visible but not active",
+    )
+    refinements["input_box_candidate"] = contextualize_candidates(
+        fine_fields.get("input_box_candidate") or [],
+        role="input-box",
+        priority="primary",
+        activity_state="active",
+        note="current input box candidate for the visible chat surface",
+    )
+    refinements["visible_message_snippets"] = contextualize_candidates(
+        fine_fields.get("visible_message_snippets") or [],
+        limit=4,
+        role="message",
+        priority="primary",
+        activity_state="visible",
+        note="currently visible chat messages in the conversation body",
+    )
+    composer_base = take_ranked_candidates(
+        (fine_fields.get("input_box_candidate") or []) + (fine_fields.get("visible_message_snippets") or []),
+        note="best visible composer text candidate near the lower chat area",
+        prefer_roles=("footer", "main_content"),
+        prefer_recent=True,
+        prefer_longer=True,
+    )
+    refinements["composer_text_candidate"] = contextualize_candidates(
+        composer_base,
+        role="composer",
+        priority="primary",
+        activity_state="active",
+        note="chat composer text most likely current rather than historical interface text",
+    )
+    return refinements
+
+
+def build_terminal_contextual_refinements(
+    fields: dict[str, list[dict[str, object]]],
+    fine_fields: dict[str, list[dict[str, object]]],
+) -> dict[str, list[dict[str, object]]]:
+    refinements = {name: [] for name in CONTEXTUAL_REFINEMENT_NAMES["terminal"]}
+    active_prompt = take_ranked_candidates(
+        fields.get("prompt_candidates") or [],
+        note="terminal prompt most likely current based on lower on-screen position",
+        prefer_recent=True,
+        prefer_longer=True,
+    )
+    if not active_prompt:
+        active_prompt = fine_fields.get("active_prompt_candidate") or []
+    refinements["active_prompt_candidate"] = contextualize_candidates(
+        active_prompt,
+        role="prompt",
+        priority="primary",
+        activity_state="active",
+        note="terminal prompt most likely current based on lower on-screen position",
+    )
+    historical_prompts_base = filter_candidates_by_value(
+        fields.get("prompt_candidates") or [],
+        active_prompt,
+    )
+    historical_prompts_base = take_ranked_candidates(
+        historical_prompts_base,
+        limit=4,
+        note="older terminal prompts that remain visible above the active one",
+        prefer_recent=False,
+        prefer_longer=True,
+    )
+    refinements["historical_prompt_candidates"] = contextualize_candidates(
+        historical_prompts_base,
+        limit=4,
+        role="prompt",
+        priority="secondary",
+        activity_state="historical",
+        note="terminal prompts that look historical rather than current",
+    )
+    recent_command_base = take_ranked_candidates(
+        fields.get("command_candidates") or [],
+        note="terminal command closest to the active lower prompt region",
+        prefer_recent=True,
+        prefer_longer=True,
+    )
+    if not recent_command_base:
+        recent_command_base = fine_fields.get("recent_command_candidate") or []
+    refinements["recent_command_candidate"] = contextualize_candidates(
+        recent_command_base,
+        role="command",
+        priority="primary",
+        activity_state="recent",
+        note="terminal command most likely associated with the current active prompt",
+    )
+    explicit_error_pattern = re.compile(r"\berror\b|\btraceback\b|\bfailed\b", re.IGNORECASE)
+    primary_error_base = filter_candidates_by_pattern(fields.get("error_output_candidates") or [], explicit_error_pattern)
+    primary_error_base = take_ranked_candidates(
+        primary_error_base or (fields.get("error_output_candidates") or []),
+        note="strongest terminal error candidate emphasizing explicit error or traceback text",
+        prefer_recent=True,
+        prefer_longer=True,
+    )
+    if not primary_error_base:
+        primary_error_base = fine_fields.get("primary_error_output_candidate") or []
+    refinements["primary_error_output_candidate"] = contextualize_candidates(
+        primary_error_base,
+        role="error-output",
+        priority="primary",
+        activity_state="recent",
+        note="terminal error output that appears dominant relative to surrounding output",
+    )
+    output_base = filter_candidates_by_value(
+        fine_fields.get("recent_output_block_snippets") or [],
+        primary_error_base,
+    )
+    refinements["recent_output_block_snippets"] = contextualize_candidates(
+        output_base,
+        limit=4,
+        role="output-block",
+        priority="primary",
+        activity_state="recent",
+        note="recent terminal output block kept separate from older prompts and dominant errors",
+    )
+    return refinements
+
+
+def build_browser_contextual_refinements(
+    fields: dict[str, list[dict[str, object]]],
+    fine_fields: dict[str, list[dict[str, object]]],
+) -> dict[str, list[dict[str, object]]]:
+    refinements = {name: [] for name in CONTEXTUAL_REFINEMENT_NAMES["browser-web-app"]}
+    refinements["primary_header_candidate"] = contextualize_candidates(
+        fine_fields.get("primary_header_candidate") or [],
+        role="header",
+        priority="primary",
+        activity_state="active",
+        note="browser header most likely central and primary rather than peripheral chrome",
+    )
+    primary_cta_base = take_ranked_candidates(
+        fields.get("cta_or_action_text_candidates") or [],
+        note="best visible primary CTA based on footer/main-content placement and control wording",
+        prefer_roles=("footer", "main_content", "header"),
+        prefer_kinds=("cta-or-control",),
+        prefer_recent=True,
+        prefer_wider=True,
+        prefer_longer=True,
+    )
+    if not primary_cta_base:
+        primary_cta_base = fine_fields.get("primary_cta_candidate") or []
+    refinements["primary_cta_candidate"] = contextualize_candidates(
+        primary_cta_base,
+        role="action",
+        priority="primary",
+        activity_state="active",
+        note="browser CTA most likely primary rather than secondary action chrome",
+    )
+    secondary_action_base = filter_candidates_by_value(
+        fields.get("cta_or_action_text_candidates") or [],
+        refinements["primary_cta_candidate"],
+    )
+    secondary_action_base = take_ranked_candidates(
+        secondary_action_base,
+        limit=4,
+        note="other visible browser actions besides the dominant CTA",
+        prefer_roles=("main_content", "footer", "header"),
+        prefer_kinds=("cta-or-control",),
+        prefer_recent=True,
+        prefer_longer=True,
+    )
+    refinements["secondary_action_candidates"] = contextualize_candidates(
+        secondary_action_base,
+        limit=4,
+        role="action",
+        priority="secondary",
+        activity_state="visible",
+        note="secondary browser actions that remain visible but less primary than the main CTA",
+    )
+    refinements["sidebar_navigation_candidates"] = contextualize_candidates(
+        fine_fields.get("sidebar_navigation_candidates") or [],
+        limit=4,
+        role="navigation",
+        priority="secondary",
+        activity_state="visible",
+        note="browser navigation entries that appear lateral rather than central",
+    )
+    content_base = filter_candidates_by_value(
+        fine_fields.get("main_content_snippets") or [],
+        refinements["secondary_action_candidates"],
+    )
+    refinements["main_content_snippets"] = contextualize_candidates(
+        content_base,
+        limit=4,
+        role="content",
+        priority="primary",
+        activity_state="visible",
+        note="browser main content kept distinct from side navigation and secondary controls",
+    )
+    return refinements
+
+
+def build_contextual_refinements(
+    category: str,
+    fields: dict[str, list[dict[str, object]]],
+    fine_fields: dict[str, list[dict[str, object]]],
+) -> dict[str, list[dict[str, object]]]:
+    refinements: dict[str, list[dict[str, object]]] = {
+        name: [] for name in CONTEXTUAL_REFINEMENT_NAMES.get(category, [])
+    }
+    if category == "editor":
+        refinements = build_editor_contextual_refinements(fields, fine_fields)
+    elif category == "chat":
+        refinements = build_chat_contextual_refinements(fine_fields)
+    elif category == "terminal":
+        refinements = build_terminal_contextual_refinements(fields, fine_fields)
+    elif category == "browser-web-app":
+        refinements = build_browser_contextual_refinements(fields, fine_fields)
+
+    for name in refinements:
+        refinements[name] = dedupe_field_candidates(refinements[name], limit=4)
+    return refinements
+
+
 def build_structured_fields(
     category: str,
     label: str,
@@ -1496,8 +1936,12 @@ def build_structured_fields(
 ) -> dict[str, object]:
     attempted_fields = STRUCTURED_FIELD_NAMES.get(category, [])
     attempted_fine_fields = FINE_FIELD_NAMES.get(category, [])
+    attempted_contextual_refinements = CONTEXTUAL_REFINEMENT_NAMES.get(category, [])
     fields: dict[str, list[dict[str, object]]] = {name: [] for name in attempted_fields}
     fine_fields: dict[str, list[dict[str, object]]] = {name: [] for name in attempted_fine_fields}
+    contextual_refinements: dict[str, list[dict[str, object]]] = {
+        name: [] for name in attempted_contextual_refinements
+    }
 
     if category == "editor":
         fields = build_editor_structured_fields(title, app, surface_confidence, merged_lines, useful_lines)
@@ -1511,11 +1955,17 @@ def build_structured_fields(
     empty_fields = [name for name in attempted_fields if not fields.get(name)]
     fine_fields = build_fine_fields(category, fields)
     empty_fine_fields = [name for name in attempted_fine_fields if not fine_fields.get(name)]
+    contextual_refinements = build_contextual_refinements(category, fields, fine_fields)
+    empty_contextual_refinements = [
+        name for name in attempted_contextual_refinements if not contextual_refinements.get(name)
+    ]
     source_refs = {"structured_fields_heuristics", "surface_classification_heuristics"}
-    if attempted_fields or attempted_fine_fields:
+    if attempted_fields or attempted_fine_fields or attempted_contextual_refinements:
         source_refs.update({"ocr_normalized", "layout_heuristics"})
     if title:
         source_refs.add("window_metadata")
+    if attempted_contextual_refinements:
+        source_refs.add("contextual_refinement_heuristics")
 
     return {
         "category": category,
@@ -1529,6 +1979,12 @@ def build_structured_fields(
         "fine_fields": fine_fields,
         "empty_fine_fields": empty_fine_fields,
         "non_empty_fine_fields": [name for name in attempted_fine_fields if fine_fields.get(name)],
+        "attempted_contextual_refinements": attempted_contextual_refinements,
+        "contextual_refinements": contextual_refinements,
+        "empty_contextual_refinements": empty_contextual_refinements,
+        "non_empty_contextual_refinements": [
+            name for name in attempted_contextual_refinements if contextual_refinements.get(name)
+        ],
         "useful_region_roles": [str(item.get("role") or "") for item in useful_regions],
         "source_refs": sorted(source_refs),
         "approximate": True,
@@ -2093,6 +2549,7 @@ def main() -> int:
             "layout_heuristics": "approximate section labels inferred from OCR bounding boxes",
             "surface_classification_heuristics": "category inference and ranked useful lines/regions derived from metadata, OCR, and layout hints",
             "structured_fields_heuristics": "surface-specific field extraction derived from metadata, normalized OCR, useful lines, and useful regions",
+            "contextual_refinement_heuristics": "context-aware refinement that distinguishes active, primary, secondary, visible, and historical candidates from the structured fields",
         },
         "limits": limits,
     }
@@ -2166,6 +2623,14 @@ def main() -> int:
                 "role": "surface-specific structured field extraction built from metadata, OCR normalization, useful lines, and useful regions",
                 "certainty": claim_confidence_from_surface(str(surface_profile["confidence"])),
                 "notes": "Structured fields are approximate and intentionally leave gaps when the visible evidence is weak or ambiguous.",
+            },
+            {
+                "id": "contextual_refinement_heuristics",
+                "kind": "heuristic",
+                "paths": [str(structured_fields_path)],
+                "role": "contextual prioritization over fine fields to distinguish active, primary, secondary, visible, and historical candidates",
+                "certainty": claim_confidence_from_surface(str(surface_profile["confidence"])),
+                "notes": "Contextual refinements stay auditable and can remain empty when the visible evidence does not support a confident distinction.",
             },
         ],
         "supporting": [
@@ -2308,6 +2773,19 @@ def main() -> int:
         summary_lines.append(
             f"- {field_name}: "
             + "; ".join(f"{entry['value']} [{entry['confidence']}]" for entry in entries[:3])
+        )
+    summary_lines.append("contextual_refinements:")
+    for field_name in structured_fields["attempted_contextual_refinements"]:
+        entries = structured_fields["contextual_refinements"].get(field_name) or []
+        if not entries:
+            summary_lines.append(f"- {field_name}: (none)")
+            continue
+        summary_lines.append(
+            f"- {field_name}: "
+            + "; ".join(
+                f"{entry['value']} [{entry['confidence']}/{entry.get('activity_state', 'unknown')}/{entry.get('priority', 'unknown')}]"
+                for entry in entries[:3]
+            )
         )
     summary_lines.append("limits:")
     summary_lines.extend(f"- {line}" for line in limits)

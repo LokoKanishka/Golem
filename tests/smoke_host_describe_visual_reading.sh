@@ -13,10 +13,15 @@ window_id=""
 wait_for_active_title() {
   local expected="$1"
   local active_title=""
+  local attempt=0
   for _ in $(seq 1 50); do
+    attempt=$((attempt + 1))
     active_title="$(xdotool getactivewindow getwindowname 2>/dev/null || true)"
     if [[ "$active_title" == "$expected" ]]; then
       return 0
+    fi
+    if (( attempt % 10 == 0 )); then
+      wmctrl -a "$expected" >/dev/null 2>&1 || true
     fi
     sleep 0.1
   done
@@ -84,7 +89,9 @@ text.insert(
     "Visible text should be readable\n"
     "Layout evidence must stay explicit\n"
     "Main panel contains denser content than sidebar\n"
-    "Footer actions remain separate\n",
+    "Footer actions remain separate\n"
+    "Open Report is the primary action\n"
+    "Details is secondary\n",
 )
 text.configure(state="disabled")
 
@@ -92,7 +99,8 @@ footer = tk.Frame(root, bg="#eef2f5", height=72)
 footer.pack(fill="x")
 footer.pack_propagate(False)
 tk.Label(footer, text="Footer Actions", bg="#eef2f5", font=("DejaVu Sans", 18, "bold")).pack(side="left", padx=20, pady=18)
-tk.Label(footer, text="Confirm Layout", bg="#eef2f5", font=("DejaVu Sans", 16)).pack(side="left", padx=18)
+tk.Label(footer, text="Open Report", bg="#eef2f5", font=("DejaVu Sans", 16, "bold")).pack(side="left", padx=18)
+tk.Label(footer, text="Details", bg="#eef2f5", font=("DejaVu Sans", 16)).pack(side="left", padx=18)
 
 root.after(30000, root.destroy)
 root.mainloop()
@@ -148,6 +156,7 @@ useful_lines = active_description["useful_lines"]
 useful_regions = active_description["useful_regions"]
 structured_fields = active_description["structured_fields"]
 fine_fields = structured_fields["fine_fields"]
+contextual_refinements = structured_fields["contextual_refinements"]
 
 assert title in active_description["target_window"]["title"], active_description["target_window"]
 assert {"header", "left_sidebar", "main_content"}.issubset(roles), layout
@@ -162,6 +171,13 @@ assert fine_fields["primary_header_candidate"], fine_fields
 assert fine_fields["page_title_candidate"], fine_fields
 assert fine_fields["main_content_snippets"], fine_fields
 assert fine_fields["primary_cta_candidate"], fine_fields
+assert contextual_refinements["primary_header_candidate"], contextual_refinements
+assert contextual_refinements["primary_cta_candidate"], contextual_refinements
+assert contextual_refinements["secondary_action_candidates"], contextual_refinements
+assert contextual_refinements["main_content_snippets"], contextual_refinements
+assert contextual_refinements["primary_cta_candidate"][0]["priority"] == "primary", contextual_refinements
+assert contextual_refinements["secondary_action_candidates"][0]["priority"] == "secondary", contextual_refinements
+assert "Details" in json.dumps(contextual_refinements["secondary_action_candidates"]), contextual_refinements
 normalized_ocr_text = pathlib.Path(active_payload["artifacts"]["ocr_normalized_text"]).read_text(encoding="utf-8")
 assert "Visual Reading Smoke" in normalized_ocr_text or "Yisual Reading Smoke" in normalized_ocr_text
 assert "Sidebar Notes" in normalized_ocr_text
@@ -174,6 +190,7 @@ assert "prioritized visible cues include" in claims_text.lower(), claims_text
 assert "layout_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
 assert "surface_classification_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
 assert "structured_fields_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
+assert "contextual_refinement_heuristics" in json.dumps(active_payload["description"]["source_breakdown"]), active_payload["description"]["source_breakdown"]
 
 for key in ("ocr_text", "ocr_enhanced_text", "ocr_normalized_text", "layout", "surface_profile", "structured_fields", "description", "sources"):
     path = pathlib.Path(active_payload["artifacts"][key])

@@ -18,10 +18,15 @@ browser_pid=""
 wait_for_active_title() {
   local expected="$1"
   local active_title=""
+  local attempt=0
   for _ in $(seq 1 50); do
+    attempt=$((attempt + 1))
     active_title="$(xdotool getactivewindow getwindowname 2>/dev/null || true)"
     if [[ "$active_title" == "$expected" ]]; then
       return 0
+    fi
+    if (( attempt % 10 == 0 )); then
+      wmctrl -a "$expected" >/dev/null 2>&1 || true
     fi
     sleep 0.1
   done
@@ -55,6 +60,16 @@ header.pack_propagate(False)
 tk.Label(header, text="workspace/golem/scripts/golem_host_describe_analyze.py", fg="#d4d4d4", bg="#252526", font=("DejaVu Sans", 14, "bold")).pack(side="left", padx=16, pady=12)
 tk.Label(header, text="Problems 1", fg="#f48771", bg="#252526", font=("DejaVu Sans", 12)).pack(side="right", padx=16)
 
+tabs = tk.Frame(root, bg="#2d2d30", height=40)
+tabs.pack(fill="x")
+tabs.pack_propagate(False)
+for text_value, color, style in [
+    ("golem_host_describe_analyze.py", "#ffffff", "bold"),
+    ("smoke_host_describe_surface_profiles.sh", "#c8c8c8", "normal"),
+    ("HOST_CAPABILITIES.md", "#c8c8c8", "normal"),
+]:
+    tk.Label(tabs, text=text_value, fg=color, bg="#2d2d30", font=("DejaVu Sans", 12, style)).pack(side="left", padx=14, pady=10)
+
 body = tk.Frame(root, bg="#1e1e1e")
 body.pack(fill="both", expand=True)
 
@@ -77,7 +92,8 @@ text.insert(
     "    return \\"unknown\\"\\n\\n"
     "import json\\n"
     "Traceback sample line\\n"
-    "error: score_line_for_category mismatch\\n"
+    "error: active_tab_candidate mismatch\\n"
+    "warning: stale tab ordering\\n"
     "workspace/golem/tests/smoke_host_describe_surface_profiles.sh\\n"
 )
 text.configure(state="disabled")
@@ -100,7 +116,7 @@ root.configure(bg="#f6f2ea")
 header = tk.Frame(root, bg="#f4ede1", height=58)
 header.pack(fill="x")
 header.pack_propagate(False)
-tk.Label(header, text="Chat Workspace", fg="#2c2c2c", bg="#f4ede1", font=("DejaVu Sans", 18, "bold")).pack(side="left", padx=18, pady=14)
+tk.Label(header, text="Proyecto auditoria", fg="#2c2c2c", bg="#f4ede1", font=("DejaVu Sans", 18, "bold")).pack(side="left", padx=18, pady=14)
 tk.Label(header, text="Compartir", fg="#2c2c2c", bg="#f4ede1", font=("DejaVu Sans", 13)).pack(side="right", padx=18)
 
 body = tk.Frame(root, bg="#ffffff")
@@ -110,7 +126,7 @@ sidebar = tk.Frame(body, bg="#efe7dc", width=250)
 sidebar.pack(side="left", fill="y")
 sidebar.pack_propagate(False)
 tk.Label(sidebar, text="Nuevo chat", fg="#2c2c2c", bg="#efe7dc", font=("DejaVu Sans", 15, "bold")).pack(anchor="w", padx=16, pady=(18, 8))
-for line in ["Biblioteca", "Proyecto auditoria", "Checklist visual", "Resumen operativo"]:
+for line in ["Biblioteca", "Checklist visual", "Resumen operativo", "Seguimiento OCR"]:
     tk.Label(sidebar, text=line, fg="#3a3a3a", bg="#efe7dc", font=("DejaVu Sans", 13)).pack(anchor="w", padx=20, pady=4)
 
 main = tk.Frame(body, bg="#ffffff")
@@ -128,6 +144,7 @@ text.configure(state="disabled")
 footer = tk.Frame(root, bg="#f4ede1", height=72)
 footer.pack(fill="x")
 footer.pack_propagate(False)
+tk.Label(footer, text="Composer Draft", fg="#2c2c2c", bg="#f4ede1", font=("DejaVu Sans", 13, "bold")).pack(side="left", padx=(18, 0), pady=18)
 entry = tk.Entry(footer, font=("DejaVu Sans", 14))
 entry.insert(0, "Escribi un mensaje")
 entry.pack(side="left", fill="x", expand=True, padx=18, pady=18)
@@ -159,12 +176,13 @@ text = tk.Text(body, wrap="none", font=("DejaVu Sans Mono", 15), bg="#111111", f
 text.pack(fill="both", expand=True, padx=16, pady=16)
 text.insert(
     "1.0",
-    "lucy@host:~/golem$ python3 scripts/golem_host_describe.sh\\n"
+    "lucy@host:~/golem/tests$ pytest -q\\n"
+    "visible output block from previous command\\n"
     "lucy@host:~/golem$ rg surface_classification_heuristics scripts\\n"
     "error: smoke terminal classification example\\n"
     "Traceback sample line\\n"
     "exit code 1\\n"
-    "visible output block stays on screen\\n"
+    "lucy@host:~/golem$\\n"
 )
 text.configure(state="disabled")
 
@@ -207,6 +225,7 @@ text.insert(
     "1.0",
     "Primary content summary for the browser surface.\\n"
     "Open report to continue.\\n"
+    "View logs is secondary.\\n"
     "Sources stay visible in the sidebar.\\n"
     "Configuration text remains explicit.\\n"
 )
@@ -216,7 +235,7 @@ footer = tk.Frame(root, bg="#edf2f7", height=70)
 footer.pack(fill="x")
 footer.pack_propagate(False)
 tk.Label(footer, text="Open Report", fg="#203040", bg="#edf2f7", font=("DejaVu Sans", 15, "bold")).pack(side="left", padx=20, pady=18)
-tk.Label(footer, text="Continue", fg="#203040", bg="#edf2f7", font=("DejaVu Sans", 15)).pack(side="left", padx=18)
+tk.Label(footer, text="View Logs", fg="#203040", bg="#edf2f7", font=("DejaVu Sans", 15)).pack(side="left", padx=18)
 
 root.after(30000, root.destroy)
 root.mainloop()
@@ -288,13 +307,14 @@ terminal_title = sys.argv[11]
 browser_title = sys.argv[12]
 
 
-def assert_payload(payload, expected_category, allowed_kinds, required_fields, required_fine_fields):
+def assert_payload(payload, expected_category, allowed_kinds, required_fields, required_fine_fields, required_contextual_fields):
     description = payload["description"]
     classification = description["surface_classification"]
     useful_lines = description["useful_lines"]
     useful_regions = description["useful_regions"]
     structured_fields = description["structured_fields"]
     fine_fields = structured_fields["fine_fields"]
+    contextual_refinements = structured_fields["contextual_refinements"]
 
     assert classification["category"] == expected_category, classification
     assert classification["confidence"] in {"strong", "reasonable"}, classification
@@ -302,6 +322,7 @@ def assert_payload(payload, expected_category, allowed_kinds, required_fields, r
     assert useful_regions, useful_regions
     assert "surface_classification_heuristics" in payload["sources_used"], payload["sources_used"]
     assert "structured_fields_heuristics" in payload["sources_used"], payload["sources_used"]
+    assert "contextual_refinement_heuristics" in payload["sources_used"], payload["sources_used"]
     assert "surface_profile" in payload["artifacts"], payload["artifacts"]
     assert "structured_fields" in payload["artifacts"], payload["artifacts"]
     surface_profile_path = pathlib.Path(payload["artifacts"]["surface_profile"])
@@ -315,11 +336,14 @@ def assert_payload(payload, expected_category, allowed_kinds, required_fields, r
     assert stored_structured_fields["category"] == expected_category, stored_structured_fields
     assert structured_fields["attempted_fine_fields"], structured_fields
     assert stored_structured_fields["attempted_fine_fields"], stored_structured_fields
+    assert structured_fields["attempted_contextual_refinements"], structured_fields
+    assert stored_structured_fields["attempted_contextual_refinements"], stored_structured_fields
     kinds = {item["priority_kind"] for item in useful_lines}
     assert kinds & set(allowed_kinds), kinds
     assert "surface classification heuristics read the visible target as" in description["summary"].lower(), description["summary"]
     assert "surface_classification_heuristics" in description["source_breakdown"], description["source_breakdown"]
     assert "structured_fields_heuristics" in description["source_breakdown"], description["source_breakdown"]
+    assert "contextual_refinement_heuristics" in description["source_breakdown"], description["source_breakdown"]
     for field_name in required_fields:
         entries = structured_fields["fields"].get(field_name) or []
         assert entries, (field_name, structured_fields)
@@ -336,37 +360,65 @@ def assert_payload(payload, expected_category, allowed_kinds, required_fields, r
             assert entry["value"], entry
             assert entry["confidence"] in {"high", "medium", "low"}, entry
             assert entry["source_refs"], entry
-    return classification, useful_lines, kinds, structured_fields, fine_fields
+    for field_name in required_contextual_fields:
+        entries = contextual_refinements.get(field_name) or []
+        stored_entries = stored_structured_fields["contextual_refinements"].get(field_name) or []
+        assert entries, (field_name, contextual_refinements)
+        assert stored_entries, (field_name, stored_structured_fields["contextual_refinements"])
+        for entry in entries[:2]:
+            assert entry["value"], entry
+            assert entry["confidence"] in {"high", "medium", "low"}, entry
+            assert entry["source_refs"], entry
+            assert entry["priority"] in {"primary", "secondary"}, entry
+            assert entry["activity_state"] in {"active", "visible", "current", "recent", "historical"}, entry
+    return classification, useful_lines, kinds, structured_fields, fine_fields, contextual_refinements
 
 
-editor_classification, editor_lines, editor_kinds, editor_structured, editor_fine = assert_payload(
+editor_classification, editor_lines, editor_kinds, editor_structured, editor_fine, editor_context = assert_payload(
     editor_payload,
     "editor",
     {"error-line", "file-reference", "code-line", "explorer-item", "workspace-header"},
     {"workspace_or_project", "file_or_tab_candidates", "active_editor_text_snippets"},
     {"active_file_candidate", "visible_tab_candidates", "workspace_or_project_candidate", "explorer_context_candidates"},
+    {"active_tab_candidate", "visible_tab_candidates", "primary_error_candidate", "active_file_candidate", "sidebar_context_candidates"},
 )
-chat_classification, chat_lines, chat_kinds, chat_structured, chat_fine = assert_payload(
+chat_classification, chat_lines, chat_kinds, chat_structured, chat_fine, chat_context = assert_payload(
     chat_payload,
     "chat",
     {"visible-message", "composer", "conversation-sidebar"},
     {"conversation_title_candidates", "visible_message_snippets", "sidebar_chat_candidates"},
     {"conversation_title_candidate", "visible_message_snippets", "input_box_candidate", "sidebar_conversation_candidates"},
+    {"active_conversation_candidate", "sidebar_conversation_candidates", "input_box_candidate", "visible_message_snippets", "composer_text_candidate"},
 )
-terminal_classification, terminal_lines, terminal_kinds, terminal_structured, terminal_fine = assert_payload(
+terminal_classification, terminal_lines, terminal_kinds, terminal_structured, terminal_fine, terminal_context = assert_payload(
     terminal_payload,
     "terminal",
     {"command-or-prompt", "error-output", "visible-output"},
     {"prompt_candidates", "command_candidates", "error_output_candidates"},
     {"active_prompt_candidate", "recent_command_candidate", "primary_error_output_candidate", "recent_output_block_snippets"},
+    {"active_prompt_candidate", "historical_prompt_candidates", "recent_command_candidate", "primary_error_output_candidate", "recent_output_block_snippets"},
 )
-browser_classification, browser_lines, browser_kinds, browser_structured, browser_fine = assert_payload(
+browser_classification, browser_lines, browser_kinds, browser_structured, browser_fine, browser_context = assert_payload(
     browser_payload,
     "browser-web-app",
     {"page-header", "navigation", "page-content", "cta-or-control"},
     {"page_title_candidates", "header_text", "primary_content_snippets", "cta_or_action_text_candidates"},
     {"primary_header_candidate", "sidebar_navigation_candidates", "primary_cta_candidate", "main_content_snippets", "page_title_candidate"},
+    {"primary_header_candidate", "primary_cta_candidate", "secondary_action_candidates", "sidebar_navigation_candidates", "main_content_snippets"},
 )
+
+assert editor_context["active_tab_candidate"][0]["value"] != editor_context["visible_tab_candidates"][0]["value"], editor_context
+assert "error:" in editor_context["primary_error_candidate"][0]["value"].lower(), editor_context
+assert editor_context["primary_error_candidate"][0]["priority"] == "primary", editor_context
+assert chat_context["active_conversation_candidate"][0]["value"] != chat_context["sidebar_conversation_candidates"][0]["value"], chat_context
+assert "mensaje" in json.dumps(chat_context["input_box_candidate"], ensure_ascii=False).lower() or "composer" in json.dumps(chat_context["composer_text_candidate"], ensure_ascii=False).lower(), chat_context
+assert terminal_context["active_prompt_candidate"][0]["value"] != terminal_context["historical_prompt_candidates"][0]["value"], terminal_context
+assert "rg surface_classification_heuristics scripts" in json.dumps(terminal_context["recent_command_candidate"], ensure_ascii=False), terminal_context
+assert any(token in terminal_context["primary_error_output_candidate"][0]["value"].lower() for token in ["error:", "traceback"]), terminal_context
+assert "Open Report" in json.dumps(browser_context["primary_cta_candidate"], ensure_ascii=False), browser_context
+assert "View Logs" in json.dumps(browser_context["secondary_action_candidates"], ensure_ascii=False), browser_context
+assert "Home" in json.dumps(browser_context["sidebar_navigation_candidates"], ensure_ascii=False) or "Sources" in json.dumps(browser_context["sidebar_navigation_candidates"], ensure_ascii=False), browser_context
+assert "Primary content" in json.dumps(browser_context["main_content_snippets"], ensure_ascii=False) or "browser surface" in json.dumps(browser_context["main_content_snippets"], ensure_ascii=False), browser_context
 
 assert editor_title in editor_payload["description"]["target_window"]["title"], editor_payload["description"]["target_window"]
 assert chat_title in chat_payload["description"]["target_window"]["title"], chat_payload["description"]["target_window"]
@@ -400,4 +452,8 @@ print(f"HOST_DESCRIBE_EDITOR_FINE_FIELDS {editor_structured['non_empty_fine_fiel
 print(f"HOST_DESCRIBE_CHAT_FINE_FIELDS {chat_structured['non_empty_fine_fields']}")
 print(f"HOST_DESCRIBE_TERMINAL_FINE_FIELDS {terminal_structured['non_empty_fine_fields']}")
 print(f"HOST_DESCRIBE_BROWSER_FINE_FIELDS {browser_structured['non_empty_fine_fields']}")
+print(f"HOST_DESCRIBE_EDITOR_CONTEXTUAL {editor_structured['non_empty_contextual_refinements']}")
+print(f"HOST_DESCRIBE_CHAT_CONTEXTUAL {chat_structured['non_empty_contextual_refinements']}")
+print(f"HOST_DESCRIBE_TERMINAL_CONTEXTUAL {terminal_structured['non_empty_contextual_refinements']}")
+print(f"HOST_DESCRIBE_BROWSER_CONTEXTUAL {browser_structured['non_empty_contextual_refinements']}")
 PY
