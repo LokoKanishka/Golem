@@ -438,6 +438,8 @@ def suggest_second_action(
     bridge_service_issue = reason_mentions_bridge(reason, bridge_reason_state) or bridge_active != "active"
     explicit_gateway_fail = gateway_reason_state == "fail"
 
+    if "stack_startup_timeout" in reason and explicit_gateway_fail:
+        return "mirar estado del gateway en manifest.json"
     if "stack_startup_timeout" in reason:
         return "mirar pids y puertos relevantes en summary.txt"
     if task_api_issue and explicit_gateway_fail:

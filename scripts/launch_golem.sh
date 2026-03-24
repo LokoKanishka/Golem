@@ -112,6 +112,24 @@ extract_dashboard_url() {
   printf '%s\n' "$dashboard_url"
 }
 
+gateway_reason_state() {
+  local systemd_state
+  local gateway_raw
+
+  systemd_state="$(systemctl --user is-active "$SERVICE_NAME" 2>/dev/null || true)"
+  if [ "$systemd_state" != "active" ]; then
+    printf 'FAIL\n'
+    return 0
+  fi
+
+  gateway_raw="$(openclaw gateway status 2>&1 || true)"
+  if printf '%s\n' "$gateway_raw" | grep -q 'Runtime: running' && printf '%s\n' "$gateway_raw" | grep -q 'RPC probe: ok'; then
+    printf 'OK\n'
+  else
+    printf 'FAIL\n'
+  fi
+}
+
 ensure_gateway_active() {
   local state
   local attempt
@@ -138,6 +156,8 @@ ensure_gateway_active() {
 
 ensure_local_task_stack_active() {
   local attempt
+  local gateway_reason
+  local diagnose_reason="stack_startup_timeout"
 
   printf 'stack_local: iniciando task api + bridge\n'
   "${REPO_ROOT}/scripts/golem_host_stack_ctl.sh" start
@@ -149,7 +169,11 @@ ensure_local_task_stack_active() {
     sleep 1
   done
 
-  run_auto_diagnose "stack_startup_timeout"
+  gateway_reason="$(gateway_reason_state)"
+  if [ "$gateway_reason" = "FAIL" ]; then
+    diagnose_reason="${diagnose_reason};gateway=FAIL"
+  fi
+  run_auto_diagnose "$diagnose_reason"
   printf 'ERROR: el stack local task api + bridge no quedó sano a tiempo.\n' >&2
   exit 1
 }
