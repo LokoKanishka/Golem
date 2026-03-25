@@ -2389,7 +2389,35 @@ def _normalize_surface_state_bundle(bundle: dict[str, object]) -> dict[str, obje
                 return 0
 
             cleaned.sort(key=cmp_to_key(_cmp))
-            fields[name] = cleaned
+
+            # dedupe by fingerprint while preserving order for stability
+            seen = set()
+            deduped: list[dict[str, object]] = []
+            for item in cleaned:
+                key = fingerprint(str(item.get("value") or ""))
+                if key in seen:
+                    continue
+                seen.add(key)
+                deduped.append(item)
+            fields[name] = deduped
+
+    # post-process single candidate dicts for conservative canonicalization
+    for name, value in list(fields.items()):
+        if isinstance(value, dict):
+            v = value.get("value")
+            if isinstance(v, str):
+                # if candidate was condensed (e.g., "a | b | c"), pick the most informative part
+                if " | " in v:
+                    parts = [normalize_visible_text(p).strip() for p in v.split(" | ")]
+                    parts = [p for p in parts if p]
+                    if parts:
+                        parts.sort(key=lambda s: (-len(s), fingerprint(s)))
+                        value["value"] = parts[0]
+                        value["note"] = (value.get("note") or "") + " | canonicalized from condensed candidate"
+                # truncate overly long values to avoid noisy diffs
+                if isinstance(value.get("value"), str) and len(value["value"]) > 400:
+                    value["value"] = value["value"][:400]
+                    value["note"] = (value.get("note") or "") + " | truncated for stability"
 
     # ensure top-level source_refs sorted
     if isinstance(bundle.get("source_refs"), list):
