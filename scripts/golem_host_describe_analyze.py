@@ -2328,7 +2328,7 @@ def build_surface_state_bundle(
             }
         )
 
-    return {
+    result = {
         "surface_type": category,
         "label": label,
         "surface_confidence": surface_confidence,
@@ -2339,6 +2339,69 @@ def build_surface_state_bundle(
         "source_refs": sorted(source_refs),
         "approximate": True,
     }
+    try:
+        return _normalize_surface_state_bundle(result)
+    except Exception:
+        # normalization is best-effort; on failure return original bundle to avoid breaking pipeline
+        return result
+
+
+def _normalize_surface_state_bundle(bundle: dict[str, object]) -> dict[str, object]:
+    """Apply lightweight, deterministic normalization to a surface_state_bundle.
+
+    - Normalize visible text in field candidates
+    - Sort list-valued fields by fingerprint to provide deterministic ordering
+    - Ensure source refs are sorted
+    This is intentionally conservative and keeps all evidence and confidence intact.
+    """
+    from functools import cmp_to_key
+
+    fields = bundle.get("fields") or {}
+    for name, value in list(fields.items()):
+        # normalize single candidate dicts
+        if isinstance(value, dict):
+            v = value.get("value")
+            if isinstance(v, str):
+                fields[name]["value"] = normalize_visible_text(v)
+            # keep source_refs sorted if present
+            if isinstance(value.get("source_refs"), list):
+                value["source_refs"] = sorted(value["source_refs"])
+        # normalize lists of candidates
+        elif isinstance(value, list):
+            cleaned: list[dict[str, object]] = []
+            for item in value:
+                if not isinstance(item, dict):
+                    continue
+                if "value" in item and isinstance(item.get("value"), str):
+                    item["value"] = normalize_visible_text(item["value"])
+                if isinstance(item.get("source_refs"), list):
+                    item["source_refs"] = sorted(item["source_refs"])
+                cleaned.append(item)
+
+            # sort deterministically by fingerprint of the value, fallback to text repr
+            def _cmp(a: dict[str, object], b: dict[str, object]) -> int:
+                ka = fingerprint(str(a.get("value") or ""))
+                kb = fingerprint(str(b.get("value") or ""))
+                if ka < kb:
+                    return -1
+                if ka > kb:
+                    return 1
+                return 0
+
+            cleaned.sort(key=cmp_to_key(_cmp))
+            fields[name] = cleaned
+
+    # ensure top-level source_refs sorted
+    if isinstance(bundle.get("source_refs"), list):
+        bundle["source_refs"] = sorted(bundle["source_refs"])
+
+    # ensure attempted/empty/non_empty fields are lists in stable order
+    for key in ("attempted_fields", "empty_fields", "non_empty_fields"):
+        if isinstance(bundle.get(key), list):
+            bundle[key] = list(bundle[key])
+
+    bundle["fields"] = fields
+    return bundle
 
 
 def build_structured_fields(
