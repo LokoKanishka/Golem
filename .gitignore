@@ -29,3 +29,5 @@ diagnostics/acceptance/*
 .env.*
 *.secret
 secrets/
+
+.codex/
