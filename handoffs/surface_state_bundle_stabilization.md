@@ -21,6 +21,10 @@
 bash tests/verify_surface_bundle.sh
 ```
 
-2. Si el host dispone del entorno gráfico y utilidades necesarias, ejecutar los smokes en `tests/` para validar comparabilidad real entre capturas.
+2. Ejecutar la prueba con fixture de normalización real:
 
-Si quieres, puedo añadir una pequeña suite de fixtures y un script que ejecute el analizador sobre muestras guardadas y compare `surface-state.json` antes/después automáticamente.
+```bash
+python3 tests/verify_surface_bundle_fixture.py
+```
+
+3. Si el host dispone del entorno gráfico y utilidades necesarias, ejecutar los smokes en `tests/` para validar comparabilidad real entre capturas.

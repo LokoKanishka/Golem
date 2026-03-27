@@ -1,0 +1,66 @@
+{
+  "approximate": true,
+  "attempted_fields": [
+    "visible_tabs",
+    "primary_error",
+    "main_text_focus"
+  ],
+  "empty_fields": [],
+  "fields": {
+    "main_text_focus": {
+      "note": "seed note | canonicalized from condensed candidate",
+      "source_refs": [
+        "ocr_normalized",
+        "window_metadata"
+      ],
+      "value": "much longer choice"
+    },
+    "primary_error": {
+      "note": "seed note | truncated for stability",
+      "source_refs": [
+        "ocr_normalized",
+        "window_metadata"
+      ],
+      "value": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "visible_tabs": [
+      {
+        "confidence": "high",
+        "source_refs": [
+          "contextual_refinement_heuristics",
+          "window_metadata"
+        ],
+        "value": "alpha"
+      },
+      {
+        "confidence": "medium",
+        "source_refs": [
+          "ocr_normalized",
+          "window_metadata"
+        ],
+        "value": "Beta"
+      },
+      {
+        "confidence": "medium",
+        "source_refs": [
+          "layout_heuristics",
+          "window_metadata"
+        ],
+        "value": "Gamma Delta"
+      }
+    ]
+  },
+  "label": "editor / IDE",
+  "non_empty_fields": [
+    "visible_tabs",
+    "primary_error",
+    "main_text_focus"
+  ],
+  "source_refs": [
+    "layout_heuristics",
+    "ocr_normalized",
+    "window_metadata"
+  ],
+  "surface_confidence": "reasonable",
+  "surface_type": "editor"
+}

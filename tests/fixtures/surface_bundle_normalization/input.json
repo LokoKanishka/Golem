@@ -1,0 +1,74 @@
+{
+  "surface_type": "editor",
+  "label": "editor / IDE",
+  "surface_confidence": "reasonable",
+  "attempted_fields": [
+    "visible_tabs",
+    "primary_error",
+    "main_text_focus"
+  ],
+  "fields": {
+    "visible_tabs": [
+      {
+        "value": "  Beta  ",
+        "source_refs": [
+          "window_metadata",
+          "ocr_normalized"
+        ],
+        "confidence": "medium"
+      },
+      {
+        "value": "alpha",
+        "source_refs": [
+          "window_metadata",
+          "contextual_refinement_heuristics"
+        ],
+        "confidence": "high"
+      },
+      {
+        "value": " Alpha ",
+        "source_refs": [
+          "layout_heuristics",
+          "ocr_normalized"
+        ],
+        "confidence": "low"
+      },
+      {
+        "value": "Gamma   Delta",
+        "source_refs": [
+          "window_metadata",
+          "layout_heuristics"
+        ],
+        "confidence": "medium"
+      }
+    ],
+    "primary_error": {
+      "value": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "source_refs": [
+        "window_metadata",
+        "ocr_normalized"
+      ],
+      "note": "seed note"
+    },
+    "main_text_focus": {
+      "value": " short |  much   longer choice  | mid ",
+      "source_refs": [
+        "window_metadata",
+        "ocr_normalized"
+      ],
+      "note": "seed note"
+    }
+  },
+  "empty_fields": [],
+  "non_empty_fields": [
+    "visible_tabs",
+    "primary_error",
+    "main_text_focus"
+  ],
+  "source_refs": [
+    "window_metadata",
+    "layout_heuristics",
+    "ocr_normalized"
+  ],
+  "approximate": true
+}
