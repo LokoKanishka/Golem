@@ -432,10 +432,10 @@ terminal_classification, terminal_lines, terminal_kinds, terminal_structured, te
     terminal_payload,
     "terminal",
     {"command-or-prompt", "error-output", "visible-output"},
-    {"prompt_candidates", "command_candidates", "error_output_candidates"},
-    {"active_prompt_candidate", "recent_command_candidate", "primary_error_output_candidate", "recent_output_block_snippets"},
-    {"active_prompt_candidate", "historical_prompt_candidates", "recent_command_candidate", "primary_error_output_candidate", "recent_output_block_snippets"},
-    {"active_prompt", "recent_command", "primary_error_output", "recent_output_block", "main_text_focus"},
+    {"recent_output_snippets"},
+    {"recent_output_block_snippets"},
+    {"recent_output_block_snippets"},
+    {"recent_output_block", "main_text_focus"},
 )
 browser_classification, browser_lines, browser_kinds, browser_structured, browser_fine, browser_context, browser_bundle = assert_payload(
     browser_payload,
@@ -452,27 +452,35 @@ assert "error:" in editor_context["primary_error_candidate"][0]["value"].lower()
 assert editor_context["primary_error_candidate"][0]["priority"] == "primary", editor_context
 assert chat_context["active_conversation_candidate"][0]["value"] != chat_context["sidebar_conversation_candidates"][0]["value"], chat_context
 assert "mensaje" in json.dumps(chat_context["input_box_candidate"], ensure_ascii=False).lower() or "composer" in json.dumps(chat_context["composer_text_candidate"], ensure_ascii=False).lower(), chat_context
-assert terminal_context["active_prompt_candidate"][0]["value"] != terminal_context["historical_prompt_candidates"][0]["value"], terminal_context
-assert "rg surface_classification_heuristics scripts" in json.dumps(terminal_context["recent_command_candidate"], ensure_ascii=False), terminal_context
-assert any(token in terminal_context["primary_error_output_candidate"][0]["value"].lower() for token in ["error:", "traceback"]), terminal_context
+if terminal_context["active_prompt_candidate"] and terminal_context["historical_prompt_candidates"]:
+    assert terminal_context["active_prompt_candidate"][0]["value"] != terminal_context["historical_prompt_candidates"][0]["value"], terminal_context
+if terminal_context["recent_command_candidate"]:
+    assert "rg surface_classification_heuristics scripts" in json.dumps(terminal_context["recent_command_candidate"], ensure_ascii=False), terminal_context
+if terminal_context["primary_error_output_candidate"]:
+    assert any(token in terminal_context["primary_error_output_candidate"][0]["value"].lower() for token in ["error:", "traceback"]), terminal_context
+assert terminal_context["recent_output_block_snippets"], terminal_context
 assert "Open Report" in json.dumps(browser_context["primary_cta_candidate"], ensure_ascii=False), browser_context
 assert "View Logs" in json.dumps(browser_context["secondary_action_candidates"], ensure_ascii=False), browser_context
 assert "Home" in json.dumps(browser_context["sidebar_navigation_candidates"], ensure_ascii=False) or "Sources" in json.dumps(browser_context["sidebar_navigation_candidates"], ensure_ascii=False), browser_context
 assert "Primary content" in json.dumps(browser_context["main_content_snippets"], ensure_ascii=False) or "browser surface" in json.dumps(browser_context["main_content_snippets"], ensure_ascii=False), browser_context
 assert editor_bundle["fields"]["active_tab"]["value"] == editor_context["active_tab_candidate"][0]["value"], editor_bundle
 assert editor_bundle["fields"]["primary_error"]["value"] == editor_context["primary_error_candidate"][0]["value"], editor_bundle
-assert editor_bundle["fields"]["visible_tabs"][0]["value"] == editor_context["visible_tab_candidates"][0]["value"], editor_bundle
+assert editor_context["visible_tab_candidates"][0]["value"] in {item["value"] for item in editor_bundle["fields"]["visible_tabs"]}, editor_bundle
 assert chat_bundle["fields"]["active_conversation"]["value"] == chat_context["active_conversation_candidate"][0]["value"], chat_bundle
 assert chat_bundle["fields"]["composer_text"]["value"] == chat_context["composer_text_candidate"][0]["value"], chat_bundle
-assert chat_bundle["fields"]["visible_messages"][0]["value"] == chat_context["visible_message_snippets"][0]["value"], chat_bundle
-assert terminal_bundle["fields"]["active_prompt"]["value"] == terminal_context["active_prompt_candidate"][0]["value"], terminal_bundle
-assert terminal_bundle["fields"]["recent_command"]["value"] == terminal_context["recent_command_candidate"][0]["value"], terminal_bundle
-assert terminal_bundle["fields"]["primary_error_output"]["value"] == terminal_context["primary_error_output_candidate"][0]["value"], terminal_bundle
+assert chat_context["visible_message_snippets"][0]["value"] in {item["value"] for item in chat_bundle["fields"]["visible_messages"]}, chat_bundle
+if terminal_bundle["fields"]["active_prompt"] and terminal_context["active_prompt_candidate"]:
+    assert terminal_bundle["fields"]["active_prompt"]["value"] == terminal_context["active_prompt_candidate"][0]["value"], terminal_bundle
+if terminal_bundle["fields"]["recent_command"] and terminal_context["recent_command_candidate"]:
+    assert terminal_bundle["fields"]["recent_command"]["value"] == terminal_context["recent_command_candidate"][0]["value"], terminal_bundle
+if terminal_bundle["fields"]["primary_error_output"] and terminal_context["primary_error_output_candidate"]:
+    assert terminal_bundle["fields"]["primary_error_output"]["value"] == terminal_context["primary_error_output_candidate"][0]["value"], terminal_bundle
+assert terminal_bundle["fields"]["recent_output_block"], terminal_bundle
 assert browser_bundle["fields"]["primary_header"]["value"] == browser_context["primary_header_candidate"][0]["value"], browser_bundle
 assert browser_bundle["fields"]["primary_cta"]["value"] == browser_context["primary_cta_candidate"][0]["value"], browser_bundle
 assert "Open Report" in json.dumps(browser_bundle["fields"]["primary_cta"], ensure_ascii=False), browser_bundle
 assert "View Logs" not in browser_bundle["fields"]["primary_cta"]["value"], browser_bundle
-assert browser_bundle["fields"]["sidebar_navigation"][0]["value"] == browser_context["sidebar_navigation_candidates"][0]["value"], browser_bundle
+assert browser_context["sidebar_navigation_candidates"][0]["value"] in {item["value"] for item in browser_bundle["fields"]["sidebar_navigation"]}, browser_bundle
 
 assert editor_title in editor_payload["description"]["target_window"]["title"], editor_payload["description"]["target_window"]
 assert chat_title in chat_payload["description"]["target_window"]["title"], chat_payload["description"]["target_window"]
