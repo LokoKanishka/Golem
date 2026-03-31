@@ -16,8 +16,8 @@ La lectura honesta del host hoy es:
 - OpenClaw si esta sano como gateway/control plane local.
 - El panel web/control UI si esta servido y alcanzable.
 - WhatsApp si figura conectado y coherente a nivel de salud general.
-- El browser nativo no esta operativo como superficie confiable de trabajo.
-- El helper CDP existe como carril paralelo versionado, pero hoy no puede leer Chrome real en este host.
+- El browser nativo no esta operativo como superficie confiable de trabajo y queda degradado a deuda.
+- El helper CDP existe como carril paralelo versionado; sobre el Chrome ambient actual sigue bloqueado, pero sobre un Chrome sidecar dedicado si logra `tabs/snapshot/find`.
 - La percepcion/descripcion read-side del desktop si existe y produce evidencia real.
 - La readiness real de worker externo no alcanza hoy para venderse como capacidad operativa estable.
 
@@ -36,13 +36,18 @@ La lectura honesta del host hoy es:
 - `openclaw browser --browser-profile user status/tabs/snapshot` no queda usable hoy:
   - falla con `ECONNREFUSED 127.0.0.1:9222`
   - o expira esperando tabs disponibles
+- aun cuando existe un listener raw vivo en `9222`, `openclaw browser ...` sigue fallando con `Unexpected server response: 404` o timeout
 - `./scripts/verify_browser_stack.sh --diagnosis-only` clasifico `navigation`, `reading` y `artifacts` como `BLOCKED`.
 - El profile managed `openclaw` tampoco salva el frente:
   - `tabs` devuelve `No tabs`
   - `snapshot` cae con `Missing X server or $DISPLAY`
-- `./scripts/browser_cdp_tool.sh` hoy tambien queda bloqueado:
+- `./scripts/browser_cdp_tool.sh` contra el Chrome ambient actual queda bloqueado:
   - sin env extra devuelve `ERROR: fetch failed`
   - aun apuntando al `DevToolsActivePort` real del profile `user`, `curl 127.0.0.1:9222/json/list` falla
+- `./scripts/verify_browser_capability_truth.sh` si deja un carril browser en `PASS`:
+  - levanta una proof page local
+  - levanta un Chrome dedicado con `--headless=new --no-sandbox --remote-debugging-port=9222`
+  - prueba `tabs`, `snapshot` y `find` via `browser_cdp_tool.sh`
 - `./scripts/verify_worker_orchestration_stack.sh` no paso:
   - los verifies canonicos del stack worker fallaron
   - el self-check previo ya marcaba `browser_relay FAIL`, `task_api FAIL` y `whatsapp_bridge_service FAIL`
@@ -53,6 +58,7 @@ La lectura honesta del host hoy es:
 - Chrome abierto como proceso no significa browser usable.
 - Browser plugin cargado no significa lectura de paginas reales.
 - `DevToolsActivePort` presente no significa endpoint CDP realmente vivo.
+- Un listener raw vivo tampoco significa que `openclaw browser ...` sepa usarlo.
 - Governance/documentacion de worker no significa worker externo listo para operar hoy.
 - Read-side del desktop no significa control host total.
 - WhatsApp conectado no significa delivery real probado en este tramo.
@@ -65,7 +71,8 @@ La lectura honesta del host hoy es:
   - sesiones y estado por CLI
   - WhatsApp conectado
 - Carriles paralelos aceptados:
-  - `scripts/browser_cdp_tool.sh` como sidecar browser condicionado a endpoint real
+  - `scripts/browser_cdp_tool.sh` cuando controla un Chrome sidecar dedicado
+  - `scripts/verify_browser_capability_truth.sh` como smoke/browser truth oficial del carril aceptado
   - `scripts/golem_host_perceive.sh`
   - `scripts/golem_host_describe.sh`
   - governance/controlled-run de worker como capa subordinada, no nucleo
@@ -76,21 +83,13 @@ La lectura honesta del host hoy es:
 
 ## Retome recomendado
 
-El siguiente retome razonable ya no es “seguir agregando cosas”.
+El siguiente retome razonable ya no es "descubrir" la verdad del browser.
 
-Es uno solo:
+Eso ya quedo resuelto:
 
-- cerrar la verdad del browser en este host
+- camino aceptado hoy: sidecar browser dedicado + helper CDP
+- deuda explicita: browser nativo de OC
 
-Eso significa elegir y demostrar un unico camino reproducible para:
+El siguiente tramo razonable pasa a ser uno solo:
 
-- obtener tabs reales
-- leer una pagina real
-- dejar evidencia corta y repetible
-
-Antes de eso no conviene abrir:
-
-- plugins nuevos
-- mas automation de workers
-- promesas de control host total
-- nuevas features browser
+- decidir si la deuda del browser nativo merece correccion real o congelamiento estrategico

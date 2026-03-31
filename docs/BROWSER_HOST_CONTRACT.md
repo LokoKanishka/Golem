@@ -29,7 +29,7 @@ Those scripts can:
 - talk directly to a live Chrome CDP endpoint without going through `openclaw browser ...`
 
 The repo still does not expose a non-destructive CLI attach path for the `openclaw browser ...` operator lane itself.
-What it does expose now is a direct CDP helper that can work against an already attached live Chrome endpoint.
+What it does expose now is a direct CDP helper that can work when the sidecar owns a dedicated live Chrome endpoint.
 
 ## Host-Side Contract
 
@@ -68,24 +68,39 @@ Missing from the repo surface today:
 
 Present but failing in the current environment:
 
-- the `openclaw browser ...` operator path can time out at `45000ms` even when the backend browser request eventually succeeds later
+- the `openclaw browser ...` operator path can time out at `45000ms`
+- the ambient `user` profile can point to a stale `DevToolsActivePort`
+- even with a live raw CDP listener on `127.0.0.1:9222`, the native operator lane can still fail with `Unexpected server response: 404`
 
 ## Current Operational Reading
 
-The current blocker is now split across two layers:
+The current blocker is now split across three layers:
 
 1. host contract gap:
    the repo still depends on host/runtime state to make the real Chrome profile attachable in the first place
 2. operator timeout debt:
    the `openclaw browser ...` CLI/operator lane can still time out before the backend browser request finishes
+3. transport mismatch debt:
+   the native operator lane does not currently behave like a clean raw-CDP client against a verified live listener
 
-That means the repo is no longer blocked from reading a live attached browser in absolute terms, but it is still blocked from treating `openclaw browser ...` as a trustworthy operator surface for daily use.
+That means the repo is no longer blocked from reading a live browser in absolute terms, but it is still blocked from treating `openclaw browser ...` as a trustworthy operator surface for daily use.
 
 ## Condition To Reach PASS
 
-The browser subsystem can move the operator lane from debt to `PASS` when at least one of these becomes true:
+The browser subsystem can move the native operator lane from debt to `PASS` when at least one of these becomes true:
 
 - the `openclaw browser ...` operator path returns reliably inside its own timeout budget against the attached live Chrome
 - or the managed `openclaw` lane can really start and produce a usable snapshot path
 
-Until that happens, the repo can use `browser_cdp_tool.sh` as the pragmatic live-browser path for focused work such as the docente page, while keeping the OpenClaw CLI timeout as an explicit debt.
+Until that happens, the repo should read the current truth this way:
+
+- `openclaw browser ...` = native debt
+- `browser_cdp_tool.sh` + dedicated Chrome sidecar = accepted browser path
+
+The sidecar path is now reproducible through `./scripts/verify_browser_capability_truth.sh`, which proves:
+
+- tabs
+- snapshot
+- find
+
+against a real HTTP page served locally for the test.

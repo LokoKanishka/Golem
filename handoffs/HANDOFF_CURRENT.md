@@ -6,13 +6,14 @@ Fecha de actualizacion: 2026-03-31
 
 Este tramo dejo una verdad operativa mas dura que la narrativa previa.
 
-OpenClaw hoy si funciona como gateway/control plane local con panel vivo y WhatsApp conectado. La brecha grande sigue estando en browser real y en todo lo que depende de ese browser o del stack local task API/bridge para subir a capacidades mas ambiciosas.
+OpenClaw hoy si funciona como gateway/control plane local con panel vivo y WhatsApp conectado. La brecha grande ya no esta difusa: el browser nativo de OC queda degradado a deuda, y el unico camino browser que hoy queda en `PASS` es un sidecar Chrome dedicado consumido por `browser_cdp_tool.sh`.
 
 La conclusion util es simple:
 
 - OC core local: si
-- browser real usable: no
-- helper CDP paralelo: existe, pero hoy no lee Chrome real en este host
+- browser real usable por OC nativo: no
+- helper CDP paralelo sobre Chrome ambient: no
+- helper CDP paralelo sobre Chrome sidecar dedicado: si
 - worker readiness real: no
 - desktop read-side: si
 - control host total: no
@@ -32,12 +33,12 @@ La conclusion util es simple:
 - `openclaw browser profiles` reconoce `user` y `openclaw`
 - el plugin browser stock esta cargado
 - `golem_host_perceive.sh` y `golem_host_describe.sh` funcionan de verdad en este host
+- `verify_browser_capability_truth.sh` deja `tabs/snapshot/find` en `PASS` via sidecar dedicado
 
 ## Lo mas importante que NO quedo probado
 
 - envio WhatsApp real en este tramo
 - browser nativo usable
-- helper CDP vivo contra Chrome real
 - worker externo listo para operar sin humo
 - control host total
 
@@ -46,7 +47,8 @@ La conclusion util es simple:
 - `openclaw browser --browser-profile user` cae en timeout/`ECONNREFUSED 127.0.0.1:9222`
 - `verify_browser_stack.sh --diagnosis-only` deja `navigation`, `reading` y `artifacts` en `BLOCKED`
 - el profile managed `openclaw` tampoco entrega tabs ni snapshot util
-- el helper CDP sigue fallando aunque se apunte al `DevToolsActivePort` del profile `user`
+- aun con un listener raw vivo en `9222`, `openclaw browser ...` devuelve `Unexpected server response: 404` o timeout
+- el helper CDP sigue fallando sobre el Chrome ambient aunque se apunte al `DevToolsActivePort` del profile `user`
 - `verify_worker_orchestration_stack.sh` falla porque el self-check previo marca browser relay/task API/bridge no operativos y el chain audit detecta drift
 
 ## Que revisar primero al volver
@@ -64,6 +66,7 @@ git status --short
 git branch --show-current
 git log --oneline -8
 ./scripts/verify_openclaw_capability_truth.sh
+./scripts/verify_browser_capability_truth.sh
 ./scripts/verify_browser_stack.sh --diagnosis-only
 ./scripts/verify_worker_orchestration_stack.sh
 ```
@@ -77,9 +80,9 @@ git log --oneline -8
 
 ## Proximo tramo unico sugerido
 
-Resolver la verdad del browser en este host.
+Decidir si la deuda del browser nativo de OC se corrige de verdad o se congela explicitamente por un tiempo.
 
-Solo despues de eso conviene volver a discutir:
+No corresponde volver a discutir antes de eso:
 
 - worker externo real
 - delivery mas ambicioso

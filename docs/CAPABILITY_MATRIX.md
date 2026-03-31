@@ -6,13 +6,13 @@ Fecha de auditoria: 2026-03-31
 
 Esta auditoria separa realidad operativa de promesa.
 
-- `PASS`: gateway local, panel web/control UI servida, WhatsApp conectado, inventario de profiles/browser plugin, percepcion y descripcion semantica del host.
+- `PASS`: gateway local, panel web/control UI servida, WhatsApp conectado, inventario de profiles/browser plugin, percepcion y descripcion semantica del host, sidecar browser verificable.
 - `PARTIAL`: salud general del host OpenClaw, consistencia entre `openclaw status` y `openclaw channels status --probe`, modelo panel-first/routing, Chrome real visible pero no adjuntable.
-- `BLOCKED`: browser nativo usable, attach `user`, lectura real de pagina, artifacts browser, helper CDP vivo en este momento, worker externo listo para operar de verdad, control host total.
+- `BLOCKED`: browser nativo usable, attach `user`, browser helper sobre el Chrome ambient actual, worker externo listo para operar de verdad, control host total.
 - `UNVERIFIED`: delivery basico real por WhatsApp en este tramo, accion host mutante general.
 - `OUT-OF-SCOPE`: instalar o inyectar plugins nuevos en el host vivo.
 
-Lectura corta: OpenClaw hoy esta sano como gateway/control plane local con WhatsApp conectado. La brecha fuerte sigue estando en browser real y en todo lo que depende de ese browser o del stack local task API/bridge para subir a una operacion mas completa.
+Lectura corta: OpenClaw hoy esta sano como gateway/control plane local con WhatsApp conectado. El browser nativo de OpenClaw queda degradado a deuda operativa. El unico camino browser que hoy merece `PASS` es el sidecar reproducible: Chrome dedicado con `--headless=new --no-sandbox --remote-debugging-port=9222` mas `browser_cdp_tool.sh`.
 
 ## 2. Estado del host y version
 
@@ -58,12 +58,13 @@ Baseline usado como evidencia en este tramo:
 | Browser plugin bundled | `PASS` | `openclaw plugins list` -> `Browser ... loaded` | El plugin browser stock esta cargado. | Plugin cargado no equivale a browser utilizable. |
 | Browser profiles inventory | `PASS` | `openclaw browser profiles` -> `user [existing-session]` y `openclaw` | OpenClaw reconoce los carriles browser esperados. | El inventario existe aunque la operacion este bloqueada. |
 | Browser `user` attachable | `BLOCKED` | `openclaw browser --browser-profile user snapshot` -> timeout esperando tabs; `ECONNREFUSED 127.0.0.1:9222` | El attach `existing-session` no esta usable hoy. | Esta es la deuda operativa principal del browser nativo. |
-| Browser CLI usable | `BLOCKED` | `openclaw browser --browser-profile user status/tabs` fallan; `verify_browser_stack.sh --diagnosis-only` clasifica `navigation/reading/artifacts` como `BLOCKED` | La CLI browser de OpenClaw no es una superficie diaria confiable en este host. | No confundir profile configurado con operator lane usable. |
+| Browser CLI usable | `BLOCKED` | `openclaw browser --browser-profile user status/tabs` fallan; `verify_browser_stack.sh --diagnosis-only` clasifica `navigation/reading/artifacts` como `BLOCKED`; aun con un listener raw vivo en `9222`, `openclaw browser ...` devuelve `Unexpected server response: 404` o timeout | La CLI browser de OpenClaw no es una superficie diaria confiable en este host. | No confundir profile configurado con operator lane usable. |
 | Browser managed `openclaw` usable | `BLOCKED` | `openclaw browser --browser-profile openclaw tabs` -> `No tabs`; snapshot falla con `Missing X server or $DISPLAY` | El carril managed tampoco resuelve el problema hoy. | Ni attach existing-session ni fallback managed estan cerrando la brecha. |
 | Browser CDP helper versionado | `PASS` | Existen `scripts/browser_cdp_tool.sh` y `scripts/browser_cdp_tool.js`; el helper soporta `tabs/open/snapshot/find` | El repo ya tiene un carril paralelo definido y versionado. | La existencia del helper no garantiza un endpoint vivo. |
-| Browser CDP helper usable en vivo | `BLOCKED` | `./scripts/browser_cdp_tool.sh tabs` -> `ERROR: fetch failed`; con `GOLEM_BROWSER_DEVTOOLS_FILE=.../DevToolsActivePort` sigue fallando; `curl 127.0.0.1:9222/json/list` falla | El helper no puede leer Chrome real en el estado actual del host. | El `DevToolsActivePort` existe pero hoy apunta a un puerto sin listener util. |
+| Browser CDP helper contra el Chrome ambient actual | `BLOCKED` | `./scripts/browser_cdp_tool.sh tabs` -> `ERROR: fetch failed`; con `GOLEM_BROWSER_DEVTOOLS_FILE=.../DevToolsActivePort` sigue fallando; `curl 127.0.0.1:9222/json/list` falla | El helper no puede leer el Chrome ambient que hoy existe en el host. | El `DevToolsActivePort` del profile `user` existe pero hoy apunta a un puerto sin listener util. |
 | Chrome real visible | `PARTIAL` | `ps -ef` muestra procesos Chrome; existe `DevToolsActivePort`; `ss -ltnp` no muestra listener en `9222` | Chrome vive como proceso, pero no como endpoint CDP utilizable para esta auditoria. | "Chrome abierto" no equivale a "OpenClaw o helper lo pueden usar". |
-| Lectura de una pagina real | `BLOCKED` | `verify_browser_stack.sh --diagnosis-only` deja `navigation/reading/artifacts` en `BLOCKED` | Hoy no se puede reclamar lectura browser real por OC puro ni por helper paralelo. | Esta ausencia debe tratarse como bloqueo real, no como detalle menor. |
+| Browser sidecar verificable | `PASS` | `./scripts/verify_browser_capability_truth.sh` levanta un Chrome dedicado y prueba `tabs`, `snapshot` y `find` sobre `http://127.0.0.1:8011/` | Si el sidecar posee el lifecycle de Chrome, el repo si puede listar tabs, leer texto y buscar texto de una pagina real. | Este `PASS` no rescata al browser nativo de OC; es un carril paralelo aceptado. |
+| Lectura de una pagina real | `PASS` | `browser_cdp_tool.sh snapshot` sobre la proof page local devuelve `Golem Browser Truth` y `CAPYBARA_SIGNAL_31415` | La lectura browser real existe hoy, pero solo por sidecar aceptado. | La afirmacion correcta es "lectura browser por sidecar", no "lectura browser nativa OC". |
 | Worker governance/documentation | `PASS` | `docs/WORKER_RUN_GOVERNANCE.md`, `docs/CODEX_CONTROLLED_RUN.md`, scripts `task_worker_*` y `verify_worker_orchestration_stack.sh` | La capa de governance y controlled run existe de verdad en el repo. | Documentacion y scripts listos no implican readiness host. |
 | Worker externo real / orchestration readiness | `BLOCKED` | `./scripts/verify_worker_orchestration_stack.sh` falla en las 3 subcapabilities; el self-check previo marca `browser_relay FAIL`, `task_api FAIL`, `whatsapp_bridge_service FAIL`; el chain audit detecta drift | El carril worker no esta listo para venderse como capacidad operativa estable hoy en este host. | Hay diseño y tooling, pero el estado vivo no acompaña. |
 | Host perception read-side | `PASS` | `./scripts/golem_host_perceive.sh json` genera screenshots, lista ventanas y detecta active window | El repo ya puede percibir el desktop local de forma verificable. | Esto es read-side; no es control total del host. |
@@ -86,7 +87,7 @@ Lo que hoy si merece el nombre de nucleo OpenClaw operativo en este host:
 Lo que no debe venderse como nucleo operativo ya resuelto:
 
 - browser diario usable desde `openclaw browser ...`
-- lectura browser real
+- lectura browser nativa OC
 - artifacts browser
 - worker externo listo para operar como carril estable
 - control host total
@@ -96,9 +97,9 @@ Lo que no debe venderse como nucleo operativo ya resuelto:
 Carriles paralelos aceptados, con limites explicitados:
 
 - `scripts/browser_cdp_tool.sh`
-  - aceptado solo como sidecar pragmatico para cuando exista un endpoint CDP real y verificable
-  - no reemplaza la verdad del browser nativo de OpenClaw
-  - hoy esta bloqueado en este host por falta de listener util
+  - aceptado como carril operativo browser solo cuando el sidecar controla su propio Chrome dedicado
+  - el smoke verificable queda fijado por `./scripts/verify_browser_capability_truth.sh`
+  - no reemplaza la verdad del browser nativo de OpenClaw; la separa
 - `scripts/golem_host_perceive.sh`
   - aceptado como percepcion read-side del desktop
   - sirve para pruebas de evidencia host, no para afirmar control total
@@ -113,10 +114,15 @@ Carriles paralelos aceptados, con limites explicitados:
 
 - `openclaw browser --browser-profile user` no logra attach usable; cae en timeout/`ECONNREFUSED`.
 - El carril managed `openclaw` tampoco entrega tabs ni snapshot util.
-- El helper CDP existe pero hoy no puede leer un endpoint vivo; el `DevToolsActivePort` apunta a `9222` sin listener util.
+- El helper CDP no puede usar el Chrome ambient actual; el `DevToolsActivePort` apunta a `9222` sin listener util.
 - Los verifies canonicos de worker/orchestration fallan en este host porque el self-check detecta browser relay caido y task API/bridge local inactivos.
 - El execution audit de chain tambien muestra drift cuando la root cae terminal demasiado temprano.
 - Delivery WhatsApp real no se reclamo en este tramo porque no se ejecuto un send vivo nuevo.
+
+Degradacion formal browser:
+
+- `browser nativo OC` = deuda conocida
+- `browser sidecar dedicado + browser_cdp_tool.sh` = unico camino browser aceptado hoy
 
 ## 7. Frentes que NO conviene atacar ahora
 
@@ -128,16 +134,16 @@ Carriles paralelos aceptados, con limites explicitados:
 
 ## 8. Proximo tramo unico recomendado
 
-Resolver la verdad del browser en este host, y solo eso.
+Resolver por que el browser nativo de OC no puede usar ni siquiera un listener raw vivo y decidir si vale la pena invertir mas tiempo ahi.
 
-Objetivo del proximo tramo:
+La ambiguedad ya no existe:
 
-- dejar en `PASS` un unico camino reproducible para obtener tabs + lectura real de pagina
-- o degradar formalmente el browser nativo a deuda conocida y cerrar un sidecar CDP realmente verificable con smoke corto y automatico
+- camino browser aceptado hoy: `browser sidecar dedicado + browser_cdp_tool.sh`
+- camino degradado a deuda: `openclaw browser ...`
 
-Lo que no conviene hacer antes de eso:
+Lo que no conviene hacer antes de atacar esa deuda:
 
 - reabrir workers
 - prometer control host total
 - abrir ecosistema/plugin expansion
-- agregar features nuevas sobre una base browser todavia ambigua
+- agregar features nuevas sobre una base browser nativa todavia rota
