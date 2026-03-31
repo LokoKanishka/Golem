@@ -16,6 +16,7 @@ The repo currently provides these non-destructive paths:
 - `./scripts/task_run_nav.sh`
 - `./scripts/task_run_read.sh`
 - `./scripts/task_run_artifact.sh`
+- `./scripts/browser_cdp_tool.sh <tabs|open|snapshot|find>`
 
 Those scripts can:
 
@@ -25,10 +26,10 @@ Those scripts can:
 - try raw snapshot paths
 - attempt a controlled managed-`openclaw` start path
 - persist structured browser readiness/remediation evidence
+- talk directly to a live Chrome CDP endpoint without going through `openclaw browser ...`
 
-The repo does not currently expose a non-destructive CLI attach path for the `chrome` relay lane.
-
-That means the repo can observe whether a relay tab exists, but it cannot create that attached-tab condition from inside the repo surface.
+The repo still does not expose a non-destructive CLI attach path for the `openclaw browser ...` operator lane itself.
+What it does expose now is a direct CDP helper that can work against an already attached live Chrome endpoint.
 
 ## Host-Side Contract
 
@@ -57,34 +58,34 @@ Available today:
 - `openclaw browser --browser-profile openclaw tabs`
 - `openclaw browser --browser-profile openclaw snapshot`
 - `openclaw browser --browser-profile openclaw start`
+- `./scripts/browser_cdp_tool.sh tabs`
+- `./scripts/browser_cdp_tool.sh snapshot [selector]`
+- `./scripts/browser_cdp_tool.sh find <texto> [selector]`
 
 Missing from the repo surface today:
 
-- a safe non-destructive CLI attach/refresh path that can move `chrome` from `0 tabs` to a usable attached relay tab
+- a safe non-destructive CLI attach/refresh path that makes `openclaw browser ...` itself reliable when the operator lane is timing out
 
 Present but failing in the current environment:
 
-- the managed `openclaw` start path
-- the managed `openclaw` snapshot path
+- the `openclaw browser ...` operator path can time out at `45000ms` even when the backend browser request eventually succeeds later
 
 ## Current Operational Reading
 
-The current blocker is split across two layers:
+The current blocker is now split across two layers:
 
 1. host contract gap:
-   the repo has no CLI attach path for the `chrome` relay lane
-2. host runtime failure:
-   the managed `openclaw` start/snapshot fallback does not become usable in the current environment
+   the repo still depends on host/runtime state to make the real Chrome profile attachable in the first place
+2. operator timeout debt:
+   the `openclaw browser ...` CLI/operator lane can still time out before the backend browser request finishes
 
-That is why the browser subsystem remains `BLOCKED` even though the repo-side verification/remediation layer is working as designed.
+That means the repo is no longer blocked from reading a live attached browser in absolute terms, but it is still blocked from treating `openclaw browser ...` as a trustworthy operator surface for daily use.
 
 ## Condition To Reach PASS
 
-The browser subsystem can move from `BLOCKED` to `PASS` when at least one of these becomes true:
+The browser subsystem can move the operator lane from debt to `PASS` when at least one of these becomes true:
 
-- a usable tab is really attached to the `chrome` relay lane
-- the managed `openclaw` lane can really start and produce a usable snapshot path
+- the `openclaw browser ...` operator path returns reliably inside its own timeout budget against the attached live Chrome
+- or the managed `openclaw` lane can really start and produce a usable snapshot path
 
-If OpenClaw later exposes a safe non-destructive CLI attach or refresh path, that would be the right moment to integrate it into the repo remediation ladder.
-
-Until then, the immediate unblock path lives outside the repo.
+Until that happens, the repo can use `browser_cdp_tool.sh` as the pragmatic live-browser path for focused work such as the docente page, while keeping the OpenClaw CLI timeout as an explicit debt.

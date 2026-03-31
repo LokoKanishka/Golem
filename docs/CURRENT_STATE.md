@@ -1,6 +1,6 @@
 # Current State
 
-Fecha de actualizacion: 2026-03-30
+Fecha de actualizacion: 2026-03-31
 
 ## Rama actual
 
@@ -56,6 +56,8 @@ Fecha de actualizacion: 2026-03-30
 - El trayecto real de WhatsApp sigue teniendo un limite honesto: el repo no prueba un inbound real repo-local durante smoke; el runtime se valida con replay de eventos de shape real y salida por CLI oficial.
 - La capa de worker externo sigue siendo explicita y controlada, no un sistema de colas, callbacks, scheduling o cierres automaticos.
 - La documentacion historica del repo conserva etapas anteriores (`V1`, `V1.5`, bootstrap, transiciones) que sirven como contexto pero no como lectura primaria del estado actual.
+- El browser real del perfil `user` ya es adjuntable a nivel CDP/backend, pero `openclaw browser ...` sigue teniendo una deuda operativa: la CLI puede expirar a `45000ms` antes de que termine el `browser.request`.
+- Para no bloquear trabajo user-facing por ese borde, el repo ahora versiona `./scripts/browser_cdp_tool.sh` como carril paralelo y minimo contra el Chrome vivo.
 
 ## Limites conocidos
 
@@ -64,6 +66,7 @@ Fecha de actualizacion: 2026-03-30
 - `openclaw/` y `state/live/` siguen apareciendo como estructura documental o evidencia local, no como runtime gobernado por Git dentro de este repo.
 - `handoffs/` mezcla evidencia durable promovida con trazas runtime-only; la policy vigente sigue aclarando que no todo archivo de esa carpeta forma parte del estado durable del repo.
 - No hay evidencia en este tramo para declarar cerrado un rediseño mayor de arquitectura, despliegue remoto, auth compleja o una interfaz separada adicional.
+- El helper CDP directo sirve sobre un Chrome ya vivo; no resuelve por si solo el attach inicial ni reemplaza la deuda del operador `openclaw browser ...`.
 
 ## Desvios fuera del estado principal
 

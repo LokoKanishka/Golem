@@ -1,6 +1,6 @@
 # Handoff Current
 
-Fecha de actualizacion: 2026-03-30
+Fecha de actualizacion: 2026-03-31
 
 ## Resumen ejecutivo
 
@@ -61,6 +61,7 @@ Notas:
 - El inbound real de WhatsApp no se prueba repo-localmente en smoke; el bridge se valida con replay de eventos de shape real y salida por CLI oficial.
 - La capa de Codex controlled run sigue siendo auditada y explicita, no automatizacion completa.
 - `openclaw/` y `state/live/` siguen fuera del nucleo versionado como runtime gobernado por este repo.
+- El browser real ya puede leerse por CDP/backend, pero la CLI `openclaw browser ...` sigue con una deuda de timeout del operador; para trabajo puntual el repo ya tiene `./scripts/browser_cdp_tool.sh` como camino paralelo minimo sobre el Chrome vivo.
 
 ## Proximo tramo unico sugerido
 
