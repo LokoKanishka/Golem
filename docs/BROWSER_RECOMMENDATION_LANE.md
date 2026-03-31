@@ -18,6 +18,10 @@ El dossier organiza.
 El decision lane elige evidencia por criterio.
 El recommendation lane traduce eso a una propuesta practica de proyecto.
 
+Esta capa ahora tambien tiene una continuacion explicita:
+
+- `project prioritization lane`
+
 ## Decision de diseno
 
 La arquitectura sigue contenida:
@@ -25,6 +29,7 @@ La arquitectura sigue contenida:
 - `browser_sidecar_dossier_run.sh` sigue reuniendo fuentes y compares
 - `browser_sidecar_decision_run.sh` sigue produciendo la matriz por criterio
 - `browser_sidecar_recommendation_run.sh` consume esa decision y rankea alternativas
+- `browser_sidecar_prioritization_run.sh` consume evidencia publica + local para rankear frentes del proyecto
 - `browser_tasks/*.json` sigue siendo el directorio canonico
 
 No se abrio otra familia de manifests fuera de `browser_tasks/`.
@@ -71,6 +76,8 @@ No hay IA opaca ni scoring oculto.
 
 - `browser_tasks/recommend-openclaw-public-baseline.json`
 - `browser_tasks/recommend-reserved-domains-reference-pack.json`
+- `browser_tasks/prioritize-golem-openclaw-next-tranche.json`
+- `browser_tasks/prioritize-project-evidence-maintenance.json`
 
 ## Comando principal
 
@@ -114,6 +121,12 @@ El artefacto final incluye:
 
 ```bash
 ./scripts/verify_browser_sidecar_recommendation_lane.sh
+```
+
+La continuacion natural hoy es:
+
+```bash
+./scripts/verify_browser_sidecar_prioritization_lane.sh
 ```
 
 ## Limites honestos

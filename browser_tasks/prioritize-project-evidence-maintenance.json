@@ -1,0 +1,442 @@
+{
+  "task_id": "prioritize-project-evidence-maintenance",
+  "title": "Project Evidence Maintenance Prioritization",
+  "description": "Prioritize which evidence-maintenance and planning fronts deserve immediate attention once the sidecar project lanes are accepted, while keeping frozen and speculative fronts explicit.",
+  "question": "Given the current accepted sidecar and documentation truths, which evidence-maintenance and planning fronts should Golem prioritize now, which should wait, and which should remain frozen or untouched?",
+  "output_slug": "prioritize-project-evidence-maintenance",
+  "comparison_mode": "explicit_pairs",
+  "focus_terms": [
+    "CURRENT_STATE",
+    "CAPABILITY_MATRIX",
+    "handoff",
+    "verify",
+    "recommendation lane",
+    "decision lane",
+    "gateway",
+    "channels",
+    "worker readiness",
+    "control host total"
+  ],
+  "expected_signals": [
+    "docs/CAPABILITY_MATRIX.md",
+    "docs/CURRENT_STATE.md",
+    "verify_browser_sidecar_recommendation_lane.sh",
+    "readiness real de worker externo no alcanza hoy",
+    "control host total: no"
+  ],
+  "focus_profile": {
+    "excerpt_limit": 10,
+    "match_limit": 3
+  },
+  "sources": [
+    {
+      "label": "oc_cli",
+      "url": "https://docs.openclaw.ai/cli",
+      "selector_hint": "CLI Reference - OpenClaw",
+      "notes": "Public baseline for command-driven operational work."
+    },
+    {
+      "label": "oc_channels",
+      "url": "https://docs.openclaw.ai/channels",
+      "selector_hint": "Chat Channels - OpenClaw",
+      "notes": "Public channels and workflow overview."
+    },
+    {
+      "label": "oc_browser",
+      "url": "https://docs.openclaw.ai/tools/browser",
+      "selector_hint": "Browser (OpenClaw-managed) - OpenClaw",
+      "notes": "Public browser surface that remains informative but not decisive for this host."
+    },
+    {
+      "label": "oc_plugins",
+      "url": "https://docs.openclaw.ai/tools/plugin",
+      "selector_hint": "Plugins - OpenClaw",
+      "notes": "Public extension surface."
+    }
+  ],
+  "local_sources": [
+    {
+      "label": "local_capability_matrix",
+      "path": "docs/CAPABILITY_MATRIX.md",
+      "notes": "Versioned capability truth baseline."
+    },
+    {
+      "label": "local_current_state",
+      "path": "docs/CURRENT_STATE.md",
+      "notes": "Current state summary and accepted lanes."
+    },
+    {
+      "label": "local_dossier_lane",
+      "path": "docs/BROWSER_DOSSIER_LANE.md",
+      "notes": "Dossier lane design and limits."
+    },
+    {
+      "label": "local_decision_lane",
+      "path": "docs/BROWSER_DECISION_LANE.md",
+      "notes": "Decision lane design and limits."
+    },
+    {
+      "label": "local_recommendation_lane",
+      "path": "docs/BROWSER_RECOMMENDATION_LANE.md",
+      "notes": "Recommendation lane design and limits."
+    },
+    {
+      "label": "local_runbook",
+      "path": "docs/BROWSER_SIDECAR_RUNBOOK.md",
+      "notes": "Current sidecar operational interface."
+    },
+    {
+      "label": "local_handoff",
+      "path": "handoffs/HANDOFF_CURRENT.md",
+      "notes": "Latest handoff and retome guidance."
+    }
+  ],
+  "decision_criteria": [
+    {
+      "criterion_id": "versioned_truth_density",
+      "label": "Versioned Truth Density",
+      "description": "The front should have strong versioned evidence already present in docs, runbooks or handoffs.",
+      "weight": 5,
+      "evidence_terms": [
+        "CURRENT_STATE",
+        "CAPABILITY_MATRIX",
+        "handoff",
+        "verdad",
+        "accepted",
+        "verify"
+      ],
+      "blocker_terms": [
+        "vender",
+        "prometer",
+        "control host total"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Dense versioned evidence is a strong prioritization signal."
+    },
+    {
+      "criterion_id": "reentry_speed",
+      "label": "Reentry Speed",
+      "description": "The front should make future retomes faster and less ambiguous.",
+      "weight": 4,
+      "evidence_terms": [
+        "retome",
+        "reubicarse",
+        "verify larga",
+        "runbook",
+        "CURRENT_STATE",
+        "HANDOFF_CURRENT"
+      ],
+      "blocker_terms": [
+        "fragil",
+        "drift"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Favor fronts that help the project resume cleanly."
+    },
+    {
+      "criterion_id": "project_reuse",
+      "label": "Project Reuse",
+      "description": "The front should stay reusable across future project questions rather than only one demo.",
+      "weight": 4,
+      "evidence_terms": [
+        "dossier lane",
+        "decision lane",
+        "recommendation lane",
+        "pregunta publica concreta",
+        "task",
+        "artefactos"
+      ],
+      "blocker_terms": [
+        "demo",
+        "solo"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Reusable lanes beat one-off experiments."
+    },
+    {
+      "criterion_id": "expansion_safety",
+      "label": "Expansion Safety",
+      "description": "The front should not quietly reopen blocked or oversold surfaces.",
+      "weight": 4,
+      "evidence_terms": [
+        "deuda",
+        "BLOCKED",
+        "no corresponde inflar",
+        "No vender escritorio completo.",
+        "readiness real de worker externo no alcanza hoy",
+        "sidecar"
+      ],
+      "blocker_terms": [
+        "control host total",
+        "workers",
+        "browser nativo"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Safety matters more than novelty."
+    }
+  ],
+  "priority_buckets": [
+    {
+      "bucket_id": "NOW",
+      "label": "NOW",
+      "description": "Work immediately in the next tranche.",
+      "assignment_mode": "score",
+      "min_score": 40,
+      "max_blocker_hits": 1,
+      "button": "GREEN"
+    },
+    {
+      "bucket_id": "NEXT",
+      "label": "NEXT",
+      "description": "Valuable follow-on after the NOW tranche.",
+      "assignment_mode": "score",
+      "min_score": 28,
+      "max_blocker_hits": 2,
+      "button": "GREEN"
+    },
+    {
+      "bucket_id": "LATER",
+      "label": "LATER",
+      "description": "Keep visible but do not advance now.",
+      "assignment_mode": "fallback",
+      "button": "RED"
+    },
+    {
+      "bucket_id": "FROZEN",
+      "label": "FROZEN",
+      "description": "Known blocked debt or an explicitly frozen front.",
+      "assignment_mode": "forced",
+      "button": "RED"
+    },
+    {
+      "bucket_id": "DO_NOT_TOUCH",
+      "label": "DO_NOT_TOUCH",
+      "description": "Avoid under current truths.",
+      "assignment_mode": "forced",
+      "button": "RED"
+    },
+    {
+      "bucket_id": "REOPEN_ONLY_IF",
+      "label": "REOPEN_ONLY_IF",
+      "description": "Only revisit under explicit fresh evidence.",
+      "assignment_mode": "forced",
+      "button": "RED"
+    }
+  ],
+  "project_fronts": [
+    {
+      "front_id": "truth_docs_and_handoff",
+      "label": "Truth Docs and Handoff",
+      "description": "Maintain the versioned truth package that makes the project easy to re-enter without re-litigating old debates.",
+      "current_state_hint": "The repo already uses CURRENT_STATE, capability matrix, runbook and handoff as the truth surface.",
+      "evidence_sources": [
+        "local_capability_matrix",
+        "local_current_state",
+        "local_runbook",
+        "local_handoff"
+      ],
+      "intended_outcome": "Keep the truth surface sharp and reusable for future tranches.",
+      "relative_cost": "low",
+      "relative_cost_note": "Low relative cost because the repo already treats these documents as canonical evidence.",
+      "risk_hints": [
+        "Can slip into paperwork if it stops serving real project questions.",
+        "Can become repetitive if not anchored to verified changes."
+      ],
+      "preconditions": [
+        "Only update after verified truths or new lanes actually land.",
+        "Keep the docs compact and aligned with the scripts."
+      ],
+      "kill_criteria": [
+        "Pause if the docs stop reflecting real verified changes.",
+        "Pause if documentation work starts replacing tranche execution."
+      ],
+      "blocking_signals": [],
+      "bucket_signal_terms": {},
+      "recommended_action": "Keep truth docs and handoff in NOW so every later tranche starts from the same accepted reality.",
+      "notes": "This is the most durable maintenance front."
+    },
+    {
+      "front_id": "prioritization_and_recommendation_layers",
+      "label": "Prioritization and Recommendation Layers",
+      "description": "Keep evolving the upper planning lanes that turn evidence into bounded project moves.",
+      "current_state_hint": "These layers already exist and are ready to answer bounded project questions.",
+      "evidence_sources": [
+        "local_dossier_lane",
+        "local_decision_lane",
+        "local_recommendation_lane",
+        "local_current_state"
+      ],
+      "intended_outcome": "Use the lane stack to keep future project decisions auditable and scoped.",
+      "relative_cost": "medium",
+      "relative_cost_note": "Medium relative cost because the lanes are real and reusable, but they should not expand without producing concrete project outputs.",
+      "risk_hints": [
+        "Can become meta-work if not grounded on concrete project questions.",
+        "Can overgrow into a framework if every tranche adds another abstraction layer."
+      ],
+      "preconditions": [
+        "Each new layer must answer a concrete project question.",
+        "Keep reuse higher than complexity."
+      ],
+      "kill_criteria": [
+        "Pause if the lane stack grows faster than the project decisions it supports.",
+        "Pause if the work starts to duplicate dossier, decision or recommendation behavior."
+      ],
+      "blocking_signals": [],
+      "bucket_signal_terms": {},
+      "recommended_action": "Keep these layers in NEXT and only extend them when the project has a concrete prioritization or recommendation question to answer.",
+      "notes": "High leverage, but should remain bounded."
+    },
+    {
+      "front_id": "gateway_channels_reference",
+      "label": "Gateway and Channels Reference",
+      "description": "Broaden the public planning baseline toward gateway and channels after the evidence package is stable.",
+      "current_state_hint": "Useful public surface, but not the most urgent evidence-maintenance front.",
+      "evidence_sources": [
+        "oc_cli",
+        "oc_channels",
+        "local_current_state"
+      ],
+      "intended_outcome": "Keep a documented follow-on baseline for broader OpenClaw planning.",
+      "relative_cost": "medium",
+      "relative_cost_note": "Medium relative cost because the public surface is broad and useful, but not urgent for maintaining the accepted truths.",
+      "risk_hints": [
+        "Can dilute the evidence package into a general product roadmap.",
+        "Can distract from the lane stack that is already producing concrete answers."
+      ],
+      "preconditions": [
+        "Finish the evidence-maintenance tranche first.",
+        "Keep this front scoped as a public reference follow-on."
+      ],
+      "kill_criteria": [
+        "Pause if this front becomes a general expansion of scope.",
+        "Pause if it tries to replace the accepted sidecar project lane."
+      ],
+      "blocking_signals": [],
+      "bucket_signal_terms": {},
+      "recommended_action": "Keep gateway/channels reference work in LATER until the evidence-maintenance tranche is settled.",
+      "notes": "Visible but not urgent."
+    },
+    {
+      "front_id": "browser_native_recovery",
+      "label": "Browser Native Recovery",
+      "description": "Any attempt to recover the native OpenClaw browser lane.",
+      "current_state_hint": "Explicitly blocked debt and not the current project lane.",
+      "evidence_sources": [
+        "local_capability_matrix",
+        "local_current_state",
+        "oc_browser"
+      ],
+      "intended_outcome": "Keep browser-native recovery frozen until new evidence exists.",
+      "relative_cost": "high",
+      "relative_cost_note": "High relative cost because the current accepted truth still says the native browser lane is blocked debt.",
+      "risk_hints": [
+        "Can absorb effort without producing a trustworthy operator lane.",
+        "Can destabilize the truth package by re-litigating settled debt."
+      ],
+      "preconditions": [
+        "Require new verified PASS evidence before reopening.",
+        "Do not confuse public browser docs with host-local proof."
+      ],
+      "kill_criteria": [
+        "Stop immediately if there is no fresh PASS evidence.",
+        "Stop if the work starts depending on speculation about raw listeners or ambient Chrome state."
+      ],
+      "blocking_signals": [
+        "BLOCKED",
+        "timeout",
+        "ECONNREFUSED",
+        "Unexpected server response: 404"
+      ],
+      "bucket_signal_terms": {
+        "FROZEN": [
+          "browser nativo OC = BLOCKED",
+          "deuda congelada",
+          "camino degradado a deuda"
+        ]
+      },
+      "recommended_action": "Keep browser-native recovery frozen and outside the evidence-maintenance tranche.",
+      "notes": "Frozen debt."
+    },
+    {
+      "front_id": "worker_stack_reopen",
+      "label": "Worker Stack Reopen",
+      "description": "Reopening external worker, orchestration and bridge surfaces.",
+      "current_state_hint": "Documented but not ready to sell as stable.",
+      "evidence_sources": [
+        "local_capability_matrix",
+        "local_current_state",
+        "local_handoff"
+      ],
+      "intended_outcome": "Only reopen if the worker readiness evidence changes materially.",
+      "relative_cost": "high",
+      "relative_cost_note": "High relative cost because the current versioned truth still says worker readiness is not there.",
+      "risk_hints": [
+        "Can pull multiple unstable dependencies back into scope at once.",
+        "Can turn a bounded evidence tranche into a wide runtime chase."
+      ],
+      "preconditions": [
+        "Require fresh PASS evidence from the worker orchestration verify stack.",
+        "Keep this front subordinated to proven browser and evidence lanes."
+      ],
+      "kill_criteria": [
+        "Stop if worker work is being justified by governance prose alone.",
+        "Stop if the front is reopened before relay/task API/bridge checks turn green."
+      ],
+      "blocking_signals": [
+        "browser_relay FAIL",
+        "task_api FAIL",
+        "whatsapp_bridge_service FAIL"
+      ],
+      "bucket_signal_terms": {
+        "REOPEN_ONLY_IF": [
+          "readiness real de worker externo no alcanza hoy",
+          "worker readiness real: no",
+          "browser_relay FAIL",
+          "task_api FAIL"
+        ]
+      },
+      "recommended_action": "Only reopen worker stack work if the self-check and verify evidence materially improve.",
+      "notes": "Explicit reopen-only-if front."
+    },
+    {
+      "front_id": "host_control_storytelling",
+      "label": "Host Control Storytelling",
+      "description": "Any attempt to frame the project as having total host or desktop control today.",
+      "current_state_hint": "Explicitly rejected by the versioned truth package.",
+      "evidence_sources": [
+        "local_capability_matrix",
+        "local_current_state",
+        "local_handoff"
+      ],
+      "intended_outcome": "Keep host-control storytelling out of the evidence-maintenance lane.",
+      "relative_cost": "high",
+      "relative_cost_note": "High relative cost because this front creates trust risk with little evidentiary support.",
+      "risk_hints": [
+        "High chance of overselling what the repo can actually prove.",
+        "Can contaminate otherwise honest prioritization outputs."
+      ],
+      "preconditions": [
+        "None under the current accepted truths.",
+        "A future reopening would require a separate host-control proof program."
+      ],
+      "kill_criteria": [
+        "Stop if the language starts implying full host control.",
+        "Stop if host-control claims are used to justify unrelated work."
+      ],
+      "blocking_signals": [
+        "control host total",
+        "No vender escritorio completo."
+      ],
+      "bucket_signal_terms": {
+        "DO_NOT_TOUCH": [
+          "control host total: no",
+          "Read-side del desktop no significa control host total.",
+          "Vender escritorio completo o control host total.",
+          "No vender escritorio completo."
+        ]
+      },
+      "recommended_action": "Do not touch host-control storytelling in this tranche.",
+      "notes": "Explicit red-button front."
+    }
+  ]
+}

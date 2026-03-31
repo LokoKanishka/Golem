@@ -18,10 +18,12 @@ Esta capa ahora tambien tiene una continuacion explicita:
 
 - `decision lane`
 - `recommendation lane`
+- `project prioritization lane`
 
 El dossier organiza y sintetiza.
 El decision lane evalua una pregunta concreta con criterios y veredicto.
 El recommendation lane toma esa decision y la convierte en una recomendacion practica con alternativas.
+El project prioritization lane usa evidencia publica + local para decidir que frente del proyecto mover ahora y cual congelar.
 
 ## Decision de diseno
 

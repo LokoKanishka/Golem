@@ -24,6 +24,7 @@ La lectura honesta del host hoy es:
 - El browser sidecar ya quedo elevado tambien a un dossier lane declarativo para tareas chicas de investigacion publica multi-fuente.
 - El browser sidecar ya quedo elevado tambien a un decision lane declarativo para preguntas publicas concretas con matriz y veredicto rastreable.
 - El browser sidecar ya quedo elevado tambien a un recommendation lane declarativo para recomendaciones practicas con alternativas, riesgos, precondiciones y siguiente paso.
+- El browser sidecar ya quedo elevado tambien a un project prioritization lane declarativo para frentes del proyecto con buckets NOW/NEXT/LATER/FROZEN/DO_NOT_TOUCH/REOPEN_ONLY_IF.
 - La percepcion/descripcion read-side del desktop si existe y produce evidencia real.
 - La readiness real de worker externo no alcanza hoy para venderse como capacidad operativa estable.
 
@@ -122,6 +123,17 @@ La lectura honesta del host hoy es:
   - `preconditions`
   - `suggested_next_step`
 - `./scripts/verify_browser_sidecar_recommendation_lane.sh` ya deja una verify larga reusable del recommendation lane
+- `./scripts/browser_sidecar_prioritization_run.sh` ya deja una capa de priorizacion de proyecto:
+  - mezcla evidencia publica y evidencia local versionada
+  - evalua frentes explicitos del proyecto
+  - asigna buckets NOW/NEXT/LATER/FROZEN/DO_NOT_TOUCH/REOPEN_ONLY_IF
+  - expone riesgos, precondiciones, kill criteria y siguiente tramo sugerido
+- `browser_tasks/prioritize-*.json` ya deja tasks declarativas de priorizacion:
+  - `project_fronts`
+  - `priority_buckets`
+  - `local_sources`
+  - `kill_criteria`
+- `./scripts/verify_browser_sidecar_prioritization_lane.sh` ya deja una verify larga reusable del prioritization lane
 - `./scripts/verify_worker_orchestration_stack.sh` no paso:
   - los verifies canonicos del stack worker fallaron
   - el self-check previo ya marcaba `browser_relay FAIL`, `task_api FAIL` y `whatsapp_bridge_service FAIL`
@@ -153,6 +165,7 @@ La lectura honesta del host hoy es:
   - `scripts/browser_sidecar_dossier_run.sh`
   - `scripts/browser_sidecar_decision_run.sh`
   - `scripts/browser_sidecar_recommendation_run.sh`
+  - `scripts/browser_sidecar_prioritization_run.sh`
   - `scripts/verify_browser_capability_truth.sh` como smoke/browser truth oficial del carril aceptado
   - `scripts/verify_browser_sidecar_operational.sh` como verify corta del carril operativo
   - `scripts/verify_browser_sidecar_real_web.sh` como verify real sobre web publica simple
@@ -160,6 +173,7 @@ La lectura honesta del host hoy es:
   - `scripts/verify_browser_sidecar_dossier_lane.sh` como verify larga del carril de dossier declarativo
   - `scripts/verify_browser_sidecar_decision_lane.sh` como verify larga del carril de decision declarativa
   - `scripts/verify_browser_sidecar_recommendation_lane.sh` como verify larga del carril de recommendation declarativa
+  - `scripts/verify_browser_sidecar_prioritization_lane.sh` como verify larga del carril de project prioritization declarativa
   - `scripts/golem_host_perceive.sh`
   - `scripts/golem_host_describe.sh`
   - governance/controlled-run de worker como capa subordinada, no nucleo
@@ -171,6 +185,7 @@ La lectura honesta del host hoy es:
 - `docs/BROWSER_DOSSIER_LANE.md`
 - `docs/BROWSER_DECISION_LANE.md`
 - `docs/BROWSER_RECOMMENDATION_LANE.md`
+- `docs/BROWSER_PROJECT_PRIORITIZATION_LANE.md`
 
 ## Retome recomendado
 
@@ -183,4 +198,4 @@ Eso ya quedo resuelto:
 
 El siguiente tramo razonable pasa a ser uno solo:
 
-- usar este carril operativo ya elevado a recommendation lane sobre una pregunta publica concreta con impacto real de priorizacion, sin reabrir browser nativo, workers ni host control
+- usar este carril ya elevado a project prioritization lane para ejecutar el frente `NOW` recomendado, sin reabrir browser nativo, workers ni host control

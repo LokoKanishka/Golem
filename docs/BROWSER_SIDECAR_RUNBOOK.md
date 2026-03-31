@@ -29,6 +29,7 @@ La interfaz actual queda separada asi:
 - `dossier`: pipeline declarativo multi-fuente para una tarea publica reproducible
 - `decision`: capa de pregunta + criterios + matriz + veredicto encima del dossier
 - `recommendation`: capa de alternativas + riesgos + precondiciones + siguiente paso encima de la decision
+- `prioritization`: capa de frentes del proyecto + buckets + kill criteria + siguiente tramo encima de la recommendation
 
 La regla es simple:
 
@@ -163,6 +164,14 @@ Pipeline de recommendation:
 ./scripts/browser_sidecar_recommendation_run.sh --format json browser_tasks/recommend-openclaw-public-baseline.json
 ```
 
+Pipeline de project prioritization:
+
+```bash
+./scripts/browser_sidecar_prioritization_run.sh browser_tasks/prioritize-golem-openclaw-next-tranche.json
+./scripts/browser_sidecar_prioritization_run.sh browser_tasks/prioritize-project-evidence-maintenance.json
+./scripts/browser_sidecar_prioritization_run.sh --format json browser_tasks/prioritize-golem-openclaw-next-tranche.json
+```
+
 Artefactos:
 
 - los artefactos finales viven en `outbox/manual/`
@@ -171,6 +180,8 @@ Artefactos:
 - `dossier_run` guarda extracts, compares y un dossier final en `json` y `md`
 - `decision_run` guarda el dossier base y un artefacto final de decision en `json` y `md`
 - `recommendation_run` guarda dossier base, decision base y un artefacto final de recommendation en `json` y `md`
+- `prioritization_run` guarda extracts publicos, extracts locales versionados y un artefacto final de priorizacion en `json` y `md`
+- si una fuente publica JS-heavy no deja texto visible util, `prioritization_run` conserva la prueba sidecar y agrega un fallback HTML versionado
 - no hace falta tocar `.gitignore` porque `outbox/manual/` ya esta ignorado
 
 ## Verify
@@ -217,6 +228,12 @@ Verify larga de recommendation:
 ./scripts/verify_browser_sidecar_recommendation_lane.sh
 ```
 
+Verify larga de project prioritization:
+
+```bash
+./scripts/verify_browser_sidecar_prioritization_lane.sh
+```
+
 Targets hoy probados de forma explicita:
 
 - `https://www.iana.org/domains/reserved`
@@ -234,6 +251,8 @@ Tareas declarativas ejemplo hoy versionadas:
 - `browser_tasks/decision-iana-first-source.json`
 - `browser_tasks/recommend-openclaw-public-baseline.json`
 - `browser_tasks/recommend-reserved-domains-reference-pack.json`
+- `browser_tasks/prioritize-golem-openclaw-next-tranche.json`
+- `browser_tasks/prioritize-project-evidence-maintenance.json`
 
 ## Que NO promete
 
@@ -245,6 +264,7 @@ Tareas declarativas ejemplo hoy versionadas:
 - no promete investigacion publica general sin foco declarativo
 - no promete decision automatica sin criterios explicitos
 - no promete recomendacion practica sin alternativas ni evidencia trazable
+- no promete priorizacion de proyecto sin frentes, buckets ni evidencia local versionada
 - no promete control host total
 - no reabre MCP, plugins ni workers
 - no convierte al browser nativo de OC en sano
