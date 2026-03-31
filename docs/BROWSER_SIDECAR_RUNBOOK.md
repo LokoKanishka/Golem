@@ -28,6 +28,7 @@ La interfaz actual queda separada asi:
 - `compare`: comparacion operativa entre dos paginas usando la salida de `extract`
 - `dossier`: pipeline declarativo multi-fuente para una tarea publica reproducible
 - `decision`: capa de pregunta + criterios + matriz + veredicto encima del dossier
+- `recommendation`: capa de alternativas + riesgos + precondiciones + siguiente paso encima de la decision
 
 La regla es simple:
 
@@ -154,6 +155,14 @@ Pipeline de decision:
 ./scripts/browser_sidecar_decision_run.sh --format json browser_tasks/decision-reserved-domains-best-source.json
 ```
 
+Pipeline de recommendation:
+
+```bash
+./scripts/browser_sidecar_recommendation_run.sh browser_tasks/recommend-openclaw-public-baseline.json
+./scripts/browser_sidecar_recommendation_run.sh browser_tasks/recommend-reserved-domains-reference-pack.json
+./scripts/browser_sidecar_recommendation_run.sh --format json browser_tasks/recommend-openclaw-public-baseline.json
+```
+
 Artefactos:
 
 - los artefactos finales viven en `outbox/manual/`
@@ -161,6 +170,7 @@ Artefactos:
 - `compare --save-slug ...` guarda `json` y `md`
 - `dossier_run` guarda extracts, compares y un dossier final en `json` y `md`
 - `decision_run` guarda el dossier base y un artefacto final de decision en `json` y `md`
+- `recommendation_run` guarda dossier base, decision base y un artefacto final de recommendation en `json` y `md`
 - no hace falta tocar `.gitignore` porque `outbox/manual/` ya esta ignorado
 
 ## Verify
@@ -201,6 +211,12 @@ Verify larga de decision:
 ./scripts/verify_browser_sidecar_decision_lane.sh
 ```
 
+Verify larga de recommendation:
+
+```bash
+./scripts/verify_browser_sidecar_recommendation_lane.sh
+```
+
 Targets hoy probados de forma explicita:
 
 - `https://www.iana.org/domains/reserved`
@@ -216,6 +232,8 @@ Tareas declarativas ejemplo hoy versionadas:
 - `browser_tasks/iana-service-overview.json`
 - `browser_tasks/decision-reserved-domains-best-source.json`
 - `browser_tasks/decision-iana-first-source.json`
+- `browser_tasks/recommend-openclaw-public-baseline.json`
+- `browser_tasks/recommend-reserved-domains-reference-pack.json`
 
 ## Que NO promete
 
@@ -226,6 +244,7 @@ Tareas declarativas ejemplo hoy versionadas:
 - no promete comparacion semantica profunda ni NLP
 - no promete investigacion publica general sin foco declarativo
 - no promete decision automatica sin criterios explicitos
+- no promete recomendacion practica sin alternativas ni evidencia trazable
 - no promete control host total
 - no reabre MCP, plugins ni workers
 - no convierte al browser nativo de OC en sano

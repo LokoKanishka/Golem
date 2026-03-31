@@ -13,12 +13,20 @@ Lo usa como base y agrega:
 - matriz de decision
 - veredicto final con incertidumbres
 
+Esta capa ahora tambien tiene una continuacion explicita:
+
+- `recommendation lane`
+
+El decision lane responde que fuente o superficie gana segun criterios.
+El recommendation lane traduce esa matriz a alternativas de proyecto, riesgos, precondiciones y siguiente paso.
+
 ## Decision de diseño
 
 La arquitectura se mantiene chica:
 
 - `browser_sidecar_dossier_run.sh` sigue siendo la capa de recoleccion multi-fuente
 - `browser_sidecar_decision_run.sh` consume el dossier JSON y produce decision
+- `browser_sidecar_recommendation_run.sh` consume la decision y rankea alternativas
 - `browser_tasks/*.json` sigue siendo el directorio canonico
 
 No se abrio otra familia de manifests fuera de `browser_tasks/`.
@@ -60,6 +68,8 @@ Luego:
 
 - `browser_tasks/decision-reserved-domains-best-source.json`
 - `browser_tasks/decision-iana-first-source.json`
+- `browser_tasks/recommend-openclaw-public-baseline.json`
+- `browser_tasks/recommend-reserved-domains-reference-pack.json`
 
 ## Comando principal
 
@@ -100,6 +110,12 @@ El artefacto final de decision incluye:
 
 ```bash
 ./scripts/verify_browser_sidecar_decision_lane.sh
+```
+
+La continuacion natural hoy es:
+
+```bash
+./scripts/verify_browser_sidecar_recommendation_lane.sh
 ```
 
 ## Limites honestos

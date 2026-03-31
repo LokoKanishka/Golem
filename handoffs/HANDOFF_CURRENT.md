@@ -38,6 +38,8 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
 - `./scripts/verify_browser_sidecar_dossier_lane.sh`
 - `./scripts/browser_sidecar_decision_run.sh`
 - `./scripts/verify_browser_sidecar_decision_lane.sh`
+- `./scripts/browser_sidecar_recommendation_run.sh`
+- `./scripts/verify_browser_sidecar_recommendation_lane.sh`
 
 ## Donde quedo el proyecto
 
@@ -77,11 +79,17 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
   - `browser_tasks/decision-*.json` deja preguntas concretas con criterios declarativos
   - `browser_sidecar_decision_run.sh` produce matrix + source ranking + veredicto final
   - `verify_browser_sidecar_decision_lane.sh` deja `PASS` sobre una decision publica completa
+- el carril ya no solo decide que fuente gana:
+  - `browser_tasks/recommend-*.json` deja alternativas explicitas, riesgos, precondiciones y siguiente paso
+  - `browser_sidecar_recommendation_run.sh` produce recommendation matrix + runner-up + recomendacion final accionable
+  - `verify_browser_sidecar_recommendation_lane.sh` deja `PASS` sobre una recomendacion publica completa
 - hoy ya hay dos tareas ejemplo reales y distintas:
   - `browser_tasks/reserved-domains-technical.json`
   - `browser_tasks/iana-service-overview.json`
   - `browser_tasks/decision-reserved-domains-best-source.json`
   - `browser_tasks/decision-iana-first-source.json`
+  - `browser_tasks/recommend-openclaw-public-baseline.json`
+  - `browser_tasks/recommend-reserved-domains-reference-pack.json`
 - eleccion deliberada para este tramo:
   - se priorizaron paginas publicas estaticas y estables
   - no se congelo como ejemplo canonico una superficie mas fragil o muy JS-heavy
@@ -111,6 +119,7 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
 - `docs/BROWSER_HOST_CONTRACT.md`
 - `docs/BROWSER_DOSSIER_LANE.md`
 - `docs/BROWSER_DECISION_LANE.md`
+- `docs/BROWSER_RECOMMENDATION_LANE.md`
 
 ## Comandos utiles para reubicarse rapido
 
@@ -128,6 +137,8 @@ git log --oneline -8
 ./scripts/verify_browser_sidecar_dossier_lane.sh
 ./scripts/browser_sidecar_decision_run.sh browser_tasks/decision-reserved-domains-best-source.json
 ./scripts/verify_browser_sidecar_decision_lane.sh
+./scripts/browser_sidecar_recommendation_run.sh browser_tasks/recommend-openclaw-public-baseline.json
+./scripts/verify_browser_sidecar_recommendation_lane.sh
 ./scripts/verify_browser_stack.sh --diagnosis-only
 ./scripts/verify_worker_orchestration_stack.sh
 ```
@@ -141,7 +152,7 @@ git log --oneline -8
 
 ## Proximo tramo unico sugerido
 
-Usar el decision lane ya probado sobre una pregunta publica concreta con necesidad real de recomendacion o priorizacion, sin reabrir browser nativo ni abrir workers/control host.
+Usar el recommendation lane ya probado sobre una pregunta publica concreta con impacto real de priorizacion, sin reabrir browser nativo ni abrir workers/control host.
 
 No corresponde volver a discutir antes de eso:
 

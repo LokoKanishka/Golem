@@ -1,0 +1,206 @@
+{
+  "task_id": "recommend-openclaw-public-baseline",
+  "title": "OpenClaw Public Baseline Recommendation",
+  "description": "Recommend which public OpenClaw surface should anchor Golem's next public-facing planning cycle while browser execution stays on the accepted sidecar lane.",
+  "question": "Which public OpenClaw surface should Golem use as the baseline for the next public-facing planning cycle while browser execution stays on the accepted sidecar lane?",
+  "output_slug": "recommend-openclaw-public-baseline",
+  "comparison_mode": "explicit_pairs",
+  "focus_terms": [
+    "CLI Reference",
+    "Chat Channels",
+    "Browser (OpenClaw-managed)",
+    "Plugins",
+    "status",
+    "gateway",
+    "Supported channels",
+    "Plugin API overview",
+    "Playwright requirement",
+    "Existing-session via Chrome DevTools MCP"
+  ],
+  "expected_signals": [
+    "status",
+    "gateway",
+    "Supported channels",
+    "Plugin API overview",
+    "Playwright",
+    "Chrome DevTools MCP",
+    "registerTool"
+  ],
+  "focus_profile": {
+    "excerpt_limit": 10,
+    "match_limit": 3
+  },
+  "sources": [
+    {
+      "label": "oc_cli",
+      "url": "https://docs.openclaw.ai/cli",
+      "selector_hint": "CLI Reference - OpenClaw",
+      "notes": "Primary CLI reference with command tree, status and gateway surface."
+    },
+    {
+      "label": "oc_channels",
+      "url": "https://docs.openclaw.ai/channels",
+      "selector_hint": "Chat Channels - OpenClaw",
+      "notes": "Public channel surface and routing overview."
+    },
+    {
+      "label": "oc_browser",
+      "url": "https://docs.openclaw.ai/tools/browser",
+      "selector_hint": "Browser (OpenClaw-managed) - OpenClaw",
+      "notes": "Public browser docs, including managed browser, existing-session and Playwright prerequisites."
+    },
+    {
+      "label": "oc_plugins",
+      "url": "https://docs.openclaw.ai/tools/plugin",
+      "selector_hint": "Plugins - OpenClaw",
+      "notes": "Public plugin architecture and extension surface."
+    }
+  ],
+  "comparisons": [
+    {
+      "label": "cli-vs-browser",
+      "left": "oc_cli",
+      "right": "oc_browser"
+    },
+    {
+      "label": "channels-vs-plugins",
+      "left": "oc_channels",
+      "right": "oc_plugins"
+    }
+  ],
+  "decision_criteria": [
+    {
+      "criterion_id": "operational_command_baseline",
+      "label": "Operational Command Baseline",
+      "description": "The baseline should expose a broad public command surface for day-to-day orientation and verification.",
+      "weight": 5,
+      "evidence_terms": [
+        "CLI commands",
+        "Command tree",
+        "status",
+        "health",
+        "gateway",
+        "logs"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Favor surfaces that make ongoing operational work visible."
+    },
+    {
+      "criterion_id": "public_workflow_reach",
+      "label": "Public Workflow Reach",
+      "description": "The baseline should cover public-facing workflows that Golem can actually observe and reason about from docs alone.",
+      "weight": 5,
+      "evidence_terms": [
+        "Supported channels",
+        "route per chat",
+        "WhatsApp",
+        "Telegram",
+        "Group behavior varies by channel",
+        "Channel troubleshooting"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Prefer public surfaces that describe real-world message or routing workflows."
+    },
+    {
+      "criterion_id": "extension_follow_on_path",
+      "label": "Extension Follow-on Path",
+      "description": "The baseline should leave a visible path to later extension work without becoming a plugin deep-dive by default.",
+      "weight": 3,
+      "evidence_terms": [
+        "Plugins extend OpenClaw",
+        "Plugin API overview",
+        "registerTool",
+        "registerChannel",
+        "Community Plugins"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "This matters, but it is secondary to day-one baseline utility."
+    },
+    {
+      "criterion_id": "browser_surface_specificity",
+      "label": "Browser Surface Specificity",
+      "description": "The baseline should still make browser-specific public claims visible enough to track them as a secondary lane.",
+      "weight": 2,
+      "evidence_terms": [
+        "Browser (OpenClaw-managed)",
+        "Existing-session via Chrome DevTools MCP",
+        "Playwright requirement",
+        "snapshot",
+        "profiles"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Keeps browser docs in view without forcing them to become the main baseline."
+    }
+  ],
+  "alternatives": [
+    {
+      "alternative_id": "cli_channels_baseline",
+      "label": "CLI + Channels Baseline",
+      "description": "Anchor the next planning cycle on the CLI reference plus the public channels surface.",
+      "intended_outcome": "Use CLI and channels docs as the default public baseline for near-term planning and verification work.",
+      "source_plan": [
+        "oc_cli",
+        "oc_channels"
+      ],
+      "primary_source": "oc_cli",
+      "relative_cost": "low",
+      "relative_cost_note": "Low relative cost because the surface is broad, public and already oriented around operational commands and channels.",
+      "risk_hints": [
+        "Can underrepresent extension mechanics and plugin-specific growth paths.",
+        "Does not by itself settle browser implementation questions."
+      ],
+      "preconditions": [
+        "Keep browser execution on the accepted sidecar lane instead of treating OpenClaw browser docs as a runtime contract.",
+        "Treat plugin work as a follow-on surface, not the default baseline."
+      ],
+      "suggested_next_step": "Use CLI + channels as the public baseline for the next project tranche, and keep browser-native work frozen until a separate evidence-backed case justifies reopening it.",
+      "notes": "Best fit when the project needs a public baseline for day-to-day planning instead of a browser-specific deep dive."
+    },
+    {
+      "alternative_id": "browser_surface_baseline",
+      "label": "Browser Surface Baseline",
+      "description": "Center the next planning cycle on the public browser docs plus CLI support material.",
+      "intended_outcome": "Treat browser docs as the primary baseline for near-term planning.",
+      "source_plan": [
+        "oc_browser",
+        "oc_cli"
+      ],
+      "primary_source": "oc_browser",
+      "relative_cost": "high",
+      "relative_cost_note": "Higher relative cost because the public browser surface carries more prerequisites, profile modes and implementation-specific caveats.",
+      "risk_hints": [
+        "Can over-focus the project on a surface with many prerequisites and branch conditions.",
+        "May tempt the project to re-litigate browser-native work before there is a new evidence threshold."
+      ],
+      "preconditions": [
+        "Accept the public browser docs as a planning surface without treating them as proof of host readiness.",
+        "Track Playwright, profile and existing-session prerequisites explicitly."
+      ],
+      "suggested_next_step": "Only elevate browser docs to the main baseline if the project explicitly decides to reopen browser-native work with fresh public and local evidence.",
+      "notes": "Useful for browser-specific follow-up, but heavy as a general baseline."
+    },
+    {
+      "alternative_id": "plugin_extension_baseline",
+      "label": "Plugin Extension Baseline",
+      "description": "Anchor the next planning cycle on plugin architecture and extension surfaces with CLI support as context.",
+      "intended_outcome": "Use plugin docs as the default public baseline for what to build next.",
+      "source_plan": [
+        "oc_plugins",
+        "oc_cli"
+      ],
+      "primary_source": "oc_plugins",
+      "relative_cost": "medium",
+      "relative_cost_note": "Medium relative cost because extension work is publicly documented but assumes extra configuration and restart flows.",
+      "risk_hints": [
+        "Can skew planning toward extensibility before the project chooses the right operational baseline.",
+        "May pull attention away from already-proven public workflows."
+      ],
+      "preconditions": [
+        "Decide that near-term project work is primarily about extension or integration design.",
+        "Accept Gateway restart and plugin config workflows as part of the baseline."
+      ],
+      "suggested_next_step": "Use plugin docs as a secondary planning surface once the operational baseline is stable and the project is ready to scope extension work explicitly.",
+      "notes": "Stronger as a secondary lane than as the first baseline."
+    }
+  ]
+}

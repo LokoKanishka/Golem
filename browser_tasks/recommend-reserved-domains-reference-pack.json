@@ -1,0 +1,197 @@
+{
+  "task_id": "recommend-reserved-domains-reference-pack",
+  "title": "Reserved Domains Reference Pack Recommendation",
+  "description": "Recommend which public reference pack Golem should use when it needs to explain reserved, example and special-use DNS names in future notes or docs.",
+  "question": "Which public reference pack should Golem use as the default baseline when it needs to explain reserved, example and special-use DNS names in future documentation or research notes?",
+  "output_slug": "recommend-reserved-domains-reference-pack",
+  "comparison_mode": "explicit_pairs",
+  "focus_terms": [
+    "Example domains",
+    "RFC 2606",
+    "RFC 6761",
+    "Special-Use Domain Names",
+    ".example",
+    ".invalid",
+    ".localhost",
+    "IANA-managed Reserved Domains",
+    "documentation purposes"
+  ],
+  "expected_signals": [
+    "example.com",
+    "example.net",
+    "example.org",
+    ".localhost",
+    "Special-Use Domain Names",
+    "Standards Track"
+  ],
+  "focus_profile": {
+    "excerpt_limit": 10,
+    "match_limit": 3
+  },
+  "sources": [
+    {
+      "label": "iana_reserved",
+      "url": "https://www.iana.org/domains/reserved",
+      "selector_hint": "IANA-managed Reserved Domains",
+      "notes": "Institutional overview of reserved and policy-special domains."
+    },
+    {
+      "label": "rfc_2606",
+      "url": "https://www.rfc-editor.org/rfc/rfc2606.html",
+      "selector_hint": "RFC 2606",
+      "notes": "Best Current Practice defining reserved example names."
+    },
+    {
+      "label": "rfc_6761",
+      "url": "https://www.rfc-editor.org/rfc/rfc6761.html",
+      "selector_hint": "RFC 6761",
+      "notes": "Special-Use Domain Names specification."
+    }
+  ],
+  "comparisons": [
+    {
+      "label": "iana-vs-rfc2606",
+      "left": "iana_reserved",
+      "right": "rfc_2606"
+    },
+    {
+      "label": "iana-vs-rfc6761",
+      "left": "iana_reserved",
+      "right": "rfc_6761"
+    }
+  ],
+  "decision_criteria": [
+    {
+      "criterion_id": "normative_authority",
+      "label": "Normative Authority",
+      "description": "The reference pack should include a primary standards-facing source.",
+      "weight": 5,
+      "evidence_terms": [
+        "Request for Comments",
+        "Standards Track",
+        "Best Current Practice",
+        "Internet Engineering Task Force",
+        "RFC 6761"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Favor standards-facing material over short summaries."
+    },
+    {
+      "criterion_id": "example_name_coverage",
+      "label": "Example Name Coverage",
+      "description": "The reference pack should explicitly cover reserved example names and localhost/invalid behavior.",
+      "weight": 4,
+      "evidence_terms": [
+        ".example",
+        ".invalid",
+        ".localhost",
+        "example.com",
+        "example.net",
+        "example.org"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Coverage matters more than prose style."
+    },
+    {
+      "criterion_id": "special_use_scope",
+      "label": "Special-Use Scope",
+      "description": "The reference pack should make special-use behavior and scope explicit, not only list examples.",
+      "weight": 5,
+      "evidence_terms": [
+        "Special-Use Domain Names",
+        "localhost.",
+        "invalid.",
+        "Reservation Considerations",
+        "special-use"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Important if the pack is going to be reused in future notes."
+    },
+    {
+      "criterion_id": "operator_overview",
+      "label": "Operator Overview",
+      "description": "The reference pack should still help a reader quickly understand practical registry or documentation context.",
+      "weight": 3,
+      "evidence_terms": [
+        "IANA-managed Reserved Domains",
+        "documentation purposes",
+        "registration or transfer",
+        "policy grounds",
+        "Reserved Domains"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Keeps the pack useful outside pure RFC reading."
+    }
+  ],
+  "alternatives": [
+    {
+      "alternative_id": "rfc6761_primary_iana_secondary",
+      "label": "RFC 6761 Primary + IANA Secondary",
+      "description": "Use RFC 6761 as the main normative reference and IANA reserved domains as the operator-friendly companion.",
+      "intended_outcome": "Have one strong standards source plus one practical overview for future notes.",
+      "source_plan": [
+        "rfc_6761",
+        "iana_reserved"
+      ],
+      "primary_source": "rfc_6761",
+      "relative_cost": "medium",
+      "relative_cost_note": "Medium relative cost because it requires carrying a standards document plus a practical overview, but both stay public and stable.",
+      "risk_hints": [
+        "The RFC remains denser than a casual overview for new readers.",
+        "The pack can feel heavier than a single-page summary."
+      ],
+      "preconditions": [
+        "Accept that the primary reference will be normative and somewhat longer.",
+        "Keep IANA reserved domains as the practical companion instead of relying on the RFC alone."
+      ],
+      "suggested_next_step": "Use RFC 6761 as the primary cited baseline and pair it with IANA reserved domains whenever the project needs a lighter operator-facing explanation.",
+      "notes": "Best fit when the project needs durable technical grounding plus a readable companion page."
+    },
+    {
+      "alternative_id": "iana_primary_rfc2606_secondary",
+      "label": "IANA Primary + RFC 2606 Secondary",
+      "description": "Use the IANA reserved domains page as the main baseline and RFC 2606 as the standards-oriented backup.",
+      "intended_outcome": "Optimize for a quick operator overview with one lighter RFC behind it.",
+      "source_plan": [
+        "iana_reserved",
+        "rfc_2606"
+      ],
+      "primary_source": "iana_reserved",
+      "relative_cost": "low",
+      "relative_cost_note": "Low relative cost because the pack is lighter and easier to scan than a newer standards-heavy pairing.",
+      "risk_hints": [
+        "Can underplay the full special-use scope compared with RFC 6761.",
+        "May leave follow-up questions once the topic goes beyond example names."
+      ],
+      "preconditions": [
+        "Accept a more overview-oriented baseline.",
+        "Treat RFC 2606 as a fallback rather than the deepest source."
+      ],
+      "suggested_next_step": "Use the IANA page when speed matters most, but escalate to RFC 6761 when the topic moves from examples to broader special-use behavior.",
+      "notes": "Best fit for a lighter baseline, not the deepest normative pack."
+    },
+    {
+      "alternative_id": "rfc2606_primary_rfc6761_secondary",
+      "label": "RFC 2606 Primary + RFC 6761 Secondary",
+      "description": "Use RFC 2606 as the main reference and RFC 6761 as the supporting scope-expander.",
+      "intended_outcome": "Favor the classic example-name RFC and keep the broader special-use RFC nearby.",
+      "source_plan": [
+        "rfc_2606",
+        "rfc_6761"
+      ],
+      "primary_source": "rfc_2606",
+      "relative_cost": "medium",
+      "relative_cost_note": "Medium relative cost because it keeps two RFCs in play and is more standards-heavy than an IANA-led pack.",
+      "risk_hints": [
+        "Can stay too focused on classic example names if the reader never opens RFC 6761.",
+        "Less operator-friendly than a pack that includes the IANA overview."
+      ],
+      "preconditions": [
+        "Accept an RFC-first reading experience.",
+        "Be ready to bring in RFC 6761 whenever special-use scope matters."
+      ],
+      "suggested_next_step": "Use this pack only when the project already knows it wants an RFC-first reading path and can tolerate lower operator readability.",
+      "notes": "Good as an RFC-centric pack, weaker as a broad default baseline."
+    }
+  ]
+}

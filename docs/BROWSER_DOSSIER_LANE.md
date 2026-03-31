@@ -17,9 +17,11 @@ Si promete un pipeline verificable para:
 Esta capa ahora tambien tiene una continuacion explicita:
 
 - `decision lane`
+- `recommendation lane`
 
 El dossier organiza y sintetiza.
 El decision lane evalua una pregunta concreta con criterios y veredicto.
+El recommendation lane toma esa decision y la convierte en una recomendacion practica con alternativas.
 
 ## Decision de diseno
 
@@ -132,6 +134,7 @@ Tambien siguen vigentes:
 - `./scripts/verify_browser_sidecar_real_web.sh`
 - `./scripts/verify_browser_sidecar_comparison_lane.sh`
 - `./scripts/verify_browser_sidecar_decision_lane.sh`
+- `./scripts/verify_browser_sidecar_recommendation_lane.sh`
 
 ## Limites vigentes
 
