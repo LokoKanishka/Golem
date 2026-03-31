@@ -27,10 +27,13 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
 - `./scripts/browser_sidecar_tabs.sh`
 - `./scripts/browser_sidecar_select.sh`
 - `./scripts/browser_sidecar_read.sh`
+- `./scripts/browser_sidecar_extract.sh`
+- `./scripts/browser_sidecar_compare.sh`
 - `./scripts/browser_sidecar_snapshot.sh`
 - `./scripts/browser_sidecar_find.sh`
 - `./scripts/verify_browser_sidecar_operational.sh`
 - `./scripts/verify_browser_sidecar_real_web.sh`
+- `./scripts/verify_browser_sidecar_comparison_lane.sh`
 
 ## Donde quedo el proyecto
 
@@ -56,6 +59,11 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
 - la seleccion de tabs ya no queda ambigua:
   - `browser_sidecar_select.sh` acepta indice, titulo parcial o URL parcial
   - si hay multiples matches, falla y los lista
+- el carril ya no solo navega:
+  - `browser_sidecar_extract.sh` produce salida estructurada en `json` o `markdown`
+  - `browser_sidecar_compare.sh` compara dos paginas reales y puede guardar artefactos
+  - los artefactos finales viven en `outbox/manual/`
+- `verify_browser_sidecar_comparison_lane.sh` deja `PASS` sobre extract + find + compare + artefactos
 
 ## Lo mas importante que NO quedo probado
 
@@ -92,6 +100,7 @@ git log --oneline -8
 ./scripts/browser_sidecar_status.sh
 ./scripts/verify_browser_sidecar_operational.sh
 ./scripts/verify_browser_sidecar_real_web.sh
+./scripts/verify_browser_sidecar_comparison_lane.sh
 ./scripts/verify_browser_stack.sh --diagnosis-only
 ./scripts/verify_worker_orchestration_stack.sh
 ```
@@ -105,7 +114,7 @@ git log --oneline -8
 
 ## Proximo tramo unico sugerido
 
-Usar el carril browser sidecar ya probado sobre web publica real en una tarea de lectura/navegacion concreta, sin reabrir browser nativo ni abrir workers/control host.
+Usar el carril browser sidecar ya probado sobre web publica real en una tarea concreta de extraccion/comparacion, sin reabrir browser nativo ni abrir workers/control host.
 
 No corresponde volver a discutir antes de eso:
 

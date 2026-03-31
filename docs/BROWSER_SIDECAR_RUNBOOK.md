@@ -18,6 +18,21 @@ Se acepta porque hoy es el unico carril browser que ya quedo en `PASS` para:
 
 La deuda congelada queda en el browser nativo de OpenClaw.
 
+## Decision de diseño
+
+La interfaz actual queda separada asi:
+
+- `snapshot`: volcado crudo del contenido visible y links de una tab
+- `read`: lectura rapida para humano, encima de `snapshot`
+- `extract`: salida estructurada y normalizada para trabajo real
+- `compare`: comparacion operativa entre dos paginas usando la salida de `extract`
+
+La regla es simple:
+
+- si queremos inspeccion manual rapida: `read`
+- si queremos estructura reusable o artefactos: `extract`
+- si queremos diferencias entre dos paginas: `compare`
+
 ## Configuracion por defecto
 
 - puerto CDP: `9222`
@@ -105,6 +120,29 @@ Buscar texto:
 ./scripts/browser_sidecar_find.sh CAPYBARA_SIGNAL_31415 http://127.0.0.1:8011/
 ```
 
+Extraccion estructurada:
+
+```bash
+./scripts/browser_sidecar_extract.sh "Reserved Domains"
+./scripts/browser_sidecar_extract.sh --format json rfc-editor.org
+./scripts/browser_sidecar_extract.sh --save-slug browser-sidecar-iana "Reserved Domains"
+```
+
+Comparacion entre dos paginas:
+
+```bash
+./scripts/browser_sidecar_compare.sh "Reserved Domains" rfc-editor.org
+./scripts/browser_sidecar_compare.sh --format json "Reserved Domains" rfc-editor.org
+./scripts/browser_sidecar_compare.sh --save-slug browser-sidecar-compare "Reserved Domains" rfc-editor.org
+```
+
+Artefactos:
+
+- los artefactos finales viven en `outbox/manual/`
+- `extract --save-slug ...` guarda `json` y `md`
+- `compare --save-slug ...` guarda `json` y `md`
+- no hace falta tocar `.gitignore` porque `outbox/manual/` ya esta ignorado
+
 ## Verify
 
 Verify truth mas profunda:
@@ -125,6 +163,12 @@ Verify real sobre web publica simple:
 ./scripts/verify_browser_sidecar_real_web.sh
 ```
 
+Verify larga de lectura/comparacion:
+
+```bash
+./scripts/verify_browser_sidecar_comparison_lane.sh
+```
+
 Targets hoy probados de forma explicita:
 
 - `https://www.iana.org/domains/reserved`
@@ -136,6 +180,7 @@ Targets hoy probados de forma explicita:
 - no usa el Chrome ambient como contrato confiable
 - no promete login, clicks complejos o formularios
 - no promete scraping general de sitios frágiles o anti-bot
+- no promete comparacion semantica profunda ni NLP
 - no promete control host total
 - no reabre MCP, plugins ni workers
 - no convierte al browser nativo de OC en sano

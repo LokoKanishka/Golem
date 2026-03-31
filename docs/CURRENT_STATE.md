@@ -20,6 +20,7 @@ La lectura honesta del host hoy es:
 - El helper CDP existe como carril paralelo versionado; sobre el Chrome ambient actual sigue bloqueado, pero sobre un Chrome sidecar dedicado si logra `tabs/snapshot/find`.
 - El browser sidecar ya tiene lifecycle y wrappers operativos estables para uso cotidiano.
 - El browser sidecar ya quedo probado tambien sobre web publica real simple.
+- El browser sidecar ya quedo elevado a un carril de lectura estructurada y comparacion basica sobre web publica real.
 - La percepcion/descripcion read-side del desktop si existe y produce evidencia real.
 - La readiness real de worker externo no alcanza hoy para venderse como capacidad operativa estable.
 
@@ -61,6 +62,26 @@ La lectura honesta del host hoy es:
   - prueba `tabs`, seleccion por titulo/url/indice, `read` y `find`
 - `./scripts/browser_sidecar_select.sh` ya deja seleccion explicita por indice, titulo parcial o URL parcial y falla si el selector es ambiguo
 - `./scripts/browser_sidecar_read.sh` ya deja una lectura directa de una tab real sin obligar a recordar que `snapshot` funciona como lectura
+- `./scripts/browser_sidecar_extract.sh` ya deja una salida estructurada y normalizada:
+  - metadata minima
+  - texto visible normalizado
+  - links
+  - output en `markdown` o `json`
+  - guardado opcional en `outbox/manual/`
+- `./scripts/browser_sidecar_compare.sh` ya deja una comparacion operativa entre dos paginas reales:
+  - resumen
+  - excerpts
+  - diferencias exclusivas por target
+  - conclusion simple
+  - artefactos `markdown` y `json`
+- `./scripts/verify_browser_sidecar_comparison_lane.sh` ya deja un verify de punta a punta:
+  - open
+  - tabs
+  - select
+  - extract
+  - find
+  - compare
+  - artefactos comparativos
 - `./scripts/verify_worker_orchestration_stack.sh` no paso:
   - los verifies canonicos del stack worker fallaron
   - el self-check previo ya marcaba `browser_relay FAIL`, `task_api FAIL` y `whatsapp_bridge_service FAIL`
@@ -88,9 +109,11 @@ La lectura honesta del host hoy es:
   - `scripts/browser_sidecar_start.sh`, `scripts/browser_sidecar_status.sh`, `scripts/browser_sidecar_stop.sh`
   - `scripts/browser_sidecar_open.sh`, `scripts/browser_sidecar_tabs.sh`, `scripts/browser_sidecar_select.sh`
   - `scripts/browser_sidecar_read.sh`, `scripts/browser_sidecar_snapshot.sh`, `scripts/browser_sidecar_find.sh`
+  - `scripts/browser_sidecar_extract.sh`, `scripts/browser_sidecar_compare.sh`
   - `scripts/verify_browser_capability_truth.sh` como smoke/browser truth oficial del carril aceptado
   - `scripts/verify_browser_sidecar_operational.sh` como verify corta del carril operativo
   - `scripts/verify_browser_sidecar_real_web.sh` como verify real sobre web publica simple
+  - `scripts/verify_browser_sidecar_comparison_lane.sh` como verify larga del carril de lectura/comparacion
   - `scripts/golem_host_perceive.sh`
   - `scripts/golem_host_describe.sh`
   - governance/controlled-run de worker como capa subordinada, no nucleo
@@ -111,4 +134,4 @@ Eso ya quedo resuelto:
 
 El siguiente tramo razonable pasa a ser uno solo:
 
-- usar este carril operativo sobre una tarea real mas concreta de lectura/navegacion publica sin reabrir browser nativo, workers ni host control
+- usar este carril operativo sobre una tarea real concreta de extraccion/comparacion publica sin reabrir browser nativo, workers ni host control

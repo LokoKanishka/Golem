@@ -2,6 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GOLEM_BROWSER_SIDECAR_REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 GOLEM_BROWSER_SIDECAR_ROOT="${GOLEM_BROWSER_SIDECAR_ROOT:-${TMPDIR:-/tmp}/golem-browser-sidecar}"
 GOLEM_BROWSER_SIDECAR_PORT="${GOLEM_BROWSER_SIDECAR_PORT:-9222}"
@@ -12,16 +13,19 @@ GOLEM_BROWSER_SIDECAR_PIDFILE="${GOLEM_BROWSER_SIDECAR_PIDFILE:-${GOLEM_BROWSER_
 GOLEM_BROWSER_SIDECAR_LOGFILE="${GOLEM_BROWSER_SIDECAR_LOGFILE:-${GOLEM_BROWSER_SIDECAR_ROOT}/chrome.log}"
 GOLEM_BROWSER_SIDECAR_READY_TIMEOUT="${GOLEM_BROWSER_SIDECAR_READY_TIMEOUT:-15}"
 GOLEM_BROWSER_SIDECAR_NAV_DELAY="${GOLEM_BROWSER_SIDECAR_NAV_DELAY:-2}"
+GOLEM_BROWSER_SIDECAR_OUTBOX_DIR="${GOLEM_BROWSER_SIDECAR_OUTBOX_DIR:-${GOLEM_BROWSER_SIDECAR_REPO_ROOT}/outbox/manual}"
 
 browser_sidecar_usage_common() {
   cat <<EOF
 Config:
+  GOLEM_BROWSER_SIDECAR_REPO_ROOT=$GOLEM_BROWSER_SIDECAR_REPO_ROOT
   GOLEM_BROWSER_SIDECAR_ROOT=$GOLEM_BROWSER_SIDECAR_ROOT
   GOLEM_BROWSER_SIDECAR_PORT=$GOLEM_BROWSER_SIDECAR_PORT
   GOLEM_BROWSER_SIDECAR_URL=$GOLEM_BROWSER_SIDECAR_URL
   GOLEM_BROWSER_SIDECAR_PROFILE_DIR=$GOLEM_BROWSER_SIDECAR_PROFILE_DIR
   GOLEM_BROWSER_SIDECAR_PIDFILE=$GOLEM_BROWSER_SIDECAR_PIDFILE
   GOLEM_BROWSER_SIDECAR_LOGFILE=$GOLEM_BROWSER_SIDECAR_LOGFILE
+  GOLEM_BROWSER_SIDECAR_OUTBOX_DIR=$GOLEM_BROWSER_SIDECAR_OUTBOX_DIR
 EOF
 }
 
@@ -59,6 +63,36 @@ browser_sidecar_require_tools() {
   for tool in curl python3 ss; do
     command -v "$tool" >/dev/null 2>&1 || browser_sidecar_fail "falta herramienta requerida: $tool"
   done
+}
+
+browser_sidecar_validate_slug() {
+  local slug="${1:-}"
+  if [ -z "$slug" ]; then
+    browser_sidecar_fail "falta slug"
+  fi
+  if [[ "$slug" == *"/"* ]]; then
+    browser_sidecar_fail "slug invalido: no puede contener /"
+  fi
+  if [[ ! "$slug" =~ ^[A-Za-z0-9._-]+$ ]]; then
+    browser_sidecar_fail "slug invalido: usa solo letras, numeros, punto, guion y guion bajo"
+  fi
+}
+
+browser_sidecar_make_outbox() {
+  mkdir -p "$GOLEM_BROWSER_SIDECAR_OUTBOX_DIR"
+}
+
+browser_sidecar_artifact_path() {
+  local slug="$1"
+  local extension="$2"
+  local ts
+  ts="$(date -u +"%Y%m%dT%H%M%SZ")"
+  printf '%s/%s_%s.%s\n' "$GOLEM_BROWSER_SIDECAR_OUTBOX_DIR" "$ts" "$slug" "$extension"
+}
+
+browser_sidecar_display_repo_path() {
+  local path="$1"
+  printf '%s\n' "${path#$GOLEM_BROWSER_SIDECAR_REPO_ROOT/}"
 }
 
 browser_sidecar_pid() {
