@@ -18,12 +18,24 @@ La conclusion util es simple:
 - desktop read-side: si
 - control host total: no
 
+Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado ahora tiene interfaz operativa estable:
+
+- `./scripts/browser_sidecar_start.sh`
+- `./scripts/browser_sidecar_status.sh`
+- `./scripts/browser_sidecar_stop.sh`
+- `./scripts/browser_sidecar_open.sh`
+- `./scripts/browser_sidecar_tabs.sh`
+- `./scripts/browser_sidecar_snapshot.sh`
+- `./scripts/browser_sidecar_find.sh`
+- `./scripts/verify_browser_sidecar_operational.sh`
+
 ## Donde quedo el proyecto
 
 - Rama documentada: `main`
 - Estado git al iniciar la auditoria: limpio
 - Documento principal nuevo: `docs/CAPABILITY_MATRIX.md`
 - Verify rapido nuevo: `./scripts/verify_openclaw_capability_truth.sh`
+- Runbook browser nuevo: `docs/BROWSER_SIDECAR_RUNBOOK.md`
 
 ## Lo mas importante que quedo probado
 
@@ -34,6 +46,7 @@ La conclusion util es simple:
 - el plugin browser stock esta cargado
 - `golem_host_perceive.sh` y `golem_host_describe.sh` funcionan de verdad en este host
 - `verify_browser_capability_truth.sh` deja `tabs/snapshot/find` en `PASS` via sidecar dedicado
+- `verify_browser_sidecar_operational.sh` deja un smoke corto reusable para start/status/open/tabs/snapshot/find
 
 ## Lo mas importante que NO quedo probado
 
@@ -67,6 +80,8 @@ git branch --show-current
 git log --oneline -8
 ./scripts/verify_openclaw_capability_truth.sh
 ./scripts/verify_browser_capability_truth.sh
+./scripts/browser_sidecar_status.sh
+./scripts/verify_browser_sidecar_operational.sh
 ./scripts/verify_browser_stack.sh --diagnosis-only
 ./scripts/verify_worker_orchestration_stack.sh
 ```
@@ -80,7 +95,7 @@ git log --oneline -8
 
 ## Proximo tramo unico sugerido
 
-Decidir si la deuda del browser nativo de OC se corrige de verdad o se congela explicitamente por un tiempo.
+Usar el carril browser sidecar ya estabilizado sobre una tarea real de pagina o sitio, sin reabrir browser nativo ni abrir workers/control host.
 
 No corresponde volver a discutir antes de eso:
 
