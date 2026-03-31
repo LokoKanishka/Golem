@@ -137,6 +137,150 @@ print(count)
 PY
 }
 
+browser_sidecar_tabs_json() {
+  python3 - <<'PY' "${GOLEM_BROWSER_SIDECAR_URL}"
+import json
+import sys
+from urllib.request import urlopen
+
+base_url = sys.argv[1].rstrip("/")
+with urlopen(base_url + "/json/list") as response:
+    payload = json.load(response)
+
+tabs = []
+for item in payload:
+    if not item or item.get("type") != "page":
+        continue
+    tabs.append(
+        {
+            "index": len(tabs),
+            "id": item.get("id") or item.get("targetId") or "",
+            "title": item.get("title") or "",
+            "url": item.get("url") or "",
+            "wsUrl": item.get("webSocketDebuggerUrl") or "",
+        }
+    )
+
+print(json.dumps(tabs))
+PY
+}
+
+browser_sidecar_resolve_selector_json() {
+  local selector="${1:-}"
+
+  python3 - <<'PY' "${GOLEM_BROWSER_SIDECAR_URL}" "$selector"
+import json
+import sys
+from urllib.request import urlopen
+
+base_url = sys.argv[1].rstrip("/")
+selector = sys.argv[2].strip()
+
+with urlopen(base_url + "/json/list") as response:
+    payload = json.load(response)
+
+tabs = []
+for item in payload:
+    if not item or item.get("type") != "page":
+        continue
+    tabs.append(
+        {
+            "index": len(tabs),
+            "id": item.get("id") or item.get("targetId") or "",
+            "title": item.get("title") or "",
+            "url": item.get("url") or "",
+            "wsUrl": item.get("webSocketDebuggerUrl") or "",
+        }
+    )
+
+if not tabs:
+    print("ERROR: no hay tabs disponibles en el browser remoto", file=sys.stderr)
+    sys.exit(1)
+
+def is_internal(tab):
+    return tab["url"].startswith("chrome://") or tab["url"].startswith("devtools://")
+
+def emit(tab, match_type):
+    out = dict(tab)
+    out["match_type"] = match_type
+    print(json.dumps(out))
+    sys.exit(0)
+
+def print_matches(label, matches):
+    print(f"ERROR: {label}", file=sys.stderr)
+    for tab in matches:
+        print(
+            f'  - [{tab["index"]}] {tab["title"]} :: {tab["url"]}',
+            file=sys.stderr,
+        )
+
+if not selector:
+    non_internal = [tab for tab in tabs if not is_internal(tab)]
+    default = non_internal[-1] if non_internal else tabs[-1]
+    emit(default, "default")
+
+if selector.isdigit():
+    wanted = int(selector)
+    for tab in tabs:
+        if tab["index"] == wanted:
+            emit(tab, "index")
+    print(f"ERROR: no existe una tab con indice {selector}", file=sys.stderr)
+    sys.exit(1)
+
+needle = selector.lower()
+exact = [
+    tab
+    for tab in tabs
+    if tab["title"].lower() == needle or tab["url"].lower() == needle
+]
+if len(exact) == 1:
+    emit(exact[0], "exact")
+if len(exact) > 1:
+    print_matches(f'selector exacto ambiguo: "{selector}"', exact)
+    sys.exit(1)
+
+partial = [
+    tab
+    for tab in tabs
+    if needle in tab["title"].lower() or needle in tab["url"].lower()
+]
+if len(partial) == 1:
+    emit(partial[0], "partial")
+if len(partial) > 1:
+    print_matches(
+        f'selector ambiguo: "{selector}". Usa un selector mas especifico o el indice.',
+        partial,
+    )
+    sys.exit(1)
+
+print(f'ERROR: no se encontro una tab que coincida con "{selector}"', file=sys.stderr)
+print("Tabs disponibles:", file=sys.stderr)
+for tab in tabs:
+    print(f'  - [{tab["index"]}] {tab["title"]} :: {tab["url"]}', file=sys.stderr)
+sys.exit(1)
+PY
+}
+
+browser_sidecar_resolve_selector_field() {
+  local selector="${1:-}"
+  local field="$2"
+  local json_payload
+
+  json_payload="$(browser_sidecar_resolve_selector_json "$selector")"
+  python3 - <<'PY' "$field" "$json_payload"
+import json
+import sys
+
+field = sys.argv[1]
+payload = json.loads(sys.argv[2])
+value = payload.get(field, "")
+if isinstance(value, bool):
+    print("true" if value else "false")
+else:
+    print(value)
+PY
+}
+
 browser_sidecar_looks_like_url() {
   local value="${1:-}"
   [[ "$value" =~ ^https?:// ]]

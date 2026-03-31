@@ -19,6 +19,7 @@ La lectura honesta del host hoy es:
 - El browser nativo no esta operativo como superficie confiable de trabajo y queda degradado a deuda.
 - El helper CDP existe como carril paralelo versionado; sobre el Chrome ambient actual sigue bloqueado, pero sobre un Chrome sidecar dedicado si logra `tabs/snapshot/find`.
 - El browser sidecar ya tiene lifecycle y wrappers operativos estables para uso cotidiano.
+- El browser sidecar ya quedo probado tambien sobre web publica real simple.
 - La percepcion/descripcion read-side del desktop si existe y produce evidencia real.
 - La readiness real de worker externo no alcanza hoy para venderse como capacidad operativa estable.
 
@@ -53,6 +54,13 @@ La lectura honesta del host hoy es:
   - arranca el sidecar si hace falta
   - levanta una pagina local de prueba
   - prueba `open`, `tabs`, `snapshot` y `find`
+- `./scripts/verify_browser_sidecar_real_web.sh` deja una verify real del carril:
+  - usa un runtime sidecar aislado y temporal
+  - abre `https://www.iana.org/domains/reserved`
+  - abre `https://www.rfc-editor.org/rfc/rfc2606.html`
+  - prueba `tabs`, seleccion por titulo/url/indice, `read` y `find`
+- `./scripts/browser_sidecar_select.sh` ya deja seleccion explicita por indice, titulo parcial o URL parcial y falla si el selector es ambiguo
+- `./scripts/browser_sidecar_read.sh` ya deja una lectura directa de una tab real sin obligar a recordar que `snapshot` funciona como lectura
 - `./scripts/verify_worker_orchestration_stack.sh` no paso:
   - los verifies canonicos del stack worker fallaron
   - el self-check previo ya marcaba `browser_relay FAIL`, `task_api FAIL` y `whatsapp_bridge_service FAIL`
@@ -78,9 +86,11 @@ La lectura honesta del host hoy es:
 - Carriles paralelos aceptados:
   - `scripts/browser_cdp_tool.sh` cuando controla un Chrome sidecar dedicado
   - `scripts/browser_sidecar_start.sh`, `scripts/browser_sidecar_status.sh`, `scripts/browser_sidecar_stop.sh`
-  - `scripts/browser_sidecar_open.sh`, `scripts/browser_sidecar_tabs.sh`, `scripts/browser_sidecar_snapshot.sh`, `scripts/browser_sidecar_find.sh`
+  - `scripts/browser_sidecar_open.sh`, `scripts/browser_sidecar_tabs.sh`, `scripts/browser_sidecar_select.sh`
+  - `scripts/browser_sidecar_read.sh`, `scripts/browser_sidecar_snapshot.sh`, `scripts/browser_sidecar_find.sh`
   - `scripts/verify_browser_capability_truth.sh` como smoke/browser truth oficial del carril aceptado
   - `scripts/verify_browser_sidecar_operational.sh` como verify corta del carril operativo
+  - `scripts/verify_browser_sidecar_real_web.sh` como verify real sobre web publica simple
   - `scripts/golem_host_perceive.sh`
   - `scripts/golem_host_describe.sh`
   - governance/controlled-run de worker como capa subordinada, no nucleo
@@ -101,4 +111,4 @@ Eso ya quedo resuelto:
 
 El siguiente tramo razonable pasa a ser uno solo:
 
-- usar este carril operativo sobre una tarea real de pagina/navegacion sin reabrir browser nativo, workers ni host control
+- usar este carril operativo sobre una tarea real mas concreta de lectura/navegacion publica sin reabrir browser nativo, workers ni host control

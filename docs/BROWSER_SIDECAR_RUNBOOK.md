@@ -14,6 +14,7 @@ Se acepta porque hoy es el unico carril browser que ya quedo en `PASS` para:
 - listar tabs reales
 - leer una pagina real
 - buscar texto real
+- navegar y leer paginas publicas reales simples
 
 La deuda congelada queda en el browser nativo de OpenClaw.
 
@@ -69,6 +70,25 @@ Listar tabs:
 ./scripts/browser_sidecar_tabs.sh
 ```
 
+Seleccionar una tab por indice, titulo parcial o URL parcial:
+
+```bash
+./scripts/browser_sidecar_select.sh 0
+./scripts/browser_sidecar_select.sh "Reserved Domains"
+./scripts/browser_sidecar_select.sh rfc-editor.org
+```
+
+Si el selector es ambiguo, el script falla y muestra los matches.
+
+Leer una tab de forma directa:
+
+```bash
+./scripts/browser_sidecar_read.sh
+./scripts/browser_sidecar_read.sh "Reserved Domains"
+./scripts/browser_sidecar_read.sh rfc-editor.org
+./scripts/browser_sidecar_read.sh https://www.iana.org/domains/reserved
+```
+
 Snapshot de la tab actual o por selector:
 
 ```bash
@@ -99,10 +119,23 @@ Verify operativa corta:
 ./scripts/verify_browser_sidecar_operational.sh
 ```
 
+Verify real sobre web publica simple:
+
+```bash
+./scripts/verify_browser_sidecar_real_web.sh
+```
+
+Targets hoy probados de forma explicita:
+
+- `https://www.iana.org/domains/reserved`
+- `https://www.rfc-editor.org/rfc/rfc2606.html`
+
 ## Que NO promete
 
 - no arregla `openclaw browser ...`
 - no usa el Chrome ambient como contrato confiable
+- no promete login, clicks complejos o formularios
+- no promete scraping general de sitios frágiles o anti-bot
 - no promete control host total
 - no reabre MCP, plugins ni workers
 - no convierte al browser nativo de OC en sano

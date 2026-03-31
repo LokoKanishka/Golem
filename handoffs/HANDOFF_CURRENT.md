@@ -25,9 +25,12 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
 - `./scripts/browser_sidecar_stop.sh`
 - `./scripts/browser_sidecar_open.sh`
 - `./scripts/browser_sidecar_tabs.sh`
+- `./scripts/browser_sidecar_select.sh`
+- `./scripts/browser_sidecar_read.sh`
 - `./scripts/browser_sidecar_snapshot.sh`
 - `./scripts/browser_sidecar_find.sh`
 - `./scripts/verify_browser_sidecar_operational.sh`
+- `./scripts/verify_browser_sidecar_real_web.sh`
 
 ## Donde quedo el proyecto
 
@@ -47,6 +50,12 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
 - `golem_host_perceive.sh` y `golem_host_describe.sh` funcionan de verdad en este host
 - `verify_browser_capability_truth.sh` deja `tabs/snapshot/find` en `PASS` via sidecar dedicado
 - `verify_browser_sidecar_operational.sh` deja un smoke corto reusable para start/status/open/tabs/snapshot/find
+- `verify_browser_sidecar_real_web.sh` deja `PASS` sobre dos targets publicos reales y estables:
+  - `https://www.iana.org/domains/reserved`
+  - `https://www.rfc-editor.org/rfc/rfc2606.html`
+- la seleccion de tabs ya no queda ambigua:
+  - `browser_sidecar_select.sh` acepta indice, titulo parcial o URL parcial
+  - si hay multiples matches, falla y los lista
 
 ## Lo mas importante que NO quedo probado
 
@@ -82,6 +91,7 @@ git log --oneline -8
 ./scripts/verify_browser_capability_truth.sh
 ./scripts/browser_sidecar_status.sh
 ./scripts/verify_browser_sidecar_operational.sh
+./scripts/verify_browser_sidecar_real_web.sh
 ./scripts/verify_browser_stack.sh --diagnosis-only
 ./scripts/verify_worker_orchestration_stack.sh
 ```
@@ -95,7 +105,7 @@ git log --oneline -8
 
 ## Proximo tramo unico sugerido
 
-Usar el carril browser sidecar ya estabilizado sobre una tarea real de pagina o sitio, sin reabrir browser nativo ni abrir workers/control host.
+Usar el carril browser sidecar ya probado sobre web publica real en una tarea de lectura/navegacion concreta, sin reabrir browser nativo ni abrir workers/control host.
 
 No corresponde volver a discutir antes de eso:
 
