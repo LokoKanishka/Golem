@@ -1,0 +1,126 @@
+{
+  "task_id": "decision-reserved-domains-best-source",
+  "title": "Reserved Domains Best Source Decision",
+  "description": "Decide which public source is the best technical starting point for explaining reserved, example and special-use DNS names.",
+  "question": "Which public source is the best technical starting point for explaining reserved, example and special-use DNS names to an operator who needs both normative grounding and practical coverage?",
+  "output_slug": "decision-reserved-domains-best-source",
+  "comparison_mode": "explicit_pairs",
+  "focus_terms": [
+    "Example domains",
+    "RFC 2606",
+    "RFC 6761",
+    "Special-Use Domain Names",
+    ".example",
+    ".invalid",
+    ".localhost",
+    "IANA-managed Reserved Domains",
+    "documentation purposes"
+  ],
+  "expected_signals": [
+    "example.com",
+    "example.net",
+    "example.org",
+    ".localhost",
+    "Special-Use Domain Names",
+    "Standards Track"
+  ],
+  "focus_profile": {
+    "excerpt_limit": 10,
+    "match_limit": 3
+  },
+  "sources": [
+    {
+      "label": "iana_reserved",
+      "url": "https://www.iana.org/domains/reserved",
+      "selector_hint": "IANA-managed Reserved Domains",
+      "notes": "Institutional overview of reserved and policy-special domains."
+    },
+    {
+      "label": "rfc_2606",
+      "url": "https://www.rfc-editor.org/rfc/rfc2606.html",
+      "selector_hint": "RFC 2606",
+      "notes": "Best Current Practice defining reserved example names."
+    },
+    {
+      "label": "rfc_6761",
+      "url": "https://www.rfc-editor.org/rfc/rfc6761.html",
+      "selector_hint": "RFC 6761",
+      "notes": "Special-Use Domain Names specification."
+    }
+  ],
+  "comparisons": [
+    {
+      "label": "iana-vs-rfc2606",
+      "left": "iana_reserved",
+      "right": "rfc_2606"
+    },
+    {
+      "label": "iana-vs-rfc6761",
+      "left": "iana_reserved",
+      "right": "rfc_6761"
+    }
+  ],
+  "decision_criteria": [
+    {
+      "criterion_id": "normative_authority",
+      "label": "Normative Authority",
+      "description": "The source should look like a primary normative or standards-oriented reference, not just a short overview.",
+      "weight": 5,
+      "evidence_terms": [
+        "Request for Comments",
+        "Standards Track",
+        "Best Current Practice",
+        "Internet Engineering Task Force",
+        "RFC 6761"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Favor standards-facing sources over short institutional summaries."
+    },
+    {
+      "criterion_id": "example_name_coverage",
+      "label": "Example Name Coverage",
+      "description": "The source should explicitly cover the reserved example names and the localhost/invalid family.",
+      "weight": 4,
+      "evidence_terms": [
+        ".example",
+        ".invalid",
+        ".localhost",
+        "example.com",
+        "example.net",
+        "example.org"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Coverage matters more than prose style here."
+    },
+    {
+      "criterion_id": "special_use_scope",
+      "label": "Special-Use Scope",
+      "description": "The source should make special-use domain behavior and scope explicit, not only list examples.",
+      "weight": 5,
+      "evidence_terms": [
+        "Special-Use Domain Names",
+        "localhost.",
+        "invalid.",
+        "Reservation Considerations",
+        "special-use"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "This criterion is intentionally weighted high because the question asks for a technical starting point."
+    },
+    {
+      "criterion_id": "operator_overview",
+      "label": "Operator Overview",
+      "description": "The source should still help an operator quickly understand practical registry or documentation context.",
+      "weight": 3,
+      "evidence_terms": [
+        "IANA-managed Reserved Domains",
+        "documentation purposes",
+        "registration or transfer",
+        "policy grounds",
+        "Reserved Domains"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "This keeps the decision from overfitting to purely normative text."
+    }
+  ]
+}

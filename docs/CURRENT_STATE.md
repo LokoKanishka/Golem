@@ -22,6 +22,7 @@ La lectura honesta del host hoy es:
 - El browser sidecar ya quedo probado tambien sobre web publica real simple.
 - El browser sidecar ya quedo elevado a un carril de lectura estructurada y comparacion basica sobre web publica real.
 - El browser sidecar ya quedo elevado tambien a un dossier lane declarativo para tareas chicas de investigacion publica multi-fuente.
+- El browser sidecar ya quedo elevado tambien a un decision lane declarativo para preguntas publicas concretas con matriz y veredicto rastreable.
 - La percepcion/descripcion read-side del desktop si existe y produce evidencia real.
 - La readiness real de worker externo no alcanza hoy para venderse como capacidad operativa estable.
 
@@ -97,6 +98,17 @@ La lectura honesta del host hoy es:
   - compara pares declarados
   - genera un dossier final con artefactos trazables
 - `./scripts/verify_browser_sidecar_dossier_lane.sh` ya deja una verify larga reusable del dossier lane
+- `./scripts/browser_sidecar_decision_run.sh` ya deja una capa de decision publica:
+  - carga una pregunta concreta
+  - evalua criterios con pesos simples
+  - junta evidencia por criterio
+  - produce source ranking, matriz y veredicto final
+- `browser_tasks/decision-*.json` ya deja tareas declarativas de decision:
+  - `question`
+  - `decision_criteria`
+  - `weight`
+  - `evidence_terms`
+- `./scripts/verify_browser_sidecar_decision_lane.sh` ya deja una verify larga reusable del decision lane
 - `./scripts/verify_worker_orchestration_stack.sh` no paso:
   - los verifies canonicos del stack worker fallaron
   - el self-check previo ya marcaba `browser_relay FAIL`, `task_api FAIL` y `whatsapp_bridge_service FAIL`
@@ -126,11 +138,13 @@ La lectura honesta del host hoy es:
   - `scripts/browser_sidecar_read.sh`, `scripts/browser_sidecar_snapshot.sh`, `scripts/browser_sidecar_find.sh`
   - `scripts/browser_sidecar_extract.sh`, `scripts/browser_sidecar_compare.sh`
   - `scripts/browser_sidecar_dossier_run.sh`
+  - `scripts/browser_sidecar_decision_run.sh`
   - `scripts/verify_browser_capability_truth.sh` como smoke/browser truth oficial del carril aceptado
   - `scripts/verify_browser_sidecar_operational.sh` como verify corta del carril operativo
   - `scripts/verify_browser_sidecar_real_web.sh` como verify real sobre web publica simple
   - `scripts/verify_browser_sidecar_comparison_lane.sh` como verify larga del carril de lectura/comparacion
   - `scripts/verify_browser_sidecar_dossier_lane.sh` como verify larga del carril de dossier declarativo
+  - `scripts/verify_browser_sidecar_decision_lane.sh` como verify larga del carril de decision declarativa
   - `scripts/golem_host_perceive.sh`
   - `scripts/golem_host_describe.sh`
   - governance/controlled-run de worker como capa subordinada, no nucleo
@@ -140,6 +154,7 @@ La lectura honesta del host hoy es:
 - `docs/CAPABILITY_MATRIX.md`
 - `docs/BROWSER_SIDECAR_RUNBOOK.md`
 - `docs/BROWSER_DOSSIER_LANE.md`
+- `docs/BROWSER_DECISION_LANE.md`
 
 ## Retome recomendado
 
@@ -152,4 +167,4 @@ Eso ya quedo resuelto:
 
 El siguiente tramo razonable pasa a ser uno solo:
 
-- usar este carril operativo ya elevado a dossier sobre una tarea publica concreta con criterio de negocio, sin reabrir browser nativo, workers ni host control
+- usar este carril operativo ya elevado a decision lane sobre una pregunta publica concreta de negocio/politica/documentacion, sin reabrir browser nativo, workers ni host control

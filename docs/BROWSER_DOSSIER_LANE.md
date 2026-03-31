@@ -14,6 +14,13 @@ Si promete un pipeline verificable para:
 - comparar pares relevantes
 - producir un dossier final con artefactos trazables
 
+Esta capa ahora tambien tiene una continuacion explicita:
+
+- `decision lane`
+
+El dossier organiza y sintetiza.
+El decision lane evalua una pregunta concreta con criterios y veredicto.
+
 ## Decision de diseno
 
 La capa nueva vive encima del carril sidecar ya aceptado.
@@ -124,6 +131,7 @@ Tambien siguen vigentes:
 
 - `./scripts/verify_browser_sidecar_real_web.sh`
 - `./scripts/verify_browser_sidecar_comparison_lane.sh`
+- `./scripts/verify_browser_sidecar_decision_lane.sh`
 
 ## Limites vigentes
 

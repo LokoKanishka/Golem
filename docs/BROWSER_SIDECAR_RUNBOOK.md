@@ -27,6 +27,7 @@ La interfaz actual queda separada asi:
 - `extract`: salida estructurada y normalizada para trabajo real
 - `compare`: comparacion operativa entre dos paginas usando la salida de `extract`
 - `dossier`: pipeline declarativo multi-fuente para una tarea publica reproducible
+- `decision`: capa de pregunta + criterios + matriz + veredicto encima del dossier
 
 La regla es simple:
 
@@ -145,12 +146,21 @@ Pipeline de dossier:
 ./scripts/browser_sidecar_dossier_run.sh --format json browser_tasks/reserved-domains-technical.json
 ```
 
+Pipeline de decision:
+
+```bash
+./scripts/browser_sidecar_decision_run.sh browser_tasks/decision-reserved-domains-best-source.json
+./scripts/browser_sidecar_decision_run.sh browser_tasks/decision-iana-first-source.json
+./scripts/browser_sidecar_decision_run.sh --format json browser_tasks/decision-reserved-domains-best-source.json
+```
+
 Artefactos:
 
 - los artefactos finales viven en `outbox/manual/`
 - `extract --save-slug ...` guarda `json` y `md`
 - `compare --save-slug ...` guarda `json` y `md`
 - `dossier_run` guarda extracts, compares y un dossier final en `json` y `md`
+- `decision_run` guarda el dossier base y un artefacto final de decision en `json` y `md`
 - no hace falta tocar `.gitignore` porque `outbox/manual/` ya esta ignorado
 
 ## Verify
@@ -185,6 +195,12 @@ Verify larga de dossier:
 ./scripts/verify_browser_sidecar_dossier_lane.sh
 ```
 
+Verify larga de decision:
+
+```bash
+./scripts/verify_browser_sidecar_decision_lane.sh
+```
+
 Targets hoy probados de forma explicita:
 
 - `https://www.iana.org/domains/reserved`
@@ -198,6 +214,8 @@ Tareas declarativas ejemplo hoy versionadas:
 
 - `browser_tasks/reserved-domains-technical.json`
 - `browser_tasks/iana-service-overview.json`
+- `browser_tasks/decision-reserved-domains-best-source.json`
+- `browser_tasks/decision-iana-first-source.json`
 
 ## Que NO promete
 
@@ -207,6 +225,7 @@ Tareas declarativas ejemplo hoy versionadas:
 - no promete scraping general de sitios frágiles o anti-bot
 - no promete comparacion semantica profunda ni NLP
 - no promete investigacion publica general sin foco declarativo
+- no promete decision automatica sin criterios explicitos
 - no promete control host total
 - no reabre MCP, plugins ni workers
 - no convierte al browser nativo de OC en sano

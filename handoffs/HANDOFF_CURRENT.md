@@ -36,6 +36,8 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
 - `./scripts/verify_browser_sidecar_comparison_lane.sh`
 - `./scripts/browser_sidecar_dossier_run.sh`
 - `./scripts/verify_browser_sidecar_dossier_lane.sh`
+- `./scripts/browser_sidecar_decision_run.sh`
+- `./scripts/verify_browser_sidecar_decision_lane.sh`
 
 ## Donde quedo el proyecto
 
@@ -71,9 +73,15 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
   - `browser_sidecar_dossier_run.sh` ejecuta una tarea multi-fuente con foco explicito
   - el pipeline guarda extracts, compares y dossier final bajo `outbox/manual/`
   - `verify_browser_sidecar_dossier_lane.sh` deja `PASS` sobre una tarea completa
+- el carril ya no solo arma dossiers:
+  - `browser_tasks/decision-*.json` deja preguntas concretas con criterios declarativos
+  - `browser_sidecar_decision_run.sh` produce matrix + source ranking + veredicto final
+  - `verify_browser_sidecar_decision_lane.sh` deja `PASS` sobre una decision publica completa
 - hoy ya hay dos tareas ejemplo reales y distintas:
   - `browser_tasks/reserved-domains-technical.json`
   - `browser_tasks/iana-service-overview.json`
+  - `browser_tasks/decision-reserved-domains-best-source.json`
+  - `browser_tasks/decision-iana-first-source.json`
 - eleccion deliberada para este tramo:
   - se priorizaron paginas publicas estaticas y estables
   - no se congelo como ejemplo canonico una superficie mas fragil o muy JS-heavy
@@ -102,6 +110,7 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
 - `docs/CAPABILITY_MATRIX.md`
 - `docs/BROWSER_HOST_CONTRACT.md`
 - `docs/BROWSER_DOSSIER_LANE.md`
+- `docs/BROWSER_DECISION_LANE.md`
 
 ## Comandos utiles para reubicarse rapido
 
@@ -117,6 +126,8 @@ git log --oneline -8
 ./scripts/verify_browser_sidecar_comparison_lane.sh
 ./scripts/browser_sidecar_dossier_run.sh browser_tasks/reserved-domains-technical.json
 ./scripts/verify_browser_sidecar_dossier_lane.sh
+./scripts/browser_sidecar_decision_run.sh browser_tasks/decision-reserved-domains-best-source.json
+./scripts/verify_browser_sidecar_decision_lane.sh
 ./scripts/verify_browser_stack.sh --diagnosis-only
 ./scripts/verify_worker_orchestration_stack.sh
 ```
@@ -130,7 +141,7 @@ git log --oneline -8
 
 ## Proximo tramo unico sugerido
 
-Usar el dossier lane ya probado sobre una tarea publica concreta con criterio de negocio, sin reabrir browser nativo ni abrir workers/control host.
+Usar el decision lane ya probado sobre una pregunta publica concreta con necesidad real de recomendacion o priorizacion, sin reabrir browser nativo ni abrir workers/control host.
 
 No corresponde volver a discutir antes de eso:
 

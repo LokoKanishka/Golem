@@ -1,0 +1,126 @@
+{
+  "task_id": "decision-iana-first-source",
+  "title": "IANA First Source Decision",
+  "description": "Decide which public IANA page is the best first source for explaining what IANA does today to a non-specialist.",
+  "question": "Which public IANA page is the best first source for explaining what IANA does today to a non-specialist who needs role clarity, breadth and some operational grounding?",
+  "output_slug": "decision-iana-first-source",
+  "comparison_mode": "explicit_pairs",
+  "focus_terms": [
+    "Public Technical Identifiers",
+    "ICANN",
+    "IANA functions",
+    "Performance",
+    "customer satisfaction",
+    "operations excellence",
+    "Quality Management",
+    "Mission Statement",
+    "Policy Remit"
+  ],
+  "expected_signals": [
+    "PTI",
+    "ICANN",
+    "customer satisfaction",
+    "EFQM",
+    "SLAs",
+    "Domain Names"
+  ],
+  "focus_profile": {
+    "excerpt_limit": 10,
+    "match_limit": 3
+  },
+  "sources": [
+    {
+      "label": "iana_about",
+      "url": "https://www.iana.org/about",
+      "selector_hint": "About us",
+      "notes": "Institutional introduction to the IANA functions and role."
+    },
+    {
+      "label": "iana_performance",
+      "url": "https://www.iana.org/performance",
+      "selector_hint": "Performance",
+      "notes": "Public operational metrics and service indicators."
+    },
+    {
+      "label": "iana_excellence",
+      "url": "https://www.iana.org/about/excellence",
+      "selector_hint": "Business Excellence and Quality Management",
+      "notes": "Public statement on quality and operational excellence."
+    }
+  ],
+  "comparisons": [
+    {
+      "label": "about-vs-performance",
+      "left": "iana_about",
+      "right": "iana_performance"
+    },
+    {
+      "label": "about-vs-excellence",
+      "left": "iana_about",
+      "right": "iana_excellence"
+    }
+  ],
+  "decision_criteria": [
+    {
+      "criterion_id": "mission_clarity",
+      "label": "Mission Clarity",
+      "description": "The source should clearly explain what IANA is, who operates it and how it relates to PTI and ICANN.",
+      "weight": 6,
+      "evidence_terms": [
+        "worldwide network free from central coordination",
+        "three categories",
+        "IANA functions",
+        "Public Technical Identifiers",
+        "ICANN",
+        "policy-setting forums"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "This criterion is core to the question."
+    },
+    {
+      "criterion_id": "breadth_for_orientation",
+      "label": "Breadth for Orientation",
+      "description": "The source should cover enough categories to orient a new reader quickly.",
+      "weight": 5,
+      "evidence_terms": [
+        "Domain Names",
+        "Number Resources",
+        "Protocol Assignments",
+        "Mission Statement",
+        "Our Policy Remit"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "A first source should not be too narrow."
+    },
+    {
+      "criterion_id": "operational_evidence",
+      "label": "Operational Evidence",
+      "description": "The source should surface concrete operational signals instead of staying purely descriptive.",
+      "weight": 2,
+      "evidence_terms": [
+        "Performance",
+        "SLAs",
+        "customer satisfaction",
+        "No known issues",
+        "Performance Reports"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Useful, but secondary to role clarity."
+    },
+    {
+      "criterion_id": "process_quality",
+      "label": "Process and Quality",
+      "description": "The source should show whether quality, excellence or management process is documented publicly.",
+      "weight": 1,
+      "evidence_terms": [
+        "operations excellence",
+        "EFQM",
+        "Quality Management",
+        "Excellence",
+        "assessment"
+      ],
+      "scoring_rule": "coverage_v1",
+      "notes": "Adds nuance but should not override the onboarding role."
+    }
+  ]
+}
