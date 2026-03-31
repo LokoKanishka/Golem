@@ -266,7 +266,9 @@ browser_sidecar_resolve_selector_field() {
   local field="$2"
   local json_payload
 
-  json_payload="$(browser_sidecar_resolve_selector_json "$selector")"
+  if ! json_payload="$(browser_sidecar_resolve_selector_json "$selector")"; then
+    return 1
+  fi
   python3 - <<'PY' "$field" "$json_payload"
 import json
 import sys
