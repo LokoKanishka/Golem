@@ -4,38 +4,58 @@ Fecha de actualizacion: 2026-03-31
 
 ## Resumen ejecutivo
 
-Golem queda hoy documentado en `main` como un sistema ya fuera de bootstrap, con carril canonico de tareas gobernado desde el repo, panel/API local como contrato principal y WhatsApp como canal auxiliar sobre el mismo backend local. El repo estaba limpio al iniciar este tramo documental y no se detectaron cambios pendientes sin commit que obligaran a reinterpretar el estado.
+Este tramo dejo una verdad operativa mas dura que la narrativa previa.
 
-La documentacion versionada y los scripts vigentes muestran cuatro capas reales: task lane canonico, superficie local del panel, bridge/runtime local de WhatsApp y capa auditada de handoff/worker runs. El verify oficial liviano paso en este tramo y la actividad reciente de commits se concentra en la estabilizacion de `surface_state_bundle`, no en un rediseño del nucleo.
+OpenClaw hoy si funciona como gateway/control plane local con panel vivo y WhatsApp conectado. La brecha grande sigue estando en browser real y en todo lo que depende de ese browser o del stack local task API/bridge para subir a capacidades mas ambiciosas.
+
+La conclusion util es simple:
+
+- OC core local: si
+- browser real usable: no
+- helper CDP paralelo: existe, pero hoy no lee Chrome real en este host
+- worker readiness real: no
+- desktop read-side: si
+- control host total: no
 
 ## Donde quedo el proyecto
 
-- Rama actual documentada: `main`
-- Estado git al iniciar este handoff: limpio
-- Nucleo vigente:
-  - panel/gateway como consola principal
-  - API local unica sobre tareas canonicas
-  - panel visible y WhatsApp reutilizando ese mismo contrato
-- Estado reciente mas visible:
-  - consolidacion documental previa
-  - verify oficial liviano agregado
-  - estabilizacion de `surface_state_bundle` con verify por fixture
+- Rama documentada: `main`
+- Estado git al iniciar la auditoria: limpio
+- Documento principal nuevo: `docs/CAPABILITY_MATRIX.md`
+- Verify rapido nuevo: `./scripts/verify_openclaw_capability_truth.sh`
 
-## Que no tocar primero
+## Lo mas importante que quedo probado
 
-- No reabrir bootstrap ni reescribir la arquitectura desde cero.
-- No tratar a WhatsApp como sesion principal.
-- No convertir la capa de worker externo en el nuevo centro del sistema.
-- No mezclar trazas runtime-only o placeholders historicos con el estado principal del proyecto.
+- `openclaw gateway status` dio `Runtime: running` y `RPC probe: ok`
+- `curl http://127.0.0.1:18789/` sirvio la control UI correcta
+- WhatsApp figura `linked/running/connected`
+- `openclaw browser profiles` reconoce `user` y `openclaw`
+- el plugin browser stock esta cargado
+- `golem_host_perceive.sh` y `golem_host_describe.sh` funcionan de verdad en este host
+
+## Lo mas importante que NO quedo probado
+
+- envio WhatsApp real en este tramo
+- browser nativo usable
+- helper CDP vivo contra Chrome real
+- worker externo listo para operar sin humo
+- control host total
+
+## Bloqueos reales vigentes
+
+- `openclaw browser --browser-profile user` cae en timeout/`ECONNREFUSED 127.0.0.1:9222`
+- `verify_browser_stack.sh --diagnosis-only` deja `navigation`, `reading` y `artifacts` en `BLOCKED`
+- el profile managed `openclaw` tampoco entrega tabs ni snapshot util
+- el helper CDP sigue fallando aunque se apunte al `DevToolsActivePort` del profile `user`
+- `verify_worker_orchestration_stack.sh` falla porque el self-check previo marca browser relay/task API/bridge no operativos y el chain audit detecta drift
 
 ## Que revisar primero al volver
 
 - `README.md`
-- `docs/CURRENT_STATE.md`
 - `docs/OPERATING_MODEL.md`
-- `docs/WHATSAPP_RUNTIME_BRIDGE.md`
-- `docs/PANEL_VISIBLE_SURFACE.md`
-- `docs/CAPABILITY_VERIFICATION_MATRIX.md`
+- `docs/CURRENT_STATE.md`
+- `docs/CAPABILITY_MATRIX.md`
+- `docs/BROWSER_HOST_CONTRACT.md`
 
 ## Comandos utiles para reubicarse rapido
 
@@ -43,32 +63,25 @@ La documentacion versionada y los scripts vigentes muestran cuatro capas reales:
 git status --short
 git branch --show-current
 git log --oneline -8
-bash tests/verify_official.sh
-./scripts/verify_task_lane_enforcement.sh
-./scripts/verify_user_facing_readiness.sh
-./scripts/verify_live_user_journey_smoke.sh
+./scripts/verify_openclaw_capability_truth.sh
+./scripts/verify_browser_stack.sh --diagnosis-only
+./scripts/verify_worker_orchestration_stack.sh
 ```
 
-Notas:
+## Que no conviene tocar primero
 
-- `tests/verify_official.sh` es la reubicacion rapida mas barata para el frente reciente de `surface_state_bundle`.
-- Los verifies mas pesados pueden depender de X11 y utilidades del host.
-- La documentacion de readiness ya distingue `PASS`, `BLOCKED` y `FAIL`; no inflar `BLOCKED` a cierre.
-
-## Limites y bloqueos que siguen vigentes
-
-- Los smokes integrales de host/browser no quedaron reejecutados en este tramo.
-- El inbound real de WhatsApp no se prueba repo-localmente en smoke; el bridge se valida con replay de eventos de shape real y salida por CLI oficial.
-- La capa de Codex controlled run sigue siendo auditada y explicita, no automatizacion completa.
-- `openclaw/` y `state/live/` siguen fuera del nucleo versionado como runtime gobernado por este repo.
-- El browser real ya puede leerse por CDP/backend, pero la CLI `openclaw browser ...` sigue con una deuda de timeout del operador; para trabajo puntual el repo ya tiene `./scripts/browser_cdp_tool.sh` como camino paralelo minimo sobre el Chrome vivo.
+- No abrir plugins nuevos.
+- No convertir esta pausa en expansion de features.
+- No vender escritorio completo.
+- No escalar workers antes de cerrar browser truth.
 
 ## Proximo tramo unico sugerido
 
-El proximo tramo recomendado, despues de esta pausa o desviacion, es retomar desde verificabilidad y operacion real del nucleo ya definido:
+Resolver la verdad del browser en este host.
 
-- reubicarse con los verifies oficiales
-- confirmar si los recorridos `user-facing` y `live user journey` permanecen en el mismo estado real
-- trabajar sobre estabilizacion operativa del sistema vigente
+Solo despues de eso conviene volver a discutir:
 
-No corresponde abrir primero una nueva feature, una segunda arquitectura ni una automatizacion adicional de workers.
+- worker externo real
+- delivery mas ambicioso
+- control host mas fuerte
+- nuevas superficies funcionales

@@ -2,87 +2,95 @@
 
 Fecha de actualizacion: 2026-03-31
 
-## Rama actual
+## Rama y baseline
 
-- `main`
+- Rama auditada: `main`
+- Estado git al iniciar el tramo: limpio
+- OpenClaw auditado: `2026.3.28 (f9b1079)`
+- Gateway auditado: `127.0.0.1:18789`
 
-## Ultimos commits relevantes
+## Verdad operativa corta
 
-- `7d27730` `test: relax host describe surface profile expectations`
-- `2ac5eb5` `chore: ignore local codex workspace artifacts`
-- `f5e0da4` `test: add fixture-backed verify for surface_state_bundle stabilization`
-- `14bb575` `chore: Ticket 3 - consolidate docs and add official verify script`
-- `5ba4c82` `stabilize: deterministic normalization for surface_state_bundle; add verify script and handoff note`
-- `4b3fb20` `feat: add audited host surface state bundles`
-- `915c920` `feat: refine audited host contextual priorities`
-- `77056f1` `feat: add fine-grained audited host fields`
+La lectura honesta del host hoy es:
 
-## Estado general del repo
+- OpenClaw si esta sano como gateway/control plane local.
+- El panel web/control UI si esta servido y alcanzable.
+- WhatsApp si figura conectado y coherente a nivel de salud general.
+- El browser nativo no esta operativo como superficie confiable de trabajo.
+- El helper CDP existe como carril paralelo versionado, pero hoy no puede leer Chrome real en este host.
+- La percepcion/descripcion read-side del desktop si existe y produce evidencia real.
+- La readiness real de worker externo no alcanza hoy para venderse como capacidad operativa estable.
 
-- El estado git inspeccionado para este tramo estaba limpio: `git status --short` no mostro cambios pendientes.
-- La rama activa inspeccionada para este tramo es `main`.
-- El repo no esta en bootstrap. El estado documentado y el README lo muestran como un sistema ya gobernado desde el carril canonico de tareas y sus wrappers operativos locales.
-- La documentacion y los scripts versionados ubican hoy a Golem como un repo que gobierna:
-  - tareas canonicas en `tasks/`
-  - panel/API local para leer y mutar esas tareas
-  - bridge local de WhatsApp sobre la misma API
-  - evidencia durable y runtime controlado para handoffs y corridas de worker
-  - verifies compuestos para task lane, readiness y perfiles user-facing
+## Lo que si quedo probado en este tramo
 
-## Frentes validados
+- `openclaw gateway status` devolvio `Runtime: running` y `RPC probe: ok`.
+- `curl http://127.0.0.1:18789/` sirvio HTML del panel con `<title>OpenClaw Control</title>`.
+- `openclaw status` y `openclaw channels status --probe` coincidieron en que WhatsApp esta `linked/running/connected`.
+- `openclaw plugins list` mostro `browser` y `whatsapp` cargados.
+- `openclaw browser profiles` mostro los profiles `user` y `openclaw`.
+- `./scripts/golem_host_perceive.sh json` produjo screenshots y contexto de ventanas.
+- `./scripts/golem_host_describe.sh active-window --json` produjo `surface_state_bundle` y clasificacion semantica de la ventana activa.
 
-- Carril canonico de tareas:
-  - `scripts/task_create.sh` figura como entrypoint canonico
-  - `scripts/task_new.sh` queda como wrapper de compatibilidad
-  - el gate oficial del carril sigue siendo `./scripts/verify_task_lane_enforcement.sh`
-- Panel/API local:
-  - el repo versiona `scripts/task_panel_read.sh`, `scripts/task_panel_mutate.sh`, `scripts/task_panel_http_server.py` y `scripts/task_panel_http_ctl.py`
-  - `docs/PANEL_VISIBLE_SURFACE.md` deja explicitado el contrato unico sobre la API local y el smoke dedicado `./tests/smoke_panel_visible_ui.sh`
-- WhatsApp como canal auxiliar:
-  - `docs/WHATSAPP_RUNTIME_BRIDGE.md` documenta un runtime local endurecido con `task_whatsapp_bridge_runtime.py` y `task_whatsapp_bridge_ctl.py`
-  - existen smokes dedicados para replay, hardening y servicio
-- Worker/handoff auditables:
-  - el repo ya no esta solo en handoff documental; tambien versiona la capa de controlled run y governance para corridas explicitas de Codex CLI
-  - esa capa sigue siendo auditada y manual en el cierre, no una automatizacion de fondo
-- Superficie de host describe:
-  - el verify oficial liviano `bash tests/verify_official.sh` paso en este tramo
-  - ese verify comprobo `py_compile` de `scripts/golem_host_describe_analyze.py`
-  - tambien paso `tests/verify_surface_bundle.sh`
-  - tambien paso `tests/verify_surface_bundle_fixture.py`
+## Lo que quedo bloqueado o degradado
 
-## Frentes abiertos
+- `openclaw browser --browser-profile user status/tabs/snapshot` no queda usable hoy:
+  - falla con `ECONNREFUSED 127.0.0.1:9222`
+  - o expira esperando tabs disponibles
+- `./scripts/verify_browser_stack.sh --diagnosis-only` clasifico `navigation`, `reading` y `artifacts` como `BLOCKED`.
+- El profile managed `openclaw` tampoco salva el frente:
+  - `tabs` devuelve `No tabs`
+  - `snapshot` cae con `Missing X server or $DISPLAY`
+- `./scripts/browser_cdp_tool.sh` hoy tambien queda bloqueado:
+  - sin env extra devuelve `ERROR: fetch failed`
+  - aun apuntando al `DevToolsActivePort` real del profile `user`, `curl 127.0.0.1:9222/json/list` falla
+- `./scripts/verify_worker_orchestration_stack.sh` no paso:
+  - los verifies canonicos del stack worker fallaron
+  - el self-check previo ya marcaba `browser_relay FAIL`, `task_api FAIL` y `whatsapp_bridge_service FAIL`
+  - el chain execution audit ademas detecto drift en pasos planificados vs root terminal
 
-- La capa user-facing total no debe asumirse como cerrada solo por existir verifies. La propia documentacion de readiness y live journey distingue entre `PASS`, `BLOCKED` y `FAIL`.
-- El trayecto real de WhatsApp sigue teniendo un limite honesto: el repo no prueba un inbound real repo-local durante smoke; el runtime se valida con replay de eventos de shape real y salida por CLI oficial.
-- La capa de worker externo sigue siendo explicita y controlada, no un sistema de colas, callbacks, scheduling o cierres automaticos.
-- La documentacion historica del repo conserva etapas anteriores (`V1`, `V1.5`, bootstrap, transiciones) que sirven como contexto pero no como lectura primaria del estado actual.
-- El browser real del perfil `user` ya es adjuntable a nivel CDP/backend, pero `openclaw browser ...` sigue teniendo una deuda operativa: la CLI puede expirar a `45000ms` antes de que termine el `browser.request`.
-- Para no bloquear trabajo user-facing por ese borde, el repo ahora versiona `./scripts/browser_cdp_tool.sh` como carril paralelo y minimo contra el Chrome vivo.
+## Lo que no corresponde inflar
 
-## Limites conocidos
+- Chrome abierto como proceso no significa browser usable.
+- Browser plugin cargado no significa lectura de paginas reales.
+- `DevToolsActivePort` presente no significa endpoint CDP realmente vivo.
+- Governance/documentacion de worker no significa worker externo listo para operar hoy.
+- Read-side del desktop no significa control host total.
+- WhatsApp conectado no significa delivery real probado en este tramo.
 
-- Los smokes integrales de host/browser no quedaron reejecutados en este tramo documental.
-- El verify oficial vigente deja asentado que los smokes completos pueden requerir X11 y herramientas del host como `wmctrl` y `tesseract`.
-- `openclaw/` y `state/live/` siguen apareciendo como estructura documental o evidencia local, no como runtime gobernado por Git dentro de este repo.
-- `handoffs/` mezcla evidencia durable promovida con trazas runtime-only; la policy vigente sigue aclarando que no todo archivo de esa carpeta forma parte del estado durable del repo.
-- No hay evidencia en este tramo para declarar cerrado un rediseño mayor de arquitectura, despliegue remoto, auth compleja o una interfaz separada adicional.
-- El helper CDP directo sirve sobre un Chrome ya vivo; no resuelve por si solo el attach inicial ni reemplaza la deuda del operador `openclaw browser ...`.
+## Carriles vigentes
 
-## Desvios fuera del estado principal
+- Nucleo OC real:
+  - gateway local
+  - panel/control UI
+  - sesiones y estado por CLI
+  - WhatsApp conectado
+- Carriles paralelos aceptados:
+  - `scripts/browser_cdp_tool.sh` como sidecar browser condicionado a endpoint real
+  - `scripts/golem_host_perceive.sh`
+  - `scripts/golem_host_describe.sh`
+  - governance/controlled-run de worker como capa subordinada, no nucleo
 
-- Los experimentos o capas que no deben leerse como nucleo operativo vigente son:
-  - bootstrap historico y documentos de etapas previas
-  - trazas runtime-only bajo `handoffs/`
-  - placeholders/scaffolding de `openclaw/`
-  - evidencia local bajo `state/live/`
-- La capa de controlled run de Codex existe y esta documentada, pero no redefine el nucleo diario. El nucleo vigente sigue siendo panel/API/task lane con WhatsApp como canal auxiliar.
+## Documento principal de esta verdad
 
-## Proximo retome recomendado
+- `docs/CAPABILITY_MATRIX.md`
 
-- Retomar desde el estado ya saneado del carril principal, no desde arquitectura abstracta ni desde bootstrap.
-- El siguiente punto razonable de retome es reubicarse con:
-  - `bash tests/verify_official.sh`
-  - `./scripts/verify_task_lane_enforcement.sh`
-  - `./scripts/verify_user_facing_readiness.sh`
-  - `./scripts/verify_live_user_journey_smoke.sh`
-- Despues de esa reubicacion, el siguiente tramo principal deberia enfocarse en estabilizacion operativa y verificabilidad real de los recorridos ya definidos, no en abrir nuevas superficies o reescribir el modelo.
+## Retome recomendado
+
+El siguiente retome razonable ya no es “seguir agregando cosas”.
+
+Es uno solo:
+
+- cerrar la verdad del browser en este host
+
+Eso significa elegir y demostrar un unico camino reproducible para:
+
+- obtener tabs reales
+- leer una pagina real
+- dejar evidencia corta y repetible
+
+Antes de eso no conviene abrir:
+
+- plugins nuevos
+- mas automation de workers
+- promesas de control host total
+- nuevas features browser
