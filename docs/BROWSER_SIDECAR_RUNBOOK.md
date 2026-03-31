@@ -26,6 +26,7 @@ La interfaz actual queda separada asi:
 - `read`: lectura rapida para humano, encima de `snapshot`
 - `extract`: salida estructurada y normalizada para trabajo real
 - `compare`: comparacion operativa entre dos paginas usando la salida de `extract`
+- `dossier`: pipeline declarativo multi-fuente para una tarea publica reproducible
 
 La regla es simple:
 
@@ -136,11 +137,20 @@ Comparacion entre dos paginas:
 ./scripts/browser_sidecar_compare.sh --save-slug browser-sidecar-compare "Reserved Domains" rfc-editor.org
 ```
 
+Pipeline de dossier:
+
+```bash
+./scripts/browser_sidecar_dossier_run.sh browser_tasks/reserved-domains-technical.json
+./scripts/browser_sidecar_dossier_run.sh browser_tasks/iana-service-overview.json
+./scripts/browser_sidecar_dossier_run.sh --format json browser_tasks/reserved-domains-technical.json
+```
+
 Artefactos:
 
 - los artefactos finales viven en `outbox/manual/`
 - `extract --save-slug ...` guarda `json` y `md`
 - `compare --save-slug ...` guarda `json` y `md`
+- `dossier_run` guarda extracts, compares y un dossier final en `json` y `md`
 - no hace falta tocar `.gitignore` porque `outbox/manual/` ya esta ignorado
 
 ## Verify
@@ -169,10 +179,25 @@ Verify larga de lectura/comparacion:
 ./scripts/verify_browser_sidecar_comparison_lane.sh
 ```
 
+Verify larga de dossier:
+
+```bash
+./scripts/verify_browser_sidecar_dossier_lane.sh
+```
+
 Targets hoy probados de forma explicita:
 
 - `https://www.iana.org/domains/reserved`
 - `https://www.rfc-editor.org/rfc/rfc2606.html`
+- `https://www.rfc-editor.org/rfc/rfc6761.html`
+- `https://www.iana.org/about`
+- `https://www.iana.org/performance`
+- `https://www.iana.org/about/excellence`
+
+Tareas declarativas ejemplo hoy versionadas:
+
+- `browser_tasks/reserved-domains-technical.json`
+- `browser_tasks/iana-service-overview.json`
 
 ## Que NO promete
 
@@ -181,6 +206,7 @@ Targets hoy probados de forma explicita:
 - no promete login, clicks complejos o formularios
 - no promete scraping general de sitios frágiles o anti-bot
 - no promete comparacion semantica profunda ni NLP
+- no promete investigacion publica general sin foco declarativo
 - no promete control host total
 - no reabre MCP, plugins ni workers
 - no convierte al browser nativo de OC en sano

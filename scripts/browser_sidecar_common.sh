@@ -317,6 +317,50 @@ else:
 PY
 }
 
+browser_sidecar_resolve_latest_url_json() {
+  local url="${1:-}"
+  if [ -z "$url" ]; then
+    browser_sidecar_fail "falta URL para resolver la tab mas reciente"
+  fi
+
+  python3 - <<'PY' "${GOLEM_BROWSER_SIDECAR_URL}" "$url"
+import json
+import sys
+from urllib.request import urlopen
+
+base_url = sys.argv[1].rstrip("/")
+wanted_url = sys.argv[2].strip()
+
+with urlopen(base_url + "/json/list") as response:
+    payload = json.load(response)
+
+tabs = []
+for item in payload:
+    if not item or item.get("type") != "page":
+        continue
+    tabs.append(
+        {
+            "index": len(tabs),
+            "id": item.get("id") or item.get("targetId") or "",
+            "title": item.get("title") or "",
+            "url": item.get("url") or "",
+            "wsUrl": item.get("webSocketDebuggerUrl") or "",
+        }
+    )
+
+matches = [tab for tab in tabs if tab["url"] == wanted_url]
+if not matches:
+    print(f'ERROR: no se encontro una tab con URL exacta "{wanted_url}"', file=sys.stderr)
+    sys.exit(1)
+
+# /json/list expone primero las tabs mas recientes; elegimos la primera exacta
+# para que el flujo del dossier quede determinista aunque existan tabs viejas.
+resolved = dict(matches[0])
+resolved["match_type"] = "latest_url_exact"
+print(json.dumps(resolved))
+PY
+}
+
 browser_sidecar_looks_like_url() {
   local value="${1:-}"
   [[ "$value" =~ ^https?:// ]]

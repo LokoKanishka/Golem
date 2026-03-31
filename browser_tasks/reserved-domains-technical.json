@@ -1,0 +1,59 @@
+{
+  "task_id": "reserved-domains-technical",
+  "title": "Reserved Domains Technical Dossier",
+  "description": "Compare the institutional reserved domains overview with the technical RFC pages that define example and special-use DNS names.",
+  "output_slug": "reserved-domains-technical",
+  "comparison_mode": "explicit_pairs",
+  "focus_terms": [
+    "Example domains",
+    "RFC 2606",
+    "RFC 6761",
+    ".example",
+    ".invalid",
+    ".localhost",
+    "Special-Use Domain Names"
+  ],
+  "expected_signals": [
+    "example.com",
+    "example.net",
+    "example.org",
+    ".localhost",
+    "Special-Use Domain Names"
+  ],
+  "focus_profile": {
+    "excerpt_limit": 10,
+    "match_limit": 3
+  },
+  "sources": [
+    {
+      "label": "iana_reserved",
+      "url": "https://www.iana.org/domains/reserved",
+      "selector_hint": "IANA-managed Reserved Domains",
+      "notes": "Institutional overview of reserved and policy-special domains."
+    },
+    {
+      "label": "rfc_2606",
+      "url": "https://www.rfc-editor.org/rfc/rfc2606.html",
+      "selector_hint": "RFC 2606",
+      "notes": "Best Current Practice defining reserved example names."
+    },
+    {
+      "label": "rfc_6761",
+      "url": "https://www.rfc-editor.org/rfc/rfc6761.html",
+      "selector_hint": "RFC 6761",
+      "notes": "Special-Use Domain Names specification."
+    }
+  ],
+  "comparisons": [
+    {
+      "label": "iana-vs-rfc2606",
+      "left": "iana_reserved",
+      "right": "rfc_2606"
+    },
+    {
+      "label": "iana-vs-rfc6761",
+      "left": "iana_reserved",
+      "right": "rfc_6761"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "task_id": "iana-service-overview",
+  "title": "IANA Service Overview Dossier",
+  "description": "Compare public institutional pages that explain what IANA is, how it reports performance, and how it frames operational excellence.",
+  "output_slug": "iana-service-overview",
+  "comparison_mode": "explicit_pairs",
+  "focus_terms": [
+    "Public Technical Identifiers",
+    "ICANN",
+    "performance",
+    "customer satisfaction",
+    "operations excellence",
+    "quality management",
+    "IANA functions"
+  ],
+  "expected_signals": [
+    "PTI",
+    "ICANN",
+    "customer satisfaction",
+    "EFQM",
+    "SLAs"
+  ],
+  "focus_profile": {
+    "excerpt_limit": 10,
+    "match_limit": 3
+  },
+  "sources": [
+    {
+      "label": "iana_about",
+      "url": "https://www.iana.org/about",
+      "selector_hint": "About us",
+      "notes": "Institutional introduction to the IANA functions and role."
+    },
+    {
+      "label": "iana_performance",
+      "url": "https://www.iana.org/performance",
+      "selector_hint": "Performance",
+      "notes": "Public operational metrics and service indicators."
+    },
+    {
+      "label": "iana_excellence",
+      "url": "https://www.iana.org/about/excellence",
+      "selector_hint": "Business Excellence and Quality Management",
+      "notes": "Public statement on quality and operational excellence."
+    }
+  ],
+  "comparisons": [
+    {
+      "label": "about-vs-performance",
+      "left": "iana_about",
+      "right": "iana_performance"
+    },
+    {
+      "label": "about-vs-excellence",
+      "left": "iana_about",
+      "right": "iana_excellence"
+    }
+  ]
+}
