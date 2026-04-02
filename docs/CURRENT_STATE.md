@@ -241,6 +241,7 @@ La lectura honesta del host hoy es:
 - `docs/OPENCLAW_STATUS_TICKET_NEAR_FINAL_EXAMPLES.md`
 - `docs/OPENCLAW_STATUS_TICKET_FINALIZATION_CHECKLIST.md`
 - `docs/OPENCLAW_STATUS_TICKET_CLOSURE_NOTES.md`
+- `docs/OPENCLAW_STATUS_PRE_CLOSURE_INDEX.md`
 - `docs/OPENCLAW_STATUS_REAL_CLOSURE_INDEX.md`
 - `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_EXAMPLE.md`
 - `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_STATE_CHECK.md`
@@ -287,6 +288,7 @@ Eso ya quedo resuelto:
 - status ticket finalization checklist pack nuevo para fijar el checklist minimo que convierte un near-final example en ticket real del momento, sin salir de read-side: `docs/OPENCLAW_STATUS_TICKET_FINALIZATION_CHECKLIST.md`
 - verify ligera nueva del finalization checklist pack: `./scripts/verify_openclaw_status_ticket_finalization_checklist.sh`
 - status ticket closure note pack nuevo para fijar la huella terminal de cierre documental de un ticket read-side ya finalizado, con artifact, verify, conclusion permitida y limites todavia vigentes: `docs/OPENCLAW_STATUS_TICKET_CLOSURE_NOTES.md`
+- indice corto nuevo de la cadena `status` previa al cierre real para navegar evidence -> consistency -> artifact -> workflow -> drafting -> finalization -> closure-notes sin releer todo el corpus: `docs/OPENCLAW_STATUS_PRE_CLOSURE_INDEX.md`
 - indice corto nuevo de cierres reales `status` para elegir rapido entre reentrada corta y verdad operativa corta sin navegar varias docs: `docs/OPENCLAW_STATUS_REAL_CLOSURE_INDEX.md`
 - verify ligera nueva del closure note pack: `./scripts/verify_openclaw_status_ticket_closure_notes.sh`
 - primer cierre real materializado del carril `status` para mostrar una closure note concreta, limitada y reusable sobre evidencia versionada ya existente: `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_EXAMPLE.md`
@@ -306,6 +308,7 @@ El siguiente tramo razonable pasa a ser uno solo:
 - usar el status ticket near-final examples pack cuando haga falta dejar un ticket read-side casi final, con bloques ya casi definitivos y solo placeholders minimos remanentes del momento
 - usar el status ticket finalization checklist pack cuando haga falta validar que un near-final example ya quedo finalizable como ticket real del momento, sin tocar runtime ni relajar limites de inferencia
 - usar el status ticket closure note pack cuando haga falta dejar la huella terminal de cierre documental de ese ticket ya finalizado, citando artifact y verify reales sin duplicar la checklist ni inflar inferencias
+- usar `docs/OPENCLAW_STATUS_PRE_CLOSURE_INDEX.md` cuando haga falta una puerta corta a toda la cadena `status` previa al cierre real y todavia no haga falta saltar a los cierres ya materializados
 - usar `docs/OPENCLAW_STATUS_REAL_CLOSURE_INDEX.md` cuando haga falta decidir rapido cual de los dos cierres reales leer primero
 - usar el real closure note example cuando haga falta ver un primer caso concreto y versionado de ese cierre, sabiendo que sigue siendo un cierre read-side limitado y no sustituye `CURRENT_STATE` ni `HANDOFF`
 - usar `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_STATE_CHECK.md` cuando haga falta ver el segundo caso real ya materializado, centrado en verdad operativa corta sobre `status`

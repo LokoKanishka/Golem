@@ -216,6 +216,7 @@ Documento canonico nuevo para reentrada rapida:
 - `docs/OPENCLAW_STATUS_TICKET_NEAR_FINAL_EXAMPLES.md`
 - `docs/OPENCLAW_STATUS_TICKET_FINALIZATION_CHECKLIST.md`
 - `docs/OPENCLAW_STATUS_TICKET_CLOSURE_NOTES.md`
+- `docs/OPENCLAW_STATUS_PRE_CLOSURE_INDEX.md`
 - `docs/OPENCLAW_STATUS_REAL_CLOSURE_INDEX.md`
 - `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_EXAMPLE.md`
 - `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_STATE_CHECK.md`
@@ -237,6 +238,7 @@ Uso correcto de ese baseline:
 - usar el status ticket near-final examples pack cuando haga falta ver como se ve uno de esos tickets cuando ya esta casi final, con secciones casi definitivas y solo placeholders minimos remanentes
 - usar el status ticket finalization checklist pack cuando haga falta decidir si ese near-final example ya puede considerarse ticket real del momento, todavia read-side y sin mutacion
 - usar el status ticket closure note pack cuando haga falta dejar la nota final de cierre documental de ese ticket ya completado, con artifact, verify, conclusion permitida y limites todavia vigentes
+- usar `docs/OPENCLAW_STATUS_PRE_CLOSURE_INDEX.md` cuando haga falta una puerta corta a la cadena previa de `status`, incluyendo evidencia, consistencia, artifact, workflow y la cadena de redaccion antes de saltar a los cierres reales
 - usar `docs/OPENCLAW_STATUS_REAL_CLOSURE_INDEX.md` cuando haga falta elegir rapido entre `quick-reentry` y `state-check` sin releer todo el corpus
 - usar el real closure note example cuando haga falta ver un caso ya materializado de ese cierre, con una artifact versionada concreta y limites todavia explicitados
 - usar `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_STATE_CHECK.md` cuando haga falta ver el segundo cierre real ya materializado, apoyado en `outbox/manual/20260402T005229Z_status-triangulation-artifact_state-check.md`
