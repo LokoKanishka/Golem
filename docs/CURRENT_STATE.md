@@ -242,6 +242,7 @@ La lectura honesta del host hoy es:
 - `docs/OPENCLAW_STATUS_TICKET_FINALIZATION_CHECKLIST.md`
 - `docs/OPENCLAW_STATUS_TICKET_CLOSURE_NOTES.md`
 - `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_EXAMPLE.md`
+- `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_STATE_CHECK.md`
 - `docs/OPENCLAW_STATUS_STATE_CHECK_CLOSURE_BLOCKED.md`
 - `outbox/manual/20260402T005229Z_status-triangulation-artifact_state-check.md`
 - `docs/BROWSER_SIDECAR_RUNBOOK.md`
@@ -287,6 +288,7 @@ Eso ya quedo resuelto:
 - status ticket closure note pack nuevo para fijar la huella terminal de cierre documental de un ticket read-side ya finalizado, con artifact, verify, conclusion permitida y limites todavia vigentes: `docs/OPENCLAW_STATUS_TICKET_CLOSURE_NOTES.md`
 - verify ligera nueva del closure note pack: `./scripts/verify_openclaw_status_ticket_closure_notes.sh`
 - primer cierre real materializado del carril `status` para mostrar una closure note concreta, limitada y reusable sobre evidencia versionada ya existente: `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_EXAMPLE.md`
+- segundo cierre real materializado del carril `status` para mostrar una closure note concreta de `state-check`, apoyada en una artifact real y ya desbloqueada por gate: `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_STATE_CHECK.md`
 - verify ligera nueva del ejemplo real de cierre: `./scripts/verify_openclaw_status_real_closure_note_example.sh`
 - gate documental de `state-check` ya actualizado a `UNLOCKED-BY-ARTIFACT` porque ahora existe una base versionada y citable para reintentar ese cierre: `docs/OPENCLAW_STATUS_STATE_CHECK_CLOSURE_BLOCKED.md`
 - artifact real nueva que satisface la condicion de desbloqueo del segundo cierre: `outbox/manual/20260402T005229Z_status-triangulation-artifact_state-check.md`
@@ -303,8 +305,8 @@ El siguiente tramo razonable pasa a ser uno solo:
 - usar el status ticket finalization checklist pack cuando haga falta validar que un near-final example ya quedo finalizable como ticket real del momento, sin tocar runtime ni relajar limites de inferencia
 - usar el status ticket closure note pack cuando haga falta dejar la huella terminal de cierre documental de ese ticket ya finalizado, citando artifact y verify reales sin duplicar la checklist ni inflar inferencias
 - usar el real closure note example cuando haga falta ver un primer caso concreto y versionado de ese cierre, sabiendo que sigue siendo un cierre read-side limitado y no sustituye `CURRENT_STATE` ni `HANDOFF`
-- leer el state-check closure gate antes de intentar un segundo cierre real, porque ahora fija que la artifact base ya existe pero que el cierre real todavia no fue materializado
-- citar `outbox/manual/20260402T005229Z_status-triangulation-artifact_state-check.md` como base read-side del proximo intento de cierre real `state-check`
+- usar `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_STATE_CHECK.md` cuando haga falta ver el segundo caso real ya materializado, centrado en verdad operativa corta sobre `status`
+- leer el state-check closure gate para conservar trazabilidad del bloqueo historico y del destrabe por artifact, aunque el segundo cierre real ya quedo materializado
 - exigir `./scripts/verify_openclaw_status_ticket_skeletons.sh` antes de apoyar un nuevo tramo en este skeletons pack
 - exigir `./scripts/verify_openclaw_status_skeleton_completion_examples.sh` antes de apoyar un nuevo tramo en este completion examples pack
 - exigir `./scripts/verify_openclaw_status_ticket_closure_notes.sh` antes de apoyar un nuevo tramo en este closure note pack

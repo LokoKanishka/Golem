@@ -217,6 +217,7 @@ Documento canonico nuevo para reentrada rapida:
 - `docs/OPENCLAW_STATUS_TICKET_FINALIZATION_CHECKLIST.md`
 - `docs/OPENCLAW_STATUS_TICKET_CLOSURE_NOTES.md`
 - `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_EXAMPLE.md`
+- `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_STATE_CHECK.md`
 - `docs/OPENCLAW_STATUS_STATE_CHECK_CLOSURE_BLOCKED.md`
 - `outbox/manual/20260402T005229Z_status-triangulation-artifact_state-check.md`
 
@@ -236,8 +237,8 @@ Uso correcto de ese baseline:
 - usar el status ticket finalization checklist pack cuando haga falta decidir si ese near-final example ya puede considerarse ticket real del momento, todavia read-side y sin mutacion
 - usar el status ticket closure note pack cuando haga falta dejar la nota final de cierre documental de ese ticket ya completado, con artifact, verify, conclusion permitida y limites todavia vigentes
 - usar el real closure note example cuando haga falta ver un caso ya materializado de ese cierre, con una artifact versionada concreta y limites todavia explicitados
-- leer el state-check closure gate antes de intentar el segundo cierre real, porque ahora deja asentado que la artifact base ya existe y que el siguiente paso correcto es materializar el cierre, no reinventar la evidencia
-- citar `outbox/manual/20260402T005229Z_status-triangulation-artifact_state-check.md` como base read-side del proximo intento de cierre real `state-check`
+- usar `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_STATE_CHECK.md` cuando haga falta ver el segundo cierre real ya materializado, apoyado en `outbox/manual/20260402T005229Z_status-triangulation-artifact_state-check.md`
+- leer el state-check closure gate para conservar trazabilidad del bloqueo historico y del destrabe por artifact
 - mantener browser nativo fuera
 - WhatsApp sigue congelado
 - mantener WhatsApp congelado y fuera de alcance
