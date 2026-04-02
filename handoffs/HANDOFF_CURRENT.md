@@ -214,6 +214,7 @@ Documento canonico nuevo para reentrada rapida:
 - `docs/OPENCLAW_STATUS_TICKET_SKELETONS.md`
 - `docs/OPENCLAW_STATUS_SKELETON_COMPLETION_EXAMPLES.md`
 - `docs/OPENCLAW_STATUS_TICKET_NEAR_FINAL_EXAMPLES.md`
+- `docs/OPENCLAW_STATUS_TICKET_FINALIZATION_CHECKLIST.md`
 
 Uso correcto de ese baseline:
 
@@ -228,6 +229,7 @@ Uso correcto de ese baseline:
 - usar el status ticket skeletons pack cuando haga falta pasar de una instancia a un ticket read-side casi completo, todavia no ejecutable, pero ya listo para completarse con artifact real y verify concreta del momento
 - usar el status skeleton completion examples pack cuando haga falta ver como se ve uno de esos skeletons ya parcialmente completado, con placeholders honestos para artifact, verify, summaries y conclusion breve
 - usar el status ticket near-final examples pack cuando haga falta ver como se ve uno de esos tickets cuando ya esta casi final, con secciones casi definitivas y solo placeholders minimos remanentes
+- usar el status ticket finalization checklist pack cuando haga falta decidir si ese near-final example ya puede considerarse ticket real del momento, todavia read-side y sin mutacion
 - mantener browser nativo fuera
 - WhatsApp sigue congelado
 - mantener WhatsApp congelado y fuera de alcance
@@ -242,6 +244,7 @@ Uso correcto de ese baseline:
 - exigir `./scripts/verify_openclaw_status_ticket_skeletons.sh` antes de apoyar un nuevo tramo en este skeletons pack
 - exigir `./scripts/verify_openclaw_status_skeleton_completion_examples.sh` antes de apoyar un nuevo tramo en este completion examples pack
 - exigir `./scripts/verify_openclaw_status_ticket_near_final_examples.sh` antes de apoyar un nuevo tramo en este near-final examples pack
+- exigir `./scripts/verify_openclaw_status_ticket_finalization_checklist.sh` antes de apoyar un nuevo tramo en este finalization checklist pack
 
 No corresponde volver a discutir antes de eso:
 
