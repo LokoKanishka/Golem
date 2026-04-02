@@ -33,6 +33,25 @@ Verify obligatorio de este frente:
 - OpenClaw auditado: `2026.3.28 (f9b1079)`
 - Gateway auditado: `127.0.0.1:18789`
 
+## Status Reentry Routes
+
+Si el reingreso es por la familia `status`, hoy hay dos puertas cortas y canonicas:
+
+- `status pre-closure chain`
+  - doc: `docs/OPENCLAW_STATUS_PRE_CLOSURE_INDEX.md`
+  - primary_use: navegar rapido la cadena previa de evidencia -> consistency -> artifact -> workflow -> drafting -> finalization -> closure-notes
+  - when_to_use: entrar por esta ruta cuando todavia haga falta entender o producir la cadena read-side previa al cierre real
+  - limits: no delivery real, no browser usable, no readiness total, no runtime changes, no reactivar WhatsApp
+- `status real closures already materialized`
+  - doc: `docs/OPENCLAW_STATUS_REAL_CLOSURE_INDEX.md`
+  - primary_use: elegir rapido entre reentrada corta (`quick-reentry`) y verdad operativa corta (`state-check`)
+  - when_to_use: entrar por esta ruta cuando la cadena previa ya no es la duda y haga falta leer cierres reales ya materializados
+  - limits: no delivery real, no browser usable, no readiness total, no runtime changes, no reactivar WhatsApp
+
+Regla comun:
+
+- ninguna de estas rutas reemplaza `docs/CURRENT_STATE.md` ni `handoffs/HANDOFF_CURRENT.md`
+
 ## Verdad operativa corta
 
 La lectura honesta del host hoy es:
