@@ -17,10 +17,12 @@ Esta capa ahora tambien tiene una continuacion explicita:
 
 - `recommendation lane`
 - `project prioritization lane`
+- `execution tranche lane`
 
 El decision lane responde que fuente o superficie gana segun criterios.
 El recommendation lane traduce esa matriz a alternativas de proyecto, riesgos, precondiciones y siguiente paso.
 El project prioritization lane traduce evidencia publica + local a frentes del proyecto con buckets operativos explicitos.
+El execution tranche lane toma esos frentes y recomendaciones ya estructuradas y define un unico tramo ejecutable con brief final.
 
 ## Decision de diseño
 

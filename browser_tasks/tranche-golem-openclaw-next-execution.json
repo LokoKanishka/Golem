@@ -1,0 +1,390 @@
+{
+  "task_id": "tranche-golem-openclaw-next-execution",
+  "title": "Golem OpenClaw Next Execution Tranche",
+  "description": "Select the single bounded execution tranche that best advances Golem/OpenClaw now that the sidecar project prioritization lane exists and frozen fronts are explicit.",
+  "question": "Given the accepted sidecar browser lane, the frozen runtime boundaries, and the existing prioritization outputs, which single execution tranche should Golem/OpenClaw execute now for the highest return without reopening blocked fronts or touching live runtime?",
+  "output_slug": "tranche-golem-openclaw-next-execution",
+  "prioritization_task": "browser_tasks/prioritize-golem-openclaw-next-tranche.json",
+  "focus_terms": [
+    "browser sidecar",
+    "project prioritization",
+    "CLI Reference",
+    "Chat Channels",
+    "Plugins",
+    "CURRENT_STATE",
+    "HANDOFF_CURRENT",
+    "WhatsApp",
+    "frozen",
+    "verify"
+  ],
+  "expected_signals": [
+    "browser sidecar = PASS",
+    "browser nativo OC = BLOCKED",
+    "WhatsApp queda congelado",
+    "use the sidecar project lanes as the main NOW front",
+    "do not touch host-control-total work"
+  ],
+  "focus_profile": {
+    "excerpt_limit": 10,
+    "match_limit": 3
+  },
+  "sources": [
+    {
+      "label": "oc_cli",
+      "url": "https://docs.openclaw.ai/cli",
+      "selector_hint": "CLI Reference - OpenClaw",
+      "notes": "Public CLI surface for operator-facing baseline work."
+    },
+    {
+      "label": "oc_channels",
+      "url": "https://docs.openclaw.ai/channels",
+      "selector_hint": "Chat Channels - OpenClaw",
+      "notes": "Public channels and routing surface for safe planning."
+    },
+    {
+      "label": "oc_plugins",
+      "url": "https://docs.openclaw.ai/tools/plugin",
+      "selector_hint": "Plugins - OpenClaw",
+      "notes": "Public extension surface that can be kept as a secondary lane."
+    }
+  ],
+  "local_sources": [
+    {
+      "label": "local_capability_matrix",
+      "path": "docs/CAPABILITY_MATRIX.md",
+      "notes": "Versioned truth baseline for what is accepted, blocked or frozen."
+    },
+    {
+      "label": "local_current_state",
+      "path": "docs/CURRENT_STATE.md",
+      "notes": "Current state and accepted lane stack."
+    },
+    {
+      "label": "local_prioritization_lane",
+      "path": "docs/BROWSER_PROJECT_PRIORITIZATION_LANE.md",
+      "notes": "Defines the current front-level prioritization logic."
+    },
+    {
+      "label": "local_runbook",
+      "path": "docs/BROWSER_SIDECAR_RUNBOOK.md",
+      "notes": "Operational sidecar contract and command surface."
+    },
+    {
+      "label": "local_handoff",
+      "path": "handoffs/HANDOFF_CURRENT.md",
+      "notes": "Latest retome and lane stack summary."
+    },
+    {
+      "label": "local_whatsapp_safety",
+      "path": "docs/WHATSAPP_SAFETY_CONTRACT.md",
+      "notes": "Explicit frozen safety boundary that must stay out of scope."
+    }
+  ],
+  "decision_criteria": [
+    {
+      "criterion_id": "project_return_now",
+      "label": "Project Return Now",
+      "description": "Favor tranches that convert the accepted sidecar lane into a direct project-facing baseline or ticket with visible return now.",
+      "weight": 5,
+      "evidence_terms": [
+        "CLI Reference",
+        "Chat Channels",
+        "public baseline",
+        "next tranche",
+        "recommended_action",
+        "operator-facing"
+      ],
+      "blocker_terms": [
+        "browser nativo",
+        "workers",
+        "control host total",
+        "runtime"
+      ],
+      "notes": "The winner should move the main project, not just add commentary."
+    },
+    {
+      "criterion_id": "bounded_scope",
+      "label": "Bounded Scope",
+      "description": "Favor tranches that stay small, have obvious borders, and do not collapse into a roadmap.",
+      "weight": 5,
+      "evidence_terms": [
+        "verify",
+        "artefactos",
+        "runbook",
+        "CURRENT_STATE",
+        "project prioritization",
+        "reusable"
+      ],
+      "blocker_terms": [
+        "roadmap",
+        "plugin install",
+        "gateway restart",
+        "general expansion"
+      ],
+      "notes": "A tranche is only useful if it can stop cleanly."
+    },
+    {
+      "criterion_id": "safety_alignment",
+      "label": "Safety Alignment",
+      "description": "Favor tranches that inherit the current frozen boundaries and do not re-open blocked or dangerous fronts.",
+      "weight": 5,
+      "evidence_terms": [
+        "frozen",
+        "DO_NOT_TOUCH",
+        "REOPEN_ONLY_IF",
+        "WhatsApp",
+        "deny-by-default",
+        "sidecar"
+      ],
+      "blocker_terms": [
+        "touch live runtime",
+        "send",
+        "gateway",
+        "browser-native recovery"
+      ],
+      "notes": "The selected tranche must be safe by construction."
+    },
+    {
+      "criterion_id": "ticket_readiness",
+      "label": "Ticket Readiness",
+      "description": "Favor tranches that can be turned directly into one implementation ticket with explicit deliverables and verify.",
+      "weight": 4,
+      "evidence_terms": [
+        "verify larga",
+        "dossier",
+        "decision",
+        "recommendation",
+        "handoff",
+        "artefactos"
+      ],
+      "blocker_terms": [
+        "ambiguous",
+        "broad"
+      ],
+      "notes": "This lane exists to produce something executable, not just to score fronts."
+    }
+  ],
+  "candidate_tranches": [
+    {
+      "tranche_id": "gateway_channels_public_baseline_pack",
+      "label": "Gateway and Channels Public Baseline Pack",
+      "description": "Use the accepted sidecar lane to build the next public baseline around CLI plus Channels and convert it into one implementation-ready ticket seed.",
+      "goal": "Produce a bounded public baseline pack that clarifies how Golem should plan around OpenClaw CLI and channels next, without touching runtime.",
+      "supporting_fronts": [
+        "sidecar_project_lanes",
+        "gateway_channels_baseline",
+        "truth_docs_and_verifies"
+      ],
+      "evidence_sources": [
+        "oc_cli",
+        "oc_channels",
+        "local_current_state",
+        "local_prioritization_lane",
+        "local_runbook",
+        "local_handoff",
+        "local_whatsapp_safety"
+      ],
+      "relative_effort": "low",
+      "relative_effort_note": "Low because it stays on proven public docs plus versioned local truth and does not require new surfaces.",
+      "in_scope": [
+        "Run a bounded sidecar dossier/decision/recommendation cycle on OpenClaw CLI and channels.",
+        "Produce one execution brief that turns the baseline into a single implementation ticket seed.",
+        "Keep WhatsApp, browser-native debt, workers and host control explicitly frozen."
+      ],
+      "out_of_scope": [
+        "Any live runtime mutation, restart or channel reconfiguration.",
+        "WhatsApp reactivation or gateway work on the installed host.",
+        "Browser-native OpenClaw recovery, workers or host-control storytelling."
+      ],
+      "acceptance_criteria": [
+        "Leaves one public baseline brief grounded in CLI plus channels, not a generic roadmap.",
+        "Leaves one ticket seed with deliverables, verify and kill criteria explicit.",
+        "Leaves frozen fronts and no-go boundaries visible in the final brief."
+      ],
+      "preconditions": [
+        "Keep the sidecar browser lane as the only browser surface in use.",
+        "Treat WhatsApp and runtime changes as explicit no-go scope.",
+        "Use only public docs and versioned repo truth."
+      ],
+      "risk_hints": [
+        "Can drift into broader product planning if CLI plus channels are not kept as the only baseline target.",
+        "Can under-specify the next ticket if the brief stops at recommendation instead of execution framing."
+      ],
+      "kill_criteria": [
+        "Stop if the tranche grows beyond CLI plus channels baseline work.",
+        "Stop if runtime-touching work, login or live messaging becomes necessary.",
+        "Stop if the final brief cannot produce one bounded ticket seed better than the current prioritization output."
+      ],
+      "required_artifacts": [
+        "CLI plus channels dossier artifact pair",
+        "CLI plus channels decision artifact pair",
+        "CLI plus channels recommendation artifact pair",
+        "One execution brief in markdown and json",
+        "One implementation ticket seed"
+      ],
+      "verify_requirements": [
+        "./scripts/browser_sidecar_status.sh",
+        "./scripts/verify_browser_sidecar_recommendation_lane.sh",
+        "A tranche-specific verify or rerunnable command sequence proving the brief can be regenerated"
+      ],
+      "implementation_ticket_seed": {
+        "title": "Build the CLI plus channels public baseline tranche",
+        "summary": "Run the accepted sidecar research stack over OpenClaw CLI and channels, then reduce it to one bounded execution brief and one implementation ticket.",
+        "deliverables": [
+          "Public dossier over CLI plus channels",
+          "Decision and recommendation artifacts that justify the baseline",
+          "Execution brief with scope, verify and kill criteria",
+          "Ticket-ready implementation seed"
+        ],
+        "verify": [
+          "./scripts/browser_sidecar_status.sh",
+          "./scripts/verify_browser_sidecar_recommendation_lane.sh",
+          "Re-run the exact tranche command and compare the final brief artifacts"
+        ]
+      },
+      "notes": "Most direct way to turn the accepted sidecar lane into project movement."
+    },
+    {
+      "tranche_id": "truth_surface_reentry_refresh",
+      "label": "Truth Surface Reentry Refresh",
+      "description": "Tighten the repo truth package so the next implementation tranche starts with less ambiguity and less retome cost.",
+      "goal": "Refresh the project truth surface so the next concrete execution ticket lands on clean boundaries and faster reentry.",
+      "supporting_fronts": [
+        "truth_docs_and_verifies",
+        "sidecar_project_lanes"
+      ],
+      "evidence_sources": [
+        "local_capability_matrix",
+        "local_current_state",
+        "local_prioritization_lane",
+        "local_runbook",
+        "local_handoff",
+        "local_whatsapp_safety"
+      ],
+      "relative_effort": "low",
+      "relative_effort_note": "Low because it is repo-local and heavily aligned with current versioned truth.",
+      "in_scope": [
+        "Tighten CURRENT_STATE, handoff, lane docs and retome guidance after each verified tranche.",
+        "Keep verify entry points compact and easy to re-run.",
+        "Leave explicit frozen boundaries visible."
+      ],
+      "out_of_scope": [
+        "Creating a new runtime feature or public baseline by itself.",
+        "Reopening browser-native, workers or WhatsApp.",
+        "Broad doc churn disconnected from verified changes."
+      ],
+      "acceptance_criteria": [
+        "Leaves a smaller, clearer reentry package than the current truth surface.",
+        "Keeps all updates tied to verified change rather than narration.",
+        "Does not replace a real project tranche with paperwork."
+      ],
+      "preconditions": [
+        "Only write after verified outputs change.",
+        "Keep changes scoped to retome speed and truth alignment."
+      ],
+      "risk_hints": [
+        "Can become paperwork if it is not anchored to one specific next tranche.",
+        "Can delay project-facing movement if taken before a more direct baseline tranche."
+      ],
+      "kill_criteria": [
+        "Stop if the work stops reducing ambiguity for the next ticket.",
+        "Stop if docs start expanding without a paired verified delta."
+      ],
+      "required_artifacts": [
+        "Updated truth docs with bounded delta",
+        "Retome-oriented handoff updates",
+        "One small verify sequence proving the reentry path"
+      ],
+      "verify_requirements": [
+        "./scripts/browser_sidecar_status.sh",
+        "./scripts/verify_browser_sidecar_prioritization_lane.sh",
+        "A short reentry checklist command set"
+      ],
+      "implementation_ticket_seed": {
+        "title": "Refresh the truth surface for the next execution ticket",
+        "summary": "Trim and align the repo truth package so the next implementation tranche starts with one unambiguous set of boundaries and commands.",
+        "deliverables": [
+          "CURRENT_STATE and handoff refresh",
+          "Runbook or lane boundary refresh",
+          "Short reentry command checklist"
+        ],
+        "verify": [
+          "./scripts/browser_sidecar_status.sh",
+          "./scripts/verify_browser_sidecar_prioritization_lane.sh",
+          "Manual spot-check that the retome commands still match the repo"
+        ]
+      },
+      "notes": "High support value, but less direct project movement than a baseline pack."
+    },
+    {
+      "tranche_id": "plugin_surface_reference_pack",
+      "label": "Plugin Surface Reference Pack",
+      "description": "Use the sidecar lane to package the plugin surface as the next planning reference without touching installed plugins or runtime.",
+      "goal": "Clarify whether the plugin surface deserves the next implementation ticket or should stay behind the public baseline pack.",
+      "supporting_fronts": [
+        "sidecar_project_lanes",
+        "gateway_channels_baseline"
+      ],
+      "evidence_sources": [
+        "oc_plugins",
+        "oc_cli",
+        "local_current_state",
+        "local_prioritization_lane",
+        "local_handoff",
+        "local_whatsapp_safety"
+      ],
+      "relative_effort": "medium",
+      "relative_effort_note": "Medium because the surface is broader and easier to let drift into integration planning.",
+      "in_scope": [
+        "Package the public plugin surface as a bounded planning reference.",
+        "Clarify when plugin work should follow the accepted baseline work."
+      ],
+      "out_of_scope": [
+        "Installing plugins, enabling plugins or changing runtime config.",
+        "Community plugin experimentation on the live host.",
+        "Using plugins to bypass current frozen boundaries."
+      ],
+      "acceptance_criteria": [
+        "Leaves a compact plugin reference pack and one explicit reason it is not the first move.",
+        "Keeps plugin work as planning material, not runtime change."
+      ],
+      "preconditions": [
+        "Keep this tranche public-doc-only.",
+        "Treat plugin surface as a follow-on, not a replacement for baseline planning."
+      ],
+      "risk_hints": [
+        "Can drift into speculative extension work before the baseline is settled.",
+        "Can invite scope growth through install or config temptation."
+      ],
+      "kill_criteria": [
+        "Stop if install/config steps try to enter scope.",
+        "Stop if the tranche starts outrunning the CLI plus channels baseline case."
+      ],
+      "required_artifacts": [
+        "Plugin reference brief",
+        "Decision note on when plugin work should follow",
+        "One ticket seed or explicit defer note"
+      ],
+      "verify_requirements": [
+        "./scripts/browser_sidecar_status.sh",
+        "./scripts/verify_browser_sidecar_decision_lane.sh",
+        "One rerun command that regenerates the plugin brief"
+      ],
+      "implementation_ticket_seed": {
+        "title": "Build the plugin surface reference pack",
+        "summary": "Use public plugin docs to create a bounded planning reference and explicitly defer any install or runtime mutation.",
+        "deliverables": [
+          "Plugin surface reference brief",
+          "Decision note against early plugin expansion",
+          "Ticket seed or defer note"
+        ],
+        "verify": [
+          "./scripts/browser_sidecar_status.sh",
+          "./scripts/verify_browser_sidecar_decision_lane.sh",
+          "Re-run the tranche command and compare the resulting brief"
+        ]
+      },
+      "notes": "Useful runner-up surface, but easier to let grow sideways."
+    }
+  ]
+}

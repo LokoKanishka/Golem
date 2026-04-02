@@ -19,11 +19,13 @@ Esta capa ahora tambien tiene una continuacion explicita:
 - `decision lane`
 - `recommendation lane`
 - `project prioritization lane`
+- `execution tranche lane`
 
 El dossier organiza y sintetiza.
 El decision lane evalua una pregunta concreta con criterios y veredicto.
 El recommendation lane toma esa decision y la convierte en una recomendacion practica con alternativas.
 El project prioritization lane usa evidencia publica + local para decidir que frente del proyecto mover ahora y cual congelar.
+El execution tranche lane toma esos frentes priorizados y elige un unico tramo ejecutable con alcance, verify y kill criteria.
 
 ## Decision de diseno
 

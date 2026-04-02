@@ -21,6 +21,7 @@ El recommendation lane traduce eso a una propuesta practica de proyecto.
 Esta capa ahora tambien tiene una continuacion explicita:
 
 - `project prioritization lane`
+- `execution tranche lane`
 
 ## Decision de diseno
 
@@ -30,6 +31,7 @@ La arquitectura sigue contenida:
 - `browser_sidecar_decision_run.sh` sigue produciendo la matriz por criterio
 - `browser_sidecar_recommendation_run.sh` consume esa decision y rankea alternativas
 - `browser_sidecar_prioritization_run.sh` consume evidencia publica + local para rankear frentes del proyecto
+- `browser_sidecar_execution_tranche_run.sh` consume la priorizacion y deja un unico tramo ejecutable con brief final
 - `browser_tasks/*.json` sigue siendo el directorio canonico
 
 No se abrio otra familia de manifests fuera de `browser_tasks/`.
@@ -127,6 +129,12 @@ La continuacion natural hoy es:
 
 ```bash
 ./scripts/verify_browser_sidecar_prioritization_lane.sh
+```
+
+Y despues:
+
+```bash
+./scripts/verify_browser_sidecar_execution_tranche_lane.sh
 ```
 
 ## Limites honestos

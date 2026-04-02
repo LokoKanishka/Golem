@@ -16,6 +16,7 @@ Lo usa como base conceptual y agrega:
 
 El recommendation lane responde "que alternativa conviene".
 El prioritization lane responde "que frente mover ahora, cual congelar y bajo que condicion reabrirlo".
+El execution tranche lane responde "que tramo concreto ejecutar ahora dentro de esos frentes".
 
 ## Decision de diseno
 
@@ -28,6 +29,10 @@ La arquitectura se mantiene contenida:
 
 No abre otro framework.
 Agrega una capa de priorizacion dura encima de verdades ya aceptadas.
+
+La continuacion natural ahora es:
+
+- `execution tranche lane`
 
 ## Formato canonico
 
@@ -122,10 +127,26 @@ El artefacto final incluye:
 - siguiente tramo sugerido
 - incertidumbres
 
+La capa siguiente toma ese output y lo convierte en:
+
+- un unico `candidate_tranche` ganador
+- un runner-up
+- alcance / no alcance
+- acceptance criteria
+- verify obligatoria
+- kill criteria
+- execution brief final
+
 ## Verify
 
 ```bash
 ./scripts/verify_browser_sidecar_prioritization_lane.sh
+```
+
+Luego:
+
+```bash
+./scripts/verify_browser_sidecar_execution_tranche_lane.sh
 ```
 
 ## Limites honestos

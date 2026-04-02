@@ -1,0 +1,375 @@
+{
+  "task_id": "tranche-project-evidence-maintenance-next-execution",
+  "title": "Project Evidence Maintenance Next Execution Tranche",
+  "description": "Select the single bounded maintenance tranche that best preserves reentry speed and lane honesty after the execution tranche lane exists.",
+  "question": "Given the accepted sidecar lane stack and the current evidence-maintenance prioritization, which single maintenance execution tranche should Golem run next to preserve reentry speed and keep the project honest without reopening frozen fronts?",
+  "output_slug": "tranche-project-evidence-maintenance-next-execution",
+  "prioritization_task": "browser_tasks/prioritize-project-evidence-maintenance.json",
+  "focus_terms": [
+    "CURRENT_STATE",
+    "handoff",
+    "runbook",
+    "verify",
+    "execution tranche",
+    "frozen",
+    "WhatsApp",
+    "retome",
+    "artifactos",
+    "lane boundaries"
+  ],
+  "expected_signals": [
+    "truth docs and handoff",
+    "prioritization and recommendation layers",
+    "WhatsApp queda congelado",
+    "browser nativo OC = BLOCKED",
+    "do not touch host-control storytelling"
+  ],
+  "focus_profile": {
+    "excerpt_limit": 10,
+    "match_limit": 3
+  },
+  "sources": [
+    {
+      "label": "oc_cli",
+      "url": "https://docs.openclaw.ai/cli",
+      "selector_hint": "CLI Reference - OpenClaw",
+      "notes": "Public reference surface still useful for grounding operator-facing maintenance work."
+    },
+    {
+      "label": "oc_channels",
+      "url": "https://docs.openclaw.ai/channels",
+      "selector_hint": "Chat Channels - OpenClaw",
+      "notes": "Public routing surface that should remain contextual but not reopen runtime."
+    }
+  ],
+  "local_sources": [
+    {
+      "label": "local_capability_matrix",
+      "path": "docs/CAPABILITY_MATRIX.md",
+      "notes": "Versioned truth baseline."
+    },
+    {
+      "label": "local_current_state",
+      "path": "docs/CURRENT_STATE.md",
+      "notes": "Current state and accepted lane stack."
+    },
+    {
+      "label": "local_handoff",
+      "path": "handoffs/HANDOFF_CURRENT.md",
+      "notes": "Latest retome path and boundaries."
+    },
+    {
+      "label": "local_runbook",
+      "path": "docs/BROWSER_SIDECAR_RUNBOOK.md",
+      "notes": "Canonical command surface."
+    },
+    {
+      "label": "local_execution_lane",
+      "path": "docs/BROWSER_EXECUTION_TRANCHE_LANE.md",
+      "notes": "New tranche lane contract and artifacts."
+    },
+    {
+      "label": "local_prioritization_lane",
+      "path": "docs/BROWSER_PROJECT_PRIORITIZATION_LANE.md",
+      "notes": "Front-level prioritization contract that the tranche lane builds on."
+    },
+    {
+      "label": "local_whatsapp_safety",
+      "path": "docs/WHATSAPP_SAFETY_CONTRACT.md",
+      "notes": "Frozen safety frontier that must stay out of scope."
+    }
+  ],
+  "decision_criteria": [
+    {
+      "criterion_id": "reentry_speed",
+      "label": "Reentry Speed",
+      "description": "Favor tranches that reduce future retome friction quickly and materially.",
+      "weight": 5,
+      "evidence_terms": [
+        "retome",
+        "CURRENT_STATE",
+        "handoff",
+        "runbook",
+        "verify",
+        "reubicarse"
+      ],
+      "blocker_terms": [
+        "broad",
+        "roadmap",
+        "speculative"
+      ],
+      "notes": "Maintenance must pay back quickly."
+    },
+    {
+      "criterion_id": "truth_alignment",
+      "label": "Truth Alignment",
+      "description": "Favor tranches that keep the accepted lane stack, frozen fronts and safety boundaries explicit.",
+      "weight": 5,
+      "evidence_terms": [
+        "frozen",
+        "DO_NOT_TOUCH",
+        "WhatsApp",
+        "deny-by-default",
+        "browser sidecar",
+        "execution tranche"
+      ],
+      "blocker_terms": [
+        "reopen",
+        "runtime",
+        "host control"
+      ],
+      "notes": "A maintenance tranche should reduce drift, not add it."
+    },
+    {
+      "criterion_id": "maintenance_boundedness",
+      "label": "Maintenance Boundedness",
+      "description": "Favor tranches that stay compact and do not collapse into permanent PM overhead.",
+      "weight": 4,
+      "evidence_terms": [
+        "verify",
+        "artefactos",
+        "bounded",
+        "execution brief",
+        "ticket"
+      ],
+      "blocker_terms": [
+        "framework",
+        "monstruoso",
+        "general expansion"
+      ],
+      "notes": "The lane must stay operational."
+    },
+    {
+      "criterion_id": "lane_guardrail_value",
+      "label": "Lane Guardrail Value",
+      "description": "Favor tranches that make it harder to accidentally re-open blocked surfaces or mix lanes.",
+      "weight": 4,
+      "evidence_terms": [
+        "lane boundaries",
+        "frozen",
+        "kill criteria",
+        "verify",
+        "scope"
+      ],
+      "blocker_terms": [
+        "browser-native recovery",
+        "workers",
+        "WhatsApp reactivation"
+      ],
+      "notes": "Guardrails matter more than novelty here."
+    }
+  ],
+  "candidate_tranches": [
+    {
+      "tranche_id": "truth_surface_refresh_pack",
+      "label": "Truth Surface Refresh Pack",
+      "description": "Refresh the truth docs, handoff and reentry path so the next operator can resume the project with less ambiguity.",
+      "goal": "Keep the truth surface synchronized with the accepted lane stack and reduce reentry cost for the next concrete tranche.",
+      "supporting_fronts": [
+        "truth_docs_and_handoff",
+        "prioritization_and_recommendation_layers"
+      ],
+      "evidence_sources": [
+        "local_capability_matrix",
+        "local_current_state",
+        "local_handoff",
+        "local_runbook",
+        "local_execution_lane",
+        "local_whatsapp_safety"
+      ],
+      "relative_effort": "low",
+      "relative_effort_note": "Low because the work is local, bounded and directly aligned with versioned truth.",
+      "in_scope": [
+        "Refresh CURRENT_STATE, handoff and runbook references after verified lane changes.",
+        "Keep one clean reentry path for the next operator.",
+        "Make frozen fronts and kill switches explicit."
+      ],
+      "out_of_scope": [
+        "Adding new runtime features or reopening any blocked front.",
+        "Long-form roadmap writing disconnected from verify results.",
+        "WhatsApp changes or any live service work."
+      ],
+      "acceptance_criteria": [
+        "Leaves one tighter truth surface than the current state.",
+        "Leaves one short retome path that matches the repo and the verifies.",
+        "Leaves frozen boundaries more explicit, not less."
+      ],
+      "preconditions": [
+        "Only update docs after verified outputs or lane behavior changes.",
+        "Keep the work scoped to reentry and truth alignment."
+      ],
+      "risk_hints": [
+        "Can become paperwork if it drifts away from the next real execution ticket.",
+        "Can over-update docs if every artifact is treated as canonical."
+      ],
+      "kill_criteria": [
+        "Stop if the tranche stops reducing ambiguity for the next operator.",
+        "Stop if changes outgrow a bounded reentry package."
+      ],
+      "required_artifacts": [
+        "Updated truth docs and handoff delta",
+        "Compact reentry checklist",
+        "One execution brief or ticket seed for future maintenance"
+      ],
+      "verify_requirements": [
+        "./scripts/browser_sidecar_status.sh",
+        "./scripts/verify_browser_sidecar_execution_tranche_lane.sh",
+        "A short manual retome sequence"
+      ],
+      "implementation_ticket_seed": {
+        "title": "Refresh the truth surface and reentry pack",
+        "summary": "Tighten the versioned truth package and the retome path so the next implementation tranche starts with one crisp operational story.",
+        "deliverables": [
+          "CURRENT_STATE refresh",
+          "HANDOFF refresh",
+          "One short reentry checklist",
+          "Guardrail notes for frozen fronts"
+        ],
+        "verify": [
+          "./scripts/browser_sidecar_status.sh",
+          "./scripts/verify_browser_sidecar_execution_tranche_lane.sh",
+          "Manual reentry dry-run using the documented commands"
+        ]
+      },
+      "notes": "Most direct maintenance tranche for keeping the repo easy to resume."
+    },
+    {
+      "tranche_id": "artifact_index_and_retome_pack",
+      "label": "Artifact Index and Retome Pack",
+      "description": "Create a compact map from lane verifies and final artifacts to the commands needed to regenerate them.",
+      "goal": "Reduce artifact drift and make it obvious which artifact matters when returning to the repo later.",
+      "supporting_fronts": [
+        "truth_docs_and_handoff",
+        "prioritization_and_recommendation_layers"
+      ],
+      "evidence_sources": [
+        "local_current_state",
+        "local_handoff",
+        "local_runbook",
+        "local_execution_lane",
+        "local_prioritization_lane"
+      ],
+      "relative_effort": "medium",
+      "relative_effort_note": "Medium because artifact indexing can spread unless kept tightly bounded.",
+      "in_scope": [
+        "Map final lane artifacts to their source commands and verifies.",
+        "Document a compact artifact-reading order for retomes."
+      ],
+      "out_of_scope": [
+        "Building a full artifact warehouse or dashboard.",
+        "Treating every transient outbox file as long-term canon.",
+        "Runtime mutation or frozen-front reopening."
+      ],
+      "acceptance_criteria": [
+        "Leaves one small artifact map that speeds up retomes.",
+        "Avoids turning artifact management into a new framework."
+      ],
+      "preconditions": [
+        "Use only artifacts that already correspond to verified lanes.",
+        "Keep the map short enough to remain readable."
+      ],
+      "risk_hints": [
+        "Can balloon into inventory work with little project return.",
+        "Can confuse canon with transient artifacts if not tightly bounded."
+      ],
+      "kill_criteria": [
+        "Stop if the index gets longer than the reentry problem it solves.",
+        "Stop if the work starts requiring artifact retention policy changes."
+      ],
+      "required_artifacts": [
+        "Compact artifact index",
+        "One retome reading order note",
+        "One small ticket seed or defer note"
+      ],
+      "verify_requirements": [
+        "./scripts/browser_sidecar_status.sh",
+        "./scripts/verify_browser_sidecar_prioritization_lane.sh",
+        "Manual spot-check of indexed commands"
+      ],
+      "implementation_ticket_seed": {
+        "title": "Build the compact artifact index and retome pack",
+        "summary": "Map the lane outputs that matter to the commands that regenerate them so later reentry is faster and less ambiguous.",
+        "deliverables": [
+          "Compact artifact index",
+          "Retome reading order note",
+          "Ticket seed or explicit defer note"
+        ],
+        "verify": [
+          "./scripts/browser_sidecar_status.sh",
+          "./scripts/verify_browser_sidecar_prioritization_lane.sh",
+          "Manual spot-check of the indexed command list"
+        ]
+      },
+      "notes": "Useful runner-up if reentry speed becomes more painful than truth drift."
+    },
+    {
+      "tranche_id": "lane_boundary_guardrail_refresh",
+      "label": "Lane Boundary Guardrail Refresh",
+      "description": "Refresh the explicit boundaries between accepted sidecar lanes and frozen or dangerous fronts so future tranches cannot blur them easily.",
+      "goal": "Make it harder for later work to quietly reopen blocked surfaces or cross safety boundaries by accident.",
+      "supporting_fronts": [
+        "prioritization_and_recommendation_layers",
+        "truth_docs_and_handoff"
+      ],
+      "evidence_sources": [
+        "local_current_state",
+        "local_execution_lane",
+        "local_prioritization_lane",
+        "local_whatsapp_safety",
+        "local_handoff"
+      ],
+      "relative_effort": "medium",
+      "relative_effort_note": "Medium because boundary work helps, but can also become meta-work if not tied to upcoming tranches.",
+      "in_scope": [
+        "Make scope boundaries, kill criteria and frozen fronts more explicit across the upper lanes.",
+        "Clarify what the tranche lane must not reopen."
+      ],
+      "out_of_scope": [
+        "Changing runtime or unfreezing anything.",
+        "General governance expansion unrelated to current lanes.",
+        "Host-control or worker story rewriting."
+      ],
+      "acceptance_criteria": [
+        "Leaves clearer lane boundaries than before.",
+        "Makes at least one later misuse path harder to justify."
+      ],
+      "preconditions": [
+        "Keep the work grounded in actual lanes and verifies.",
+        "Avoid adding new abstractions unless they close a specific guardrail gap."
+      ],
+      "risk_hints": [
+        "Can add meta-language faster than it removes risk.",
+        "May overlap with truth refresh if not tightly bounded."
+      ],
+      "kill_criteria": [
+        "Stop if the tranche starts duplicating existing lane docs verbatim.",
+        "Stop if the new wording does not close a concrete confusion path."
+      ],
+      "required_artifacts": [
+        "Guardrail delta note",
+        "Boundary refresh brief",
+        "One ticket seed or defer note"
+      ],
+      "verify_requirements": [
+        "./scripts/browser_sidecar_status.sh",
+        "./scripts/verify_browser_sidecar_execution_tranche_lane.sh",
+        "Manual review that frozen fronts remain explicit"
+      ],
+      "implementation_ticket_seed": {
+        "title": "Refresh lane boundaries and guardrails",
+        "summary": "Make the upper lane boundaries more explicit so future work cannot quietly reopen blocked fronts or blur scope.",
+        "deliverables": [
+          "Guardrail delta note",
+          "Boundary refresh brief",
+          "Ticket seed or explicit defer note"
+        ],
+        "verify": [
+          "./scripts/browser_sidecar_status.sh",
+          "./scripts/verify_browser_sidecar_execution_tranche_lane.sh",
+          "Manual review against frozen-front lists"
+        ]
+      },
+      "notes": "Valuable if confusion rises, but less immediate than truth refresh."
+    }
+  ]
+}

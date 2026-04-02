@@ -60,6 +60,8 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
 - `./scripts/verify_browser_sidecar_recommendation_lane.sh`
 - `./scripts/browser_sidecar_prioritization_run.sh`
 - `./scripts/verify_browser_sidecar_prioritization_lane.sh`
+- `./scripts/browser_sidecar_execution_tranche_run.sh`
+- `./scripts/verify_browser_sidecar_execution_tranche_lane.sh`
 
 ## Donde quedo el proyecto
 
@@ -107,6 +109,17 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
   - `browser_tasks/prioritize-*.json` deja frentes explicitos del proyecto, buckets y fuentes locales versionadas
   - `browser_sidecar_prioritization_run.sh` produce priority matrix + buckets NOW/NEXT/LATER/FROZEN/DO_NOT_TOUCH/REOPEN_ONLY_IF + siguiente tramo sugerido
   - `verify_browser_sidecar_prioritization_lane.sh` deja `PASS` sobre una priorizacion de proyecto completa
+- el carril ya no solo prioriza frentes:
+  - `browser_tasks/tranche-*.json` deja candidate tranches explicitos con scope, verify, kill criteria y ticket seed
+  - `browser_sidecar_execution_tranche_run.sh` produce tranche selection matrix + ganador + runner-up + execution brief final
+  - `verify_browser_sidecar_execution_tranche_lane.sh` deja `PASS` sobre una seleccion completa de tramo ejecutable
+- ya hay dos tasks reales resueltas por este carril:
+  - `browser_tasks/tranche-golem-openclaw-next-execution.json`
+    - ganador: `gateway_channels_public_baseline_pack`
+    - runner-up: `truth_surface_reentry_refresh`
+  - `browser_tasks/tranche-project-evidence-maintenance-next-execution.json`
+    - ganador: `truth_surface_refresh_pack`
+    - runner-up: `artifact_index_and_retome_pack`
 - hoy ya hay dos tareas ejemplo reales y distintas:
   - `browser_tasks/reserved-domains-technical.json`
   - `browser_tasks/iana-service-overview.json`
@@ -116,6 +129,8 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
   - `browser_tasks/recommend-reserved-domains-reference-pack.json`
   - `browser_tasks/prioritize-golem-openclaw-next-tranche.json`
   - `browser_tasks/prioritize-project-evidence-maintenance.json`
+  - `browser_tasks/tranche-golem-openclaw-next-execution.json`
+  - `browser_tasks/tranche-project-evidence-maintenance-next-execution.json`
 - eleccion deliberada para este tramo:
   - se priorizaron paginas publicas estaticas y estables
   - no se congelo como ejemplo canonico una superficie mas fragil o muy JS-heavy
@@ -147,6 +162,7 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
 - `docs/BROWSER_DECISION_LANE.md`
 - `docs/BROWSER_RECOMMENDATION_LANE.md`
 - `docs/BROWSER_PROJECT_PRIORITIZATION_LANE.md`
+- `docs/BROWSER_EXECUTION_TRANCHE_LANE.md`
 
 ## Comandos utiles para reubicarse rapido
 
@@ -168,6 +184,8 @@ git log --oneline -8
 ./scripts/verify_browser_sidecar_recommendation_lane.sh
 ./scripts/browser_sidecar_prioritization_run.sh browser_tasks/prioritize-golem-openclaw-next-tranche.json
 ./scripts/verify_browser_sidecar_prioritization_lane.sh
+./scripts/browser_sidecar_execution_tranche_run.sh browser_tasks/tranche-golem-openclaw-next-execution.json
+./scripts/verify_browser_sidecar_execution_tranche_lane.sh
 ./scripts/verify_browser_stack.sh --diagnosis-only
 ./scripts/verify_worker_orchestration_stack.sh
 ```
@@ -181,7 +199,7 @@ git log --oneline -8
 
 ## Proximo tramo unico sugerido
 
-Usar el project prioritization lane ya probado para ejecutar el frente `NOW` recomendado, sin reabrir browser nativo ni abrir workers/control host.
+Ejecutar el tranche ya seleccionado `gateway_channels_public_baseline_pack`, sin reabrir browser nativo, workers, host control ni WhatsApp.
 
 No corresponde volver a discutir antes de eso:
 

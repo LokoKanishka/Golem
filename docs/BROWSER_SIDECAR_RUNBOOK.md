@@ -30,6 +30,7 @@ La interfaz actual queda separada asi:
 - `decision`: capa de pregunta + criterios + matriz + veredicto encima del dossier
 - `recommendation`: capa de alternativas + riesgos + precondiciones + siguiente paso encima de la decision
 - `prioritization`: capa de frentes del proyecto + buckets + kill criteria + siguiente tramo encima de la recommendation
+- `execution tranche`: capa de candidate tranches + winner + runner-up + brief ejecutable encima de la prioritization
 
 La regla es simple:
 
@@ -172,6 +173,14 @@ Pipeline de project prioritization:
 ./scripts/browser_sidecar_prioritization_run.sh --format json browser_tasks/prioritize-golem-openclaw-next-tranche.json
 ```
 
+Pipeline de execution tranche:
+
+```bash
+./scripts/browser_sidecar_execution_tranche_run.sh browser_tasks/tranche-golem-openclaw-next-execution.json
+./scripts/browser_sidecar_execution_tranche_run.sh browser_tasks/tranche-project-evidence-maintenance-next-execution.json
+./scripts/browser_sidecar_execution_tranche_run.sh --format json browser_tasks/tranche-golem-openclaw-next-execution.json
+```
+
 Artefactos:
 
 - los artefactos finales viven en `outbox/manual/`
@@ -181,6 +190,7 @@ Artefactos:
 - `decision_run` guarda el dossier base y un artefacto final de decision en `json` y `md`
 - `recommendation_run` guarda dossier base, decision base y un artefacto final de recommendation en `json` y `md`
 - `prioritization_run` guarda extracts publicos, extracts locales versionados y un artefacto final de priorizacion en `json` y `md`
+- `execution_tranche_run` guarda extracts publicos/locales, reutiliza el artefacto de priorizacion upstream y deja una matriz final + execution brief en `json` y `md`
 - si una fuente publica JS-heavy no deja texto visible util, `prioritization_run` conserva la prueba sidecar y agrega un fallback HTML versionado
 - no hace falta tocar `.gitignore` porque `outbox/manual/` ya esta ignorado
 
@@ -234,6 +244,12 @@ Verify larga de project prioritization:
 ./scripts/verify_browser_sidecar_prioritization_lane.sh
 ```
 
+Verify larga de execution tranche:
+
+```bash
+./scripts/verify_browser_sidecar_execution_tranche_lane.sh
+```
+
 Targets hoy probados de forma explicita:
 
 - `https://www.iana.org/domains/reserved`
@@ -253,6 +269,8 @@ Tareas declarativas ejemplo hoy versionadas:
 - `browser_tasks/recommend-reserved-domains-reference-pack.json`
 - `browser_tasks/prioritize-golem-openclaw-next-tranche.json`
 - `browser_tasks/prioritize-project-evidence-maintenance.json`
+- `browser_tasks/tranche-golem-openclaw-next-execution.json`
+- `browser_tasks/tranche-project-evidence-maintenance-next-execution.json`
 
 ## Que NO promete
 
@@ -265,6 +283,7 @@ Tareas declarativas ejemplo hoy versionadas:
 - no promete decision automatica sin criterios explicitos
 - no promete recomendacion practica sin alternativas ni evidencia trazable
 - no promete priorizacion de proyecto sin frentes, buckets ni evidencia local versionada
+- no promete un execution brief sin un `prioritization_task` upstream ni candidate tranches explicitos
 - no promete control host total
 - no reabre MCP, plugins ni workers
 - no convierte al browser nativo de OC en sano
