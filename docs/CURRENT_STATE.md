@@ -240,6 +240,7 @@ La lectura honesta del host hoy es:
 - `docs/OPENCLAW_STATUS_SKELETON_COMPLETION_EXAMPLES.md`
 - `docs/OPENCLAW_STATUS_TICKET_NEAR_FINAL_EXAMPLES.md`
 - `docs/OPENCLAW_STATUS_TICKET_FINALIZATION_CHECKLIST.md`
+- `docs/OPENCLAW_STATUS_TICKET_CLOSURE_NOTES.md`
 - `docs/BROWSER_SIDECAR_RUNBOOK.md`
 - `docs/BROWSER_DOSSIER_LANE.md`
 - `docs/BROWSER_DECISION_LANE.md`
@@ -280,6 +281,8 @@ Eso ya quedo resuelto:
 - verify ligera nueva del near-final examples pack: `./scripts/verify_openclaw_status_ticket_near_final_examples.sh`
 - status ticket finalization checklist pack nuevo para fijar el checklist minimo que convierte un near-final example en ticket real del momento, sin salir de read-side: `docs/OPENCLAW_STATUS_TICKET_FINALIZATION_CHECKLIST.md`
 - verify ligera nueva del finalization checklist pack: `./scripts/verify_openclaw_status_ticket_finalization_checklist.sh`
+- status ticket closure note pack nuevo para fijar la huella terminal de cierre documental de un ticket read-side ya finalizado, con artifact, verify, conclusion permitida y limites todavia vigentes: `docs/OPENCLAW_STATUS_TICKET_CLOSURE_NOTES.md`
+- verify ligera nueva del closure note pack: `./scripts/verify_openclaw_status_ticket_closure_notes.sh`
 - WhatsApp sigue congelado y fuera de esta baseline
 
 El siguiente tramo razonable pasa a ser uno solo:
@@ -290,5 +293,7 @@ El siguiente tramo razonable pasa a ser uno solo:
 - usar el status skeleton completion examples pack cuando haga falta ver como se reemplazan placeholders y como se escribe una conclusion condicionada sin fingir evidencia real
 - usar el status ticket near-final examples pack cuando haga falta dejar un ticket read-side casi final, con bloques ya casi definitivos y solo placeholders minimos remanentes del momento
 - usar el status ticket finalization checklist pack cuando haga falta validar que un near-final example ya quedo finalizable como ticket real del momento, sin tocar runtime ni relajar limites de inferencia
+- usar el status ticket closure note pack cuando haga falta dejar la huella terminal de cierre documental de ese ticket ya finalizado, citando artifact y verify reales sin duplicar la checklist ni inflar inferencias
 - exigir `./scripts/verify_openclaw_status_ticket_skeletons.sh` antes de apoyar un nuevo tramo en este skeletons pack
 - exigir `./scripts/verify_openclaw_status_skeleton_completion_examples.sh` antes de apoyar un nuevo tramo en este completion examples pack
+- exigir `./scripts/verify_openclaw_status_ticket_closure_notes.sh` antes de apoyar un nuevo tramo en este closure note pack
