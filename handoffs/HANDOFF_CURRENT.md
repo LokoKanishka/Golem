@@ -1,6 +1,6 @@
 # Handoff Current
 
-Fecha de actualizacion: 2026-04-01
+Fecha de actualizacion: 2026-04-02
 
 ## Incidente critico
 
@@ -211,6 +211,7 @@ Documento canonico nuevo para reentrada rapida:
 - `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md`
 - `docs/OPENCLAW_STATUS_SNAPSHOT_TICKET_SEEDS.md`
 - `docs/OPENCLAW_STATUS_SEED_INSTANTIATION_EXAMPLES.md`
+- `docs/OPENCLAW_STATUS_TICKET_SKELETONS.md`
 
 Uso correcto de ese baseline:
 
@@ -222,6 +223,7 @@ Uso correcto de ese baseline:
 - usar el status triangulation snapshot workflow cuando haga falta saber exactamente como producir ese snapshot y que inputs/outputs exigir segun el caso
 - usar el status snapshot ticket seeds pack cuando haga falta pasar de snapshot a ticket read-side concreto sin reinventar objetivo, artifact, verify, kill criteria ni fuera de alcance
 - usar el status seed instantiation examples pack cuando haga falta ver como se rellena una seed con una pregunta real y con una artifact concreta antes de escribir el ticket final
+- usar el status ticket skeletons pack cuando haga falta pasar de una instancia a un ticket read-side casi completo, todavia no ejecutable, pero ya listo para completarse con artifact real y verify concreta del momento
 - mantener browser nativo fuera
 - WhatsApp sigue congelado
 - mantener WhatsApp congelado y fuera de alcance
@@ -233,6 +235,7 @@ Uso correcto de ese baseline:
 - exigir `./scripts/verify_openclaw_status_triangulation_snapshot_workflow.sh` antes de apoyar un nuevo tramo en este workflow
 - exigir `./scripts/verify_openclaw_status_snapshot_ticket_seeds.sh` antes de apoyar un nuevo tramo en este seeds pack
 - exigir `./scripts/verify_openclaw_status_seed_instantiation_examples.sh` antes de apoyar un nuevo tramo en este instantiation pack
+- exigir `./scripts/verify_openclaw_status_ticket_skeletons.sh` antes de apoyar un nuevo tramo en este skeletons pack
 
 No corresponde volver a discutir antes de eso:
 

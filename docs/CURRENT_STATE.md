@@ -1,6 +1,6 @@
 # Current State
 
-Fecha de actualizacion: 2026-04-01
+Fecha de actualizacion: 2026-04-02
 
 ## Estado critico vigente
 
@@ -236,6 +236,7 @@ La lectura honesta del host hoy es:
 - `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md`
 - `docs/OPENCLAW_STATUS_SNAPSHOT_TICKET_SEEDS.md`
 - `docs/OPENCLAW_STATUS_SEED_INSTANTIATION_EXAMPLES.md`
+- `docs/OPENCLAW_STATUS_TICKET_SKELETONS.md`
 - `docs/BROWSER_SIDECAR_RUNBOOK.md`
 - `docs/BROWSER_DOSSIER_LANE.md`
 - `docs/BROWSER_DECISION_LANE.md`
@@ -268,8 +269,13 @@ Eso ya quedo resuelto:
 - verify ligera nueva del seeds pack: `./scripts/verify_openclaw_status_snapshot_ticket_seeds.sh`
 - status seed instantiation examples pack nuevo para mostrar como se rellenan esas seeds con preguntas reales y artifacts concretas: `docs/OPENCLAW_STATUS_SEED_INSTANTIATION_EXAMPLES.md`
 - verify ligera nueva del instantiation pack: `./scripts/verify_openclaw_status_seed_instantiation_examples.sh`
+- status ticket skeletons pack nuevo para convertir una o dos instancias en esqueletos de ticket casi completos, todavia read-side y no ejecutables: `docs/OPENCLAW_STATUS_TICKET_SKELETONS.md`
+- verify ligera nueva del skeletons pack: `./scripts/verify_openclaw_status_ticket_skeletons.sh`
 - WhatsApp sigue congelado y fuera de esta baseline
 
 El siguiente tramo razonable pasa a ser uno solo:
 
-- usar `docs/OPENCLAW_STATUS_SEED_INSTANTIATION_EXAMPLES.md` junto con `docs/OPENCLAW_STATUS_SNAPSHOT_TICKET_SEEDS.md`, `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md`, `docs/OPENCLAW_STATUS_TRIANGULATION_ARTIFACT_PACK.md`, `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md`, `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`, `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md` y `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md` para redactar tickets read-side de `status` usando seeds ya instanciadas, sin reabrir browser nativo, workers, host control ni WhatsApp
+- usar `docs/OPENCLAW_STATUS_TICKET_SKELETONS.md` junto con `docs/OPENCLAW_STATUS_SEED_INSTANTIATION_EXAMPLES.md`, `docs/OPENCLAW_STATUS_SNAPSHOT_TICKET_SEEDS.md`, `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md`, `docs/OPENCLAW_STATUS_TRIANGULATION_ARTIFACT_PACK.md`, `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md`, `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`, `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md` y `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md` para pasar de instancias a tickets read-side casi completos, sin reabrir browser nativo, workers, host control ni WhatsApp
+
+- usar el status ticket skeletons pack cuando haga falta pasar de instancia a un ticket read-side casi completo, con titulo base, artifact, verify, campos abiertos y limites ya fijados
+- exigir `./scripts/verify_openclaw_status_ticket_skeletons.sh` antes de apoyar un nuevo tramo en este skeletons pack
