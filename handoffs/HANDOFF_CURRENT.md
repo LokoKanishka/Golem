@@ -209,6 +209,7 @@ Documento canonico nuevo para reentrada rapida:
 - `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`
 - `docs/OPENCLAW_STATUS_TRIANGULATION_ARTIFACT_PACK.md`
 - `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md`
+- `docs/OPENCLAW_STATUS_SNAPSHOT_TICKET_SEEDS.md`
 
 Uso correcto de ese baseline:
 
@@ -218,6 +219,7 @@ Uso correcto de ese baseline:
 - usar el status consistency pack cuando el tramo compare `gateway status`, `openclaw status` y `channels status --probe`
 - usar el status triangulation artifact pack cuando haga falta un snapshot corto, versionable y reusable para ticket o retome
 - usar el status triangulation snapshot workflow cuando haga falta saber exactamente como producir ese snapshot y que inputs/outputs exigir segun el caso
+- usar el status snapshot ticket seeds pack cuando haga falta pasar de snapshot a ticket read-side concreto sin reinventar objetivo, artifact, verify, kill criteria ni fuera de alcance
 - mantener browser nativo fuera
 - WhatsApp sigue congelado
 - mantener WhatsApp congelado y fuera de alcance
@@ -227,6 +229,7 @@ Uso correcto de ese baseline:
 - exigir `./scripts/verify_openclaw_status_consistency_pack.sh` antes de apoyar un nuevo tramo en esta triangulacion
 - exigir `./scripts/verify_openclaw_status_triangulation_artifact_pack.sh` antes de apoyar un nuevo tramo en este artifact pack
 - exigir `./scripts/verify_openclaw_status_triangulation_snapshot_workflow.sh` antes de apoyar un nuevo tramo en este workflow
+- exigir `./scripts/verify_openclaw_status_snapshot_ticket_seeds.sh` antes de apoyar un nuevo tramo en este seeds pack
 
 No corresponde volver a discutir antes de eso:
 
