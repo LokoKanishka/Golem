@@ -1,6 +1,24 @@
 # Handoff Current
 
-Fecha de actualizacion: 2026-03-31
+Fecha de actualizacion: 2026-04-01
+
+## Incidente critico
+
+Este handoff anterior queda parcialmente superado por un incidente nuevo y prioritario.
+
+El 2026-04-01 aparecio un mensaje saliente de control/pairing de OpenClaw dentro de un chat personal real de WhatsApp. Eso invalida cualquier lectura previa de "WhatsApp sano/operativo" como estado util para continuar el proyecto.
+
+La regla vigente pasa a ser:
+
+- WhatsApp queda congelado
+- no se reactiva sin verify fail-closed
+- no se siguen otros frentes hasta cerrar este incidente
+
+Artefactos nuevos de referencia:
+
+- `docs/WHATSAPP_SAFETY_CONTRACT.md`
+- `./scripts/apply_whatsapp_fail_closed.sh`
+- `./scripts/verify_whatsapp_fail_closed.sh`
 
 ## Resumen ejecutivo
 

@@ -1,6 +1,30 @@
 # Current State
 
-Fecha de actualizacion: 2026-03-31
+Fecha de actualizacion: 2026-04-01
+
+## Estado critico vigente
+
+La verdad anterior sobre "WhatsApp conectado y sano" queda suspendida por un incidente grave detectado el 2026-04-01.
+
+- se observo un mensaje real de control/pairing de OpenClaw en un chat personal de WhatsApp
+- eso demuestra un camino de salida real desde el gateway hacia conversaciones personales
+- el estado vigente ya no es "WhatsApp operativo"
+- el estado vigente es `WHATSAPP CONGELADO`
+
+Hasta nuevo verify:
+
+- `openclaw-gateway.service`, `openclaw-direct-chat.service` y `fusion-total-direct-chat.service` deben permanecer detenidos
+- el kill switch persistente via `ConditionPathExists` debe seguir activo
+- la config viva debe mantener `channels.whatsapp.enabled=false`
+- pairing/access/debug para WhatsApp deben quedar en sink local, nunca en outbound real
+
+Documento rector de este frente:
+
+- `docs/WHATSAPP_SAFETY_CONTRACT.md`
+
+Verify obligatorio de este frente:
+
+- `./scripts/verify_whatsapp_fail_closed.sh`
 
 ## Rama y baseline
 

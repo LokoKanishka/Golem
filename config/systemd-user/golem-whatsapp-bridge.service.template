@@ -16,6 +16,8 @@ Environment={audit_file_env}={audit_file}
 Environment={log_command_env}={log_command}
 Environment={live_restart_delay_env}={live_restart_delay}
 Environment={send_dry_run_env}={send_dry_run}
+Environment={outbound_enabled_env}={outbound_enabled}
+Environment={allow_senders_env}={allow_senders}
 ExecStartPre={python_executable} {ctl_script} service-preflight
 ExecStart={python_executable} {ctl_script} run-service
 Restart=on-failure

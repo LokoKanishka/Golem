@@ -1,5 +1,18 @@
 # WhatsApp Runtime Bridge
 
+## Nota de seguridad 2026-04-01
+
+Tras el incidente de emision indebida en WhatsApp personal:
+
+- el bridge debe tratarse como `deny-by-default`
+- `service-install`, `start`, `restart` y `run-service` quedan con `--send-dry-run` por defecto
+- el bridge no debe emitir nada real salvo que se use `--outbound-enabled`
+- si se habilita outbound, debe existir `--allow-sender` explicito para cada destino permitido
+
+Contrato rector:
+
+- `docs/WHATSAPP_SAFETY_CONTRACT.md`
+
 Este documento define el bridge/runtime local real de WhatsApp sobre el carril canonico de tareas.
 
 ## Objetivo

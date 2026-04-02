@@ -282,7 +282,90 @@ def handle_task_command(base_url: str, command_info: Dict[str, str]) -> Dict[str
     return run_script("task_whatsapp_mutate.py", base_url, command_info["text"])
 
 
-def send_whatsapp_reply(target: str, reply_text: str, dry_run: bool) -> Dict[str, object]:
+def normalize_whatsapp_target(raw: str) -> str:
+    return "".join(str(raw).strip().split())
+
+
+def parse_allow_sender_entries(values: Iterable[str]) -> set[str]:
+    normalized: set[str] = set()
+    for value in values:
+        trimmed = normalize_whatsapp_target(value)
+        if trimmed:
+            normalized.add(trimmed)
+    return normalized
+
+
+def looks_like_explicit_whatsapp_target(target: str) -> bool:
+    if not target:
+        return False
+    if target.startswith("whatsapp:"):
+        target = target.split(":", 1)[1]
+    if "@" in target:
+        return True
+    digits = target[1:] if target.startswith("+") else target
+    return digits.isdigit() and len(digits) >= 5
+
+
+def send_whatsapp_reply(
+    target: str,
+    reply_text: str,
+    dry_run: bool,
+    outbound_enabled: bool,
+    allowed_senders: set[str],
+) -> Dict[str, object]:
+    normalized_target = normalize_whatsapp_target(target)
+    if not normalized_target:
+        return {
+            "command": [],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "",
+            "parsed": None,
+            "dry_run": dry_run,
+            "executed": False,
+            "blocked": True,
+            "reason": "target_missing",
+            "target": normalized_target,
+        }
+    if not looks_like_explicit_whatsapp_target(normalized_target):
+        return {
+            "command": [],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "",
+            "parsed": None,
+            "dry_run": dry_run,
+            "executed": False,
+            "blocked": True,
+            "reason": "target_ambiguous",
+            "target": normalized_target,
+        }
+    if not outbound_enabled:
+        return {
+            "command": [],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "",
+            "parsed": None,
+            "dry_run": dry_run,
+            "executed": False,
+            "blocked": True,
+            "reason": "outbound_disabled",
+            "target": normalized_target,
+        }
+    if allowed_senders and normalized_target not in allowed_senders:
+        return {
+            "command": [],
+            "returncode": 0,
+            "stdout": "",
+            "stderr": "",
+            "parsed": None,
+            "dry_run": dry_run,
+            "executed": False,
+            "blocked": True,
+            "reason": "sender_not_allowlisted",
+            "target": normalized_target,
+        }
     command = [
         "openclaw",
         "message",
@@ -290,7 +373,7 @@ def send_whatsapp_reply(target: str, reply_text: str, dry_run: bool) -> Dict[str
         "--channel",
         "whatsapp",
         "--target",
-        target,
+        normalized_target,
         "--message",
         reply_text,
         "--json",
@@ -306,6 +389,10 @@ def send_whatsapp_reply(target: str, reply_text: str, dry_run: bool) -> Dict[str
         "stderr": completed.stderr.strip(),
         "parsed": parsed,
         "dry_run": dry_run,
+        "executed": True,
+        "blocked": False,
+        "reason": "",
+        "target": normalized_target,
     }
 
 
@@ -419,9 +506,15 @@ def process_event(
 
     task_result = handle_task_command(args.base_url, command_info)
     response_text = task_result["stdout"] or task_result["stderr"] or "WHATSAPP TASK BRIDGE ERROR"
-    send_result = send_whatsapp_reply(str(event["from"]), response_text, args.send_dry_run)
+    send_result = send_whatsapp_reply(
+        str(event["from"]),
+        response_text,
+        args.send_dry_run,
+        args.outbound_enabled,
+        args.allowed_senders,
+    )
     response_details = parse_response_details(command_info["operation"], response_text)
-    had_error = task_result["returncode"] != 0 or send_result["returncode"] != 0
+    had_error = task_result["returncode"] != 0 or (send_result["executed"] and send_result["returncode"] != 0)
 
     record = {
         "type": "handled",
@@ -445,6 +538,10 @@ def process_event(
             "stderr": send_result["stderr"],
             "parsed": send_result["parsed"],
             "dry_run": send_result["dry_run"],
+            "executed": send_result["executed"],
+            "blocked": send_result["blocked"],
+            "reason": send_result["reason"],
+            "target": send_result["target"],
         },
     }
     emit_record(record, audit_file)
@@ -480,8 +577,11 @@ def main() -> int:
     parser.add_argument("--log-command", default=DEFAULT_LOG_COMMAND)
     parser.add_argument("--replay-file", type=pathlib.Path)
     parser.add_argument("--send-dry-run", action="store_true")
+    parser.add_argument("--outbound-enabled", action="store_true")
+    parser.add_argument("--allow-sender", action="append", default=[])
     parser.add_argument("--live-restart-delay", type=float, default=2.0)
     args = parser.parse_args()
+    args.allowed_senders = parse_allow_sender_entries(args.allow_sender)
 
     signal.signal(signal.SIGTERM, request_stop)
     signal.signal(signal.SIGINT, request_stop)

@@ -33,6 +33,8 @@ SERVICE_ENV_AUDIT_FILE = "TASK_WHATSAPP_BRIDGE_AUDIT_FILE"
 SERVICE_ENV_LOG_COMMAND = "TASK_WHATSAPP_BRIDGE_LOG_COMMAND"
 SERVICE_ENV_LIVE_RESTART_DELAY = "TASK_WHATSAPP_BRIDGE_LIVE_RESTART_DELAY"
 SERVICE_ENV_SEND_DRY_RUN = "TASK_WHATSAPP_BRIDGE_SEND_DRY_RUN"
+SERVICE_ENV_OUTBOUND_ENABLED = "TASK_WHATSAPP_BRIDGE_OUTBOUND_ENABLED"
+SERVICE_ENV_ALLOW_SENDERS = "TASK_WHATSAPP_BRIDGE_ALLOW_SENDERS"
 
 
 def env_flag(name: str, default: bool = False) -> bool:
@@ -40,6 +42,11 @@ def env_flag(name: str, default: bool = False) -> bool:
     if value is None:
         return default
     return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_csv(name: str) -> list[str]:
+    value = os.environ.get(name, "")
+    return [item.strip() for item in value.split(",") if item.strip()]
 
 
 def ensure_parent(path: pathlib.Path) -> None:
@@ -115,6 +122,10 @@ def build_runtime_command(args: argparse.Namespace) -> list[str]:
         command.extend(["--replay-file", str(args.replay_file)])
     if args.send_dry_run:
         command.append("--send-dry-run")
+    if args.outbound_enabled:
+        command.append("--outbound-enabled")
+    for sender in args.allow_sender:
+        command.extend(["--allow-sender", sender])
     return command
 
 
@@ -142,6 +153,8 @@ def render_service_unit(args: argparse.Namespace) -> str:
         "log_command": systemd_quote(args.log_command),
         "live_restart_delay": systemd_quote(str(args.live_restart_delay)),
         "send_dry_run": systemd_quote("1" if args.send_dry_run else "0"),
+        "outbound_enabled": systemd_quote("1" if args.outbound_enabled else "0"),
+        "allow_senders": systemd_quote(",".join(args.allow_sender)),
         "base_url_env": SERVICE_ENV_BASE_URL,
         "state_file_env": SERVICE_ENV_STATE_FILE,
         "runtime_status_file_env": SERVICE_ENV_RUNTIME_STATUS_FILE,
@@ -149,6 +162,8 @@ def render_service_unit(args: argparse.Namespace) -> str:
         "log_command_env": SERVICE_ENV_LOG_COMMAND,
         "live_restart_delay_env": SERVICE_ENV_LIVE_RESTART_DELAY,
         "send_dry_run_env": SERVICE_ENV_SEND_DRY_RUN,
+        "outbound_enabled_env": SERVICE_ENV_OUTBOUND_ENABLED,
+        "allow_senders_env": SERVICE_ENV_ALLOW_SENDERS,
     }
     return template.format(**values)
 
@@ -650,6 +665,11 @@ def build_parser() -> argparse.ArgumentParser:
         subparser.add_argument("--service-name", default=DEFAULT_SERVICE_NAME)
         subparser.add_argument("--service-unit-path", type=pathlib.Path, default=DEFAULT_SERVICE_UNIT_PATH)
 
+    def add_outbound_policy_flags(subparser: argparse.ArgumentParser) -> None:
+        subparser.add_argument("--send-dry-run", action="store_true", default=env_flag(SERVICE_ENV_SEND_DRY_RUN, True))
+        subparser.add_argument("--outbound-enabled", action="store_true", default=env_flag(SERVICE_ENV_OUTBOUND_ENABLED, False))
+        subparser.add_argument("--allow-sender", action="append", default=env_csv(SERVICE_ENV_ALLOW_SENDERS))
+
     start = subparsers.add_parser("start")
     add_common_flags(start)
     add_service_flags(start)
@@ -658,7 +678,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=os.environ.get(SERVICE_ENV_LOG_COMMAND, "openclaw logs --json --follow --interval 1000 --limit 50 --max-bytes 250000"),
     )
     start.add_argument("--replay-file", type=pathlib.Path)
-    start.add_argument("--send-dry-run", action="store_true", default=env_flag(SERVICE_ENV_SEND_DRY_RUN, False))
+    add_outbound_policy_flags(start)
     start.add_argument(
         "--live-restart-delay",
         type=float,
@@ -681,7 +701,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=os.environ.get(SERVICE_ENV_LOG_COMMAND, "openclaw logs --json --follow --interval 1000 --limit 50 --max-bytes 250000"),
     )
     restart.add_argument("--replay-file", type=pathlib.Path)
-    restart.add_argument("--send-dry-run", action="store_true", default=env_flag(SERVICE_ENV_SEND_DRY_RUN, False))
+    add_outbound_policy_flags(restart)
     restart.add_argument(
         "--live-restart-delay",
         type=float,
@@ -718,7 +738,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--log-command",
         default=os.environ.get(SERVICE_ENV_LOG_COMMAND, "openclaw logs --json --follow --interval 1000 --limit 50 --max-bytes 250000"),
     )
-    service_install.add_argument("--send-dry-run", action="store_true", default=env_flag(SERVICE_ENV_SEND_DRY_RUN, False))
+    add_outbound_policy_flags(service_install)
     service_install.add_argument(
         "--live-restart-delay",
         type=float,
@@ -746,7 +766,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=os.environ.get(SERVICE_ENV_LOG_COMMAND, "openclaw logs --json --follow --interval 1000 --limit 50 --max-bytes 250000"),
     )
     run_service.add_argument("--replay-file", type=pathlib.Path)
-    run_service.add_argument("--send-dry-run", action="store_true", default=env_flag(SERVICE_ENV_SEND_DRY_RUN, False))
+    add_outbound_policy_flags(run_service)
     run_service.add_argument(
         "--live-restart-delay",
         type=float,
