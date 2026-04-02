@@ -235,6 +235,7 @@ La lectura honesta del host hoy es:
 - `docs/OPENCLAW_STATUS_TRIANGULATION_ARTIFACT_PACK.md`
 - `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md`
 - `docs/OPENCLAW_STATUS_SNAPSHOT_TICKET_SEEDS.md`
+- `docs/OPENCLAW_STATUS_SEED_INSTANTIATION_EXAMPLES.md`
 - `docs/BROWSER_SIDECAR_RUNBOOK.md`
 - `docs/BROWSER_DOSSIER_LANE.md`
 - `docs/BROWSER_DECISION_LANE.md`
@@ -265,8 +266,10 @@ Eso ya quedo resuelto:
 - verify ligera nueva del snapshot workflow: `./scripts/verify_openclaw_status_triangulation_snapshot_workflow.sh`
 - status snapshot ticket seeds pack nuevo para convertir workflow + artifact en tickets read-side concretos: `docs/OPENCLAW_STATUS_SNAPSHOT_TICKET_SEEDS.md`
 - verify ligera nueva del seeds pack: `./scripts/verify_openclaw_status_snapshot_ticket_seeds.sh`
+- status seed instantiation examples pack nuevo para mostrar como se rellenan esas seeds con preguntas reales y artifacts concretas: `docs/OPENCLAW_STATUS_SEED_INSTANTIATION_EXAMPLES.md`
+- verify ligera nueva del instantiation pack: `./scripts/verify_openclaw_status_seed_instantiation_examples.sh`
 - WhatsApp sigue congelado y fuera de esta baseline
 
 El siguiente tramo razonable pasa a ser uno solo:
 
-- usar `docs/OPENCLAW_STATUS_SNAPSHOT_TICKET_SEEDS.md` junto con `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md`, `docs/OPENCLAW_STATUS_TRIANGULATION_ARTIFACT_PACK.md`, `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md`, `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`, `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md` y `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md` para redactar tickets read-side de `status` con seeds canonicas, sin reabrir browser nativo, workers, host control ni WhatsApp
+- usar `docs/OPENCLAW_STATUS_SEED_INSTANTIATION_EXAMPLES.md` junto con `docs/OPENCLAW_STATUS_SNAPSHOT_TICKET_SEEDS.md`, `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md`, `docs/OPENCLAW_STATUS_TRIANGULATION_ARTIFACT_PACK.md`, `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md`, `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`, `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md` y `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md` para redactar tickets read-side de `status` usando seeds ya instanciadas, sin reabrir browser nativo, workers, host control ni WhatsApp
