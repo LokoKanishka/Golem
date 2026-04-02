@@ -233,6 +233,7 @@ La lectura honesta del host hoy es:
 - `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md`
 - `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`
 - `docs/OPENCLAW_STATUS_TRIANGULATION_ARTIFACT_PACK.md`
+- `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md`
 - `docs/BROWSER_SIDECAR_RUNBOOK.md`
 - `docs/BROWSER_DOSSIER_LANE.md`
 - `docs/BROWSER_DECISION_LANE.md`
@@ -259,8 +260,10 @@ Eso ya quedo resuelto:
 - status triangulation artifact pack nuevo para materializar esa triangulacion como snapshot corto reusable: `docs/OPENCLAW_STATUS_TRIANGULATION_ARTIFACT_PACK.md`
 - helper minima nueva para renderizar el artifact: `./scripts/render_status_triangulation_artifact.sh`
 - verify ligera nueva del status triangulation artifact pack: `./scripts/verify_openclaw_status_triangulation_artifact_pack.sh`
+- status triangulation snapshot workflow nuevo para fijar casos de uso, inputs y outputs canonicos: `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md`
+- verify ligera nueva del snapshot workflow: `./scripts/verify_openclaw_status_triangulation_snapshot_workflow.sh`
 - WhatsApp sigue congelado y fuera de esta baseline
 
 El siguiente tramo razonable pasa a ser uno solo:
 
-- usar `docs/OPENCLAW_STATUS_TRIANGULATION_ARTIFACT_PACK.md` junto con `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md`, `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`, `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md` y `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md` para adjuntar snapshots cortos y tickets read-side de `status`, sin reabrir browser nativo, workers, host control ni WhatsApp
+- usar `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md` junto con `docs/OPENCLAW_STATUS_TRIANGULATION_ARTIFACT_PACK.md`, `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md`, `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`, `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md` y `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md` para producir snapshots cortos consistentes y tickets read-side de `status`, sin reabrir browser nativo, workers, host control ni WhatsApp
