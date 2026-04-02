@@ -242,6 +242,7 @@ La lectura honesta del host hoy es:
 - `docs/OPENCLAW_STATUS_TICKET_FINALIZATION_CHECKLIST.md`
 - `docs/OPENCLAW_STATUS_TICKET_CLOSURE_NOTES.md`
 - `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_EXAMPLE.md`
+- `docs/OPENCLAW_STATUS_STATE_CHECK_CLOSURE_BLOCKED.md`
 - `docs/BROWSER_SIDECAR_RUNBOOK.md`
 - `docs/BROWSER_DOSSIER_LANE.md`
 - `docs/BROWSER_DECISION_LANE.md`
@@ -286,6 +287,8 @@ Eso ya quedo resuelto:
 - verify ligera nueva del closure note pack: `./scripts/verify_openclaw_status_ticket_closure_notes.sh`
 - primer cierre real materializado del carril `status` para mostrar una closure note concreta, limitada y reusable sobre evidencia versionada ya existente: `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_EXAMPLE.md`
 - verify ligera nueva del ejemplo real de cierre: `./scripts/verify_openclaw_status_real_closure_note_example.sh`
+- intento de segundo cierre real `state-check` bloqueado honestamente porque no existe una `status-triangulation-artifact_state-check` versionada y citable en git: `docs/OPENCLAW_STATUS_STATE_CHECK_CLOSURE_BLOCKED.md`
+- verify ligera nueva del gate de `state-check`: `./scripts/verify_openclaw_status_state_check_closure_gate.sh`
 - WhatsApp sigue congelado y fuera de esta baseline
 
 El siguiente tramo razonable pasa a ser uno solo:
@@ -298,7 +301,9 @@ El siguiente tramo razonable pasa a ser uno solo:
 - usar el status ticket finalization checklist pack cuando haga falta validar que un near-final example ya quedo finalizable como ticket real del momento, sin tocar runtime ni relajar limites de inferencia
 - usar el status ticket closure note pack cuando haga falta dejar la huella terminal de cierre documental de ese ticket ya finalizado, citando artifact y verify reales sin duplicar la checklist ni inflar inferencias
 - usar el real closure note example cuando haga falta ver un primer caso concreto y versionado de ese cierre, sabiendo que sigue siendo un cierre read-side limitado y no sustituye `CURRENT_STATE` ni `HANDOFF`
+- leer el state-check closure blocked note antes de intentar un segundo cierre real, porque hoy fija de forma explicita que falta una `status-triangulation-artifact_state-check` versionada y citable
 - exigir `./scripts/verify_openclaw_status_ticket_skeletons.sh` antes de apoyar un nuevo tramo en este skeletons pack
 - exigir `./scripts/verify_openclaw_status_skeleton_completion_examples.sh` antes de apoyar un nuevo tramo en este completion examples pack
 - exigir `./scripts/verify_openclaw_status_ticket_closure_notes.sh` antes de apoyar un nuevo tramo en este closure note pack
 - exigir `./scripts/verify_openclaw_status_real_closure_note_example.sh` antes de apoyar un nuevo tramo en este ejemplo real
+- exigir `./scripts/verify_openclaw_status_state_check_closure_gate.sh` antes de volver a evaluar si `state-check` ya puede materializarse

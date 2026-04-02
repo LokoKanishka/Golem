@@ -217,6 +217,7 @@ Documento canonico nuevo para reentrada rapida:
 - `docs/OPENCLAW_STATUS_TICKET_FINALIZATION_CHECKLIST.md`
 - `docs/OPENCLAW_STATUS_TICKET_CLOSURE_NOTES.md`
 - `docs/OPENCLAW_STATUS_REAL_CLOSURE_NOTE_EXAMPLE.md`
+- `docs/OPENCLAW_STATUS_STATE_CHECK_CLOSURE_BLOCKED.md`
 
 Uso correcto de ese baseline:
 
@@ -234,6 +235,7 @@ Uso correcto de ese baseline:
 - usar el status ticket finalization checklist pack cuando haga falta decidir si ese near-final example ya puede considerarse ticket real del momento, todavia read-side y sin mutacion
 - usar el status ticket closure note pack cuando haga falta dejar la nota final de cierre documental de ese ticket ya completado, con artifact, verify, conclusion permitida y limites todavia vigentes
 - usar el real closure note example cuando haga falta ver un caso ya materializado de ese cierre, con una artifact versionada concreta y limites todavia explicitados
+- leer el state-check closure blocked note antes de intentar el segundo cierre real, porque hoy deja asentado que la artifact `state-check` requerida todavia no existe en git
 - mantener browser nativo fuera
 - WhatsApp sigue congelado
 - mantener WhatsApp congelado y fuera de alcance
@@ -251,6 +253,7 @@ Uso correcto de ese baseline:
 - exigir `./scripts/verify_openclaw_status_ticket_finalization_checklist.sh` antes de apoyar un nuevo tramo en este finalization checklist pack
 - exigir `./scripts/verify_openclaw_status_ticket_closure_notes.sh` antes de apoyar un nuevo tramo en este closure note pack
 - exigir `./scripts/verify_openclaw_status_real_closure_note_example.sh` antes de apoyar un nuevo tramo en este ejemplo real
+- exigir `./scripts/verify_openclaw_status_state_check_closure_gate.sh` antes de volver a evaluar el segundo cierre real `state-check`
 
 No corresponde volver a discutir antes de eso:
 
