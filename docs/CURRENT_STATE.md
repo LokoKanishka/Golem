@@ -229,6 +229,7 @@ La lectura honesta del host hoy es:
 
 - `docs/CAPABILITY_MATRIX.md`
 - `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md`
+- `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md`
 - `docs/BROWSER_SIDECAR_RUNBOOK.md`
 - `docs/BROWSER_DOSSIER_LANE.md`
 - `docs/BROWSER_DECISION_LANE.md`
@@ -246,8 +247,10 @@ Eso ya quedo resuelto:
 - deuda explicita: browser nativo de OC
 - baseline publica nueva para planear CLI + channels sin tocar runtime: `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md`
 - verify ligera nueva del baseline pack: `./scripts/verify_openclaw_cli_channels_baseline.sh`
+- mapping pack nuevo para aterrizar `status`, `gateway`, `config` y `channels` a surfaces reales del repo: `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md`
+- verify ligera nueva del mapping pack: `./scripts/verify_openclaw_cli_channels_mapping.sh`
 - WhatsApp sigue congelado y fuera de esta baseline
 
 El siguiente tramo razonable pasa a ser uno solo:
 
-- usar `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md` como documento canonico para escribir los proximos tickets sobre CLI + channels, sin reabrir browser nativo, workers, host control ni WhatsApp
+- usar `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md` junto con `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md` para escribir los proximos tickets sobre `status`, `gateway`, `config` y `channels`, sin reabrir browser nativo, workers, host control ni WhatsApp
