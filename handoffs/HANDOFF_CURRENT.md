@@ -199,7 +199,19 @@ git log --oneline -8
 
 ## Proximo tramo unico sugerido
 
-Ejecutar el tranche ya seleccionado `gateway_channels_public_baseline_pack`, sin reabrir browser nativo, workers, host control ni WhatsApp.
+El tranche ya seleccionado `gateway_channels_public_baseline_pack` queda ejecutado en forma documental y versionada.
+
+Documento canonico nuevo para reentrada rapida:
+
+- `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md`
+
+Uso correcto de ese baseline:
+
+- planear futuros tickets sobre CLI + channels sin tocar runtime vivo
+- mantener browser nativo fuera
+- WhatsApp sigue congelado
+- mantener WhatsApp congelado y fuera de alcance
+- exigir `./scripts/verify_openclaw_cli_channels_baseline.sh` antes de apoyar un nuevo tramo en esta baseline
 
 No corresponde volver a discutir antes de eso:
 
