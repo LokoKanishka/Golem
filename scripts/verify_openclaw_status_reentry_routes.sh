@@ -2,6 +2,7 @@
 set -euo pipefail
 
 DOC="docs/CURRENT_STATE.md"
+HANDOFF_DOC="handoffs/HANDOFF_CURRENT.md"
 
 fail() {
   echo "VERIFY_FAIL: $1" >&2
@@ -9,6 +10,7 @@ fail() {
 }
 
 [[ -f "$DOC" ]] || fail "missing $DOC"
+[[ -f "$HANDOFF_DOC" ]] || fail "missing $HANDOFF_DOC"
 
 patterns=(
   "## Status Reentry Routes"
@@ -26,6 +28,24 @@ patterns=(
 
 for pattern in "${patterns[@]}"; do
   grep -Fq "$pattern" "$DOC" || fail "missing pattern '$pattern' in $DOC"
+done
+
+handoff_patterns=(
+  "## Status Reentry Routes Mirror"
+  "docs/CURRENT_STATE.md"
+  "## Status Reentry Routes"
+  '`status pre-closure chain`'
+  "docs/OPENCLAW_STATUS_PRE_CLOSURE_INDEX.md"
+  "usar cuando haga falta entrar por evidencia, consistencia, artifact, workflow o drafting previo al cierre real"
+  '`status real closures already materialized`'
+  "docs/OPENCLAW_STATUS_REAL_CLOSURE_INDEX.md"
+  'usar cuando haga falta elegir rapido entre `quick-reentry` y `state-check`'
+  "no delivery real, no browser usable, no readiness total, no runtime changes, no reactivar WhatsApp"
+  'este espejo no reemplaza `docs/CURRENT_STATE.md` ni duplica la seccion principal'
+)
+
+for pattern in "${handoff_patterns[@]}"; do
+  grep -Fq "$pattern" "$HANDOFF_DOC" || fail "missing pattern '$pattern' in $HANDOFF_DOC"
 done
 
 echo "VERIFY_OK: openclaw status reentry routes checks passed"

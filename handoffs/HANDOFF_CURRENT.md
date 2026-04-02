@@ -151,6 +151,15 @@ Ese veredicto ya no queda solo en un smoke de verdad. El carril browser aceptado
 - el helper CDP sigue fallando sobre el Chrome ambient aunque se apunte al `DevToolsActivePort` del profile `user`
 - `verify_worker_orchestration_stack.sh` falla porque el self-check previo marca browser relay/task API/bridge no operativos y el chain audit detecta drift
 
+## Status Reentry Routes Mirror
+
+Para la seccion principal y completa de navegacion `status`, ver `docs/CURRENT_STATE.md` en `## Status Reentry Routes`.
+
+- `status pre-closure chain`: usar cuando haga falta entrar por evidencia, consistencia, artifact, workflow o drafting previo al cierre real; puerta corta en `docs/OPENCLAW_STATUS_PRE_CLOSURE_INDEX.md`
+- `status real closures already materialized`: usar cuando haga falta elegir rapido entre `quick-reentry` y `state-check`; puerta corta en `docs/OPENCLAW_STATUS_REAL_CLOSURE_INDEX.md`
+- limites: no delivery real, no browser usable, no readiness total, no runtime changes, no reactivar WhatsApp
+- este espejo no reemplaza `docs/CURRENT_STATE.md` ni duplica la seccion principal
+
 ## Que revisar primero al volver
 
 - `README.md`
