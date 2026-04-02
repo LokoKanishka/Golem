@@ -1,16 +1,16 @@
-# OpenClaw Status State-Check Real Closure Blocked
+# OpenClaw Status State-Check Closure Gate
 
 Fecha de actualizacion: 2026-04-02
 
 ## Estado
 
-`BLOCKED-HONESTO`
+`UNLOCKED-BY-ARTIFACT`
 
 ## Decision
 
-No corresponde materializar un segundo cierre real `state-check` en este tramo.
+La condicion documental de entrada para reintentar el segundo cierre real `state-check` ya quedo cumplida.
 
-## Causa del bloqueo
+## Estado anterior
 
 La cadena documental vigente exige, para `state-check`, una artifact real y trazable con este patron:
 
@@ -26,6 +26,30 @@ Resultado:
 - no existe ninguna artifact versionada con slug `state-check`
 - no existe ninguna `status-triangulation-artifact_*` versionada en git
 - por lo tanto, no existe base suficiente para citar `artifact_reference` de `state-check` de forma honesta
+
+## Resolucion aplicada en este tramo
+
+Ahora si existe una artifact versionada y citable:
+
+- `outbox/manual/20260402T005229Z_status-triangulation-artifact_state-check.md`
+
+Esa artifact:
+
+- usa slug `state-check`
+- vive bajo `outbox/manual/`
+- sigue el formato canonico del artifact pack
+- cita una verify primaria real
+- mantiene limites de inferencia estrictamente read-side
+
+## Por que sigue sin equivaler al cierre
+
+Este destrabe no materializa por si mismo el segundo cierre real `state-check`.
+
+Todavia falta:
+
+- derivar un cierre real desde `state-check-finalization-checklist-001`
+- citar esta artifact como `artifact_reference`
+- dejar `verify_cited`, `allowed_conclusion`, `still_forbidden_inferences` y `handoff_value`
 
 ## Por que no corresponde forzarlo
 
@@ -60,22 +84,23 @@ y esa artifact sea citable sin ambiguedad como base de:
 - `state-check-finalization-checklist-001`
 - `state-check-closure-note-001`
 
-## Proximo paso minimo valido
+Esa condicion ya quedo satisfecha por:
 
-No materializar el cierre.
+- `outbox/manual/20260402T005229Z_status-triangulation-artifact_state-check.md`
+
+## Proximo paso minimo valido
 
 El proximo paso minimo valido es:
 
-1. producir y versionar una `status-triangulation-artifact_state-check` real dentro del carril read-side
-2. verificar que esa artifact cumple el formato del artifact pack y el workflow de snapshot
-3. recien entonces intentar materializar el segundo cierre real `state-check`
+1. verificar que la artifact `state-check` nueva sigue presente y bien formada
+2. reintentar la materializacion del segundo cierre real `state-check`
+3. mantener el cierre estrictamente read-side y sin inflar inferencias
 
 ## Guardrails
 
-Este bloqueo no autoriza:
+Este gate no autoriza:
 
-- inventar la artifact faltante
-- sustituirla con extractos de `CURRENT_STATE` o `HANDOFF`
+- inventar evidencia nueva para inflar el cierre
 - afirmar delivery real
 - afirmar browser usable
 - afirmar readiness total
