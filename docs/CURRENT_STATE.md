@@ -231,6 +231,7 @@ La lectura honesta del host hoy es:
 - `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md`
 - `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md`
 - `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md`
+- `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`
 - `docs/BROWSER_SIDECAR_RUNBOOK.md`
 - `docs/BROWSER_DOSSIER_LANE.md`
 - `docs/BROWSER_DECISION_LANE.md`
@@ -252,8 +253,10 @@ Eso ya quedo resuelto:
 - verify ligera nueva del mapping pack: `./scripts/verify_openclaw_cli_channels_mapping.sh`
 - status evidence pack nuevo para fijar evidencia minima, brief y limites de la familia `status`: `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md`
 - verify ligera nueva del status pack: `./scripts/verify_openclaw_status_evidence_pack.sh`
+- status consistency pack nuevo para triangular `gateway status`, `openclaw status` y `channels status --probe`: `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`
+- verify ligera nueva del status consistency pack: `./scripts/verify_openclaw_status_consistency_pack.sh`
 - WhatsApp sigue congelado y fuera de esta baseline
 
 El siguiente tramo razonable pasa a ser uno solo:
 
-- usar `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md` junto con `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md` y `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md` para escribir los proximos tickets de verdad operativa y reentrada sobre `status`, sin reabrir browser nativo, workers, host control ni WhatsApp
+- usar `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md` junto con `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`, `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md` y `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md` para escribir los proximos tickets de verdad operativa y consistencia sobre `status`, sin reabrir browser nativo, workers, host control ni WhatsApp

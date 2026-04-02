@@ -206,18 +206,21 @@ Documento canonico nuevo para reentrada rapida:
 - `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md`
 - `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md`
 - `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md`
+- `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`
 
 Uso correcto de ese baseline:
 
 - planear futuros tickets sobre CLI + channels sin tocar runtime vivo
 - usar el mapping pack para decidir que familia entra, con que evidencia y con que verify
 - usar el status pack cuando el tramo dependa de snapshots, salud, consistencia o retome
+- usar el status consistency pack cuando el tramo compare `gateway status`, `openclaw status` y `channels status --probe`
 - mantener browser nativo fuera
 - WhatsApp sigue congelado
 - mantener WhatsApp congelado y fuera de alcance
 - exigir `./scripts/verify_openclaw_cli_channels_baseline.sh` antes de apoyar un nuevo tramo en esta baseline
 - exigir `./scripts/verify_openclaw_cli_channels_mapping.sh` antes de apoyar un nuevo tramo en este mapping
 - exigir `./scripts/verify_openclaw_status_evidence_pack.sh` antes de apoyar un nuevo tramo en este status pack
+- exigir `./scripts/verify_openclaw_status_consistency_pack.sh` antes de apoyar un nuevo tramo en esta triangulacion
 
 No corresponde volver a discutir antes de eso:
 
