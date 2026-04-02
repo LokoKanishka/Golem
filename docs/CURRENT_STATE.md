@@ -238,6 +238,7 @@ La lectura honesta del host hoy es:
 - `docs/OPENCLAW_STATUS_SEED_INSTANTIATION_EXAMPLES.md`
 - `docs/OPENCLAW_STATUS_TICKET_SKELETONS.md`
 - `docs/OPENCLAW_STATUS_SKELETON_COMPLETION_EXAMPLES.md`
+- `docs/OPENCLAW_STATUS_TICKET_NEAR_FINAL_EXAMPLES.md`
 - `docs/BROWSER_SIDECAR_RUNBOOK.md`
 - `docs/BROWSER_DOSSIER_LANE.md`
 - `docs/BROWSER_DECISION_LANE.md`
@@ -274,13 +275,16 @@ Eso ya quedo resuelto:
 - verify ligera nueva del skeletons pack: `./scripts/verify_openclaw_status_ticket_skeletons.sh`
 - status skeleton completion examples pack nuevo para mostrar como se ve uno de esos skeletons cuando ya esta parcialmente completado con placeholders honestos para artifact, verify y evidence del momento: `docs/OPENCLAW_STATUS_SKELETON_COMPLETION_EXAMPLES.md`
 - verify ligera nueva del completion examples pack: `./scripts/verify_openclaw_status_skeleton_completion_examples.sh`
+- status ticket near-final examples pack nuevo para mostrar como se ve un ticket read-side cuando ya esta casi final, dejando solo placeholders minimos para artifact, verify y evidencia del momento: `docs/OPENCLAW_STATUS_TICKET_NEAR_FINAL_EXAMPLES.md`
+- verify ligera nueva del near-final examples pack: `./scripts/verify_openclaw_status_ticket_near_final_examples.sh`
 - WhatsApp sigue congelado y fuera de esta baseline
 
 El siguiente tramo razonable pasa a ser uno solo:
 
-- usar `docs/OPENCLAW_STATUS_SKELETON_COMPLETION_EXAMPLES.md` junto con `docs/OPENCLAW_STATUS_TICKET_SKELETONS.md`, `docs/OPENCLAW_STATUS_SEED_INSTANTIATION_EXAMPLES.md`, `docs/OPENCLAW_STATUS_SNAPSHOT_TICKET_SEEDS.md`, `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md`, `docs/OPENCLAW_STATUS_TRIANGULATION_ARTIFACT_PACK.md`, `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md`, `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`, `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md` y `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md` para pasar de skeletons a tickets read-side casi completos, sin reabrir browser nativo, workers, host control ni WhatsApp
+- usar `docs/OPENCLAW_STATUS_TICKET_NEAR_FINAL_EXAMPLES.md` junto con `docs/OPENCLAW_STATUS_SKELETON_COMPLETION_EXAMPLES.md`, `docs/OPENCLAW_STATUS_TICKET_SKELETONS.md`, `docs/OPENCLAW_STATUS_SEED_INSTANTIATION_EXAMPLES.md`, `docs/OPENCLAW_STATUS_SNAPSHOT_TICKET_SEEDS.md`, `docs/OPENCLAW_STATUS_TRIANGULATION_SNAPSHOT_WORKFLOW.md`, `docs/OPENCLAW_STATUS_TRIANGULATION_ARTIFACT_PACK.md`, `docs/OPENCLAW_STATUS_EVIDENCE_PACK.md`, `docs/OPENCLAW_STATUS_CONSISTENCY_PACK.md`, `docs/OPENCLAW_CLI_CHANNELS_BASELINE.md` y `docs/OPENCLAW_CLI_CHANNELS_MAPPING.md` para pasar de completion examples a tickets read-side casi finales, sin reabrir browser nativo, workers, host control ni WhatsApp
 
 - usar el status ticket skeletons pack cuando haga falta pasar de instancia a un ticket read-side casi completo, con titulo base, artifact, verify, campos abiertos y limites ya fijados
 - usar el status skeleton completion examples pack cuando haga falta ver como se reemplazan placeholders y como se escribe una conclusion condicionada sin fingir evidencia real
+- usar el status ticket near-final examples pack cuando haga falta dejar un ticket read-side casi final, con bloques ya casi definitivos y solo placeholders minimos remanentes del momento
 - exigir `./scripts/verify_openclaw_status_ticket_skeletons.sh` antes de apoyar un nuevo tramo en este skeletons pack
 - exigir `./scripts/verify_openclaw_status_skeleton_completion_examples.sh` antes de apoyar un nuevo tramo en este completion examples pack

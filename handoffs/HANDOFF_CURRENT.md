@@ -213,6 +213,7 @@ Documento canonico nuevo para reentrada rapida:
 - `docs/OPENCLAW_STATUS_SEED_INSTANTIATION_EXAMPLES.md`
 - `docs/OPENCLAW_STATUS_TICKET_SKELETONS.md`
 - `docs/OPENCLAW_STATUS_SKELETON_COMPLETION_EXAMPLES.md`
+- `docs/OPENCLAW_STATUS_TICKET_NEAR_FINAL_EXAMPLES.md`
 
 Uso correcto de ese baseline:
 
@@ -226,6 +227,7 @@ Uso correcto de ese baseline:
 - usar el status seed instantiation examples pack cuando haga falta ver como se rellena una seed con una pregunta real y con una artifact concreta antes de escribir el ticket final
 - usar el status ticket skeletons pack cuando haga falta pasar de una instancia a un ticket read-side casi completo, todavia no ejecutable, pero ya listo para completarse con artifact real y verify concreta del momento
 - usar el status skeleton completion examples pack cuando haga falta ver como se ve uno de esos skeletons ya parcialmente completado, con placeholders honestos para artifact, verify, summaries y conclusion breve
+- usar el status ticket near-final examples pack cuando haga falta ver como se ve uno de esos tickets cuando ya esta casi final, con secciones casi definitivas y solo placeholders minimos remanentes
 - mantener browser nativo fuera
 - WhatsApp sigue congelado
 - mantener WhatsApp congelado y fuera de alcance
@@ -239,6 +241,7 @@ Uso correcto de ese baseline:
 - exigir `./scripts/verify_openclaw_status_seed_instantiation_examples.sh` antes de apoyar un nuevo tramo en este instantiation pack
 - exigir `./scripts/verify_openclaw_status_ticket_skeletons.sh` antes de apoyar un nuevo tramo en este skeletons pack
 - exigir `./scripts/verify_openclaw_status_skeleton_completion_examples.sh` antes de apoyar un nuevo tramo en este completion examples pack
+- exigir `./scripts/verify_openclaw_status_ticket_near_final_examples.sh` antes de apoyar un nuevo tramo en este near-final examples pack
 
 No corresponde volver a discutir antes de eso:
 
