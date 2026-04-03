@@ -92,6 +92,8 @@ last_whatsapp_reconciliation_output = next(
     {},
 )
 host_summary = task.get("host_evidence_summary") or {}
+host_expectation = task.get("host_expectation") or {}
+host_verification = task.get("host_verification") or {}
 
 print(f"task_id: {task.get('task_id', task.get('id', ''))}")
 print(f"type: {task.get('type', '?')}")
@@ -217,5 +219,30 @@ if host_summary.get("present"):
     print(f"host_artifact_count: {host_summary.get('artifact_count', 0)}")
     print(f"host_evidence_path: {host_summary.get('evidence_path') or '(none)'}")
     print(f"host_summary: {host_summary.get('summary') or '(none)'}")
+if host_expectation.get("present"):
+    print("host_expectation_present: yes")
+    print(
+        "host_expectation_checks: "
+        + (",".join(host_expectation.get("configured_checks") or []) or "(none)")
+    )
+    print(f"host_expectation_target_kind: {host_expectation.get('target_kind') or '(none)'}")
+    print(f"host_expectation_surface_category: {host_expectation.get('surface_category') or '(none)'}")
+    print(
+        f"host_expectation_min_surface_confidence: {host_expectation.get('min_surface_confidence') or '(none)'}"
+    )
+    print(
+        "host_expectation_require_summary: "
+        + ("yes" if host_expectation.get("require_summary") else "no")
+    )
+    print(f"host_expectation_min_artifact_count: {host_expectation.get('min_artifact_count', 0)}")
+    print(
+        "host_expectation_require_structured_fields: "
+        + ("yes" if host_expectation.get("require_structured_fields") else "no")
+    )
+if host_verification.get("present"):
+    print(f"host_verification_status: {host_verification.get('status') or '(none)'}")
+    print(f"host_verification_reason: {host_verification.get('reason') or '(none)'}")
+    print(f"host_last_evaluated_at: {host_verification.get('last_evaluated_at') or '(none)'}")
+    print(f"host_verification_stale: {'yes' if host_verification.get('stale') else 'no'}")
 print(f"last_note: {last_note}")
 PY

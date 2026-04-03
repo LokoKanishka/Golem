@@ -56,11 +56,20 @@ Each item includes at least:
 
 When host evidence is already attached canonically to the task, list cards may also expose the latest host surface category/confidence for quick routing.
 
+When a task declares a canonical host expectation, list cards may also expose whether that expectation exists and the latest verification status over the attached host evidence.
+
 ### Show
 
 Returns the full canonical task JSON for a single task, wrapped with read-path metadata.
 
 When the task already contains canonically attached host evidence, the show payload also exposes a computed `host_evidence_summary` so panel-side readers do not need to reconstruct host state manually from raw evidence, outputs and artifacts.
+
+When the task declares a canonical host expectation, the show payload also exposes:
+
+- `host_expectation`
+- `host_verification`
+
+That keeps the declarative task<->host loop visible on the same read path already used by panel and bridge callers.
 
 ### Summary
 
@@ -71,6 +80,8 @@ Returns a minimal inventory summary with:
 - `latest_updated_at`
 - `top_owners`
 - `host_evidence_tasks`
+- `host_expectation_tasks`
+- `host_verification_counts`
 
 ## Canonical-only rule
 
