@@ -9,7 +9,7 @@ tmpdir="$(mktemp -d)"
 cap_root="$tmpdir/host-capabilities"
 server_log="$tmpdir/server.log"
 node_script="$tmpdir/smoke_panel_visible_ui.cjs"
-created_task_id_file="$tmpdir/created-task-id.txt"
+created_task_ids_file="$tmpdir/created-task-ids.txt"
 server_pid=""
 dialog_pid=""
 window_id=""
@@ -27,11 +27,12 @@ cleanup() {
     kill "$server_pid" 2>/dev/null || true
     wait "$server_pid" 2>/dev/null || true
   fi
-  if [[ -f "$created_task_id_file" ]]; then
-    task_id="$(cat "$created_task_id_file")"
-    if [[ -n "$task_id" && -f "$TASKS_DIR/$task_id.json" ]]; then
-      rm -f "$TASKS_DIR/$task_id.json"
-    fi
+  if [[ -f "$created_task_ids_file" ]]; then
+    while IFS= read -r task_id; do
+      if [[ -n "$task_id" && -f "$TASKS_DIR/$task_id.json" ]]; then
+        rm -f "$TASKS_DIR/$task_id.json"
+      fi
+    done <"$created_task_ids_file"
   fi
   if [[ -d "$REPO_ROOT/test-results" ]]; then
     python3 - <<'PY'
@@ -79,8 +80,8 @@ body = tk.Frame(root, bg="#f7f3ea")
 body.pack(fill="both", expand=True)
 for line in [
     "The panel should show real host evidence canonically",
-    "Describe evidence stays bridged through the task lane",
-    "This window is the active target for the host capture smoke",
+    "Describe and perceive evidence should share one visible host block",
+    "This window stays available as the active target during the smoke",
 ]:
     tk.Label(body, text=line, fg="#1f1f1f", bg="#f7f3ea", font=("DejaVu Sans", 14)).pack(anchor="w", padx=20, pady=8)
 
@@ -148,12 +149,175 @@ const { chromium } = require("playwright");
 
 async function main() {
   const baseUrl = process.env.PANEL_BASE_URL;
-  const createdTaskIdFile = process.env.CREATED_TASK_ID_FILE;
+  const createdTaskIdsFile = process.env.CREATED_TASK_IDS_FILE;
   const repoRoot = process.env.REPO_ROOT;
   const hostCapabilitiesRoot = process.env.GOLEM_HOST_CAPABILITIES_ROOT;
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1200 } });
+
+  function recordTaskId(taskId) {
+    fs.appendFileSync(createdTaskIdsFile, `${taskId}\n`, "utf-8");
+  }
+
+  async function createTask({ title, objective, type, owner, accept }) {
+    const previousDetailId = ((await page.locator("#detail-id").textContent()) || "").trim();
+    await page.locator('[data-testid="create-title"]').fill(title);
+    await page.locator('[data-testid="create-objective"]').fill(objective);
+    await page.locator('[data-testid="create-type"]').fill(type);
+    await page.locator('[data-testid="create-owner"]').fill(owner);
+    await page.locator('[data-testid="create-accept"]').fill(accept);
+    await page.locator('[data-testid="create-submit"]').click();
+    await page.waitForFunction((oldId) => {
+      const value = document.querySelector("#detail-id")?.textContent?.trim() || "";
+      return value.startsWith("task-") && value !== oldId;
+    }, previousDetailId);
+
+    const taskId = ((await page.locator("#detail-id").textContent()) || "").trim();
+    if (!taskId.startsWith("task-")) {
+      throw new Error(`unexpected created task id: ${taskId}`);
+    }
+    recordTaskId(taskId);
+    return taskId;
+  }
+
+  async function updateSelectedTaskRunning() {
+    await page.locator('[data-testid="update-status"]').selectOption("running");
+    await page.locator('[data-testid="update-owner"]').fill("panel-visible-ui");
+    await page.locator('[data-testid="update-title"]').fill("Smoke panel visible ui updated");
+    await page.locator('[data-testid="update-objective"]').fill("Validate visible panel surface updated");
+    await page.locator('[data-testid="update-note"]').fill("visible ui update");
+    await page.locator('[data-testid="update-accept"]').fill("visible ui update");
+    await page.locator('[data-testid="update-submit"]').click();
+    await page.waitForFunction(() => {
+      const status = document.querySelector("#detail-status-pill")?.textContent?.trim() || "";
+      return status === "running";
+    });
+    const updatedStatus = ((await page.locator("#detail-status-pill").textContent()) || "").trim();
+    if (updatedStatus !== "running") {
+      throw new Error(`unexpected updated status: ${updatedStatus}`);
+    }
+  }
+
+  async function closeSelectedTask() {
+    await page.locator('[data-testid="close-status"]').selectOption("done");
+    await page.locator('[data-testid="close-owner"]').fill("panel-visible-ui");
+    await page.locator('[data-testid="close-note"]').fill("visible ui close");
+    await page.locator('[data-testid="close-submit"]').click();
+    await page.waitForFunction(() => {
+      const status = document.querySelector("#detail-status-pill")?.textContent?.trim() || "";
+      const closure = document.querySelector("#detail-closure")?.textContent?.trim() || "";
+      return status === "done" && closure === "visible ui close";
+    });
+
+    const closedStatus = ((await page.locator("#detail-status-pill").textContent()) || "").trim();
+    const closureNote = ((await page.locator("#detail-closure").textContent()) || "").trim();
+    if (closedStatus !== "done") {
+      throw new Error(`unexpected closed status: ${closedStatus}`);
+    }
+    if (closureNote !== "visible ui close") {
+      throw new Error(`unexpected closure note: ${closureNote}`);
+    }
+    return closedStatus;
+  }
+
+  function attachHostEvidence(scriptName, taskId) {
+    return JSON.parse(
+      execFileSync(
+        path.join(repoRoot, "scripts", scriptName),
+        [taskId, "--actor", "panel-visible-ui", "--json"],
+        {
+          cwd: repoRoot,
+          env: {
+            ...process.env,
+            GOLEM_HOST_CAPABILITIES_ROOT: hostCapabilitiesRoot,
+          },
+          encoding: "utf-8",
+        },
+      ),
+    );
+  }
+
+  function attachHostDescribe(taskId) {
+    return JSON.parse(
+      execFileSync(
+        path.join(repoRoot, "scripts", "task_attach_host_describe_evidence.sh"),
+        [taskId, "active-window", "--actor", "panel-visible-ui", "--json"],
+        {
+          cwd: repoRoot,
+          env: {
+            ...process.env,
+            GOLEM_HOST_CAPABILITIES_ROOT: hostCapabilitiesRoot,
+          },
+          encoding: "utf-8",
+        },
+      ),
+    );
+  }
+
+  async function expectInitialHostBlank() {
+    const hostExpectationBefore = ((await page.locator('[data-testid="host-expectation-summary"]').textContent()) || "").trim();
+    if (hostExpectationBefore !== "(none)") {
+      throw new Error(`unexpected initial host expectation: ${hostExpectationBefore}`);
+    }
+  }
+
+  async function setExpectationAndWaitForMatch(expectedSource) {
+    await page.locator('[data-testid="host-target-kind"]').fill("active-window");
+    await page.locator('[data-testid="host-require-summary"]').check();
+    await page.locator('[data-testid="host-min-artifact-count"]').fill("1");
+    await page.locator('[data-testid="host-note"]').fill(`visible ui host expectation ${expectedSource}`);
+    await page.locator('[data-testid="host-expectation-submit"]').click();
+    try {
+      await page.waitForFunction((sourceKind) => {
+        const summary = document.querySelector('[data-testid="host-expectation-summary"]')?.textContent || "";
+        const status = document.querySelector('[data-testid="host-status-pill"]')?.textContent || "";
+        const source = document.querySelector('[data-testid="host-source-summary"]')?.textContent || "";
+        const evidence = document.querySelector('[data-testid="host-evidence-summary"]')?.textContent || "";
+        const meta = document.querySelector('[data-testid="host-evidence-meta"]')?.textContent || "";
+        return summary.includes("target=active-window")
+          && status.trim() === "match"
+          && source.includes(sourceKind)
+          && evidence.trim() !== "(none)"
+          && meta.includes("artifacts=");
+      }, expectedSource);
+    } catch (error) {
+      const current = await readHostBlock();
+      throw new Error(`host expectation did not settle for ${expectedSource}: ${JSON.stringify(current)}`);
+    }
+  }
+
+  async function readHostBlock() {
+    return {
+      expectation: ((await page.locator('[data-testid="host-expectation-summary"]').textContent()) || "").trim(),
+      verification: ((await page.locator('[data-testid="host-verification-reason"]').textContent()) || "").trim(),
+      source: ((await page.locator('[data-testid="host-source-summary"]').textContent()) || "").trim(),
+      sourceMeta: ((await page.locator('[data-testid="host-source-meta"]').textContent()) || "").trim(),
+      evidence: ((await page.locator('[data-testid="host-evidence-summary"]').textContent()) || "").trim(),
+      evidenceMeta: ((await page.locator('[data-testid="host-evidence-meta"]').textContent()) || "").trim(),
+      verificationMeta: ((await page.locator('[data-testid="host-verification-meta"]').textContent()) || "").trim(),
+    };
+  }
+
+  async function refreshVerificationFromUi(sourceKind) {
+    await page.locator('[data-testid="host-refresh-source"]').selectOption(sourceKind);
+    await page.locator('[data-testid="host-refresh-submit"]').click();
+    try {
+      await page.waitForFunction((sourceValue) => {
+        const status = document.querySelector('[data-testid="host-status-pill"]')?.textContent || "";
+        const meta = document.querySelector('[data-testid="host-verification-meta"]')?.textContent || "";
+        const flash = document.querySelector('[data-testid="flash-message"]')?.textContent || "";
+        return status.trim() === "match"
+          && meta.includes(`source=${sourceValue}`)
+          && meta.includes("by panel-visible")
+          && flash.includes("Refreshed host verification");
+      }, sourceKind);
+    } catch (error) {
+      const current = await readHostBlock();
+      const flash = ((await page.locator('[data-testid="flash-message"]').textContent()) || "").trim();
+      throw new Error(`host refresh did not settle for ${sourceKind}: flash=${flash} state=${JSON.stringify(current)}`);
+    }
+  }
 
   try {
     await page.goto(`${baseUrl}/panel/`, { waitUntil: "networkidle" });
@@ -176,22 +340,13 @@ async function main() {
       throw new Error(`detail id mismatch: ${detailId} vs ${firstTaskId}`);
     }
 
-    await page.locator('[data-testid="create-title"]').fill("Smoke panel visible ui");
-    await page.locator('[data-testid="create-objective"]').fill("Validate visible panel surface");
-    await page.locator('[data-testid="create-type"]').fill("smoke-panel-visible-ui");
-    await page.locator('[data-testid="create-owner"]').fill("panel-visible-ui");
-    await page.locator('[data-testid="create-accept"]').fill("visible ui create");
-    await page.locator('[data-testid="create-submit"]').click();
-    await page.waitForFunction((oldId) => {
-      const value = document.querySelector("#detail-id")?.textContent?.trim() || "";
-      return value.startsWith("task-") && value !== oldId;
-    }, firstTaskId);
-
-    const createdTaskId = ((await page.locator("#detail-id").textContent()) || "").trim();
-    if (!createdTaskId.startsWith("task-")) {
-      throw new Error(`unexpected created task id: ${createdTaskId}`);
-    }
-    fs.writeFileSync(createdTaskIdFile, createdTaskId, "utf-8");
+    const createdTaskId = await createTask({
+      title: "Smoke panel visible ui describe",
+      objective: "Validate visible panel surface with describe evidence",
+      type: "smoke-panel-visible-ui",
+      owner: "panel-visible-ui",
+      accept: "visible ui create describe",
+    });
 
     const createdSource = ((await page.locator("#detail-source").textContent()) || "").trim();
     if (createdSource !== "panel") {
@@ -228,116 +383,117 @@ async function main() {
       throw new Error(`unexpected attach artifacts: ${JSON.stringify(attachPayload.meta.attached_artifacts)}`);
     }
 
-    await page.locator('[data-testid="update-status"]').selectOption("running");
-    await page.locator('[data-testid="update-owner"]').fill("panel-visible-ui");
-    await page.locator('[data-testid="update-title"]').fill("Smoke panel visible ui updated");
-    await page.locator('[data-testid="update-objective"]').fill("Validate visible panel surface updated");
-    await page.locator('[data-testid="update-note"]').fill("visible ui update");
-    await page.locator('[data-testid="update-accept"]').fill("visible ui update");
-    await page.locator('[data-testid="update-submit"]').click();
-    await page.waitForFunction(() => {
-      const status = document.querySelector("#detail-status-pill")?.textContent?.trim() || "";
-      return status === "running";
+    await updateSelectedTaskRunning();
+    await expectInitialHostBlank();
+    await setExpectationAndWaitForMatch("describe");
+
+    const describeHost = await readHostBlock();
+    if (!describeHost.expectation.includes("target=active-window")) {
+      throw new Error(`unexpected describe host expectation summary: ${describeHost.expectation}`);
+    }
+    if (describeHost.verification !== "host evidence satisfies configured expectation") {
+      throw new Error(`unexpected describe host verification reason after set: ${describeHost.verification}`);
+    }
+    if (!describeHost.source.includes("describe")) {
+      throw new Error(`unexpected describe host source summary: ${describeHost.source}`);
+    }
+    if (!describeHost.sourceMeta.includes("policy=latest_attached_then_source_precedence")) {
+      throw new Error(`unexpected describe host source meta: ${describeHost.sourceMeta}`);
+    }
+    if (describeHost.evidence === "(none)") {
+      throw new Error(`unexpected empty describe host evidence summary: ${describeHost.evidence}`);
+    }
+    if (!describeHost.evidenceMeta.includes("artifacts=")) {
+      throw new Error(`unexpected describe host evidence meta: ${describeHost.evidenceMeta}`);
+    }
+    await refreshVerificationFromUi("describe");
+    const describeVerificationMeta = ((await page.locator('[data-testid="host-verification-meta"]').textContent()) || "").trim();
+    if (!describeVerificationMeta.includes("source=describe") || !describeVerificationMeta.includes("by panel-visible")) {
+      throw new Error(`unexpected describe host verification meta after refresh: ${describeVerificationMeta}`);
+    }
+    const describeClosedStatus = await closeSelectedTask();
+
+    const perceiveTaskId = await createTask({
+      title: "Smoke panel visible ui perceive",
+      objective: "Validate visible panel surface with perceive evidence",
+      type: "smoke-panel-visible-ui",
+      owner: "panel-visible-ui",
+      accept: "visible ui create perceive",
     });
-
-    const updatedStatus = ((await page.locator("#detail-status-pill").textContent()) || "").trim();
-    if (updatedStatus !== "running") {
-      throw new Error(`unexpected updated status: ${updatedStatus}`);
+    const perceiveCreatedSource = ((await page.locator("#detail-source").textContent()) || "").trim();
+    if (perceiveCreatedSource !== "panel") {
+      throw new Error(`unexpected created source for perceive task: ${perceiveCreatedSource}`);
     }
 
-    const hostExpectationBefore = ((await page.locator('[data-testid="host-expectation-summary"]').textContent()) || "").trim();
-    if (hostExpectationBefore !== "(none)") {
-      throw new Error(`unexpected initial host expectation: ${hostExpectationBefore}`);
+    const perceiveAttachPayload = attachHostEvidence("task_attach_host_perceive_evidence.sh", perceiveTaskId);
+    if (perceiveAttachPayload.meta.bridge !== "task_attach_host_perceive_evidence") {
+      throw new Error(`unexpected perceive attach bridge: ${perceiveAttachPayload.meta.bridge}`);
+    }
+    if (perceiveAttachPayload.meta.result.source_kind !== "perceive") {
+      throw new Error(`unexpected perceive attach source_kind: ${perceiveAttachPayload.meta.result.source_kind}`);
+    }
+    if (perceiveAttachPayload.meta.result.target_kind !== "active-window") {
+      throw new Error(`unexpected perceive attach target_kind: ${perceiveAttachPayload.meta.result.target_kind}`);
+    }
+    if (!perceiveAttachPayload.meta.result.summary) {
+      throw new Error("perceive attach result summary was empty");
+    }
+    if (!Array.isArray(perceiveAttachPayload.meta.attached_artifacts) || perceiveAttachPayload.meta.attached_artifacts.length < 5) {
+      throw new Error(`unexpected perceive attach artifacts: ${JSON.stringify(perceiveAttachPayload.meta.attached_artifacts)}`);
     }
 
-    await page.locator('[data-testid="host-target-kind"]').fill("active-window");
-    await page.locator('[data-testid="host-require-summary"]').check();
-    await page.locator('[data-testid="host-min-artifact-count"]').fill("1");
-    await page.locator('[data-testid="host-note"]').fill("visible ui host expectation");
-    await page.locator('[data-testid="host-expectation-submit"]').click();
-    await page.waitForFunction(() => {
-      const summary = document.querySelector('[data-testid="host-expectation-summary"]')?.textContent || "";
-      const status = document.querySelector('[data-testid="host-status-pill"]')?.textContent || "";
-      const source = document.querySelector('[data-testid="host-source-summary"]')?.textContent || "";
-      const evidence = document.querySelector('[data-testid="host-evidence-summary"]')?.textContent || "";
-      const meta = document.querySelector('[data-testid="host-evidence-meta"]')?.textContent || "";
-      return summary.includes("target=active-window")
-        && status.trim() === "match"
-        && source.includes("describe")
-        && evidence.trim() !== "(none)"
-        && meta.includes("artifacts=");
-    });
+    await updateSelectedTaskRunning();
+    await expectInitialHostBlank();
+    await setExpectationAndWaitForMatch("perceive");
 
-    const hostExpectationSummary = ((await page.locator('[data-testid="host-expectation-summary"]').textContent()) || "").trim();
-    const hostVerificationReason = ((await page.locator('[data-testid="host-verification-reason"]').textContent()) || "").trim();
-    const hostSourceSummary = ((await page.locator('[data-testid="host-source-summary"]').textContent()) || "").trim();
-    const hostSourceMeta = ((await page.locator('[data-testid="host-source-meta"]').textContent()) || "").trim();
-    const hostEvidenceSummary = ((await page.locator('[data-testid="host-evidence-summary"]').textContent()) || "").trim();
-    const hostEvidenceMeta = ((await page.locator('[data-testid="host-evidence-meta"]').textContent()) || "").trim();
-    if (!hostExpectationSummary.includes("target=active-window")) {
-      throw new Error(`unexpected host expectation summary: ${hostExpectationSummary}`);
+    const perceiveHost = await readHostBlock();
+    if (!perceiveHost.expectation.includes("target=active-window")) {
+      throw new Error(`unexpected perceive host expectation summary: ${perceiveHost.expectation}`);
     }
-    if (hostVerificationReason !== "host evidence satisfies configured expectation") {
-      throw new Error(`unexpected host verification reason after set: ${hostVerificationReason}`);
+    if (perceiveHost.verification !== "host evidence satisfies configured expectation") {
+      throw new Error(`unexpected perceive host verification reason after set: ${perceiveHost.verification}`);
     }
-    if (!hostSourceSummary.includes("describe")) {
-      throw new Error(`unexpected host source summary: ${hostSourceSummary}`);
+    if (!perceiveHost.source.includes("perceive")) {
+      throw new Error(`unexpected perceive host source summary: ${perceiveHost.source}`);
     }
-    if (!hostSourceMeta.includes("policy=latest_attached_then_source_precedence")) {
-      throw new Error(`unexpected host source meta: ${hostSourceMeta}`);
+    if (!perceiveHost.sourceMeta.includes("policy=latest_attached_then_source_precedence")) {
+      throw new Error(`unexpected perceive host source meta: ${perceiveHost.sourceMeta}`);
     }
-    if (hostEvidenceSummary === "(none)") {
-      throw new Error(`unexpected empty host evidence summary: ${hostEvidenceSummary}`);
+    if (perceiveHost.evidence === "(none)") {
+      throw new Error(`unexpected empty perceive host evidence summary: ${perceiveHost.evidence}`);
     }
-    if (!hostEvidenceMeta.includes("artifacts=")) {
-      throw new Error(`unexpected host evidence meta: ${hostEvidenceMeta}`);
+    if (!perceiveHost.evidenceMeta.includes("artifacts=") || !perceiveHost.evidenceMeta.includes("target=active-window")) {
+      throw new Error(`unexpected perceive host evidence meta: ${perceiveHost.evidenceMeta}`);
     }
-
-    await page.locator('[data-testid="host-refresh-submit"]').click();
-    await page.waitForFunction(() => {
-      const status = document.querySelector('[data-testid="host-status-pill"]')?.textContent || "";
-      const meta = document.querySelector('[data-testid="host-verification-meta"]')?.textContent || "";
-      const flash = document.querySelector('[data-testid="flash-message"]')?.textContent || "";
-      return status.trim() === "match" && meta.includes("source=describe") && meta.includes("by panel-visible") && flash.includes("Refreshed host verification");
-    });
-
-    const hostVerificationMeta = ((await page.locator('[data-testid="host-verification-meta"]').textContent()) || "").trim();
-    if (!hostVerificationMeta.includes("source=describe") || !hostVerificationMeta.includes("by panel-visible")) {
-      throw new Error(`unexpected host verification meta after refresh: ${hostVerificationMeta}`);
+    await refreshVerificationFromUi("perceive");
+    const perceiveVerificationMeta = ((await page.locator('[data-testid="host-verification-meta"]').textContent()) || "").trim();
+    if (!perceiveVerificationMeta.includes("source=perceive") || !perceiveVerificationMeta.includes("by panel-visible")) {
+      throw new Error(`unexpected perceive host verification meta after refresh: ${perceiveVerificationMeta}`);
     }
-
-    await page.locator('[data-testid="close-status"]').selectOption("done");
-    await page.locator('[data-testid="close-owner"]').fill("panel-visible-ui");
-    await page.locator('[data-testid="close-note"]').fill("visible ui close");
-    await page.locator('[data-testid="close-submit"]').click();
-    await page.waitForFunction(() => {
-      const status = document.querySelector("#detail-status-pill")?.textContent?.trim() || "";
-      const closure = document.querySelector("#detail-closure")?.textContent?.trim() || "";
-      return status === "done" && closure === "visible ui close";
-    });
-
-    const closedStatus = ((await page.locator("#detail-status-pill").textContent()) || "").trim();
-    const closureNote = ((await page.locator("#detail-closure").textContent()) || "").trim();
-    if (closedStatus !== "done") {
-      throw new Error(`unexpected closed status: ${closedStatus}`);
-    }
-    if (closureNote !== "visible ui close") {
-      throw new Error(`unexpected closure note: ${closureNote}`);
-    }
+    const perceiveClosedStatus = await closeSelectedTask();
 
     console.log("SMOKE_PANEL_VISIBLE_UI_OK");
     console.log(`PANEL_VISIBLE_FIRST_ID ${firstTaskId}`);
-    console.log(`PANEL_VISIBLE_CREATED_ID ${createdTaskId}`);
+    console.log(`PANEL_VISIBLE_DESCRIBE_CREATED_ID ${createdTaskId}`);
+    console.log(`PANEL_VISIBLE_PERCEIVE_CREATED_ID ${perceiveTaskId}`);
     console.log(`PANEL_VISIBLE_SUMMARY_TOTAL ${initialTotal}`);
     console.log(`PANEL_VISIBLE_DETAIL_ID ${detailId}`);
-    console.log(`PANEL_VISIBLE_HOST_EXPECTATION ${hostExpectationSummary}`);
-    console.log(`PANEL_VISIBLE_HOST_SOURCE ${hostSourceSummary}`);
-    console.log(`PANEL_VISIBLE_HOST_SOURCE_META ${hostSourceMeta}`);
-    console.log(`PANEL_VISIBLE_HOST_EVIDENCE ${hostEvidenceSummary}`);
-    console.log(`PANEL_VISIBLE_HOST_EVIDENCE_META ${hostEvidenceMeta}`);
-    console.log(`PANEL_VISIBLE_HOST_VERIFICATION ${hostVerificationReason}`);
-    console.log(`PANEL_VISIBLE_HOST_META ${hostVerificationMeta}`);
-    console.log(`PANEL_VISIBLE_FINAL_STATUS ${closedStatus}`);
+    console.log(`PANEL_VISIBLE_DESCRIBE_HOST_EXPECTATION ${describeHost.expectation}`);
+    console.log(`PANEL_VISIBLE_DESCRIBE_HOST_SOURCE ${describeHost.source}`);
+    console.log(`PANEL_VISIBLE_DESCRIBE_HOST_SOURCE_META ${describeHost.sourceMeta}`);
+    console.log(`PANEL_VISIBLE_DESCRIBE_HOST_EVIDENCE ${describeHost.evidence}`);
+    console.log(`PANEL_VISIBLE_DESCRIBE_HOST_EVIDENCE_META ${describeHost.evidenceMeta}`);
+    console.log(`PANEL_VISIBLE_DESCRIBE_HOST_VERIFICATION ${describeHost.verification}`);
+    console.log(`PANEL_VISIBLE_DESCRIBE_HOST_META ${describeVerificationMeta}`);
+    console.log(`PANEL_VISIBLE_DESCRIBE_FINAL_STATUS ${describeClosedStatus}`);
+    console.log(`PANEL_VISIBLE_PERCEIVE_HOST_EXPECTATION ${perceiveHost.expectation}`);
+    console.log(`PANEL_VISIBLE_PERCEIVE_HOST_SOURCE ${perceiveHost.source}`);
+    console.log(`PANEL_VISIBLE_PERCEIVE_HOST_SOURCE_META ${perceiveHost.sourceMeta}`);
+    console.log(`PANEL_VISIBLE_PERCEIVE_HOST_EVIDENCE ${perceiveHost.evidence}`);
+    console.log(`PANEL_VISIBLE_PERCEIVE_HOST_EVIDENCE_META ${perceiveHost.evidenceMeta}`);
+    console.log(`PANEL_VISIBLE_PERCEIVE_HOST_VERIFICATION ${perceiveHost.verification}`);
+    console.log(`PANEL_VISIBLE_PERCEIVE_HOST_META ${perceiveVerificationMeta}`);
+    console.log(`PANEL_VISIBLE_PERCEIVE_FINAL_STATUS ${perceiveClosedStatus}`);
   } finally {
     await browser.close();
   }
@@ -354,7 +510,7 @@ npm init -y >/dev/null 2>&1
 npm install --silent playwright >/dev/null 2>&1
 ./node_modules/.bin/playwright install chromium >/dev/null 2>&1
 PANEL_BASE_URL="http://127.0.0.1:${port}" \
-CREATED_TASK_ID_FILE="$created_task_id_file" \
+CREATED_TASK_IDS_FILE="$created_task_ids_file" \
 REPO_ROOT="$REPO_ROOT" \
 GOLEM_HOST_CAPABILITIES_ROOT="$cap_root" \
 node "$node_script"
