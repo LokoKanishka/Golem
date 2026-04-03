@@ -30,6 +30,15 @@ const els = {
   detailAcceptance: document.getElementById("detail-acceptance"),
   detailNotes: document.getElementById("detail-notes"),
   detailClosure: document.getElementById("detail-closure"),
+  hostStatusPill: document.getElementById("host-status-pill"),
+  hostExpectationSummary: document.getElementById("host-expectation-summary"),
+  hostExpectationMeta: document.getElementById("host-expectation-meta"),
+  hostVerificationReason: document.getElementById("host-verification-reason"),
+  hostVerificationMeta: document.getElementById("host-verification-meta"),
+  hostSourceSummary: document.getElementById("host-source-summary"),
+  hostSourceMeta: document.getElementById("host-source-meta"),
+  hostEvidenceSummary: document.getElementById("host-evidence-summary"),
+  hostEvidenceMeta: document.getElementById("host-evidence-meta"),
   updateTarget: document.getElementById("update-target"),
   closeTarget: document.getElementById("close-target"),
   flash: document.getElementById("flash-message"),
@@ -38,6 +47,8 @@ const els = {
   createForm: document.getElementById("create-form"),
   updateForm: document.getElementById("update-form"),
   closeForm: document.getElementById("close-form"),
+  hostExpectationForm: document.getElementById("host-expectation-form"),
+  hostRefreshForm: document.getElementById("host-refresh-form"),
   refreshAll: document.getElementById("refresh-all"),
   reloadDetail: document.getElementById("reload-detail"),
   listControls: document.getElementById("list-controls"),
@@ -69,6 +80,24 @@ function splitLines(value) {
 
 function statusClass(status) {
   return `status-pill status-${(status || "").toLowerCase()}`;
+}
+
+function setFormDisabled(form, disabled) {
+  for (const element of form.elements) {
+    element.disabled = disabled;
+  }
+}
+
+function compactJoin(parts, fallback = "(none)") {
+  const filtered = parts.map((part) => String(part || "").trim()).filter(Boolean);
+  return filtered.length ? filtered.join(" | ") : fallback;
+}
+
+function hostStatusClass(verification) {
+  if (!verification?.present) {
+    return "status-pill status-neutral";
+  }
+  return statusClass(verification.status || "neutral");
 }
 
 function renderSummary(inventory) {
@@ -115,12 +144,145 @@ function renderTaskList(meta, tasks) {
   }
 }
 
+function renderHost(task) {
+  const expectation = task?.host_expectation || { present: false };
+  const verification = task?.host_verification || { present: false };
+  const evidence = task?.host_evidence_summary || { present: false };
+
+  if (!task) {
+    els.hostStatusPill.textContent = "not configured";
+    els.hostStatusPill.className = "status-pill status-neutral";
+    els.hostExpectationSummary.textContent = "(none)";
+    els.hostExpectationMeta.textContent = "Select a task to configure host expectation.";
+    els.hostVerificationReason.textContent = "(none)";
+    els.hostVerificationMeta.textContent = "No host verification available.";
+    els.hostSourceSummary.textContent = "(none)";
+    els.hostSourceMeta.textContent = "No host evidence selected.";
+    els.hostEvidenceSummary.textContent = "(none)";
+    els.hostEvidenceMeta.textContent = "No host evidence attached.";
+    els.hostExpectationForm.reset();
+    els.hostExpectationForm.elements.min_artifact_count.value = "0";
+    els.hostRefreshForm.reset();
+    setFormDisabled(els.hostExpectationForm, true);
+    setFormDisabled(els.hostRefreshForm, true);
+    return;
+  }
+
+  const expectationChecks = [];
+  if (expectation.target_kind) {
+    expectationChecks.push(`target=${expectation.target_kind}`);
+  }
+  if (expectation.surface_category) {
+    expectationChecks.push(`surface=${expectation.surface_category}`);
+  }
+  if (expectation.min_surface_confidence) {
+    expectationChecks.push(`confidence>=${expectation.min_surface_confidence}`);
+  }
+  if (expectation.require_summary) {
+    expectationChecks.push("summary required");
+  }
+  if (Number(expectation.min_artifact_count || 0) > 0) {
+    expectationChecks.push(`artifacts>=${expectation.min_artifact_count}`);
+  }
+  if (expectation.require_structured_fields) {
+    expectationChecks.push("structured fields required");
+  }
+
+  els.hostStatusPill.textContent = verification.present ? verification.status || "unknown" : "not configured";
+  els.hostStatusPill.className = hostStatusClass(verification);
+  els.hostExpectationSummary.textContent = expectation.present
+    ? compactJoin(expectationChecks, "configured with no explicit checks")
+    : "(none)";
+  els.hostExpectationMeta.textContent = expectation.present
+    ? compactJoin(
+        [
+          expectation.configured_at ? `configured ${expectation.configured_at}` : "",
+          expectation.configured_by ? `by ${expectation.configured_by}` : "",
+          expectation.note ? `note: ${expectation.note}` : "",
+        ],
+        "Host expectation configured.",
+      )
+    : "No host expectation configured.";
+
+  els.hostVerificationReason.textContent = verification.present
+    ? verification.reason || verification.status || "(none)"
+    : "(none)";
+  els.hostVerificationMeta.textContent = verification.present
+    ? compactJoin(
+        [
+          verification.source_kind ? `source=${verification.source_kind}` : "",
+          verification.capture_lane ? `lane=${verification.capture_lane}` : "",
+          verification.last_evaluated_at ? `evaluated ${verification.last_evaluated_at}` : "",
+          verification.evaluated_by ? `by ${verification.evaluated_by}` : "",
+          verification.stale_reasons?.length ? `stale: ${verification.stale_reasons.join(", ")}` : "",
+          verification.mismatch_checks?.length ? `mismatch: ${verification.mismatch_checks.join(", ")}` : "",
+          verification.insufficient_checks?.length ? `insufficient: ${verification.insufficient_checks.join(", ")}` : "",
+        ],
+        "Host verification present.",
+      )
+    : "No host verification available.";
+
+  els.hostSourceSummary.textContent = evidence.present
+    ? compactJoin(
+        [
+          evidence.source_kind || "",
+          evidence.capture_lane || "",
+        ],
+        "(none)",
+      )
+    : "(none)";
+  els.hostSourceMeta.textContent = evidence.present
+    ? compactJoin(
+        [
+          evidence.selection_policy ? `policy=${evidence.selection_policy}` : "",
+          evidence.selection_reason || "",
+          evidence.last_attached_at ? `attached ${evidence.last_attached_at}` : "",
+        ],
+        "Host evidence selected.",
+      )
+    : "No host evidence selected.";
+
+  const actualSurface = compactJoin(
+    [
+      evidence.target_kind ? `target=${evidence.target_kind}` : "",
+      evidence.surface_category ? `surface=${evidence.surface_category}` : "",
+      evidence.surface_confidence ? `confidence=${evidence.surface_confidence}` : "",
+    ],
+    "",
+  );
+  els.hostEvidenceSummary.textContent = evidence.present
+    ? evidence.summary || actualSurface || "(none)"
+    : "(none)";
+  els.hostEvidenceMeta.textContent = evidence.present
+    ? compactJoin(
+        [
+          actualSurface,
+          Number(evidence.artifact_count || 0) > 0 ? `artifacts=${evidence.artifact_count}` : "",
+          evidence.evidence_path ? `evidence=${evidence.evidence_path}` : "",
+        ],
+        "Host evidence attached.",
+      )
+    : "No host evidence attached.";
+
+  els.hostExpectationForm.elements.target_kind.value = expectation.target_kind || "";
+  els.hostExpectationForm.elements.surface_category.value = expectation.surface_category || "";
+  els.hostExpectationForm.elements.min_surface_confidence.value = expectation.min_surface_confidence || "";
+  els.hostExpectationForm.elements.min_artifact_count.value = String(expectation.min_artifact_count || 0);
+  els.hostExpectationForm.elements.require_summary.checked = Boolean(expectation.require_summary);
+  els.hostExpectationForm.elements.require_structured_fields.checked = Boolean(expectation.require_structured_fields);
+  els.hostExpectationForm.elements.note.value = expectation.note || "";
+  els.hostRefreshForm.elements.source.value = "";
+  setFormDisabled(els.hostExpectationForm, false);
+  setFormDisabled(els.hostRefreshForm, false);
+}
+
 function renderDetail(task) {
   if (!task) {
     els.detailEmpty.classList.remove("hidden");
     els.detailCard.classList.add("hidden");
     els.updateTarget.textContent = "target: none";
     els.closeTarget.textContent = "target: none";
+    renderHost(null);
     return;
   }
 
@@ -140,6 +302,7 @@ function renderDetail(task) {
   els.detailClosure.textContent = task.closure_note || "(none)";
   els.updateTarget.textContent = `target: ${task.id}`;
   els.closeTarget.textContent = `target: ${task.id}`;
+  renderHost(task);
 }
 
 async function loadSummary() {
@@ -262,6 +425,53 @@ async function onClose(event) {
   setFlash(`Closed ${state.selectedTaskId}.`, "success");
 }
 
+async function onSetHostExpectation(event) {
+  event.preventDefault();
+  if (!state.selectedTaskId) {
+    setFlash("Select a task before configuring host expectation.", "error");
+    return;
+  }
+
+  const formData = new FormData(els.hostExpectationForm);
+  const minArtifactCount = Number(formData.get("min_artifact_count") || 0);
+  const payload = {
+    target_kind: formData.get("target_kind").trim(),
+    surface_category: formData.get("surface_category").trim(),
+    min_surface_confidence: formData.get("min_surface_confidence").trim(),
+    require_summary: formData.get("require_summary") === "on",
+    min_artifact_count: Number.isFinite(minArtifactCount) && minArtifactCount >= 0 ? minArtifactCount : 0,
+    require_structured_fields: formData.get("require_structured_fields") === "on",
+    note: formData.get("note").trim(),
+    actor: "panel-visible",
+  };
+  await request(`/tasks/${encodeURIComponent(state.selectedTaskId)}/host-expectation`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  await refreshAll();
+  setFlash(`Saved host expectation for ${state.selectedTaskId}.`, "success");
+}
+
+async function onRefreshHostVerification(event) {
+  event.preventDefault();
+  if (!state.selectedTaskId) {
+    setFlash("Select a task before refreshing host verification.", "error");
+    return;
+  }
+
+  const formData = new FormData(els.hostRefreshForm);
+  const payload = {
+    source: formData.get("source").trim(),
+    actor: "panel-visible",
+  };
+  await request(`/tasks/${encodeURIComponent(state.selectedTaskId)}/host-verification/refresh`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  await refreshAll();
+  setFlash(`Refreshed host verification for ${state.selectedTaskId}.`, "success");
+}
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -290,6 +500,12 @@ async function boot() {
   els.closeForm.addEventListener("submit", (event) => {
     onClose(event).catch((error) => setFlash(error.message, "error"));
   });
+  els.hostExpectationForm.addEventListener("submit", (event) => {
+    onSetHostExpectation(event).catch((error) => setFlash(error.message, "error"));
+  });
+  els.hostRefreshForm.addEventListener("submit", (event) => {
+    onRefreshHostVerification(event).catch((error) => setFlash(error.message, "error"));
+  });
   els.refreshAll.addEventListener("click", () => {
     refreshAll().catch((error) => setFlash(error.message, "error"));
   });
@@ -302,6 +518,7 @@ async function boot() {
   });
 
   try {
+    renderHost(null);
     await refreshAll();
   } catch (error) {
     setFlash(error.message, "error");

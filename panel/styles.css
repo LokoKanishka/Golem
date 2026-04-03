@@ -288,6 +288,22 @@ textarea {
   color: var(--danger);
 }
 
+.status-match {
+  background: rgba(44, 91, 69, 0.12);
+  color: var(--success);
+}
+
+.status-mismatch {
+  background: rgba(123, 46, 46, 0.12);
+  color: var(--danger);
+}
+
+.status-insufficient_evidence,
+.status-neutral {
+  background: rgba(138, 79, 25, 0.14);
+  color: var(--warn);
+}
+
 .detail-card.hidden {
   display: none;
 }
@@ -343,6 +359,102 @@ textarea {
 
 .detail-span {
   grid-column: span 2;
+}
+
+.detail-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 0.9rem;
+}
+
+.section-header h4,
+.block-header-inline h4 {
+  margin: 0;
+}
+
+.block-header-inline {
+  margin-bottom: 0;
+}
+
+.host-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.host-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 0.9rem;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.host-card-span {
+  grid-column: span 2;
+}
+
+.host-label {
+  margin: 0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.host-value {
+  margin: 0.45rem 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.host-meta {
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.host-controls {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: 1.6fr 0.9fr;
+  gap: 0.9rem;
+}
+
+.host-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.host-check-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.toggle {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 0.7rem 0.85rem;
+}
+
+.toggle input {
+  width: auto;
+  margin: 0;
 }
 
 .stack-form {
@@ -416,5 +528,20 @@ textarea {
 
   .detail-span {
     grid-column: span 1;
+  }
+
+  .host-grid,
+  .host-controls,
+  .host-form-grid,
+  .host-check-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .host-card-span {
+    grid-column: span 1;
+  }
+
+  .section-header {
+    flex-direction: column;
   }
 }

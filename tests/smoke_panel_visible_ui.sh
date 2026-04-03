@@ -138,6 +138,44 @@ async function main() {
       throw new Error(`unexpected updated status: ${updatedStatus}`);
     }
 
+    const hostExpectationBefore = ((await page.locator('[data-testid="host-expectation-summary"]').textContent()) || "").trim();
+    if (hostExpectationBefore !== "(none)") {
+      throw new Error(`unexpected initial host expectation: ${hostExpectationBefore}`);
+    }
+
+    await page.locator('[data-testid="host-target-kind"]').fill("active-window");
+    await page.locator('[data-testid="host-require-summary"]').check();
+    await page.locator('[data-testid="host-min-artifact-count"]').fill("1");
+    await page.locator('[data-testid="host-note"]').fill("visible ui host expectation");
+    await page.locator('[data-testid="host-expectation-submit"]').click();
+    await page.waitForFunction(() => {
+      const summary = document.querySelector('[data-testid="host-expectation-summary"]')?.textContent || "";
+      const status = document.querySelector('[data-testid="host-status-pill"]')?.textContent || "";
+      const meta = document.querySelector('[data-testid="host-verification-meta"]')?.textContent || "";
+      return summary.includes("target=active-window") && status.trim() === "insufficient_evidence" && meta.includes("by panel");
+    });
+
+    const hostExpectationSummary = ((await page.locator('[data-testid="host-expectation-summary"]').textContent()) || "").trim();
+    const hostVerificationReason = ((await page.locator('[data-testid="host-verification-reason"]').textContent()) || "").trim();
+    if (!hostExpectationSummary.includes("target=active-window")) {
+      throw new Error(`unexpected host expectation summary: ${hostExpectationSummary}`);
+    }
+    if (hostVerificationReason !== "no host evidence attached") {
+      throw new Error(`unexpected host verification reason after set: ${hostVerificationReason}`);
+    }
+
+    await page.locator('[data-testid="host-refresh-submit"]').click();
+    await page.waitForFunction(() => {
+      const meta = document.querySelector('[data-testid="host-verification-meta"]')?.textContent || "";
+      const flash = document.querySelector('[data-testid="flash-message"]')?.textContent || "";
+      return meta.includes("by panel-visible") && flash.includes("Refreshed host verification");
+    });
+
+    const hostVerificationMeta = ((await page.locator('[data-testid="host-verification-meta"]').textContent()) || "").trim();
+    if (!hostVerificationMeta.includes("by panel-visible")) {
+      throw new Error(`unexpected host verification meta after refresh: ${hostVerificationMeta}`);
+    }
+
     await page.locator('[data-testid="close-status"]').selectOption("done");
     await page.locator('[data-testid="close-owner"]').fill("panel-visible-ui");
     await page.locator('[data-testid="close-note"]').fill("visible ui close");
@@ -162,6 +200,9 @@ async function main() {
     console.log(`PANEL_VISIBLE_CREATED_ID ${createdTaskId}`);
     console.log(`PANEL_VISIBLE_SUMMARY_TOTAL ${initialTotal}`);
     console.log(`PANEL_VISIBLE_DETAIL_ID ${detailId}`);
+    console.log(`PANEL_VISIBLE_HOST_EXPECTATION ${hostExpectationSummary}`);
+    console.log(`PANEL_VISIBLE_HOST_VERIFICATION ${hostVerificationReason}`);
+    console.log(`PANEL_VISIBLE_HOST_META ${hostVerificationMeta}`);
     console.log(`PANEL_VISIBLE_FINAL_STATUS ${closedStatus}`);
   } finally {
     await browser.close();

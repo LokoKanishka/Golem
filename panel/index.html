@@ -106,6 +106,83 @@
               <div class="detail-span"><dt>Notes</dt><dd id="detail-notes">...</dd></div>
               <div class="detail-span"><dt>Closure Note</dt><dd id="detail-closure">...</dd></div>
             </dl>
+            <section class="detail-section host-surface" data-testid="host-section">
+              <div class="section-header">
+                <div>
+                  <p class="eyebrow">Host</p>
+                  <h4>Declarative Verification</h4>
+                </div>
+                <span id="host-status-pill" class="status-pill" data-testid="host-status-pill">not configured</span>
+              </div>
+              <div class="host-grid">
+                <article class="host-card host-card-span">
+                  <p class="host-label">Expectation</p>
+                  <p id="host-expectation-summary" class="host-value" data-testid="host-expectation-summary">(none)</p>
+                  <p id="host-expectation-meta" class="host-meta" data-testid="host-expectation-meta">No host expectation configured.</p>
+                </article>
+                <article class="host-card host-card-span">
+                  <p class="host-label">Verification</p>
+                  <p id="host-verification-reason" class="host-value" data-testid="host-verification-reason">(none)</p>
+                  <p id="host-verification-meta" class="host-meta" data-testid="host-verification-meta">No host verification available.</p>
+                </article>
+                <article class="host-card">
+                  <p class="host-label">Source</p>
+                  <p id="host-source-summary" class="host-value" data-testid="host-source-summary">(none)</p>
+                  <p id="host-source-meta" class="host-meta" data-testid="host-source-meta">No host evidence selected.</p>
+                </article>
+                <article class="host-card">
+                  <p class="host-label">Evidence</p>
+                  <p id="host-evidence-summary" class="host-value" data-testid="host-evidence-summary">(none)</p>
+                  <p id="host-evidence-meta" class="host-meta" data-testid="host-evidence-meta">No host evidence attached.</p>
+                </article>
+              </div>
+              <div class="host-controls">
+                <form id="host-expectation-form" class="stack-form" data-testid="host-expectation-form">
+                  <div class="block-header block-header-inline">
+                    <div>
+                      <p class="eyebrow">Host</p>
+                      <h4>Set Expectation</h4>
+                    </div>
+                  </div>
+                  <div class="host-form-grid">
+                    <label>Target Kind <input name="target_kind" data-testid="host-target-kind" placeholder="active-window"></label>
+                    <label>Surface Category <input name="surface_category" data-testid="host-surface-category" placeholder="browser-web-app"></label>
+                    <label>Min Surface Confidence
+                      <select name="min_surface_confidence" data-testid="host-min-surface-confidence">
+                        <option value="">none</option>
+                        <option value="uncertain">uncertain</option>
+                        <option value="weak">weak</option>
+                        <option value="moderate">moderate</option>
+                        <option value="strong">strong</option>
+                      </select>
+                    </label>
+                    <label>Min Artifact Count <input name="min_artifact_count" data-testid="host-min-artifact-count" type="number" min="0" value="0"></label>
+                  </div>
+                  <div class="host-check-grid">
+                    <label class="toggle"><input name="require_summary" data-testid="host-require-summary" type="checkbox"> Require summary</label>
+                    <label class="toggle"><input name="require_structured_fields" data-testid="host-require-structured-fields" type="checkbox"> Require structured fields</label>
+                  </div>
+                  <label>Note <textarea name="note" data-testid="host-note" rows="2" placeholder="Optional operator note"></textarea></label>
+                  <button type="submit" data-testid="host-expectation-submit">Save Host Expectation</button>
+                </form>
+                <form id="host-refresh-form" class="stack-form" data-testid="host-refresh-form">
+                  <div class="block-header block-header-inline">
+                    <div>
+                      <p class="eyebrow">Host</p>
+                      <h4>Refresh Verification</h4>
+                    </div>
+                  </div>
+                  <label>Source
+                    <select name="source" data-testid="host-refresh-source">
+                      <option value="">auto</option>
+                      <option value="describe">describe</option>
+                      <option value="perceive">perceive</option>
+                    </select>
+                  </label>
+                  <button type="submit" data-testid="host-refresh-submit">Refresh Host Verification</button>
+                </form>
+              </div>
+            </section>
           </article>
         </section>
 
