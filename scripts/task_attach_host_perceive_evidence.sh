@@ -8,9 +8,7 @@ TASKS_DIR="$REPO_ROOT/tasks"
 usage() {
   cat >&2 <<'USAGE'
 Usage:
-./scripts/task_attach_host_describe_evidence.sh <task-id|path> desktop [--actor <actor>] [--json]
-./scripts/task_attach_host_describe_evidence.sh <task-id|path> active-window [--actor <actor>] [--json]
-./scripts/task_attach_host_describe_evidence.sh <task-id|path> window (--title <substring> | --window-id <id>) [--actor <actor>] [--json]
+./scripts/task_attach_host_perceive_evidence.sh <task-id|path> [--actor <actor>] [--json]
 USAGE
   exit 1
 }
@@ -20,33 +18,19 @@ fail() {
   exit 1
 }
 
-[[ $# -ge 2 ]] || usage
+[[ $# -ge 1 ]] || usage
 
 TASK_INPUT="$1"
-shift
-TARGET_MODE="$1"
 shift
 
 ACTOR="host-task-bridge"
 OUTPUT_JSON=0
-WINDOW_TITLE=""
-WINDOW_ID=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --actor)
       [[ $# -ge 2 ]] || usage
       ACTOR="$2"
-      shift 2
-      ;;
-    --title)
-      [[ $# -ge 2 ]] || usage
-      WINDOW_TITLE="$2"
-      shift 2
-      ;;
-    --window-id)
-      [[ $# -ge 2 ]] || usage
-      WINDOW_ID="$2"
       shift 2
       ;;
     --json)
@@ -58,23 +42,6 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
-
-case "$TARGET_MODE" in
-  desktop|active-window)
-    [[ -z "$WINDOW_TITLE" && -z "$WINDOW_ID" ]] || usage
-    ;;
-  window)
-    if [[ -n "$WINDOW_TITLE" && -n "$WINDOW_ID" ]]; then
-      fail "choose either --title or --window-id, not both"
-    fi
-    if [[ -z "$WINDOW_TITLE" && -z "$WINDOW_ID" ]]; then
-      fail "window mode requires --title or --window-id"
-    fi
-    ;;
-  *)
-    usage
-    ;;
-esac
 
 if [[ -f "$TASK_INPUT" ]]; then
   TASK_TARGET="$TASK_INPUT"
@@ -96,17 +63,8 @@ PY
 
 [[ -n "$TASK_ID" ]] || fail "could not resolve canonical task id"
 
-describe_cmd=("./scripts/golem_host_describe.sh" "$TARGET_MODE")
-if [[ "$TARGET_MODE" == "window" ]]; then
-  if [[ -n "$WINDOW_TITLE" ]]; then
-    describe_cmd+=(--title "$WINDOW_TITLE")
-  else
-    describe_cmd+=(--window-id "$WINDOW_ID")
-  fi
-fi
-describe_cmd+=(--json)
-
-host_payload="$("${describe_cmd[@]}")"
+perceive_cmd=("./scripts/golem_host_perceive.sh" "snapshot" "--json")
+host_payload="$("${perceive_cmd[@]}")"
 meta_tmp="$(mktemp)"
 trap 'rm -f "$meta_tmp"' EXIT
 
@@ -122,9 +80,9 @@ sys.path.insert(0, str(scripts_dir))
 from task_host_verification_common import build_host_bridge_payload
 
 payload = json.loads(sys.argv[1])
-bridge_payload = build_host_bridge_payload(payload, repo_root, "describe")
+bridge_payload = build_host_bridge_payload(payload, repo_root, "perceive")
 output_extra = dict(bridge_payload["output_extra"])
-output_extra["bridge"] = "task_attach_host_describe_evidence"
+output_extra["bridge"] = "task_attach_host_perceive_evidence"
 
 print("META\tevidence_path\t" + bridge_payload["evidence_path"])
 print("META\tnote\t" + bridge_payload["note"])
@@ -150,11 +108,11 @@ done <"$meta_tmp"
 [[ -n "${META[result_json]:-}" ]] || fail "failed to derive host evidence result json"
 [[ -n "${META[output_extra_json]:-}" ]] || fail "failed to derive host evidence output json"
 
-command_display="$(printf '%q ' "${describe_cmd[@]}")"
+command_display="$(printf '%q ' "${perceive_cmd[@]}")"
 command_display="${command_display% }"
 
 ./scripts/task_add_evidence.sh "$TASK_TARGET" \
-  --type host-describe \
+  --type host-perceive \
   --note "${META[note]}" \
   --path "${META[evidence_path]}" \
   --command "$command_display" \
@@ -164,12 +122,12 @@ command_display="${command_display% }"
 for artifact_path in "${ARTIFACTS[@]}"; do
   ./scripts/task_add_artifact.sh "$TASK_TARGET" "$artifact_path" \
     --actor "$ACTOR" \
-    --note "Host describe artifact attached through the canonical host->task bridge." >/dev/null
+    --note "Host perceive artifact attached through the canonical host->task bridge." >/dev/null
 done
 
 TASK_OUTPUT_EXTRA_JSON="${META[output_extra_json]}" \
-  ./scripts/task_add_output.sh "$TASK_ID" host-describe-evidence 0 \
-  "TASK_HOST_DESCRIBE_EVIDENCE_ATTACHED $TASK_ID target=$TARGET_MODE" >/dev/null
+  ./scripts/task_add_output.sh "$TASK_ID" host-perceive-evidence 0 \
+  "TASK_HOST_PERCEIVE_EVIDENCE_ATTACHED $TASK_ID" >/dev/null
 
 final_payload="$(./scripts/task_panel_read.sh show "$TASK_TARGET")"
 
@@ -188,10 +146,10 @@ print(
     json.dumps(
         {
             "meta": {
-                "bridge": "task_attach_host_describe_evidence",
+                "bridge": "task_attach_host_perceive_evidence",
                 "source_of_truth": "tasks/*.json",
                 "canonical_only": True,
-                "host_capture_lane": "golem_host_describe",
+                "host_capture_lane": "golem_host_perceive",
                 "canonical_script_command": command_display,
                 "evidence_path": evidence_path,
                 "attached_artifacts": artifacts,
@@ -205,9 +163,8 @@ print(
 )
 PY
 else
-  printf 'TASK_HOST_DESCRIBE_EVIDENCE_ATTACHED %s target=%s surface=%s confidence=%s\n' \
+  printf 'TASK_HOST_PERCEIVE_EVIDENCE_ATTACHED %s target=%s source_kind=%s\n' \
     "$TASK_ID" \
-    "$TARGET_MODE" \
-    "$(python3 -c 'import json,sys; print(json.loads(sys.argv[1]).get("surface_category",""))' "${META[result_json]}")" \
-    "$(python3 -c 'import json,sys; print(json.loads(sys.argv[1]).get("surface_confidence",""))' "${META[result_json]}")"
+    "$(python3 -c 'import json,sys; print(json.loads(sys.argv[1]).get("target_kind",""))' "${META[result_json]}")" \
+    "$(python3 -c 'import json,sys; print(json.loads(sys.argv[1]).get("source_kind",""))' "${META[result_json]}")"
 fi

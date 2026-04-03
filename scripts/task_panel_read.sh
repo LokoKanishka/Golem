@@ -291,6 +291,8 @@ def task_card(task):
         "user_facing_ready": bool(delivery.get("user_facing_ready")),
         "whatsapp_delivery_state": whatsapp.get("current_state", ""),
         "host_evidence_present": bool(host_summary.get("present")),
+        "host_source_kind": host_summary.get("source_kind", ""),
+        "host_capture_lane": host_summary.get("capture_lane", ""),
         "host_last_attached_at": host_summary.get("last_attached_at", ""),
         "host_surface_category": host_summary.get("surface_category", ""),
         "host_surface_confidence": host_summary.get("surface_confidence", ""),

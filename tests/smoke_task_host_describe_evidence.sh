@@ -119,6 +119,8 @@ assert bridge["meta"]["host_capture_lane"] == "golem_host_describe", bridge["met
 
 result = bridge["meta"]["result"]
 assert result["source"] == "host", result
+assert result["source_family"] == "host", result
+assert result["source_kind"] == "describe", result
 assert result["capture_lane"] == "golem_host_describe", result
 assert result["target_kind"] == "active-window", result
 assert result["run_dir"], result
@@ -140,6 +142,7 @@ assert "source=host" in evidence["note"], evidence
 assert evidence["command"].endswith("--json"), evidence["command"]
 evidence_result = json.loads(evidence["result"])
 assert evidence_result["source"] == "host", evidence_result
+assert evidence_result["source_kind"] == "describe", evidence_result
 assert evidence_result["target_kind"] == "active-window", evidence_result
 
 artifacts = bridge["meta"]["attached_artifacts"]
@@ -159,6 +162,7 @@ assert outputs, task.get("outputs", [])
 assert outputs[-1]["exit_code"] == 0, outputs[-1]
 assert "TASK_HOST_DESCRIBE_EVIDENCE_ATTACHED" in outputs[-1]["content"], outputs[-1]
 assert outputs[-1]["source"] == "host", outputs[-1]
+assert outputs[-1]["source_kind"] == "describe", outputs[-1]
 assert outputs[-1]["bridge"] == "task_attach_host_describe_evidence", outputs[-1]
 
 history_actions = [entry["action"] for entry in task.get("history", [])]

@@ -72,6 +72,8 @@ assert "status" in first_task and first_task["status"], first_task
 assert "title" in first_task and first_task["title"], first_task
 assert "host_evidence_present" in first_task, first_task
 assert isinstance(first_task["host_evidence_present"], bool), first_task
+assert "host_source_kind" in first_task, first_task
+assert "host_capture_lane" in first_task, first_task
 assert "host_expectation_present" in first_task, first_task
 assert isinstance(first_task["host_expectation_present"], bool), first_task
 assert "host_verification_status" in first_task, first_task

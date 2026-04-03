@@ -211,6 +211,7 @@ if host_summary.get("present"):
     print("host_evidence_present: yes")
     print(f"host_evidence_events: {host_summary.get('event_count', 0)}")
     print(f"host_last_attached_at: {host_summary.get('last_attached_at') or '(none)'}")
+    print(f"host_source_kind: {host_summary.get('source_kind') or '(none)'}")
     print(f"host_capture_lane: {host_summary.get('capture_lane') or '(none)'}")
     print(f"host_target_kind: {host_summary.get('target_kind') or '(none)'}")
     print(f"host_surface_category: {host_summary.get('surface_category') or '(none)'}")
@@ -242,6 +243,7 @@ if host_expectation.get("present"):
 if host_verification.get("present"):
     print(f"host_verification_status: {host_verification.get('status') or '(none)'}")
     print(f"host_verification_reason: {host_verification.get('reason') or '(none)'}")
+    print(f"host_verification_source_kind: {host_verification.get('source_kind') or '(none)'}")
     print(f"host_last_evaluated_at: {host_verification.get('last_evaluated_at') or '(none)'}")
     print(f"host_verification_stale: {'yes' if host_verification.get('stale') else 'no'}")
 print(f"last_note: {last_note}")

@@ -10,11 +10,33 @@ CONFIDENCE_ORDER = {
     "strong": 3,
 }
 
+HOST_SOURCE_DEFAULTS = {
+    "describe": {
+        "evidence_type": "host-describe",
+        "output_kind": "host-describe-evidence",
+        "capture_lane": "golem_host_describe",
+    },
+    "perceive": {
+        "evidence_type": "host-perceive",
+        "output_kind": "host-perceive-evidence",
+        "capture_lane": "golem_host_perceive",
+    },
+}
+
+HOST_EVIDENCE_TYPES = {
+    config["evidence_type"] for config in HOST_SOURCE_DEFAULTS.values()
+}
+HOST_OUTPUT_KINDS = {
+    config["output_kind"] for config in HOST_SOURCE_DEFAULTS.values()
+}
+
 
 def empty_host_evidence_summary():
     return {
         "present": False,
         "source": "",
+        "source_family": "",
+        "source_kind": "",
         "capture_lane": "",
         "event_count": 0,
         "last_attached_at": "",
@@ -61,6 +83,9 @@ def empty_host_verification_summary():
         "last_evaluated_at": "",
         "evaluated_by": "",
         "used_host_last_attached_at": "",
+        "source_family": "",
+        "source_kind": "",
+        "capture_lane": "",
         "target_kind": "",
         "surface_category": "",
         "surface_confidence": "",
@@ -86,6 +111,247 @@ def parse_json_object(raw):
     if not isinstance(parsed, dict):
         return None
     return parsed
+
+
+def host_source_defaults(source_kind):
+    return HOST_SOURCE_DEFAULTS.get(str(source_kind or "").strip(), {})
+
+
+def infer_host_source_kind(result=None, entry_type="", output_kind="", capture_lane=""):
+    result = result if isinstance(result, dict) else {}
+    explicit = str(result.get("source_kind") or result.get("capture_source_kind") or "").strip()
+    if explicit:
+        return explicit
+
+    entry_type = str(entry_type or "").strip()
+    if entry_type == "host-describe":
+        return "describe"
+    if entry_type == "host-perceive":
+        return "perceive"
+
+    output_kind = str(output_kind or "").strip()
+    if output_kind == "host-describe-evidence":
+        return "describe"
+    if output_kind == "host-perceive-evidence":
+        return "perceive"
+
+    capture_lane = str(capture_lane or result.get("capture_lane") or "").strip()
+    if capture_lane == "golem_host_describe":
+        return "describe"
+    if capture_lane == "golem_host_perceive":
+        return "perceive"
+
+    return ""
+
+
+def infer_host_capture_lane(source_kind="", capture_lane=""):
+    if capture_lane:
+        return str(capture_lane)
+    defaults = host_source_defaults(source_kind)
+    return str(defaults.get("capture_lane") or "")
+
+
+def normalize_host_evidence_result(raw, entry_type="", output_kind=""):
+    result = raw if isinstance(raw, dict) else {}
+    source_kind = infer_host_source_kind(
+        result=result,
+        entry_type=entry_type,
+        output_kind=output_kind,
+        capture_lane=result.get("capture_lane") if isinstance(result, dict) else "",
+    )
+    source_family = str(result.get("source_family") or result.get("source") or "")
+    if not source_family and source_kind:
+        source_family = "host"
+
+    return {
+        "source": source_family,
+        "source_family": source_family,
+        "source_kind": source_kind,
+        "capture_lane": infer_host_capture_lane(source_kind, result.get("capture_lane")),
+        "target_kind": str(result.get("target_kind") or ""),
+        "surface_category": str(result.get("surface_category") or ""),
+        "surface_label": str(result.get("surface_label") or ""),
+        "surface_confidence": str(result.get("surface_confidence") or ""),
+        "summary": str(result.get("summary") or ""),
+        "run_dir": str(result.get("run_dir") or ""),
+        "non_empty_structured_fields": list(result.get("non_empty_structured_fields") or []),
+        "non_empty_fine_fields": list(result.get("non_empty_fine_fields") or []),
+        "non_empty_contextual_refinements": list(result.get("non_empty_contextual_refinements") or []),
+        "non_empty_surface_state_fields": list(result.get("non_empty_surface_state_fields") or []),
+    }
+
+
+def is_host_evidence_entry(entry, result=None):
+    if not isinstance(entry, dict):
+        return False
+    entry_type = str(entry.get("type") or "").strip()
+    if entry_type in HOST_EVIDENCE_TYPES:
+        return True
+
+    normalized = normalize_host_evidence_result(result, entry_type=entry_type)
+    if normalized.get("source_family") == "host":
+        return True
+
+    note = str(entry.get("note") or "")
+    return "source=host" in note
+
+
+def is_host_output(output):
+    if not isinstance(output, dict):
+        return False
+    output_kind = str(output.get("kind") or "").strip()
+    if output_kind in HOST_OUTPUT_KINDS:
+        return True
+
+    source_family = str(output.get("source_family") or output.get("source") or "").strip()
+    return source_family == "host"
+
+
+def repo_relative(raw_path, repo_root):
+    path = pathlib.Path(raw_path).expanduser()
+    resolved = path.resolve(strict=False)
+    repo_root = pathlib.Path(repo_root).resolve()
+    try:
+        return str(resolved.relative_to(repo_root))
+    except Exception:
+        return str(resolved)
+
+
+def _compact_summary(raw):
+    return " ".join(str(raw or "").split()).strip()
+
+
+def build_host_bridge_payload(payload, repo_root, source_kind):
+    repo_root = pathlib.Path(repo_root).resolve()
+    payload = payload if isinstance(payload, dict) else {}
+    source_kind = str(source_kind or "").strip()
+
+    if source_kind == "describe":
+        description = payload.get("description") or {}
+        surface = description.get("surface_classification") or {}
+        structured = description.get("structured_fields") or {}
+        bundle = description.get("surface_state_bundle") or {}
+        artifacts = payload.get("artifacts") or {}
+        target = payload.get("target") or {}
+
+        summary = _compact_summary(description.get("summary"))
+        result = normalize_host_evidence_result(
+            {
+                "source": "host",
+                "source_family": "host",
+                "source_kind": "describe",
+                "capture_lane": "golem_host_describe",
+                "target_kind": target.get("kind") or "",
+                "run_dir": payload.get("run_dir") or "",
+                "surface_category": surface.get("category") or "",
+                "surface_label": surface.get("label") or "",
+                "surface_confidence": surface.get("confidence") or "",
+                "summary": summary,
+                "non_empty_structured_fields": structured.get("non_empty_fields") or [],
+                "non_empty_fine_fields": structured.get("non_empty_fine_fields") or [],
+                "non_empty_contextual_refinements": structured.get("non_empty_contextual_refinements") or [],
+                "non_empty_surface_state_fields": bundle.get("non_empty_fields") or [],
+            },
+            entry_type="host-describe",
+        )
+        note = (
+            f"source=host source_kind=describe capture_lane=golem_host_describe "
+            f"target={result['target_kind']} surface={result['surface_category']}/{result['surface_confidence']}. "
+            f"{summary}"
+        ).strip()
+        output_extra = {
+            "source": "host",
+            "source_family": "host",
+            "source_kind": "describe",
+            "capture_lane": "golem_host_describe",
+            "target_kind": result["target_kind"],
+            "run_dir": result["run_dir"],
+            "surface_category": result["surface_category"],
+            "surface_confidence": result["surface_confidence"],
+        }
+        artifact_paths = [
+            artifacts.get("summary", ""),
+            artifacts.get("description", ""),
+            artifacts.get("sources", ""),
+            artifacts.get("target_screenshot", ""),
+            artifacts.get("surface_profile", ""),
+            artifacts.get("structured_fields", ""),
+            artifacts.get("surface_state_bundle", ""),
+        ]
+        evidence_path = repo_relative(
+            pathlib.Path(result["run_dir"]) / "manifest.json",
+            repo_root,
+        )
+        return {
+            "note": note,
+            "result": result,
+            "output_extra": output_extra,
+            "evidence_path": evidence_path,
+            "artifact_paths": [repo_relative(path, repo_root) for path in artifact_paths if path],
+        }
+
+    if source_kind == "perceive":
+        artifacts = payload.get("artifacts") or {}
+        active_window = payload.get("active_window") or {}
+        visible_context = list(payload.get("visible_context") or [])
+        active_title = _compact_summary(active_window.get("title"))
+        summary_parts = []
+        if active_title:
+            summary_parts.append(f"Active window: {active_title}.")
+        if visible_context:
+            summary_parts.append(
+                "Visible context: " + ", ".join(_compact_summary(item) for item in visible_context[:5] if item)
+            )
+        if not summary_parts:
+            summary_parts.append(f"Perceived {int(payload.get('windows_total') or 0)} visible windows.")
+        summary = _compact_summary(" ".join(summary_parts))
+
+        target_kind = "active-window" if active_window.get("window_id") or active_title else ""
+        result = normalize_host_evidence_result(
+            {
+                "source": "host",
+                "source_family": "host",
+                "source_kind": "perceive",
+                "capture_lane": "golem_host_perceive",
+                "target_kind": target_kind,
+                "run_dir": payload.get("run_dir") or "",
+                "summary": summary,
+            },
+            entry_type="host-perceive",
+        )
+        note = (
+            f"source=host source_kind=perceive capture_lane=golem_host_perceive "
+            f"target={target_kind or 'unknown'} windows_total={int(payload.get('windows_total') or 0)}. "
+            f"{summary}"
+        ).strip()
+        output_extra = {
+            "source": "host",
+            "source_family": "host",
+            "source_kind": "perceive",
+            "capture_lane": "golem_host_perceive",
+            "target_kind": result["target_kind"],
+            "run_dir": result["run_dir"],
+        }
+        artifact_paths = [
+            artifacts.get("summary", ""),
+            artifacts.get("desktop_screenshot", ""),
+            artifacts.get("active_window_screenshot", ""),
+            artifacts.get("windows", ""),
+            artifacts.get("active_window_properties", ""),
+        ]
+        evidence_path = repo_relative(
+            pathlib.Path(result["run_dir"]) / "manifest.json",
+            repo_root,
+        )
+        return {
+            "note": note,
+            "result": result,
+            "output_extra": output_extra,
+            "evidence_path": evidence_path,
+            "artifact_paths": [repo_relative(path, repo_root) for path in artifact_paths if path],
+        }
+
+    raise ValueError(f"unsupported host source kind: {source_kind}")
 
 
 def path_matches_run_dir(raw_path, run_dir, repo_root):
@@ -116,10 +382,8 @@ def build_host_evidence_summary(task, repo_root):
         if not isinstance(entry, dict):
             continue
         result = parse_json_object(entry.get("result", ""))
-        note = str(entry.get("note") or "")
-        result_source = (result or {}).get("source", "")
-        if entry.get("type") == "host-describe" or result_source == "host" or "source=host" in note:
-            host_entries.append((entry, result))
+        if is_host_evidence_entry(entry, result):
+            host_entries.append((entry, normalize_host_evidence_result(result, entry_type=entry.get("type"))))
 
     if not host_entries:
         return summary
@@ -129,11 +393,21 @@ def build_host_evidence_summary(task, repo_root):
     for output in reversed(task.get("outputs") or []):
         if not isinstance(output, dict):
             continue
-        if output.get("kind") == "host-describe-evidence":
-            latest_output = output
-            break
+        if not is_host_output(output):
+            continue
+        output_kind = str(output.get("kind") or "")
+        output_source_kind = infer_host_source_kind(
+            output_kind=output_kind,
+            capture_lane=output.get("capture_lane"),
+        )
+        output_run_dir = str(output.get("run_dir") or "")
+        if result.get("run_dir") and output_run_dir and output_run_dir != result.get("run_dir"):
+            continue
+        if result.get("source_kind") and output_source_kind and output_source_kind != result.get("source_kind"):
+            continue
+        latest_output = output
+        break
 
-    result = result or {}
     run_dir = str(result.get("run_dir") or latest_output.get("run_dir") or "")
     artifact_references = []
     for artifact in task.get("artifacts") or []:
@@ -142,11 +416,29 @@ def build_host_evidence_summary(task, repo_root):
         if path_matches_run_dir(artifact, run_dir, repo_root):
             artifact_references.append(artifact)
 
+    source_kind = str(
+        result.get("source_kind")
+        or infer_host_source_kind(
+            output_kind=latest_output.get("kind"),
+            capture_lane=latest_output.get("capture_lane"),
+        )
+        or ""
+    )
+    source_family = str(result.get("source_family") or latest_output.get("source_family") or latest_output.get("source") or "")
+    if not source_family and source_kind:
+        source_family = "host"
+
     summary.update(
         {
             "present": True,
-            "source": str(result.get("source") or latest_output.get("source") or "host"),
-            "capture_lane": str(result.get("capture_lane") or "golem_host_describe"),
+            "source": source_family,
+            "source_family": source_family,
+            "source_kind": source_kind,
+            "capture_lane": str(
+                result.get("capture_lane")
+                or latest_output.get("capture_lane")
+                or infer_host_capture_lane(source_kind)
+            ),
             "event_count": len(host_entries),
             "last_attached_at": str(latest_output.get("captured_at") or task.get("updated_at") or ""),
             "target_kind": str(result.get("target_kind") or latest_output.get("target_kind") or ""),
@@ -335,6 +627,9 @@ def evaluate_host_expectation(expectation, host_summary, evaluated_at="", evalua
             "last_evaluated_at": last_evaluated_at,
             "evaluated_by": str(evaluated_by or ""),
             "used_host_last_attached_at": used_host_last_attached_at,
+            "source_family": str(host_summary.get("source_family") or host_summary.get("source") or ""),
+            "source_kind": str(host_summary.get("source_kind") or ""),
+            "capture_lane": str(host_summary.get("capture_lane") or ""),
             "target_kind": actual_target_kind,
             "surface_category": actual_surface_category,
             "surface_confidence": actual_confidence,

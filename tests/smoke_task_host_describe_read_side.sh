@@ -130,6 +130,8 @@ host = task["host_evidence_summary"]
 
 assert host["present"] is True, host
 assert host["source"] == "host", host
+assert host["source_family"] == "host", host
+assert host["source_kind"] == "describe", host
 assert host["capture_lane"] == "golem_host_describe", host
 assert host["target_kind"] == "active-window", host
 assert host["last_attached_at"], host
@@ -147,6 +149,8 @@ assert isinstance(host["non_empty_surface_state_fields"], list), host
 list_task = next((entry for entry in list_payload["tasks"] if entry["id"] == task_id), None)
 assert list_task is not None, list_payload["tasks"][:3]
 assert list_task["host_evidence_present"] is True, list_task
+assert list_task["host_source_kind"] == "describe", list_task
+assert list_task["host_capture_lane"] == "golem_host_describe", list_task
 assert list_task["host_surface_category"] == host["surface_category"], (list_task, host)
 assert list_task["host_surface_confidence"] == host["surface_confidence"], (list_task, host)
 assert list_task["host_last_attached_at"] == host["last_attached_at"], (list_task, host)
@@ -156,6 +160,7 @@ after_count = summary_after["inventory"].get("host_evidence_tasks", 0)
 assert after_count >= before_count + 1, (before_count, after_count)
 
 assert "host_evidence_present: yes" in human_summary, human_summary
+assert "host_source_kind: describe" in human_summary, human_summary
 assert "host_capture_lane: golem_host_describe" in human_summary, human_summary
 assert "host_target_kind: active-window" in human_summary, human_summary
 assert "host_artifact_count: " in human_summary, human_summary
