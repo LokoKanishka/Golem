@@ -133,6 +133,7 @@ assert host["source"] == "host", host
 assert host["source_family"] == "host", host
 assert host["source_kind"] == "describe", host
 assert host["capture_lane"] == "golem_host_describe", host
+assert host["selection_policy"] == "latest_attached_then_source_precedence", host
 assert host["target_kind"] == "active-window", host
 assert host["last_attached_at"], host
 assert host["summary"], host
@@ -162,6 +163,7 @@ assert after_count >= before_count + 1, (before_count, after_count)
 assert "host_evidence_present: yes" in human_summary, human_summary
 assert "host_source_kind: describe" in human_summary, human_summary
 assert "host_capture_lane: golem_host_describe" in human_summary, human_summary
+assert "host_selection_policy: latest_attached_then_source_precedence" in human_summary, human_summary
 assert "host_target_kind: active-window" in human_summary, human_summary
 assert "host_artifact_count: " in human_summary, human_summary
 assert "host_summary: " in human_summary, human_summary

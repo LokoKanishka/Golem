@@ -13,7 +13,12 @@ bash -n ./scripts/task_set_host_expectation.sh
 bash -n ./scripts/task_evaluate_host_expectation.sh
 bash -n ./scripts/task_refresh_host_verification.sh
 bash -n ./scripts/task_attach_host_perceive_evidence.sh
+bash -n ./tests/smoke_task_host_verification_policy.sh
 bash -n ./tests/smoke_task_host_declarative_loop.sh
+printf '\n'
+
+printf '== smoke host verification policy ==\n'
+./tests/smoke_task_host_verification_policy.sh
 printf '\n'
 
 printf '== smoke task<->host declarative loop ==\n'

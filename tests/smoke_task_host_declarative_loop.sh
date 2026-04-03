@@ -166,8 +166,10 @@ verification_b = task_b["host_verification"]
 assert host_b["present"] is True, host_b
 assert host_b["source_kind"] == "describe", host_b
 assert host_b["capture_lane"] == "golem_host_describe", host_b
+assert host_b["selection_policy"] == "latest_attached_then_source_precedence", host_b
 assert verification_b["status"] == "match", verification_b
 assert verification_b["source_kind"] == "describe", verification_b
+assert verification_b["selection_policy"] == "latest_attached_then_source_precedence", verification_b
 assert verification_b["last_evaluated_at"], verification_b
 assert verification_b["stale"] is False, verification_b
 assert verification_b["target_kind"] == "active-window", verification_b
@@ -175,6 +177,7 @@ assert pathlib.Path(verification_b["run_dir"]).resolve().is_relative_to(cap_root
 assert verification_b["artifact_count"] >= 6, verification_b
 assert "host_expectation_present: yes" in summary_describe_match, summary_describe_match
 assert "host_source_kind: describe" in summary_describe_match, summary_describe_match
+assert "host_selection_policy: latest_attached_then_source_precedence" in summary_describe_match, summary_describe_match
 assert "host_verification_status: match" in summary_describe_match, summary_describe_match
 assert "host_verification_source_kind: describe" in summary_describe_match, summary_describe_match
 
@@ -183,12 +186,15 @@ host_c = task_c["host_evidence_summary"]
 verification_c = task_c["host_verification"]
 assert host_c["source_kind"] == "perceive", host_c
 assert host_c["capture_lane"] == "golem_host_perceive", host_c
+assert host_c["selection_policy"] == "latest_attached_then_source_precedence", host_c
 assert verification_c["status"] == "match", verification_c
 assert verification_c["source_kind"] == "perceive", verification_c
+assert verification_c["selection_policy"] == "latest_attached_then_source_precedence", verification_c
 assert verification_c["target_kind"] == "active-window", verification_c
 assert pathlib.Path(verification_c["run_dir"]).resolve().is_relative_to(cap_root), verification_c
 assert verification_c["artifact_count"] >= 5, verification_c
 assert "host_source_kind: perceive" in summary_perceive_match, summary_perceive_match
+assert "host_selection_policy: latest_attached_then_source_precedence" in summary_perceive_match, summary_perceive_match
 assert "host_verification_status: match" in summary_perceive_match, summary_perceive_match
 assert "host_verification_source_kind: perceive" in summary_perceive_match, summary_perceive_match
 
@@ -199,6 +205,7 @@ assert expectation_d["surface_category"] == "browser-web-app", expectation_d
 assert verification_d["status"] == "insufficient_evidence", verification_d
 assert "missing host surface_category, expected browser-web-app" in verification_d["reason"], verification_d
 assert verification_d["source_kind"] == "perceive", verification_d
+assert verification_d["selection_policy"] == "latest_attached_then_source_precedence", verification_d
 assert "host_verification_status: insufficient_evidence" in summary_perceive_insufficient, summary_perceive_insufficient
 assert "host_source_kind: perceive" in summary_perceive_insufficient, summary_perceive_insufficient
 assert "host_expectation_surface_category: browser-web-app" in summary_perceive_insufficient, summary_perceive_insufficient

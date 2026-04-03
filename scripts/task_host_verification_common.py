@@ -30,6 +30,16 @@ HOST_OUTPUT_KINDS = {
     config["output_kind"] for config in HOST_SOURCE_DEFAULTS.values()
 }
 
+HOST_SOURCE_PRECEDENCE = {
+    "describe": 20,
+    "perceive": 10,
+}
+
+HOST_EVIDENCE_SELECTION_POLICY = "latest_attached_then_source_precedence"
+HOST_VERIFICATION_FRESHNESS_POLICY = (
+    "evaluation_must_cover_selected_evidence_and_current_expectation"
+)
+
 
 def empty_host_evidence_summary():
     return {
@@ -37,8 +47,13 @@ def empty_host_evidence_summary():
         "source": "",
         "source_family": "",
         "source_kind": "",
+        "source_precedence": 0,
         "capture_lane": "",
         "event_count": 0,
+        "candidate_count": 0,
+        "candidate_source_counts": {},
+        "selection_policy": "",
+        "selection_reason": "",
         "last_attached_at": "",
         "target_kind": "",
         "surface_category": "",
@@ -86,6 +101,9 @@ def empty_host_verification_summary():
         "source_family": "",
         "source_kind": "",
         "capture_lane": "",
+        "selection_policy": "",
+        "selection_reason": "",
+        "freshness_policy": "",
         "target_kind": "",
         "surface_category": "",
         "surface_confidence": "",
@@ -97,6 +115,7 @@ def empty_host_verification_summary():
         "matched_checks": [],
         "mismatch_checks": [],
         "insufficient_checks": [],
+        "stale_reasons": [],
         "stale": False,
     }
 
@@ -219,6 +238,125 @@ def repo_relative(raw_path, repo_root):
 
 def _compact_summary(raw):
     return " ".join(str(raw or "").split()).strip()
+
+
+def _host_source_precedence(source_kind):
+    return HOST_SOURCE_PRECEDENCE.get(str(source_kind or "").strip(), 0)
+
+
+def _format_iso_z(value):
+    if not value:
+        return ""
+    parsed = _parse_iso(value)
+    if parsed is None:
+        return str(value)
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=dt.timezone.utc)
+    return parsed.astimezone(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _find_matching_host_output(task, normalized_result, source_kind):
+    for output in reversed(task.get("outputs") or []):
+        if not isinstance(output, dict):
+            continue
+        if not is_host_output(output):
+            continue
+        output_kind = str(output.get("kind") or "")
+        output_source_kind = infer_host_source_kind(
+            output_kind=output_kind,
+            capture_lane=output.get("capture_lane"),
+        )
+        output_run_dir = str(output.get("run_dir") or "")
+        if normalized_result.get("run_dir") and output_run_dir and output_run_dir != normalized_result.get("run_dir"):
+            continue
+        if source_kind and output_source_kind and output_source_kind != source_kind:
+            continue
+        return output
+    return {}
+
+
+def _host_artifact_references(task, run_dir, repo_root):
+    artifact_references = []
+    for artifact in task.get("artifacts") or []:
+        if not isinstance(artifact, str) or not artifact:
+            continue
+        if path_matches_run_dir(artifact, run_dir, repo_root):
+            artifact_references.append(artifact)
+    return artifact_references
+
+
+def _build_host_evidence_candidates(task, repo_root):
+    candidates = []
+    for entry_index, entry in enumerate(task.get("evidence") or []):
+        if not isinstance(entry, dict):
+            continue
+        result = parse_json_object(entry.get("result", ""))
+        if not is_host_evidence_entry(entry, result):
+            continue
+        normalized = normalize_host_evidence_result(result, entry_type=entry.get("type"))
+        source_kind = str(normalized.get("source_kind") or "")
+        output = _find_matching_host_output(task, normalized, source_kind)
+        run_dir = str(normalized.get("run_dir") or output.get("run_dir") or "")
+        artifact_references = _host_artifact_references(task, run_dir, repo_root)
+        attached_at = str(output.get("captured_at") or "")
+        attached_dt = _parse_iso(attached_at)
+        source_precedence = _host_source_precedence(source_kind)
+
+        candidates.append(
+            {
+                "entry": entry,
+                "entry_index": entry_index,
+                "result": normalized,
+                "output": output,
+                "run_dir": run_dir,
+                "attached_at": attached_at,
+                "attached_dt": attached_dt,
+                "artifact_references": artifact_references,
+                "artifact_count": len(artifact_references),
+                "source_kind": source_kind,
+                "source_family": str(normalized.get("source_family") or output.get("source_family") or output.get("source") or ""),
+                "source_precedence": source_precedence,
+            }
+        )
+    return candidates
+
+
+def _candidate_sort_key(candidate):
+    attached_dt = candidate.get("attached_dt")
+    return (
+        attached_dt.timestamp() if attached_dt else float("-inf"),
+        int(candidate.get("source_precedence") or 0),
+        int(candidate.get("artifact_count") or 0),
+        int(candidate.get("entry_index") or 0),
+    )
+
+
+def _candidate_source_counts(candidates):
+    counts = {}
+    for candidate in candidates:
+        source_kind = str(candidate.get("source_kind") or "unknown")
+        counts[source_kind] = counts.get(source_kind, 0) + 1
+    return counts
+
+
+def _build_selection_reason(selected, candidates):
+    if not selected:
+        return ""
+    selected_attached_at = str(selected.get("attached_at") or "")
+    if selected_attached_at:
+        tied_candidates = [
+            candidate for candidate in candidates if str(candidate.get("attached_at") or "") == selected_attached_at
+        ]
+        if len(tied_candidates) > 1:
+            return (
+                f"selected attached_at={_format_iso_z(selected_attached_at)}; "
+                f"source precedence describe>perceive broke the tie"
+            )
+        return f"selected freshest attached_at={_format_iso_z(selected_attached_at)}"
+    return (
+        f"selected by source precedence describe>perceive; "
+        f"no comparable attached_at was available"
+    )
 
 
 def build_host_bridge_payload(payload, repo_root, source_kind):
@@ -376,55 +514,18 @@ def path_matches_run_dir(raw_path, run_dir, repo_root):
 
 def build_host_evidence_summary(task, repo_root):
     summary = empty_host_evidence_summary()
-
-    host_entries = []
-    for entry in task.get("evidence") or []:
-        if not isinstance(entry, dict):
-            continue
-        result = parse_json_object(entry.get("result", ""))
-        if is_host_evidence_entry(entry, result):
-            host_entries.append((entry, normalize_host_evidence_result(result, entry_type=entry.get("type"))))
-
-    if not host_entries:
+    candidates = _build_host_evidence_candidates(task, repo_root)
+    if not candidates:
         return summary
 
-    entry, result = host_entries[-1]
-    latest_output = {}
-    for output in reversed(task.get("outputs") or []):
-        if not isinstance(output, dict):
-            continue
-        if not is_host_output(output):
-            continue
-        output_kind = str(output.get("kind") or "")
-        output_source_kind = infer_host_source_kind(
-            output_kind=output_kind,
-            capture_lane=output.get("capture_lane"),
-        )
-        output_run_dir = str(output.get("run_dir") or "")
-        if result.get("run_dir") and output_run_dir and output_run_dir != result.get("run_dir"):
-            continue
-        if result.get("source_kind") and output_source_kind and output_source_kind != result.get("source_kind"):
-            continue
-        latest_output = output
-        break
-
-    run_dir = str(result.get("run_dir") or latest_output.get("run_dir") or "")
-    artifact_references = []
-    for artifact in task.get("artifacts") or []:
-        if not isinstance(artifact, str) or not artifact:
-            continue
-        if path_matches_run_dir(artifact, run_dir, repo_root):
-            artifact_references.append(artifact)
-
-    source_kind = str(
-        result.get("source_kind")
-        or infer_host_source_kind(
-            output_kind=latest_output.get("kind"),
-            capture_lane=latest_output.get("capture_lane"),
-        )
-        or ""
-    )
-    source_family = str(result.get("source_family") or latest_output.get("source_family") or latest_output.get("source") or "")
+    selected = max(candidates, key=_candidate_sort_key)
+    entry = selected["entry"]
+    result = selected["result"]
+    output = selected["output"]
+    run_dir = str(selected.get("run_dir") or "")
+    artifact_references = list(selected.get("artifact_references") or [])
+    source_kind = str(selected.get("source_kind") or "")
+    source_family = str(selected.get("source_family") or "")
     if not source_family and source_kind:
         source_family = "host"
 
@@ -434,17 +535,22 @@ def build_host_evidence_summary(task, repo_root):
             "source": source_family,
             "source_family": source_family,
             "source_kind": source_kind,
+            "source_precedence": int(selected.get("source_precedence") or 0),
             "capture_lane": str(
                 result.get("capture_lane")
-                or latest_output.get("capture_lane")
+                or output.get("capture_lane")
                 or infer_host_capture_lane(source_kind)
             ),
-            "event_count": len(host_entries),
-            "last_attached_at": str(latest_output.get("captured_at") or task.get("updated_at") or ""),
-            "target_kind": str(result.get("target_kind") or latest_output.get("target_kind") or ""),
-            "surface_category": str(result.get("surface_category") or latest_output.get("surface_category") or ""),
+            "event_count": len(candidates),
+            "candidate_count": len(candidates),
+            "candidate_source_counts": _candidate_source_counts(candidates),
+            "selection_policy": HOST_EVIDENCE_SELECTION_POLICY,
+            "selection_reason": _build_selection_reason(selected, candidates),
+            "last_attached_at": str(selected.get("attached_at") or task.get("updated_at") or ""),
+            "target_kind": str(result.get("target_kind") or output.get("target_kind") or ""),
+            "surface_category": str(result.get("surface_category") or output.get("surface_category") or ""),
             "surface_label": str(result.get("surface_label") or ""),
-            "surface_confidence": str(result.get("surface_confidence") or latest_output.get("surface_confidence") or ""),
+            "surface_confidence": str(result.get("surface_confidence") or output.get("surface_confidence") or ""),
             "summary": str(result.get("summary") or entry.get("note") or ""),
             "evidence_path": str(entry.get("path") or ""),
             "command": str(entry.get("command") or ""),
@@ -614,10 +720,18 @@ def evaluate_host_expectation(expectation, host_summary, evaluated_at="", evalua
     last_evaluated_at = str(evaluated_at or "")
     used_host_last_attached_at = str(host_summary.get("last_attached_at") or "")
     stale = False
+    stale_reasons = []
     evaluated_dt = _parse_iso(last_evaluated_at)
     attached_dt = _parse_iso(used_host_last_attached_at)
     if evaluated_dt and attached_dt and evaluated_dt < attached_dt:
         stale = True
+        stale_reasons.append("newer_host_evidence_attached")
+
+    configured_at = str(expectation.get("configured_at") or "")
+    configured_dt = _parse_iso(configured_at)
+    if evaluated_dt and configured_dt and evaluated_dt < configured_dt:
+        stale = True
+        stale_reasons.append("host_expectation_updated")
 
     summary.update(
         {
@@ -630,6 +744,9 @@ def evaluate_host_expectation(expectation, host_summary, evaluated_at="", evalua
             "source_family": str(host_summary.get("source_family") or host_summary.get("source") or ""),
             "source_kind": str(host_summary.get("source_kind") or ""),
             "capture_lane": str(host_summary.get("capture_lane") or ""),
+            "selection_policy": str(host_summary.get("selection_policy") or ""),
+            "selection_reason": str(host_summary.get("selection_reason") or ""),
+            "freshness_policy": HOST_VERIFICATION_FRESHNESS_POLICY,
             "target_kind": actual_target_kind,
             "surface_category": actual_surface_category,
             "surface_confidence": actual_confidence,
@@ -641,6 +758,7 @@ def evaluate_host_expectation(expectation, host_summary, evaluated_at="", evalua
             "matched_checks": matched,
             "mismatch_checks": mismatches,
             "insufficient_checks": insufficient,
+            "stale_reasons": stale_reasons,
             "stale": stale,
         }
     )

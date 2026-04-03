@@ -210,9 +210,12 @@ print(f"artifacts: {len(task.get('artifacts', []))}")
 if host_summary.get("present"):
     print("host_evidence_present: yes")
     print(f"host_evidence_events: {host_summary.get('event_count', 0)}")
+    print(f"host_evidence_candidates: {host_summary.get('candidate_count', 0)}")
     print(f"host_last_attached_at: {host_summary.get('last_attached_at') or '(none)'}")
     print(f"host_source_kind: {host_summary.get('source_kind') or '(none)'}")
     print(f"host_capture_lane: {host_summary.get('capture_lane') or '(none)'}")
+    print(f"host_selection_policy: {host_summary.get('selection_policy') or '(none)'}")
+    print(f"host_selection_reason: {host_summary.get('selection_reason') or '(none)'}")
     print(f"host_target_kind: {host_summary.get('target_kind') or '(none)'}")
     print(f"host_surface_category: {host_summary.get('surface_category') or '(none)'}")
     print(f"host_surface_confidence: {host_summary.get('surface_confidence') or '(none)'}")
@@ -244,7 +247,13 @@ if host_verification.get("present"):
     print(f"host_verification_status: {host_verification.get('status') or '(none)'}")
     print(f"host_verification_reason: {host_verification.get('reason') or '(none)'}")
     print(f"host_verification_source_kind: {host_verification.get('source_kind') or '(none)'}")
+    print(f"host_verification_freshness_policy: {host_verification.get('freshness_policy') or '(none)'}")
     print(f"host_last_evaluated_at: {host_verification.get('last_evaluated_at') or '(none)'}")
     print(f"host_verification_stale: {'yes' if host_verification.get('stale') else 'no'}")
+    stale_reasons = host_verification.get("stale_reasons") or []
+    print(
+        "host_verification_stale_reasons: "
+        + (",".join(stale_reasons) if stale_reasons else "(none)")
+    )
 print(f"last_note: {last_note}")
 PY

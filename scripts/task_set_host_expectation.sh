@@ -179,6 +179,9 @@ task["host_verification"] = {
     "source_family": verification["source_family"],
     "source_kind": verification["source_kind"],
     "capture_lane": verification["capture_lane"],
+    "selection_policy": verification["selection_policy"],
+    "selection_reason": verification["selection_reason"],
+    "freshness_policy": verification["freshness_policy"],
     "target_kind": verification["target_kind"],
     "surface_category": verification["surface_category"],
     "surface_confidence": verification["surface_confidence"],
@@ -190,6 +193,7 @@ task["host_verification"] = {
     "matched_checks": verification["matched_checks"],
     "mismatch_checks": verification["mismatch_checks"],
     "insufficient_checks": verification["insufficient_checks"],
+    "stale_reasons": verification["stale_reasons"],
     "stale": verification["stale"],
 }
 
