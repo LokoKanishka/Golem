@@ -161,6 +161,123 @@ default_screenshot = {
 }
 
 
+def empty_host_evidence_summary():
+    return {
+        "present": False,
+        "source": "",
+        "capture_lane": "",
+        "event_count": 0,
+        "last_attached_at": "",
+        "target_kind": "",
+        "surface_category": "",
+        "surface_label": "",
+        "surface_confidence": "",
+        "summary": "",
+        "evidence_path": "",
+        "command": "",
+        "run_dir": "",
+        "artifact_count": 0,
+        "artifact_references": [],
+        "non_empty_structured_fields": [],
+        "non_empty_fine_fields": [],
+        "non_empty_contextual_refinements": [],
+        "non_empty_surface_state_fields": [],
+    }
+
+
+def parse_json_object(raw):
+    if not isinstance(raw, str) or not raw.strip():
+        return None
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(parsed, dict):
+        return None
+    return parsed
+
+
+def path_matches_run_dir(raw_path, run_dir, repo_root):
+    if not raw_path or not run_dir:
+        return False
+    try:
+        artifact_path = pathlib.Path(raw_path)
+        if not artifact_path.is_absolute():
+            artifact_path = (repo_root / artifact_path)
+        artifact_resolved = artifact_path.resolve(strict=False)
+
+        run_path = pathlib.Path(run_dir)
+        if not run_path.is_absolute():
+            run_path = (repo_root / run_path)
+        run_resolved = run_path.resolve(strict=False)
+
+        artifact_resolved.relative_to(run_resolved)
+        return True
+    except Exception:
+        return False
+
+
+def build_host_evidence_summary(task):
+    summary = empty_host_evidence_summary()
+    repo_root = tasks_dir.parent.resolve()
+
+    host_entries = []
+    for entry in task.get("evidence") or []:
+        if not isinstance(entry, dict):
+            continue
+        result = parse_json_object(entry.get("result", ""))
+        note = str(entry.get("note") or "")
+        result_source = (result or {}).get("source", "")
+        if entry.get("type") == "host-describe" or result_source == "host" or "source=host" in note:
+            host_entries.append((entry, result))
+
+    if not host_entries:
+        return summary
+
+    entry, result = host_entries[-1]
+    latest_output = {}
+    for output in reversed(task.get("outputs") or []):
+        if not isinstance(output, dict):
+            continue
+        if output.get("kind") == "host-describe-evidence":
+            latest_output = output
+            break
+
+    result = result or {}
+    run_dir = str(result.get("run_dir") or latest_output.get("run_dir") or "")
+    artifact_references = []
+    for artifact in task.get("artifacts") or []:
+        if not isinstance(artifact, str) or not artifact:
+            continue
+        if path_matches_run_dir(artifact, run_dir, repo_root):
+            artifact_references.append(artifact)
+
+    summary.update(
+        {
+            "present": True,
+            "source": str(result.get("source") or latest_output.get("source") or "host"),
+            "capture_lane": str(result.get("capture_lane") or "golem_host_describe"),
+            "event_count": len(host_entries),
+            "last_attached_at": str(latest_output.get("captured_at") or task.get("updated_at") or ""),
+            "target_kind": str(result.get("target_kind") or latest_output.get("target_kind") or ""),
+            "surface_category": str(result.get("surface_category") or latest_output.get("surface_category") or ""),
+            "surface_label": str(result.get("surface_label") or ""),
+            "surface_confidence": str(result.get("surface_confidence") or latest_output.get("surface_confidence") or ""),
+            "summary": str(result.get("summary") or entry.get("note") or ""),
+            "evidence_path": str(entry.get("path") or ""),
+            "command": str(entry.get("command") or ""),
+            "run_dir": run_dir,
+            "artifact_count": len(artifact_references),
+            "artifact_references": artifact_references,
+            "non_empty_structured_fields": list(result.get("non_empty_structured_fields") or []),
+            "non_empty_fine_fields": list(result.get("non_empty_fine_fields") or []),
+            "non_empty_contextual_refinements": list(result.get("non_empty_contextual_refinements") or []),
+            "non_empty_surface_state_fields": list(result.get("non_empty_surface_state_fields") or []),
+        }
+    )
+    return summary
+
+
 def canonical_errors(data):
     errors = []
     for key in required:
@@ -225,6 +342,7 @@ def load_task(path):
     normalized["delivery"] = normalized.get("delivery") or json.loads(json.dumps(default_delivery))
     normalized["media"] = normalized.get("media") or json.loads(json.dumps(default_media))
     normalized["screenshot"] = normalized.get("screenshot") or json.loads(json.dumps(default_screenshot))
+    normalized["host_evidence_summary"] = build_host_evidence_summary(normalized)
     return normalized
 
 
@@ -253,6 +371,7 @@ def find_task_path(input_value):
 def task_card(task):
     delivery = task.get("delivery") or {}
     whatsapp = delivery.get("whatsapp") or {}
+    host_summary = task.get("host_evidence_summary") or empty_host_evidence_summary()
     return {
         "id": task["id"],
         "task_id": task.get("task_id", task["id"]),
@@ -268,6 +387,10 @@ def task_card(task):
         "delivery_state": delivery.get("current_state", ""),
         "user_facing_ready": bool(delivery.get("user_facing_ready")),
         "whatsapp_delivery_state": whatsapp.get("current_state", ""),
+        "host_evidence_present": bool(host_summary.get("present")),
+        "host_last_attached_at": host_summary.get("last_attached_at", ""),
+        "host_surface_category": host_summary.get("surface_category", ""),
+        "host_surface_confidence": host_summary.get("surface_confidence", ""),
     }
 
 
@@ -342,12 +465,15 @@ if command == "summary":
     counts = {status: 0 for status in sorted(status_enum)}
     owners = {}
     latest_updated_at = ""
+    host_evidence_tasks = 0
 
     for _, task in tasks:
         counts[task["status"]] = counts.get(task["status"], 0) + 1
         owners[task["owner"]] = owners.get(task["owner"], 0) + 1
         if task["updated_at"] > latest_updated_at:
             latest_updated_at = task["updated_at"]
+        if (task.get("host_evidence_summary") or {}).get("present"):
+            host_evidence_tasks += 1
 
     active_counts = {key: value for key, value in counts.items() if value > 0}
     top_owners = sorted(
@@ -368,6 +494,7 @@ if command == "summary":
             "status_counts": active_counts,
             "latest_updated_at": latest_updated_at,
             "top_owners": top_owners,
+            "host_evidence_tasks": host_evidence_tasks,
         },
     }
     print(json.dumps(payload, ensure_ascii=True, indent=2))

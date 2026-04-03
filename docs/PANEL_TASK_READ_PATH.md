@@ -52,10 +52,15 @@ Each item includes at least:
 - `created_at`
 - `updated_at`
 - `delivery_state`
+- `host_evidence_present`
+
+When host evidence is already attached canonically to the task, list cards may also expose the latest host surface category/confidence for quick routing.
 
 ### Show
 
 Returns the full canonical task JSON for a single task, wrapped with read-path metadata.
+
+When the task already contains canonically attached host evidence, the show payload also exposes a computed `host_evidence_summary` so panel-side readers do not need to reconstruct host state manually from raw evidence, outputs and artifacts.
 
 ### Summary
 
@@ -65,6 +70,7 @@ Returns a minimal inventory summary with:
 - `status_counts`
 - `latest_updated_at`
 - `top_owners`
+- `host_evidence_tasks`
 
 ## Canonical-only rule
 

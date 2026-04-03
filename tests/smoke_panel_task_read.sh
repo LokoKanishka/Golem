@@ -70,6 +70,8 @@ first_task = list_payload["tasks"][0]
 assert first_task["id"].startswith("task-"), first_task
 assert "status" in first_task and first_task["status"], first_task
 assert "title" in first_task and first_task["title"], first_task
+assert "host_evidence_present" in first_task, first_task
+assert isinstance(first_task["host_evidence_present"], bool), first_task
 
 assert summary_payload["meta"]["source_of_truth"] == "tasks/*.json"
 assert summary_payload["meta"]["canonical_only"] is True
@@ -78,6 +80,7 @@ assert inventory["total"] >= list_payload["meta"]["matched"], inventory
 assert inventory["total"] >= 1000, inventory
 assert isinstance(inventory["status_counts"], dict) and inventory["status_counts"], inventory
 assert sum(inventory["status_counts"].values()) == inventory["total"], inventory
+assert "host_evidence_tasks" in inventory, inventory
 
 assert show_payload["meta"]["source_of_truth"] == "tasks/*.json"
 assert show_payload["meta"]["canonical_only"] is True
@@ -87,6 +90,7 @@ assert task["task_id"] == task["id"], task
 assert task["status"] == first_task["status"], (task["status"], first_task["status"])
 assert "delivery" in task and isinstance(task["delivery"], dict), task
 assert "history" in task and isinstance(task["history"], list) and task["history"], task
+assert "host_evidence_summary" in task and isinstance(task["host_evidence_summary"], dict), task
 
 print("SMOKE_PANEL_TASK_READ_OK")
 print(f"PANEL_TASK_LIST_FIRST_ID {first_task['id']}")

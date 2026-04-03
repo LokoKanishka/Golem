@@ -28,14 +28,14 @@ if [ ! -f "$task_path" ]; then
   fatal "no existe la tarea: $task_id"
 fi
 
-python3 - "$task_path" <<'PY'
+panel_payload="$(./scripts/task_panel_read.sh show "$task_id")"
+
+python3 - "$panel_payload" <<'PY'
 import json
-import pathlib
 import sys
 
-task_path = pathlib.Path(sys.argv[1])
-with task_path.open(encoding="utf-8") as fh:
-    task = json.load(fh)
+payload = json.loads(sys.argv[1])
+task = payload["task"]
 
 notes = task.get("notes", [])
 last_note = notes[-1] if notes else "(none)"
@@ -91,8 +91,9 @@ last_whatsapp_reconciliation_output = next(
     ),
     {},
 )
+host_summary = task.get("host_evidence_summary") or {}
 
-print(f"task_id: {task.get('task_id', task_path.stem)}")
+print(f"task_id: {task.get('task_id', task.get('id', ''))}")
 print(f"type: {task.get('type', '?')}")
 print(f"status: {task.get('status', '?')}")
 print(f"title: {task.get('title', '')}")
@@ -204,5 +205,17 @@ if last_whatsapp_reconciliation_output:
         + str(last_whatsapp_reconciliation_output.get("report_path") or "(none)")
     )
 print(f"artifacts: {len(task.get('artifacts', []))}")
+if host_summary.get("present"):
+    print("host_evidence_present: yes")
+    print(f"host_evidence_events: {host_summary.get('event_count', 0)}")
+    print(f"host_last_attached_at: {host_summary.get('last_attached_at') or '(none)'}")
+    print(f"host_capture_lane: {host_summary.get('capture_lane') or '(none)'}")
+    print(f"host_target_kind: {host_summary.get('target_kind') or '(none)'}")
+    print(f"host_surface_category: {host_summary.get('surface_category') or '(none)'}")
+    print(f"host_surface_confidence: {host_summary.get('surface_confidence') or '(none)'}")
+    print(f"host_run_dir: {host_summary.get('run_dir') or '(none)'}")
+    print(f"host_artifact_count: {host_summary.get('artifact_count', 0)}")
+    print(f"host_evidence_path: {host_summary.get('evidence_path') or '(none)'}")
+    print(f"host_summary: {host_summary.get('summary') or '(none)'}")
 print(f"last_note: {last_note}")
 PY
