@@ -7,6 +7,7 @@ import json
 import pathlib
 import re
 import statistics
+import subprocess
 import sys
 import unicodedata
 from typing import cast
@@ -526,6 +527,74 @@ def fallback_lines_from_text(text: str, variant: str) -> list[dict[str, object]]
             }
         )
     return results
+
+
+def supporting_active_fallback_ocr(run_dir: pathlib.Path, supporting_active_png: pathlib.Path) -> dict[str, object]:
+    if not supporting_active_png.exists():
+        return {
+            "raw_text": "",
+            "enhanced_text": "",
+            "raw_lines": [],
+            "enhanced_lines": [],
+            "merged_lines": [],
+        }
+
+    raw_base = run_dir / "supporting-active-ocr"
+    raw_txt = raw_base.with_suffix(".txt")
+    enhanced_png = run_dir / "supporting-active-ocr-enhanced.png"
+    enhanced_base = run_dir / "supporting-active-ocr-enhanced"
+    enhanced_txt = enhanced_base.with_suffix(".txt")
+
+    subprocess.run(
+        ["tesseract", str(supporting_active_png), str(raw_base), "--psm", "6"],
+        check=False,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    if not enhanced_png.exists():
+        subprocess.run(
+            [
+                "convert",
+                str(supporting_active_png),
+                "-colorspace",
+                "Gray",
+                "-strip",
+                "-filter",
+                "Lanczos",
+                "-resize",
+                "200%",
+                "-contrast-stretch",
+                "1%x1%",
+                "-sharpen",
+                "0x1",
+                str(enhanced_png),
+            ],
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    if enhanced_png.exists():
+        subprocess.run(
+            ["tesseract", str(enhanced_png), str(enhanced_base), "--psm", "11"],
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+    raw_text = read_text(raw_txt)
+    enhanced_text = read_text(enhanced_txt)
+    raw_lines = fallback_lines_from_text(raw_text, "supporting-active-raw")
+    enhanced_lines = fallback_lines_from_text(enhanced_text, "supporting-active-enhanced")
+    merged = merge_lines(raw_lines, enhanced_lines)
+    if not merged:
+        merged = fallback_lines_from_text("\n".join(filter(None, [raw_text, enhanced_text])), "supporting-active-fallback")
+    return {
+        "raw_text": raw_text,
+        "enhanced_text": enhanced_text,
+        "raw_lines": raw_lines,
+        "enhanced_lines": enhanced_lines,
+        "merged_lines": merged,
+    }
 
 
 def merge_lines(raw_lines: list[dict[str, object]], enhanced_lines: list[dict[str, object]]) -> list[dict[str, object]]:
@@ -1764,8 +1833,13 @@ def build_editor_contextual_refinements(
         activity_state="visible",
         note="visible editor tabs that do not appear to be the active one",
     )
-    explicit_error_pattern = re.compile(r"\berror\b|\btraceback\b|\bfailed\b", re.IGNORECASE)
+    explicit_error_pattern = re.compile(r"\berror:\b|\berror\b|\bfailed\b", re.IGNORECASE)
     primary_error_base = filter_candidates_by_pattern(fields.get("error_candidates") or [], explicit_error_pattern)
+    if not primary_error_base:
+        primary_error_base = filter_candidates_by_pattern(
+            fields.get("error_candidates") or [],
+            re.compile(r"\btraceback\b", re.IGNORECASE),
+        )
     primary_error_base = take_ranked_candidates(
         primary_error_base or (fields.get("error_candidates") or []),
         note="dominant editor error candidate emphasizing explicit error or traceback text",
@@ -2829,6 +2903,25 @@ def main() -> int:
     merged_lines = merge_lines(raw_lines, enhanced_lines)
     if not merged_lines:
         merged_lines = fallback_lines_from_text(raw_ocr_text or enhanced_ocr_text, "fallback")
+    used_supporting_active_fallback = False
+    if target_kind == "desktop" and not merged_lines:
+        supporting_fallback = supporting_active_fallback_ocr(run_dir, supporting_active_png)
+        merged_lines = cast(list[dict[str, object]], supporting_fallback["merged_lines"])
+        used_supporting_active_fallback = bool(merged_lines)
+        if used_supporting_active_fallback:
+            if not raw_ocr_text:
+                raw_ocr_text = str(supporting_fallback["raw_text"])
+                ocr_text_path.write_text(raw_ocr_text + ("\n" if raw_ocr_text and not raw_ocr_text.endswith("\n") else ""), encoding="utf-8")
+            if not enhanced_ocr_text:
+                enhanced_ocr_text = str(supporting_fallback["enhanced_text"])
+                ocr_enhanced_text_path.write_text(
+                    enhanced_ocr_text + ("\n" if enhanced_ocr_text and not enhanced_ocr_text.endswith("\n") else ""),
+                    encoding="utf-8",
+                )
+            if not raw_lines:
+                raw_lines = cast(list[dict[str, object]], supporting_fallback["raw_lines"])
+            if not enhanced_lines:
+                enhanced_lines = cast(list[dict[str, object]], supporting_fallback["enhanced_lines"])
     joined_ocr = "\n".join(str(item["text"]) for item in merged_lines)
     surface = surface_kind(app, title, joined_ocr or raw_ocr_text or enhanced_ocr_text)
     layout = build_layout(merged_lines, surface)
@@ -2898,6 +2991,11 @@ def main() -> int:
     ]
 
     screenshot_source_id = "desktop_screenshot" if target_kind == "desktop" else "target_screenshot"
+    content_sources = [screenshot_source_id, "ocr_raw", "ocr_enhanced", "ocr_normalized", "layout_heuristics", "surface_classification_heuristics"]
+    classification_sources = ["window_metadata", "ocr_normalized", "layout_heuristics", "surface_classification_heuristics"]
+    if used_supporting_active_fallback:
+        content_sources.append("supporting_active_window_screenshot")
+        classification_sources.append("supporting_active_window_screenshot")
     claims: list[dict[str, object]] = []
     limits: list[str] = []
     window_identity = f'{app} window "{title or target.get("title") or "(untitled)"}"'
@@ -2938,15 +3036,24 @@ def main() -> int:
         claims.append(
             {
                 "confidence": classification_claim_confidence,
-                "sources": ["window_metadata", "ocr_normalized", "layout_heuristics", "surface_classification_heuristics"],
+                "sources": classification_sources,
                 "inference_strength": "approximate",
                 "text": classification_claim,
             }
         )
+        if used_supporting_active_fallback:
+            claims.append(
+                {
+                    "confidence": "medium",
+                    "sources": ["desktop_screenshot", "supporting_active_window_screenshot"],
+                    "inference_strength": "approximate",
+                    "text": "Desktop-wide OCR was weak, so the visible-content heuristics were refined with the supporting active-window screenshot captured by the perception lane. This keeps the desktop view as the primary frame while using the zoomed active surface only as an auditable fallback.",
+                }
+            )
         claims.append(
             {
                 "confidence": classification_claim_confidence if useful_lines else "low",
-                "sources": [screenshot_source_id, "ocr_raw", "ocr_enhanced", "ocr_normalized", "layout_heuristics", "surface_classification_heuristics"],
+                "sources": content_sources,
                 "inference_strength": "approximate",
                 "text": visible_content_claim,
             }
@@ -2954,7 +3061,7 @@ def main() -> int:
         claims.append(
             {
                 "confidence": classification_claim_confidence if useful_lines else "low",
-                "sources": ["window_metadata", "ocr_normalized", "layout_heuristics", "surface_classification_heuristics"],
+                "sources": classification_sources,
                 "inference_strength": "approximate",
                 "text": consistency_text,
             }
@@ -3076,6 +3183,10 @@ def main() -> int:
         },
         "limits": limits,
     }
+    if used_supporting_active_fallback:
+        description["source_breakdown"]["supporting_active_window_screenshot"] = (
+            "zoomed active-window screenshot used only as an auditable fallback when the desktop-wide OCR signal is too weak"
+        )
 
     sources = {
         "used": [
@@ -3179,6 +3290,17 @@ def main() -> int:
             },
         ],
     }
+    if used_supporting_active_fallback and supporting_active_png.exists():
+        sources["used"].append(
+            {
+                "id": "supporting_active_window_screenshot",
+                "kind": "screenshot",
+                "paths": [str(supporting_active_png)],
+                "role": "zoomed active-window screenshot used as a fallback evidence source when desktop-wide OCR is too weak",
+                "certainty": "medium",
+                "notes": "This fallback refines visible-text heuristics without replacing the desktop screenshot as the primary captured frame.",
+            }
+        )
     if supporting_active_png.exists():
         sources["supporting"].append(
             {

@@ -304,6 +304,7 @@ PY
       ;;
     focus)
       local title="" window_id="" before_json after_json payload_json
+      local focus_attempt=0 active_after_window_id="" active_after_title=""
       golem_host_capabilities_require_tools wmctrl xdotool python3
       while [ "$#" -gt 0 ]; do
         case "$1" in
@@ -326,10 +327,30 @@ PY
       fi
       [ -n "$window_id" ] || { usage >&2; exit 2; }
       before_json="$(capture_active_window)"
-      wmctrl -i -a "$window_id" >/dev/null 2>&1 || true
-      xdotool windowactivate --sync "$window_id" >/dev/null 2>&1 || true
-      xdotool windowfocus --sync "$window_id" >/dev/null 2>&1 || true
-      after_json="$(capture_active_window)"
+      for focus_attempt in $(seq 1 20); do
+        wmctrl -i -a "$window_id" >/dev/null 2>&1 || true
+        xdotool windowactivate --sync "$window_id" >/dev/null 2>&1 || true
+        xdotool windowfocus --sync "$window_id" >/dev/null 2>&1 || true
+        after_json="$(capture_active_window)"
+        readarray -t focus_meta < <(python3 - "$after_json" <<'PY'
+import json
+import sys
+
+payload = json.loads(sys.argv[1])
+print(payload.get("window_id", ""))
+print(payload.get("title", ""))
+PY
+)
+        active_after_window_id="${focus_meta[0]}"
+        active_after_title="${focus_meta[1]}"
+        if [ "$active_after_window_id" = "$window_id" ]; then
+          break
+        fi
+        if [ -n "$title" ] && [ "$active_after_title" = "$title" ]; then
+          break
+        fi
+        sleep 0.1
+      done
       payload_json="$(python3 - "$window_id" "$before_json" "$after_json" "$title" <<'PY'
 import json
 import sys

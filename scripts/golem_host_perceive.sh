@@ -23,7 +23,7 @@ EOF
 
 snapshot() {
   local run_dir desktop_png active_png windows_txt active_props_txt summary_path manifest_path
-  local active_window_id active_window_title session_type display_name
+  local active_window_id active_window_title active_window_source session_type display_name capture_window_id
 
   golem_host_capabilities_require_tools python3 wmctrl xdotool
   [ -f "$SCREENSHOT_HELPER" ] || {
@@ -39,19 +39,92 @@ snapshot() {
   summary_path="${run_dir}/summary.txt"
   manifest_path="${run_dir}/manifest.json"
 
-  active_window_id="$(xdotool getactivewindow 2>/dev/null)"
-  active_window_title="$(xdotool getwindowname "$active_window_id" 2>/dev/null || true)"
+  active_window_id="$(xdotool getactivewindow 2>/dev/null || true)"
+  active_window_title=""
+  if [ -n "$active_window_id" ]; then
+    active_window_title="$(xdotool getwindowname "$active_window_id" 2>/dev/null || true)"
+  fi
+  active_window_source="xdotool"
   session_type="${XDG_SESSION_TYPE:-unknown}"
   display_name="${DISPLAY:-unset}"
 
-  python3 "$SCREENSHOT_HELPER" --path "$desktop_png" >/dev/null 2>&1
-  python3 "$SCREENSHOT_HELPER" --path "$active_png" --active-window >/dev/null 2>&1
   wmctrl -lp >"$windows_txt"
-  xprop -id "$active_window_id" WM_CLASS _NET_WM_PID WM_NAME >"$active_props_txt" 2>&1 || true
+  readarray -t active_meta < <(python3 - "$windows_txt" "$active_window_id" "$active_window_title" "$active_window_source" <<'PY'
+import sys
 
-  python3 - "$run_dir" "$windows_txt" "$desktop_png" "$active_png" "$active_window_id" "$active_window_title" "$display_name" "$session_type" "$summary_path" "$manifest_path" <<'PY'
+windows_txt = sys.argv[1]
+active_window_id = sys.argv[2].strip()
+active_window_title = sys.argv[3]
+active_window_source = sys.argv[4]
+
+windows = []
+for raw_line in open(windows_txt, "r", encoding="utf-8", errors="replace").read().splitlines():
+    line = raw_line.rstrip()
+    if not line:
+        continue
+    parts = line.split(None, 4)
+    if len(parts) < 5:
+        continue
+    window_id, desktop, pid, host, title = parts
+    windows.append(
+        {
+            "window_id": window_id,
+            "desktop": desktop,
+            "pid": pid,
+            "host": host,
+            "title": title,
+        }
+    )
+
+if not active_window_id or not active_window_title:
+    fallback_window = next(
+        (item for item in windows if item["title"] and item["title"] != "Desktop Icons 1"),
+        None,
+    )
+    if fallback_window is not None:
+        active_window_id = active_window_id or fallback_window["window_id"]
+        active_window_title = active_window_title or fallback_window["title"]
+        active_window_source = "wmctrl_first_titled_window_fallback"
+    else:
+        active_window_source = "unavailable"
+
+print(active_window_id)
+print(active_window_title)
+print(active_window_source)
+PY
+)
+  active_window_id="${active_meta[0]}"
+  active_window_title="${active_meta[1]}"
+  active_window_source="${active_meta[2]}"
+
+  python3 "$SCREENSHOT_HELPER" --path "$desktop_png" >/dev/null 2>&1
+  capture_window_id=""
+  if [ -n "$active_window_id" ]; then
+    capture_window_id="$(python3 - "$active_window_id" <<'PY'
+import sys
+
+raw = sys.argv[1].strip()
+if raw:
+    value = int(raw, 16) if raw.lower().startswith("0x") else int(raw)
+    print(value)
+PY
+)"
+  fi
+  if [ -n "$capture_window_id" ]; then
+    if ! python3 "$SCREENSHOT_HELPER" --path "$active_png" --window-id "$capture_window_id" >/dev/null 2>&1 || [ ! -s "$active_png" ]; then
+      python3 "$SCREENSHOT_HELPER" --path "$active_png" --active-window >/dev/null 2>&1 || cp "$desktop_png" "$active_png"
+    fi
+  else
+    python3 "$SCREENSHOT_HELPER" --path "$active_png" --active-window >/dev/null 2>&1 || cp "$desktop_png" "$active_png"
+  fi
+  if [ -n "$active_window_id" ]; then
+    xprop -id "$active_window_id" WM_CLASS _NET_WM_PID WM_NAME >"$active_props_txt" 2>&1 || true
+  else
+    printf 'active window unavailable\n' >"$active_props_txt"
+  fi
+
+  python3 - "$run_dir" "$windows_txt" "$desktop_png" "$active_png" "$active_window_id" "$active_window_title" "$active_window_source" "$display_name" "$session_type" "$summary_path" "$manifest_path" <<'PY'
 import json
-import os
 import pathlib
 import sys
 
@@ -61,10 +134,11 @@ desktop_png = pathlib.Path(sys.argv[3])
 active_png = pathlib.Path(sys.argv[4])
 active_window_id = sys.argv[5]
 active_window_title = sys.argv[6]
-display_name = sys.argv[7]
-session_type = sys.argv[8]
-summary_path = pathlib.Path(sys.argv[9])
-manifest_path = pathlib.Path(sys.argv[10])
+active_window_source = sys.argv[7]
+display_name = sys.argv[8]
+session_type = sys.argv[9]
+summary_path = pathlib.Path(sys.argv[10])
+manifest_path = pathlib.Path(sys.argv[11])
 
 windows = []
 for raw_line in windows_txt.read_text(encoding="utf-8").splitlines():
@@ -97,6 +171,7 @@ summary_lines = [
     f"active_window_screenshot: {active_png}",
     f"active_window_id: {active_window_id or '(none)'}",
     f"active_window_title: {active_window_title or '(none)'}",
+    f"active_window_source: {active_window_source}",
     f"windows_total: {len(windows)}",
     "visible_context:",
 ]
@@ -121,6 +196,7 @@ manifest = {
     "active_window": {
         "window_id": active_window_id,
         "title": active_window_title,
+        "source": active_window_source,
     },
     "windows_total": len(windows),
     "visible_context": top_titles,

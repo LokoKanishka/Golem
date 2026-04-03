@@ -133,6 +133,7 @@ Inspeccion:
 
 ## Verificacion oficial minima
 
+- `./scripts/verify_host_lane_enforcement.sh`
 - `./scripts/verify_task_lane_enforcement.sh`
 - `./scripts/task_validate.sh --all --strict`
 - `./tests/smoke_host_perception_session.sh`
