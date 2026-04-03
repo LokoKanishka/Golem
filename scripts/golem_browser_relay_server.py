@@ -9,7 +9,7 @@ import time
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
 from typing import Dict, Optional, Set, Tuple
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 from urllib.request import urlopen
 
 
@@ -277,6 +277,13 @@ class RelayState:
             return raw
         return self.target_id_to_session.get(raw)
 
+    def attached_page_entries(self) -> list[tuple[str, dict]]:
+        return [
+            (session_id, item)
+            for session_id, item in self.targets_by_session.items()
+            if str(item.get("type") or "") == "page"
+        ]
+
     def register_target(self, session_id: str, target_info: dict) -> dict:
         attached_session = str((target_info.get("sessionId") or session_id or "").strip())
         target_id = str(target_info.get("targetId") or attached_session)
@@ -412,20 +419,156 @@ class RelayState:
         session_id = str(attach_result.get("sessionId") or "")
         if not session_id:
             raise RuntimeError("Target.attachToTarget returned no sessionId")
-        self.register_target(session_id, {
+        entry = self.register_target(session_id, {
             "targetId": str(target.get("id") or ""),
             "title": str(target.get("title") or ""),
             "url": str(target.get("url") or ""),
             "type": str(target.get("type") or "page"),
         })
+        refreshed = await self.wait_for_target_state(str(target.get("id") or ""), expected_url_prefix=str(target.get("url") or ""))
+        if refreshed:
+            entry = refreshed
         return {
             "ok": True,
             "sessionId": session_id,
             "targetId": str(target.get("id") or ""),
-            "title": str(target.get("title") or ""),
-            "url": str(target.get("url") or ""),
+            "title": str(entry.get("title") or ""),
+            "url": str(entry.get("url") or ""),
             "attached": True,
         }
+
+    def resolve_attached_target(self, selector: str = "") -> tuple[str, dict, str]:
+        entries = self.attached_page_entries()
+        if not entries:
+            raise RuntimeError("no attached page target available")
+
+        wanted = (selector or "").strip()
+        if not wanted or wanted == "active":
+            return entries[-1][0], entries[-1][1], "active-attached"
+
+        if wanted in self.targets_by_session:
+            return wanted, self.targets_by_session[wanted], "session-id"
+
+        session_from_target = self.target_id_to_session.get(wanted)
+        if session_from_target:
+            return session_from_target, self.targets_by_session[session_from_target], "target-id"
+
+        if wanted.isdigit():
+            index = int(wanted)
+            if index < 0 or index >= len(entries):
+                raise RuntimeError(f"attached page index out of range: {wanted}")
+            return entries[index][0], entries[index][1], "index"
+
+        needle = wanted.lower()
+        matches = [
+            (session_id, item)
+            for session_id, item in entries
+            if needle in str(item.get("title") or "").lower() or needle in str(item.get("url") or "").lower()
+        ]
+        if not matches:
+            raise RuntimeError(f'no attached page target matched selector "{wanted}"')
+        if len(matches) > 1:
+            raise RuntimeError(f'ambiguous attached page selector "{wanted}" matched {len(matches)} tabs')
+        return matches[0][0], matches[0][1], "selector-match"
+
+    async def refresh_target_from_browser(self, target_id: str) -> Optional[dict]:
+        targets_payload = await self.fetch_browser_http_json("/json/list")
+        for item in targets_payload:
+            if not isinstance(item, dict):
+                continue
+            if str(item.get("id") or item.get("targetId") or "") != target_id:
+                continue
+            session_id = self.target_id_to_session.get(target_id)
+            if not session_id:
+                return None
+            entry = self.targets_by_session.get(session_id)
+            if not entry:
+                return None
+            entry["title"] = str(item.get("title") or item.get("url") or "")
+            entry["url"] = str(item.get("url") or "")
+            entry["type"] = str(item.get("type") or entry.get("type") or "page")
+            return entry
+        return None
+
+    async def wait_for_target_state(self, target_id: str, expected_url_prefix: str = "", timeout: float = 8.0) -> Optional[dict]:
+        deadline = time.monotonic() + timeout
+        last_entry = None
+        while time.monotonic() < deadline:
+            refreshed = await self.refresh_target_from_browser(target_id)
+            if refreshed:
+                last_entry = refreshed
+                if not expected_url_prefix or str(refreshed.get("url") or "").startswith(expected_url_prefix):
+                    return refreshed
+            await asyncio.sleep(0.25)
+        return last_entry
+
+    async def open_new_tab(self, url: str) -> dict:
+        create_result = await self.browser_upstream_command("Target.createTarget", {"url": url})
+        target_id = str(create_result.get("targetId") or "")
+        if not target_id:
+            raise RuntimeError("Target.createTarget returned no targetId")
+
+        attach_result = await self.browser_upstream_command(
+            "Target.attachToTarget",
+            {"targetId": target_id, "flatten": True},
+        )
+        session_id = str(attach_result.get("sessionId") or "")
+        if not session_id:
+            raise RuntimeError("Target.attachToTarget returned no sessionId for new target")
+
+        entry = self.register_target(
+            session_id,
+            {
+                "targetId": target_id,
+                "title": url,
+                "url": url,
+                "type": "page",
+            },
+        )
+        refreshed = await self.wait_for_target_state(target_id, expected_url_prefix=url)
+        if refreshed:
+            entry = refreshed
+        return {
+            "ok": True,
+            "action": "open",
+            "targetMode": "new-tab",
+            "requestedUrl": url,
+            "sessionId": session_id,
+            "targetId": target_id,
+            "title": str(entry.get("title") or ""),
+            "url": str(entry.get("url") or ""),
+            "attached": True,
+        }
+
+    async def navigate_attached_target(self, url: str, selector: str = "") -> dict:
+        session_id, entry, target_mode = self.resolve_attached_target(selector)
+        target_id = str(entry.get("targetId") or "")
+        await self.browser_upstream_command("Page.navigate", {"url": url}, session_id=session_id)
+        entry["url"] = url
+        refreshed = await self.wait_for_target_state(target_id, expected_url_prefix=url)
+        if refreshed:
+            entry = refreshed
+        return {
+            "ok": True,
+            "action": "navigate",
+            "targetMode": target_mode,
+            "targetSelector": selector,
+            "requestedUrl": url,
+            "sessionId": session_id,
+            "targetId": target_id,
+            "title": str(entry.get("title") or ""),
+            "url": str(entry.get("url") or ""),
+            "attached": True,
+        }
+
+    async def navigate(self, url: str, selector: str = "", new_tab: bool = False) -> dict:
+        parsed = urlsplit(url)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise RuntimeError("navigate requires a full http:// or https:// URL")
+        await self.ensure_browser_upstream()
+        if new_tab:
+            return await self.open_new_tab(url)
+        return await self.navigate_attached_target(url, selector=selector)
 
     async def route_extension_message(self, raw: str) -> None:
         try:
@@ -719,6 +862,31 @@ async def handle_client(state: RelayState, reader: asyncio.StreamReader, writer:
         if path == "/json/list":
             await write_json(writer, state.list_payload())
             return
+        if path == "/json/new":
+            raw_query = raw_path.split("?", 1)[1] if "?" in raw_path else ""
+            navigate_url = ""
+            if raw_query and "=" not in raw_query:
+                navigate_url = unquote(raw_query)
+            if not navigate_url:
+                query = parse_qs(raw_query, keep_blank_values=True)
+                navigate_url = (query.get("url") or [""])[0]
+            try:
+                payload = await state.navigate(navigate_url, new_tab=True)
+                await write_json(
+                    writer,
+                    {
+                        "description": "",
+                        "devtoolsFrontendUrl": "",
+                        "id": payload["targetId"],
+                        "title": payload["title"],
+                        "type": "page",
+                        "url": payload["url"],
+                        "webSocketDebuggerUrl": state.websocket_url("page", payload["sessionId"]),
+                    },
+                )
+            except Exception as exc:
+                await write_json(writer, {"ok": False, "error": str(exc), "url": navigate_url, "browser_cdp_url": BROWSER_CDP_URL})
+            return
         if path == "/admin/attach":
             query = parse_qs(raw_path.split("?", 1)[1] if "?" in raw_path else "", keep_blank_values=True)
             url_prefix = (query.get("url_prefix") or [""])[0]
@@ -727,6 +895,27 @@ async def handle_client(state: RelayState, reader: asyncio.StreamReader, writer:
                 await write_json(writer, payload)
             except Exception as exc:
                 await write_json(writer, {"ok": False, "error": str(exc), "url_prefix": url_prefix, "browser_cdp_url": BROWSER_CDP_URL})
+            return
+        if path == "/admin/navigate":
+            query = parse_qs(raw_path.split("?", 1)[1] if "?" in raw_path else "", keep_blank_values=True)
+            navigate_url = (query.get("url") or [""])[0]
+            selector = (query.get("selector") or [""])[0]
+            new_tab = (query.get("new_tab") or ["0"])[0].lower() in {"1", "true", "yes", "on"}
+            try:
+                payload = await state.navigate(navigate_url, selector=selector, new_tab=new_tab)
+                await write_json(writer, payload)
+            except Exception as exc:
+                await write_json(
+                    writer,
+                    {
+                        "ok": False,
+                        "error": str(exc),
+                        "url": navigate_url,
+                        "selector": selector,
+                        "new_tab": new_tab,
+                        "browser_cdp_url": BROWSER_CDP_URL,
+                    },
+                )
             return
         if path == "/":
             if method.upper() == "HEAD":
