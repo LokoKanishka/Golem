@@ -232,6 +232,40 @@ class TaskPanelHandler(BaseHTTPRequestHandler):
             if body.get("source"):
                 args.extend(["--source", body["source"]])
             expected_status = HTTPStatus.OK
+        elif len(parts) == 3 and parts[0] == "tasks" and parts[2] == "host-expectation":
+            task_id = unquote(parts[1])
+            args = [MUTATE_SCRIPT, "set-host-expectation", task_id]
+            if body.get("target_kind"):
+                args.extend(["--target-kind", body["target_kind"]])
+            if body.get("surface_category"):
+                args.extend(["--surface-category", body["surface_category"]])
+            if body.get("min_surface_confidence"):
+                args.extend(["--min-surface-confidence", body["min_surface_confidence"]])
+            if body.get("require_summary"):
+                args.append("--require-summary")
+            if "min_artifact_count" in body and body.get("min_artifact_count") is not None:
+                args.extend(["--min-artifact-count", str(body["min_artifact_count"])])
+            if body.get("require_structured_fields"):
+                args.append("--require-structured-fields")
+            if body.get("note"):
+                args.extend(["--note", body["note"]])
+            if body.get("actor"):
+                args.extend(["--actor", body["actor"]])
+            expected_status = HTTPStatus.OK
+        elif len(parts) == 4 and parts[0] == "tasks" and parts[2] == "host-verification" and parts[3] == "refresh":
+            task_id = unquote(parts[1])
+            args = [MUTATE_SCRIPT, "refresh-host-verification", task_id]
+            if body.get("source"):
+                args.extend(["--source", body["source"]])
+            if body.get("refresh_host"):
+                args.extend(["--refresh-host", body["refresh_host"]])
+            if body.get("title"):
+                args.extend(["--title", body["title"]])
+            if body.get("window_id"):
+                args.extend(["--window-id", str(body["window_id"])])
+            if body.get("actor"):
+                args.extend(["--actor", body["actor"]])
+            expected_status = HTTPStatus.OK
         else:
             self.send_json(
                 HTTPStatus.NOT_FOUND,

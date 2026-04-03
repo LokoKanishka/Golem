@@ -124,6 +124,23 @@ update_status, update_payload = request(
         "note": "panel http service update note",
     },
 )
+host_expect_status, host_expect_payload = request(
+    "POST",
+    "/tasks/" + urllib.parse.quote(task_id) + "/host-expectation",
+    {
+        "target_kind": "active-window",
+        "require_summary": True,
+        "min_artifact_count": 1,
+        "note": "panel http service host expectation note",
+    },
+)
+host_refresh_status, host_refresh_payload = request(
+    "POST",
+    "/tasks/" + urllib.parse.quote(task_id) + "/host-verification/refresh",
+    {
+        "actor": "panel-http-service",
+    },
+)
 close_status, close_payload = request(
     "POST",
     "/tasks/" + urllib.parse.quote(task_id) + "/close",
@@ -139,6 +156,8 @@ assert summary_status == 200, summary_status
 assert show_status == 200, show_status
 assert create_status == 201, create_status
 assert update_status == 200, update_status
+assert host_expect_status == 200, host_expect_status
+assert host_refresh_status == 200, host_refresh_status
 assert close_status == 200, close_status
 
 assert list_payload["meta"]["source_of_truth"] == "tasks/*.json"
@@ -146,12 +165,17 @@ assert summary_payload["inventory"]["total"] >= 1000
 assert show_payload["task"]["id"] == first_id
 assert create_payload["task"]["status"] == "todo"
 assert update_payload["task"]["status"] == "running"
+assert host_expect_payload["task"]["host_expectation"]["target_kind"] == "active-window"
+assert host_expect_payload["task"]["host_verification"]["status"] == "insufficient_evidence"
+assert host_refresh_payload["task"]["host_verification"]["status"] == "insufficient_evidence"
 assert close_payload["task"]["status"] == "done"
 
 print("SMOKE_TASK_PANEL_HTTP_SERVICE_HTTP_OK")
 print(f"TASK_PANEL_HTTP_SERVICE_FIRST_ID {first_id}")
 print(f"TASK_PANEL_HTTP_SERVICE_CREATED_ID {task_id}")
 print("TASK_PANEL_HTTP_SERVICE_SUMMARY " + json.dumps(summary_payload["inventory"], ensure_ascii=True))
+print("TASK_PANEL_HTTP_SERVICE_HOST_EXPECT " + json.dumps({"status": host_expect_payload["task"]["host_verification"]["status"], "target_kind": host_expect_payload["task"]["host_expectation"]["target_kind"]}, ensure_ascii=True))
+print("TASK_PANEL_HTTP_SERVICE_HOST_REFRESH " + json.dumps({"status": host_refresh_payload["task"]["host_verification"]["status"], "reason": host_refresh_payload["task"]["host_verification"]["reason"]}, ensure_ascii=True))
 print("TASK_PANEL_HTTP_SERVICE_CLOSE " + json.dumps({"status": close_payload["task"]["status"], "closure_note": close_payload["task"]["closure_note"]}, ensure_ascii=True))
 PY
 )"

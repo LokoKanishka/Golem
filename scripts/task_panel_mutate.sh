@@ -10,6 +10,8 @@ Usage:
 ./scripts/task_panel_mutate.sh create --title <title> --objective <objective> [--type <task_type>] [--owner <owner>] [--source <panel|whatsapp|operator|script|worker|scheduled_process>] [--accept <criterion>] [--canonical-session <session>] [--origin <origin>]
 ./scripts/task_panel_mutate.sh update <task-id|path> [--status <status>] [--owner <owner>] [--title <title>] [--objective <objective>] [--source <panel|whatsapp|operator|script|worker|scheduled_process>] [--append-accept <criterion>] [--note <note>] [--actor <actor>]
 ./scripts/task_panel_mutate.sh close <task-id|path> --status <done|failed|blocked|canceled> --note <note> [--actor <actor>] [--owner <owner>] [--source <panel|whatsapp|operator|script|worker|scheduled_process>]
+./scripts/task_panel_mutate.sh set-host-expectation <task-id|path> [--target-kind <kind>] [--surface-category <category>] [--min-surface-confidence <uncertain|weak|moderate|strong>] [--require-summary] [--min-artifact-count <n>] [--require-structured-fields] [--note <note>] [--actor <actor>]
+./scripts/task_panel_mutate.sh refresh-host-verification <task-id|path> [--source <describe|perceive>] [--refresh-host <desktop|active-window|window>] [--title <substring>] [--window-id <id>] [--actor <actor>]
 USAGE
   exit 1
 }
@@ -30,6 +32,16 @@ STATUS=""
 NOTE=""
 ACTOR=""
 TARGET=""
+HOST_TARGET_KIND=""
+HOST_SURFACE_CATEGORY=""
+HOST_MIN_SURFACE_CONFIDENCE=""
+HOST_REQUIRE_SUMMARY=0
+HOST_MIN_ARTIFACT_COUNT=""
+HOST_REQUIRE_STRUCTURED_FIELDS=0
+HOST_SOURCE_KIND=""
+HOST_REFRESH_TARGET=""
+WINDOW_TITLE=""
+WINDOW_ID=""
 declare -a ACCEPTANCE=()
 declare -a APPEND_ACCEPT=()
 
@@ -45,12 +57,18 @@ case "$COMMAND" in
   close)
     ACTOR="panel"
     ;;
+  set-host-expectation)
+    ACTOR="panel"
+    ;;
+  refresh-host-verification)
+    ACTOR="panel"
+    ;;
   *)
     usage
     ;;
 esac
 
-if [[ "$COMMAND" == "update" || "$COMMAND" == "close" ]]; then
+if [[ "$COMMAND" == "update" || "$COMMAND" == "close" || "$COMMAND" == "set-host-expectation" || "$COMMAND" == "refresh-host-verification" ]]; then
   [[ $# -ge 1 ]] || usage
   TARGET="$1"
   shift
@@ -60,7 +78,11 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --title)
       [[ $# -ge 2 ]] || usage
-      TITLE="$2"
+      if [[ "$COMMAND" == "refresh-host-verification" ]]; then
+        WINDOW_TITLE="$2"
+      else
+        TITLE="$2"
+      fi
       shift 2
       ;;
     --objective)
@@ -80,7 +102,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     --source)
       [[ $# -ge 2 ]] || usage
-      SOURCE_CHANNEL="$2"
+      if [[ "$COMMAND" == "refresh-host-verification" ]]; then
+        HOST_SOURCE_KIND="$2"
+      else
+        SOURCE_CHANNEL="$2"
+      fi
       shift 2
       ;;
     --accept)
@@ -116,6 +142,49 @@ while [[ $# -gt 0 ]]; do
     --actor)
       [[ $# -ge 2 ]] || usage
       ACTOR="$2"
+      shift 2
+      ;;
+    --target-kind)
+      [[ $# -ge 2 ]] || usage
+      HOST_TARGET_KIND="$2"
+      shift 2
+      ;;
+    --surface-category)
+      [[ $# -ge 2 ]] || usage
+      HOST_SURFACE_CATEGORY="$2"
+      shift 2
+      ;;
+    --min-surface-confidence)
+      [[ $# -ge 2 ]] || usage
+      HOST_MIN_SURFACE_CONFIDENCE="$2"
+      shift 2
+      ;;
+    --require-summary)
+      HOST_REQUIRE_SUMMARY=1
+      shift
+      ;;
+    --min-artifact-count)
+      [[ $# -ge 2 ]] || usage
+      HOST_MIN_ARTIFACT_COUNT="$2"
+      shift 2
+      ;;
+    --require-structured-fields)
+      HOST_REQUIRE_STRUCTURED_FIELDS=1
+      shift
+      ;;
+    --refresh-host)
+      [[ $# -ge 2 ]] || usage
+      HOST_REFRESH_TARGET="$2"
+      shift 2
+      ;;
+    --window-id)
+      [[ $# -ge 2 ]] || usage
+      WINDOW_ID="$2"
+      shift 2
+      ;;
+    --source-kind)
+      [[ $# -ge 2 ]] || usage
+      HOST_SOURCE_KIND="$2"
       shift 2
       ;;
     *)
@@ -261,6 +330,75 @@ if [[ "$COMMAND" == "close" ]]; then
     exit 1
   }
   emit_result "close" "$(printf '%q ' "${close_cmd[@]}")" "$result_line" "$task_id"
+  exit 0
+fi
+
+if [[ "$COMMAND" == "set-host-expectation" ]]; then
+  [[ -n "$TARGET" ]] || usage
+  declare -a host_expect_cmd=("$SCRIPT_DIR/task_set_host_expectation.sh" "$TARGET")
+  if [[ -n "$HOST_TARGET_KIND" ]]; then
+    host_expect_cmd+=(--target-kind "$HOST_TARGET_KIND")
+  fi
+  if [[ -n "$HOST_SURFACE_CATEGORY" ]]; then
+    host_expect_cmd+=(--surface-category "$HOST_SURFACE_CATEGORY")
+  fi
+  if [[ -n "$HOST_MIN_SURFACE_CONFIDENCE" ]]; then
+    host_expect_cmd+=(--min-surface-confidence "$HOST_MIN_SURFACE_CONFIDENCE")
+  fi
+  if [[ "$HOST_REQUIRE_SUMMARY" -eq 1 ]]; then
+    host_expect_cmd+=(--require-summary)
+  fi
+  if [[ -n "$HOST_MIN_ARTIFACT_COUNT" ]]; then
+    host_expect_cmd+=(--min-artifact-count "$HOST_MIN_ARTIFACT_COUNT")
+  fi
+  if [[ "$HOST_REQUIRE_STRUCTURED_FIELDS" -eq 1 ]]; then
+    host_expect_cmd+=(--require-structured-fields)
+  fi
+  if [[ -n "$NOTE" ]]; then
+    host_expect_cmd+=(--note "$NOTE")
+  fi
+  if [[ -n "$ACTOR" ]]; then
+    host_expect_cmd+=(--actor "$ACTOR")
+  fi
+
+  host_expect_output="$("${host_expect_cmd[@]}")"
+  result_line="$(printf '%s\n' "$host_expect_output" | awk '/^TASK_HOST_EXPECTATION_SET / {print; exit}')"
+  task_id="$(printf '%s\n' "$result_line" | awk '{print $2}')"
+  [[ -n "$task_id" ]] || {
+    echo "Failed to extract host expectation task id." >&2
+    exit 1
+  }
+  emit_result "set-host-expectation" "$(printf '%q ' "${host_expect_cmd[@]}")" "$result_line" "$task_id"
+  exit 0
+fi
+
+if [[ "$COMMAND" == "refresh-host-verification" ]]; then
+  [[ -n "$TARGET" ]] || usage
+  declare -a host_refresh_cmd=("$SCRIPT_DIR/task_refresh_host_verification.sh" "$TARGET")
+  if [[ -n "$HOST_SOURCE_KIND" ]]; then
+    host_refresh_cmd+=(--source "$HOST_SOURCE_KIND")
+  fi
+  if [[ -n "$HOST_REFRESH_TARGET" ]]; then
+    host_refresh_cmd+=(--refresh-host "$HOST_REFRESH_TARGET")
+  fi
+  if [[ -n "$WINDOW_TITLE" ]]; then
+    host_refresh_cmd+=(--title "$WINDOW_TITLE")
+  fi
+  if [[ -n "$WINDOW_ID" ]]; then
+    host_refresh_cmd+=(--window-id "$WINDOW_ID")
+  fi
+  if [[ -n "$ACTOR" ]]; then
+    host_refresh_cmd+=(--actor "$ACTOR")
+  fi
+
+  host_refresh_output="$("${host_refresh_cmd[@]}")"
+  result_line="$(printf '%s\n' "$host_refresh_output" | awk '/^TASK_HOST_VERIFICATION_REFRESHED / {print; exit}')"
+  task_id="$(printf '%s\n' "$result_line" | awk '{print $2}')"
+  [[ -n "$task_id" ]] || {
+    echo "Failed to extract host verification task id." >&2
+    exit 1
+  }
+  emit_result "refresh-host-verification" "$(printf '%q ' "${host_refresh_cmd[@]}")" "$result_line" "$task_id"
   exit 0
 fi
 

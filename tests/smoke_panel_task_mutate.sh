@@ -9,6 +9,8 @@ tmpdir="$(mktemp -d)"
 create_out="$tmpdir/create.json"
 update_out="$tmpdir/update.json"
 close_out="$tmpdir/close.json"
+host_expect_out="$tmpdir/host-expect.json"
+host_refresh_out="$tmpdir/host-refresh.json"
 task_id=""
 
 cleanup() {
@@ -52,21 +54,34 @@ PY
   --note "panel update applied" \
   >"$update_out"
 
+./scripts/task_panel_mutate.sh set-host-expectation "$task_id" \
+  --target-kind active-window \
+  --require-summary \
+  --min-artifact-count 1 \
+  --note "panel host expectation applied" \
+  >"$host_expect_out"
+
+./scripts/task_panel_mutate.sh refresh-host-verification "$task_id" \
+  --actor panel \
+  >"$host_refresh_out"
+
 ./scripts/task_panel_mutate.sh close "$task_id" \
   --status done \
   --note "panel close applied" \
   --owner panel-operator \
   >"$close_out"
 
-python3 - "$create_out" "$update_out" "$close_out" "$TASKS_DIR/$task_id.json" <<'PY'
+python3 - "$create_out" "$update_out" "$host_expect_out" "$host_refresh_out" "$close_out" "$TASKS_DIR/$task_id.json" <<'PY'
 import json
 import pathlib
 import sys
 
 create_payload = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
 update_payload = json.loads(pathlib.Path(sys.argv[2]).read_text(encoding="utf-8"))
-close_payload = json.loads(pathlib.Path(sys.argv[3]).read_text(encoding="utf-8"))
-task = json.loads(pathlib.Path(sys.argv[4]).read_text(encoding="utf-8"))
+host_expect_payload = json.loads(pathlib.Path(sys.argv[3]).read_text(encoding="utf-8"))
+host_refresh_payload = json.loads(pathlib.Path(sys.argv[4]).read_text(encoding="utf-8"))
+close_payload = json.loads(pathlib.Path(sys.argv[5]).read_text(encoding="utf-8"))
+task = json.loads(pathlib.Path(sys.argv[6]).read_text(encoding="utf-8"))
 
 assert create_payload["meta"]["source_of_truth"] == "tasks/*.json"
 assert create_payload["meta"]["canonical_only"] is True
@@ -83,6 +98,18 @@ assert update_payload["task"]["title"] == "Smoke panel task mutate updated", upd
 assert update_payload["task"]["objective"] == "Smoke panel task mutate updated objective", update_payload["task"]
 assert "panel mutate smoke update" in update_payload["task"]["acceptance_criteria"], update_payload["task"]
 
+assert host_expect_payload["meta"]["source_of_truth"] == "tasks/*.json"
+assert "task_set_host_expectation.sh" in host_expect_payload["meta"]["canonical_script_command"]
+assert host_expect_payload["task"]["host_expectation"]["present"] is True, host_expect_payload["task"]
+assert host_expect_payload["task"]["host_expectation"]["target_kind"] == "active-window", host_expect_payload["task"]
+assert host_expect_payload["task"]["host_verification"]["status"] == "insufficient_evidence", host_expect_payload["task"]
+
+assert host_refresh_payload["meta"]["source_of_truth"] == "tasks/*.json"
+assert "task_refresh_host_verification.sh" in host_refresh_payload["meta"]["canonical_script_command"]
+assert host_refresh_payload["task"]["host_verification"]["present"] is True, host_refresh_payload["task"]
+assert host_refresh_payload["task"]["host_verification"]["status"] == "insufficient_evidence", host_refresh_payload["task"]
+assert "no host evidence attached" in host_refresh_payload["task"]["host_verification"]["reason"], host_refresh_payload["task"]
+
 assert close_payload["meta"]["source_of_truth"] == "tasks/*.json"
 assert "task_close.sh" in close_payload["meta"]["canonical_script_command"]
 assert close_payload["task"]["status"] == "done", close_payload["task"]
@@ -92,13 +119,17 @@ assert task["status"] == "done", task["status"]
 assert task["source_channel"] == "panel", task["source_channel"]
 assert task["owner"] == "panel-operator", task["owner"]
 assert task["closure_note"] == "panel close applied", task["closure_note"]
-assert task["notes"][-2:] == ["panel update applied", "panel close applied"], task["notes"]
+assert task["host_expectation"]["target_kind"] == "active-window", task["host_expectation"]
+assert task["host_verification"]["status"] == "insufficient_evidence", task["host_verification"]
+assert task["notes"][-3:] == ["panel update applied", "panel host expectation applied", "panel close applied"], task["notes"]
 assert task["acceptance_criteria"][-1] == "panel mutate smoke update", task["acceptance_criteria"]
 assert task["history"][0]["action"] == "created", task["history"][0]
-assert task["history"][-2]["action"] == "status_changed", task["history"][-2]
+assert task["history"][-3]["action"] == "host_expectation_set", task["history"][-3]
+assert task["history"][-2]["action"] == "host_expectation_evaluated", task["history"][-2]
 assert task["history"][-1]["action"] == "closed_done", task["history"][-1]
 
 print("SMOKE_PANEL_TASK_MUTATE_OK")
 print(f"PANEL_TASK_MUTATE_ID {task['id']}")
 print(f"PANEL_TASK_MUTATE_FINAL_STATUS {task['status']}")
+print(f"PANEL_TASK_MUTATE_HOST_VERIFICATION {task['host_verification']['status']}")
 PY

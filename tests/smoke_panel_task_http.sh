@@ -101,6 +101,23 @@ update_status, update_payload = request(
         "note": "panel http update note",
     },
 )
+host_expect_status, host_expect_payload = request(
+    "POST",
+    "/tasks/" + urllib.parse.quote(task_id) + "/host-expectation",
+    {
+        "target_kind": "active-window",
+        "require_summary": True,
+        "min_artifact_count": 1,
+        "note": "panel http host expectation note",
+    },
+)
+host_refresh_status, host_refresh_payload = request(
+    "POST",
+    "/tasks/" + urllib.parse.quote(task_id) + "/host-verification/refresh",
+    {
+        "actor": "panel-http",
+    },
+)
 close_status, close_payload = request(
     "POST",
     "/tasks/" + urllib.parse.quote(task_id) + "/close",
@@ -116,6 +133,8 @@ assert summary_status == 200, summary_status
 assert show_status == 200, show_status
 assert create_status == 201, create_status
 assert update_status == 200, update_status
+assert host_expect_status == 200, host_expect_status
+assert host_refresh_status == 200, host_refresh_status
 assert close_status == 200, close_status
 
 assert list_payload["meta"]["source_of_truth"] == "tasks/*.json"
@@ -130,6 +149,16 @@ assert update_payload["task"]["status"] == "running"
 assert update_payload["task"]["owner"] == "panel-http"
 assert "task_update.sh" in update_payload["meta"]["canonical_script_command"]
 
+assert host_expect_payload["task"]["host_expectation"]["present"] is True
+assert host_expect_payload["task"]["host_expectation"]["target_kind"] == "active-window"
+assert host_expect_payload["task"]["host_verification"]["status"] == "insufficient_evidence"
+assert "task_set_host_expectation.sh" in host_expect_payload["meta"]["canonical_script_command"]
+
+assert host_refresh_payload["task"]["host_verification"]["present"] is True
+assert host_refresh_payload["task"]["host_verification"]["status"] == "insufficient_evidence"
+assert "no host evidence attached" in host_refresh_payload["task"]["host_verification"]["reason"]
+assert "task_refresh_host_verification.sh" in host_refresh_payload["meta"]["canonical_script_command"]
+
 assert close_payload["task"]["status"] == "done"
 assert close_payload["task"]["closure_note"] == "panel http close note"
 assert "task_close.sh" in close_payload["meta"]["canonical_script_command"]
@@ -141,6 +170,8 @@ print("PANEL_HTTP_LIST " + json.dumps(list_payload["meta"], ensure_ascii=True))
 print("PANEL_HTTP_SUMMARY " + json.dumps(summary_payload["inventory"], ensure_ascii=True))
 print("PANEL_HTTP_CREATE " + json.dumps({"status": create_payload["task"]["status"], "source_channel": create_payload["task"]["source_channel"]}, ensure_ascii=True))
 print("PANEL_HTTP_UPDATE " + json.dumps({"status": update_payload["task"]["status"], "owner": update_payload["task"]["owner"]}, ensure_ascii=True))
+print("PANEL_HTTP_HOST_EXPECT " + json.dumps({"status": host_expect_payload["task"]["host_verification"]["status"], "target_kind": host_expect_payload["task"]["host_expectation"]["target_kind"]}, ensure_ascii=True))
+print("PANEL_HTTP_HOST_REFRESH " + json.dumps({"status": host_refresh_payload["task"]["host_verification"]["status"], "reason": host_refresh_payload["task"]["host_verification"]["reason"]}, ensure_ascii=True))
 print("PANEL_HTTP_CLOSE " + json.dumps({"status": close_payload["task"]["status"], "closure_note": close_payload["task"]["closure_note"]}, ensure_ascii=True))
 PY
 )"
