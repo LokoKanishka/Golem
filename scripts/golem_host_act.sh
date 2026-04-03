@@ -75,26 +75,57 @@ import time
 title = sys.argv[1]
 timeout = float(sys.argv[2])
 
-deadline = time.time() + timeout
-matches = []
-while time.time() < deadline:
-    result = subprocess.run(["wmctrl", "-lp"], text=True, capture_output=True, check=True)
-    matches = []
+def collect_wmctrl_matches(title_value):
+    result = subprocess.run(["wmctrl", "-lp"], text=True, capture_output=True, check=False)
+    matches_local = []
     for line in result.stdout.splitlines():
         parts = line.split(None, 4)
         if len(parts) < 5:
             continue
         window_id, desktop, pid, host, window_title = parts
-        if title in window_title:
-            matches.append(
+        if title_value in window_title:
+            matches_local.append(
                 {
                     "window_id": window_id,
                     "desktop": desktop,
                     "pid": pid,
                     "host": host,
                     "title": window_title,
+                    "source": "wmctrl",
                 }
             )
+    return matches_local
+
+def collect_xdotool_matches(title_value):
+    search = subprocess.run(["xdotool", "search", "--name", title_value], text=True, capture_output=True, check=False)
+    matches_local = []
+    for raw_window_id in search.stdout.splitlines():
+        window_id = raw_window_id.strip()
+        if not window_id:
+            continue
+        name_result = subprocess.run(["xdotool", "getwindowname", window_id], text=True, capture_output=True, check=False)
+        window_title = name_result.stdout.strip()
+        if title_value not in window_title:
+            continue
+        pid_result = subprocess.run(["xdotool", "getwindowpid", window_id], text=True, capture_output=True, check=False)
+        matches_local.append(
+            {
+                "window_id": window_id,
+                "desktop": "",
+                "pid": pid_result.stdout.strip(),
+                "host": "",
+                "title": window_title,
+                "source": "xdotool",
+            }
+        )
+    return matches_local
+
+deadline = time.time() + timeout
+matches = []
+while time.time() < deadline:
+    matches = collect_wmctrl_matches(title)
+    if not matches:
+        matches = collect_xdotool_matches(title)
     if matches:
         print(json.dumps(matches[0], ensure_ascii=True))
         sys.exit(0)
@@ -254,7 +285,7 @@ PY
       ;;
     wait-window)
       local title="" timeout="10" match_json payload_json
-      golem_host_capabilities_require_tools wmctrl python3
+      golem_host_capabilities_require_tools wmctrl xdotool python3
       while [ "$#" -gt 0 ]; do
         case "$1" in
           --title)

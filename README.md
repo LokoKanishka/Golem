@@ -39,6 +39,8 @@ Arquitectura operativa estable:
 - runner de diagnostico operativo persistente del stack local: `scripts/golem_host_diagnose.sh`;
 - gate oficial del carril de host auditado: `scripts/verify_host_lane_enforcement.sh`;
 - entrypoints del carril host auditado: `scripts/golem_host_perceive.sh`, `scripts/golem_host_describe.sh`, `scripts/golem_host_act.sh`, `scripts/golem_host_inspect.sh`;
+- superficies canonicas del browser relay lane: `scripts/golem_browser_relay_status.sh`, `scripts/golem_browser_relay_ctl.sh`, `scripts/golem_browser_relay_tabs.sh`, `scripts/golem_browser_relay_read.sh`, `scripts/golem_browser_relay_attach_tab.sh`;
+- smoke/verify canonico del browser relay lane: `scripts/verify_browser_relay_lane.sh` sobre `tests/smoke_browser_relay_lane.sh`;
 - la migracion legacy ya cerro y el runner parametrizable queda consolidado en `scripts/task_migrate_legacy_batch.sh`;
 - `handoffs/` conserva evidencia durable versionable, mientras que las trazas runtime-only siguen excluidas;
 - `openclaw/` y `state/live/` quedan como estructura documental/evidencia, no como runtime gobernado desde este repo.
